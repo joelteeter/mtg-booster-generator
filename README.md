@@ -7,3 +7,8 @@ Lots of vibing here, the goal was to be able to proxy cards for a draft or seale
 * Replaced the basic land with a random non-basic land from the set
 * Option to seperate boosters with a random dual or fetch land
 * Option to increase the odds of good cards, this removes the chances of a wildcard being common
+* Option to evenly swap for a Guest List card if it exists in the set
+* Will grab a random non-foil version of each card if mulitple versions exist in scryfall
+
+
+Un this on a local server as scryfall will fail on CORS

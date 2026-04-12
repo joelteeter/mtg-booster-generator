@@ -10,7 +10,7 @@
         select, input, button { width: 100%; padding: 12px; margin-top: 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 1rem; box-sizing: border-box; }
         .flex-row { display: flex; gap: 10px; align-items: flex-end; }
         .flex-row > div { flex: 1; }
-        .checkbox-row { display: flex; align-items: center; gap: 10px; margin-top: 20px; cursor: pointer; font-weight: bold; }
+        .checkbox-row { display: flex; align-items: center; gap: 10px; margin-top: 15px; cursor: pointer; font-weight: bold; }
         .checkbox-row input { width: auto; margin: 0; cursor: pointer; }
         .info-box { background: #e7f3ff; border-left: 4px solid #007bff; padding: 15px; margin-top: 20px; border-radius: 4px; font-size: 0.9rem; }
         button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; margin-top: 20px; transition: 0.2s; }
@@ -33,7 +33,7 @@
         </div>
         <div>
             <label for="customSet">Or Type Set Code:</label>
-            <input type="text" id="customSet" placeholder="e.g. lea, dsk, vma">
+            <input type="text" id="customSet" placeholder="e.g. sos, dsk, vma">
         </div>
     </div>
 
@@ -55,11 +55,13 @@
     </div>
 
     <div class="info-box">
-        <strong>✨ Generator Rules:</strong>
-        <ul style="margin: 5px 0; padding-left: 20px;">
-            <li><strong>Foil Mode:</strong> If enabled, slot #13 is always foil. Otherwise, non-foil.</li>
-            <li><strong>Fun Mode:</strong> Multiplier increases Mythic Rare and Special Guest odds. Slots #11 & #13 exclude Commons.</li>
-        </ul>
+        <strong>✨ Version Selection Logic:</strong>
+        <p style="margin:5px 0">Fetches <code>unique:prints</code> to find all art variants. If a card has multiple versions, the console will log which specific Collector Number was chosen.</p>
+    </div>
+
+    <div class="checkbox-row">
+        <input type="checkbox" id="preferGuestList">
+        Prefer Guest List versions (50% swap chance)?
     </div>
 
     <div class="flex-row">
@@ -134,12 +136,14 @@
         }
     }
 
-    // 🛑 YOUR VERIFIED FETCHPOOL 🛑
     async function fetchPool(query) {
         const endpoint = "https://api.scryfall.com/cards/search?q=";
-        const fullUrl = endpoint + encodeURIComponent(query);
         
-        console.log("Fetching from API:", fullUrl);
+        // Append unique:prints to the query string to ensure all art variations are returned
+        const fullQuery = query + " unique:prints";
+        const fullUrl = endpoint + encodeURIComponent(fullQuery);
+        
+        //console.log("Fetching from API:", fullUrl);
 
         const response = await fetch(fullUrl, {
             method: 'GET',
@@ -156,6 +160,32 @@
 
         const data = await response.json();
         return data.data;
+    }
+
+    function groupByName(cards) {
+        const map = new Map();
+        cards.forEach(c => {
+            if (!map.has(c.name)) map.set(c.name, []);
+            map.get(c.name).push(c);
+        });
+        return map;
+    }
+
+    function pickRandomVariant(nameMap) {
+        const names = Array.from(nameMap.keys());
+        if (names.length === 0) return null;
+        const randomName = names[Math.floor(Math.random() * names.length)];
+        const variants = nameMap.get(randomName);
+        
+        const chosen = variants[Math.floor(Math.random() * variants.length)];
+
+        // Log if there was a choice between multiple versions
+        if (variants.length > 1) {
+            const ids = variants.map(v => v.collector_number).join(", ");
+            console.log(`Selection logic: Chose ID ${chosen.collector_number} out of available [${ids}] for card "${randomName}"`);
+        }
+
+        return chosen;
     }
 
     function formatToFullCSV(card, isFoil = false, manualSection = null) {
@@ -176,6 +206,7 @@
         const multiplier = parseInt(document.getElementById('funMultiplier').value);
         const includeBonus = document.getElementById('includeBonus').checked;
         const foilToggle = document.getElementById('foilToggle').checked;
+        const preferGuest = document.getElementById('preferGuestList').checked;
         
         status.textContent = `⏳ Pulling data for ${setCode}...`;
         genBtn.disabled = true;
@@ -183,7 +214,7 @@
         downloadContainer.style.display = "none";
 
         try {
-            const [rares, mythics, uncommons, commons, nonBasicLands, anyRarity, specialGuests] = await Promise.all([
+            const [rares, mythics, uncommons, commons, nonBasicLands, anyRarity, spgAll] = await Promise.all([
                 fetchPool(`s:${setCode} r:rare -is:promo -t:basic`),
                 fetchPool(`s:${setCode} r:mythic -is:promo -t:basic`),
                 fetchPool(`s:${setCode} r:uncommon -is:promo -t:basic`),
@@ -195,31 +226,50 @@
 
             if (rares.length === 0) throw new Error("Set not found.");
 
-            const wildcardPool = multiplier > 1 ? anyRarity.filter(c => c.rarity !== 'common') : anyRarity;
+            const pools = {
+                rares: groupByName(rares),
+                mythics: groupByName(mythics),
+                uncommons: groupByName(uncommons),
+                commons: groupByName(commons),
+                nonBasicLands: groupByName(nonBasicLands),
+                wildcard: groupByName(multiplier > 1 ? anyRarity.filter(c => c.rarity !== 'common') : anyRarity)
+            };
+
+            const spgMap = new Map();
+            spgAll.forEach(c => spgMap.set(c.name, c));
+
+            const processCard = (card) => {
+                if (!card) return null;
+                if (preferGuest && spgMap.has(card.name) && Math.random() < 0.5) {
+                    const guestVersion = spgMap.get(card.name);
+                    console.log(`✨ SWAP: Used Special Guest ID ${guestVersion.collector_number} for "${card.name}"`);
+                    return guestVersion;
+                }
+                return card;
+            };
+
             const header = "section,count,name,mana_cost,type,set,set_code,collector_number,lang,rarity,artist,finish,usd_price,eur_price,tix_price,scryfall_uri,scryfall_id";
 
             for (let i = 1; i <= packCount; i++) {
+                console.log(`--- Generating Pack ${i} ---`);
                 let packCards = [];
-                for(let j=0; j<6; j++) packCards.push({card: commons[Math.floor(Math.random()*commons.length)], foil: false});
+                const getRand = (pool) => processCard(pickRandomVariant(pool));
 
+                for(let j=0; j<6; j++) packCards.push({card: getRand(pools.commons), foil: false});
                 const guestChance = 0.015 * multiplier;
-                if (Math.random() < guestChance && specialGuests.length > 0) {
-                    packCards.push({card: specialGuests[Math.floor(Math.random()*specialGuests.length)], foil: false});
+                if (Math.random() < guestChance && spgAll.length > 0) {
+                    packCards.push({card: spgAll[Math.floor(Math.random()*spgAll.length)], foil: false});
                 } else {
-                    packCards.push({card: commons[Math.floor(Math.random()*commons.length)], foil: false});
+                    packCards.push({card: getRand(pools.commons), foil: false});
                 }
-
-                for(let j=0; j<3; j++) packCards.push({card: uncommons[Math.floor(Math.random()*uncommons.length)], foil: false});
-                packCards.push({card: wildcardPool[Math.floor(Math.random()*wildcardPool.length)], foil: false});
-
+                for(let j=0; j<3; j++) packCards.push({card: getRand(pools.uncommons), foil: false});
+                packCards.push({card: getRand(pools.wildcard), foil: false});
                 const mythicChance = 0.13 * multiplier;
-                const isMythic = Math.random() < mythicChance && mythics.length > 0;
-                packCards.push({card: (isMythic ? mythics : rares)[Math.floor(Math.random() * (isMythic ? mythics : rares).length)], foil: false});
-
-                packCards.push({card: wildcardPool[Math.floor(Math.random()*wildcardPool.length)], foil: foilToggle});
-
-                const landPool = nonBasicLands.length > 0 ? nonBasicLands : uncommons;
-                packCards.push({card: landPool[Math.floor(Math.random()*landPool.length)], foil: false});
+                const pool12 = (Math.random() < mythicChance && Array.from(pools.mythics.keys()).length > 0) ? pools.mythics : pools.rares;
+                packCards.push({card: getRand(pool12), foil: false});
+                packCards.push({card: getRand(pools.wildcard), foil: foilToggle});
+                const landPool = Array.from(pools.nonBasicLands.keys()).length > 0 ? pools.nonBasicLands : pools.uncommons;
+                packCards.push({card: getRand(landPool), foil: false});
 
                 let packRows = [header];
                 packCards.forEach(obj => { if(obj.card) packRows.push(formatToFullCSV(obj.card, obj.foil)); });
@@ -230,18 +280,16 @@
                 }
 
                 const blob = new Blob([packRows.join("\n")], { type: 'text/csv' });
-                const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url;
+                a.href = URL.createObjectURL(blob);
                 a.className = "dl-link";
                 a.download = `${setCode}-Booster-${i}.csv`;
                 a.textContent = `⬇️ Pack ${i}`;
                 downloadList.appendChild(a);
             }
 
-            status.textContent = `✅ Generated ${packCount} Boosters!`;
+            status.textContent = `✅ Successfully generated ${packCount} boosters.`;
             downloadContainer.style.display = "block";
-
         } catch (e) { status.textContent = "❌ Error: " + e.message; }
         finally { genBtn.disabled = false; }
     });
