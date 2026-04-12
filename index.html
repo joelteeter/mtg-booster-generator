@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MTG Play Booster CSV Generator</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 800px; margin: 40px auto; background: #f4f4f9; padding: 20px; line-height: 1.6; }
+        .container { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        label { display: block; margin-top: 15px; font-weight: bold; color: #555; }
+        select, input, button { width: 100%; padding: 12px; margin-top: 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 1rem; box-sizing: border-box; }
+        .flex-row { display: flex; gap: 10px; align-items: flex-end; }
+        .flex-row > div { flex: 1; }
+        .checkbox-row { display: flex; align-items: center; gap: 10px; margin-top: 20px; cursor: pointer; font-weight: bold; }
+        .checkbox-row input { width: auto; margin: 0; cursor: pointer; }
+        .info-box { background: #e7f3ff; border-left: 4px solid #007bff; padding: 15px; margin-top: 20px; border-radius: 4px; font-size: 0.9rem; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; margin-top: 20px; transition: 0.2s; }
+        button:hover { background: #0056b3; }
+        .download-area { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 20px; }
+        .dl-link { background: #28a745; color: white; text-decoration: none; padding: 10px; text-align: center; border-radius: 6px; font-weight: bold; font-size: 0.85rem; border: 1px solid #1e7e34; }
+        .dl-link:hover { background: #218838; }
+        #status { margin-top: 15px; font-weight: bold; text-align: center; color: #007bff; }
+        #downloadContainer { display: none; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📦 Play Booster CSV Generator</h2>
+    
+    <div class="flex-row">
+        <div>
+            <label for="setSelect">Choose Expansion:</label>
+            <select id="setSelect">
+                <option value="dsk">Duskmourn (DSK)</option>
+                <option value="blb">Bloomburrow (BLB)</option>
+                <option value="otj">Outlaws of Thunder Junction (OTJ)</option>
+                <option value="mkm">Murders at Karlov Manor (MKM)</option>
+                <option value="lci">The Lost Caverns of Ixalan (LCI)</option>
+            </select>
+        </div>
+        <div>
+            <label for="customSet">Or Type Set Code:</label>
+            <input type="text" id="customSet" placeholder="e.g. lea, 3ed, vma">
+        </div>
+    </div>
+
+    <div class="flex-row">
+        <div>
+            <label for="packCount">Number of Packs:</label>
+            <input type="number" id="packCount" value="3" min="1" max="100">
+        </div>
+        <div>
+            <label for="funMultiplier">Fun Booster Multiplier:</label>
+            <select id="funMultiplier">
+                <option value="1">x1 (Standard Odds)</option>
+                <option value="2">x2</option>
+                <option value="3">x3</option>
+                <option value="4">x4</option>
+                <option value="5">x5</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="info-box">
+        <strong>✨ Fun Booster Mode:</strong>
+        <ul style="margin: 5px 0; padding-left: 20px;">
+            <li>Multiplier increases Mythic Rare and Special Guest odds.</li>
+            <li>Slots #11 & #13 are upgraded: <strong>No Commons allowed.</strong></li>
+        </ul>
+    </div>
+
+    <label class="checkbox-row">
+        <input type="checkbox" id="includeBonus" checked>
+        Include Random Dual/Fetch Land after pack?
+    </label>
+
+    <button id="genBtn">Generate Boosters</button>
+    
+    <div id="status">Ready</div>
+
+    <div id="downloadContainer">
+        <label>Download Booster CSVs:</label>
+        <div id="downloadList" class="download-area"></div>
+    </div>
+</div>
+
+<script>
+    const genBtn = document.getElementById('genBtn');
+    const status = document.getElementById('status');
+    const downloadContainer = document.getElementById('downloadContainer');
+    const downloadList = document.getElementById('downloadList');
+
+    const bonusPool = [
+        { section: "columna", name: "Plateau", mana_cost: "", type_line: "Land — Mountain Plains", set_name: "30th Anniversary Edition", set: "30a", collector_number: "275", artist: "Drew Tucker", usd: "210.25", eur: "250.57", tix: "2.96", uri: "https://scryfall.com", id: "d5ba61cb-0c57-4a94-91a9-6ce0a27b9db7" },
+        { section: "columna", name: "Scrubland", mana_cost: "", type_line: "Land — Plains Swamp", set_name: "30th Anniversary Edition", set: "30a", collector_number: "277", artist: "Jesper Myrfors", usd: "228.59", eur: "100.0", tix: "3.74", uri: "https://scryfall.com", id: "eb9a95ba-4c64-4547-b497-d06f3b9a397f" },
+        { section: "columna", name: "Underground Sea", mana_cost: "", type_line: "Land — Island Swamp", set_name: "30th Anniversary Edition", set: "30a", collector_number: "281", artist: "Rob Alexander", usd: "316.58", eur: "280.0", tix: "15.04", uri: "https://scryfall.com", id: "cbde3041-fb76-4dc8-9cdf-359ad955fd73" },
+        { section: "columnb", name: "Misty Rainforest", mana_cost: "", type_line: "Land", set_name: "Modern Horizons 2", set: "mh2", collector_number: "477", artist: "Shelly Wan", usd: "32.54", eur: "28.37", tix: "2.09", uri: "https://scryfall.com", id: "23d8e67a-5150-4782-98d1-da2ca79607ad" },
+        { section: "columnb", name: "Windswept Heath", mana_cost: "", type_line: "Land", set_name: "Modern Horizons 3", set: "mh3", collector_number: "466", artist: "Alexander Forssberg", usd: "14.45", eur: "10.3", tix: "1.25", uri: "https://scryfall.com", id: "3de8387d-a707-4c2b-9661-c586b7d0db50" },
+        { section: "columna", name: "Tropical Island", mana_cost: "", type_line: "Land — Forest Island", set_name: "30th Anniversary Edition", set: "30a", collector_number: "279", artist: "Jesper Myrfors", usd: "271.66", eur: "372.53", tix: "11.04", uri: "https://scryfall.com", id: "2d9d4f2e-5a41-410d-b1c3-47e4aca07177" },
+        { section: "columna", name: "Bayou", mana_cost: "", type_line: "Land — Swamp Forest", set_name: "30th Anniversary Edition", set: "30a", collector_number: "274", artist: "Jesper Myrfors", usd: "222.46", eur: "249.98", tix: "5.51", uri: "https://scryfall.com", id: "538dfd90-5215-4aa0-8e10-1e6fd9f717c8" },
+        { section: "columnb", name: "Flooded Strand", mana_cost: "", type_line: "Land", set_name: "Modern Horizons 3", set: "mh3", collector_number: "464", artist: "Alexander Forssberg", usd: "18.35", eur: "16.61", tix: "3.67", uri: "https://scryfall.com", id: "431eca69-ba8c-47c8-a325-22a844f83e80" },
+        { section: "columnb", name: "Wooded Foothills", mana_cost: "", type_line: "Land", set_name: "Modern Horizons 3", set: "mh3", collector_number: "467", artist: "Chris Ostrowski", usd: "20.86", eur: "17.29", tix: "2.46", uri: "https://scryfall.com", id: "32af6676-e780-4ebf-b2d3-0bc3436e527c" },
+        { section: "columnb", name: "Polluted Delta", mana_cost: "", type_line: "Land", set_name: "Modern Horizons 3", set: "mh3", collector_number: "465", artist: "Chris Ostrowski", usd: "23.64", eur: "18.5", tix: "1.95", uri: "https://scryfall.com", id: "797b30b0-bc82-43fd-a842-d5879e2441bd" },
+        { section: "columna", name: "Savannah", mana_cost: "", type_line: "Land — Forest Plains", set_name: "30th Anniversary Edition", set: "30a", collector_number: "276", artist: "Rob Alexander", usd: "183.66", eur: "209.76", tix: "3.69", uri: "https://scryfall.com", id: "3af5afd0-1b5b-4055-9d90-87356090911f" },
+        { section: "columna", name: "Taiga", mana_cost: "", type_line: "Land — Mountain Forest", set_name: "30th Anniversary Edition", set: "30a", collector_number: "278", artist: "Rob Alexander", usd: "260.0", eur: "220.13", tix: "3.56", uri: "https://scryfall.com", id: "e53c3622-1000-4727-9473-bacf20c8d682" },
+        { section: "columnb", name: "Verdant Catacombs", mana_cost: "", type_line: "Land", set_name: "Modern Horizons 2", set: "mh2", collector_number: "479", artist: "Vance Kovacs", usd: "28.94", eur: "24.08", tix: "0.99", uri: "https://scryfall.com", id: "c7057b04-e22f-4e33-9f08-b9fbd2e54bf5" },
+        { section: "columna", name: "Tundra", mana_cost: "", type_line: "Land — Plains Island", set_name: "30th Anniversary Edition", set: "30a", collector_number: "280", artist: "Jesper Myrfors", usd: "237.49", eur: "0.25", tix: "11.96", uri: "https://scryfall.com", id: "79fc39a1-6a9d-4893-a41b-e8d13fb0d108" },
+        { section: "columna", name: "Badlands", mana_cost: "", type_line: "Land — Swamp Mountain", set_name: "30th Anniversary Edition", set: "30a", collector_number: "273", artist: "Rob Alexander", usd: "298.2", eur: "0.02", tix: "4.57", uri: "https://scryfall.com", id: "c5335e87-57e3-4da6-aba0-619628120f47" },
+        { section: "columnb", name: "Arid Mesa", mana_cost: "", type_line: "Land", set_name: "Modern Horizons 2", set: "mh2", collector_number: "475", artist: "Raymond Swanland", usd: "31.7", eur: "28.42", tix: "3.65", uri: "https://scryfall.com", id: "54ced5cf-b51a-4dab-97f7-50fb18e5c463" },
+        { section: "columna", name: "Volcanic Island", mana_cost: "", type_line: "Land — Island Mountain", set_name: "30th Anniversary Edition", set: "30a", collector_number: "282", artist: "Brian Snõddy", usd: "295.29", eur: "527.22", tix: "11.51", uri: "https://scryfall.com", id: "12f74d08-d020-4c89-a1a2-0815b8b65755" },
+        { section: "columnb", name: "Bloodstained Mire", mana_cost: "", type_line: "Land", set_name: "Modern Horizons 3", set: "mh3", collector_number: "463", artist: "Bruce Brenneise", usd: "20.33", eur: "17.65", tix: "2.13", uri: "https://scryfall.com", id: "3de472d0-cca2-4bc3-ab0a-9f79fa6325ce" },
+        { section: "columnb", name: "Scalding Tarn", mana_cost: "", type_line: "Land", set_name: "Modern Horizons 2", set: "mh2", collector_number: "478", artist: "Philip Straub", usd: "34.64", eur: "28.19", tix: "3.07", uri: "https://scryfall.com", id: "229ecfc9-8d6b-4fdb-9001-64dc3e4e7a3f" },
+        { section: "columnb", name: "Marsh Flats", mana_cost: "", type_line: "Land", set_name: "Modern Horizons 2", set: "mh2", collector_number: "476", artist: "Izzy", usd: "28.91", eur: "24.3", tix: "0.91", uri: "https://scryfall.com", id: "4e8397e6-d13a-4996-8fde-b8a9895de287" }
+    ];
+
+    // 🛑 YOUR VERIFIED FETCHPOOL 🛑
+    async function fetchPool(query) {
+        const endpoint = "https://api.scryfall.com/cards/search?q=";
+        const fullUrl = endpoint + encodeURIComponent(query);
+        
+        console.log("Fetching from API:", fullUrl);
+
+        const response = await fetch(fullUrl, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'User-Agent': 'MTGBoosterSim/1.0' 
+            }
+        });
+
+        if (!response.ok) {
+            if (response.status === 404) return []; 
+            throw new Error(`Scryfall API Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.data;
+    }
+
+    function formatToFullCSV(card, manualSection = null) {
+        const section = manualSection || (card.type_line && card.type_line.toLowerCase().includes("land") ? "lands" : "nonlands");
+        return [
+            section, 1, `"${card.name}"`, `"${card.mana_cost || ''}"`, `"${card.type_line || ''}"`,
+            `"${card.set_name || ''}"`, card.set || "", `"${card.collector_number || ''}"`,
+            card.lang || "en", card.rarity || "", `"${card.artist || ''}"`, "nonfoil",
+            card.usd || card.prices?.usd || "", card.eur || card.prices?.eur || "",
+            card.tix || card.prices?.tix || "", card.scryfall_uri || card.uri || "", card.id || ""
+        ].join(",");
+    }
+
+    genBtn.addEventListener('click', async () => {
+        const customCode = document.getElementById('customSet').value.toLowerCase().trim();
+        const setCode = (customCode || document.getElementById('setSelect').value).toUpperCase();
+        const packCount = parseInt(document.getElementById('packCount').value);
+        const multiplier = parseInt(document.getElementById('funMultiplier').value);
+        const includeBonus = document.getElementById('includeBonus').checked;
+        
+        status.textContent = `⏳ Pulling data for ${setCode}...`;
+        genBtn.disabled = true;
+        downloadList.innerHTML = "";
+        downloadContainer.style.display = "none";
+
+        try {
+            const [rares, mythics, uncommons, commons, nonBasicLands, anyRarity, specialGuests] = await Promise.all([
+                fetchPool(`s:${setCode} r:rare -is:promo -t:basic`),
+                fetchPool(`s:${setCode} r:mythic -is:promo -t:basic`),
+                fetchPool(`s:${setCode} r:uncommon -is:promo -t:basic`),
+                fetchPool(`s:${setCode} r:common -is:promo -t:basic`),
+                fetchPool(`s:${setCode} t:land -t:basic -is:promo`),
+                fetchPool(`s:${setCode} -is:promo -t:basic`),
+                fetchPool(`set:spg`)
+            ]);
+
+            if (rares.length === 0) throw new Error("Set not found.");
+
+            // Filter Wildcards for Fun Booster (No Commons)
+            const wildcardPool = multiplier > 1 
+                ? anyRarity.filter(c => c.rarity !== 'common') 
+                : anyRarity;
+
+            const header = "section,count,name,mana_cost,type,set,set_code,collector_number,lang,rarity,artist,finish,usd_price,eur_price,tix_price,scryfall_uri,scryfall_id";
+
+            for (let i = 1; i <= packCount; i++) {
+                let packCards = [];
+                
+                // #1-6: Commons
+                for(let j=0; j<6; j++) packCards.push(commons[Math.floor(Math.random()*commons.length)]);
+
+                // #7: Common vs Special Guest (Standard 1.5% * Multiplier)
+                const guestChance = 0.015 * multiplier;
+                if (Math.random() < guestChance && specialGuests.length > 0) {
+                    packCards.push(specialGuests[Math.floor(Math.random()*specialGuests.length)]);
+                } else {
+                    packCards.push(commons[Math.floor(Math.random()*commons.length)]);
+                }
+
+                // #8-10: 3 Uncommons
+                for(let j=0; j<3; j++) packCards.push(uncommons[Math.floor(Math.random()*uncommons.length)]);
+
+                // #11: Wildcard (No common if multiplier > 1)
+                packCards.push(wildcardPool[Math.floor(Math.random()*wildcardPool.length)]);
+
+                // #12: Rare/Mythic (Standard 13% * Multiplier)
+                const mythicChance = 0.13 * multiplier;
+                const isMythic = Math.random() < mythicChance && mythics.length > 0;
+                packCards.push((isMythic ? mythics : rares)[Math.floor(Math.random() * (isMythic ? mythics : rares).length)]);
+
+                // #13: Wildcard (No common if multiplier > 1)
+                packCards.push(wildcardPool[Math.floor(Math.random()*wildcardPool.length)]);
+
+                // #14: Non-Basic Land
+                const landPool = nonBasicLands.length > 0 ? nonBasicLands : uncommons;
+                packCards.push(landPool[Math.floor(Math.random()*landPool.length)]);
+
+                let packRows = [header];
+                packCards.forEach(c => { if(c) packRows.push(formatToFullCSV(c)); });
+
+                if (includeBonus) {
+                    const bonus = bonusPool[Math.floor(Math.random() * bonusPool.length)];
+                    packRows.push(formatToFullCSV(bonus, bonus.section));
+                }
+
+                const blob = new Blob([packRows.join("\n")], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.className = "dl-link";
+                a.download = `${setCode}-Booster-${i}.csv`;
+                a.textContent = `⬇️ Pack ${i}`;
+                downloadList.appendChild(a);
+            }
+
+            status.textContent = `✅ Generated ${packCount} Boosters!`;
+            downloadContainer.style.display = "block";
+
+        } catch (e) {
+            status.textContent = "❌ Error: " + e.message;
+        } finally { genBtn.disabled = false; }
+    });
+</script>
+
+</body>
+</html>
