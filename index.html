@@ -15,9 +15,8 @@
         .info-box { background: #e7f3ff; border-left: 4px solid #007bff; padding: 15px; margin-top: 20px; border-radius: 4px; font-size: 0.9rem; }
         button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; margin-top: 20px; transition: 0.2s; }
         button:hover { background: #0056b3; }
-        .download-area { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 20px; }
+        .download-area { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-top: 20px; }
         .dl-link { background: #28a745; color: white; text-decoration: none; padding: 10px; text-align: center; border-radius: 6px; font-weight: bold; font-size: 0.85rem; border: 1px solid #1e7e34; }
-        .dl-link:hover { background: #218838; }
         #status { margin-top: 15px; font-weight: bold; text-align: center; color: #007bff; }
         #downloadContainer { display: none; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 20px; }
     </style>
@@ -29,18 +28,12 @@
     
     <div class="flex-row">
         <div>
-            <label for="setSelect">Choose Expansion:</label>
-            <select id="setSelect">
-                <option value="dsk">Duskmourn (DSK)</option>
-                <option value="blb">Bloomburrow (BLB)</option>
-                <option value="otj">Outlaws of Thunder Junction (OTJ)</option>
-                <option value="mkm">Murders at Karlov Manor (MKM)</option>
-                <option value="lci">The Lost Caverns of Ixalan (LCI)</option>
-            </select>
+            <label for="setSelect">Choose Expansion (Live API):</label>
+            <select id="setSelect"><option value="">Loading...</option></select>
         </div>
         <div>
             <label for="customSet">Or Type Set Code:</label>
-            <input type="text" id="customSet" placeholder="e.g. lea, 3ed, vma">
+            <input type="text" id="customSet" placeholder="e.g. lea, dsk, vma">
         </div>
     </div>
 
@@ -62,22 +55,26 @@
     </div>
 
     <div class="info-box">
-        <strong>✨ Fun Booster Mode:</strong>
+        <strong>✨ Generator Rules:</strong>
         <ul style="margin: 5px 0; padding-left: 20px;">
-            <li>Multiplier increases Mythic Rare and Special Guest odds.</li>
-            <li>Slots #11 & #13 are upgraded: <strong>No Commons allowed.</strong></li>
+            <li><strong>Foil Mode:</strong> If enabled, slot #13 is always foil. Otherwise, non-foil.</li>
+            <li><strong>Fun Mode:</strong> Multiplier increases Mythic Rare and Special Guest odds. Slots #11 & #13 exclude Commons.</li>
         </ul>
     </div>
 
-    <label class="checkbox-row">
-        <input type="checkbox" id="includeBonus" checked>
-        Include Random Dual/Fetch Land after pack?
-    </label>
+    <div class="flex-row">
+        <label class="checkbox-row">
+            <input type="checkbox" id="foilToggle">
+            Enable Foil Slot (#13)?
+        </label>
+        <label class="checkbox-row">
+            <input type="checkbox" id="includeBonus" checked>
+            Include Bonus Dual/Fetch?
+        </label>
+    </div>
 
-    <button id="genBtn">Generate Boosters</button>
-    
+    <button id="genBtn">Generate Booster Files</button>
     <div id="status">Ready</div>
-
     <div id="downloadContainer">
         <label>Download Booster CSVs:</label>
         <div id="downloadList" class="download-area"></div>
@@ -89,6 +86,7 @@
     const status = document.getElementById('status');
     const downloadContainer = document.getElementById('downloadContainer');
     const downloadList = document.getElementById('downloadList');
+    const setSelect = document.getElementById('setSelect');
 
     const bonusPool = [
         { section: "columna", name: "Plateau", mana_cost: "", type_line: "Land — Mountain Plains", set_name: "30th Anniversary Edition", set: "30a", collector_number: "275", artist: "Drew Tucker", usd: "210.25", eur: "250.57", tix: "2.96", uri: "https://scryfall.com", id: "d5ba61cb-0c57-4a94-91a9-6ce0a27b9db7" },
@@ -112,6 +110,29 @@
         { section: "columnb", name: "Scalding Tarn", mana_cost: "", type_line: "Land", set_name: "Modern Horizons 2", set: "mh2", collector_number: "478", artist: "Philip Straub", usd: "34.64", eur: "28.19", tix: "3.07", uri: "https://scryfall.com", id: "229ecfc9-8d6b-4fdb-9001-64dc3e4e7a3f" },
         { section: "columnb", name: "Marsh Flats", mana_cost: "", type_line: "Land", set_name: "Modern Horizons 2", set: "mh2", collector_number: "476", artist: "Izzy", usd: "28.91", eur: "24.3", tix: "0.91", uri: "https://scryfall.com", id: "4e8397e6-d13a-4996-8fde-b8a9895de287" }
     ];
+
+    // Initialize set list using the correct API endpoint root
+    async function initSetList() {
+        const root = "https://api.scryfall.com/";
+        try {
+            const response = await fetch(root + "sets", {
+                method: 'GET',
+                headers: { 'Accept': 'application/json', 'User-Agent': 'MTGBoosterSim/1.0' }
+            });
+            const data = await response.json();
+            const allowedTypes = ['expansion', 'core', 'masters', 'draft_innovation'];
+            const filteredSets = data.data
+                .filter(s => allowedTypes.includes(s.set_type) && s.code.length === 3)
+                .sort((a, b) => new Date(b.released_at) - new Date(a.released_at));
+
+            setSelect.innerHTML = filteredSets.map(s => 
+                `<option value="${s.code}">${s.name} (${s.code.toUpperCase()})</option>`
+            ).join('');
+        } catch (e) {
+            setSelect.innerHTML = `<option value="">Error loading sets</option>`;
+            console.error("Set fetch failed:", e);
+        }
+    }
 
     // 🛑 YOUR VERIFIED FETCHPOOL 🛑
     async function fetchPool(query) {
@@ -137,12 +158,12 @@
         return data.data;
     }
 
-    function formatToFullCSV(card, manualSection = null) {
+    function formatToFullCSV(card, isFoil = false, manualSection = null) {
         const section = manualSection || (card.type_line && card.type_line.toLowerCase().includes("land") ? "lands" : "nonlands");
         return [
             section, 1, `"${card.name}"`, `"${card.mana_cost || ''}"`, `"${card.type_line || ''}"`,
             `"${card.set_name || ''}"`, card.set || "", `"${card.collector_number || ''}"`,
-            card.lang || "en", card.rarity || "", `"${card.artist || ''}"`, "nonfoil",
+            card.lang || "en", card.rarity || "", `"${card.artist || ''}"`, isFoil ? "foil" : "nonfoil",
             card.usd || card.prices?.usd || "", card.eur || card.prices?.eur || "",
             card.tix || card.prices?.tix || "", card.scryfall_uri || card.uri || "", card.id || ""
         ].join(",");
@@ -150,10 +171,11 @@
 
     genBtn.addEventListener('click', async () => {
         const customCode = document.getElementById('customSet').value.toLowerCase().trim();
-        const setCode = (customCode || document.getElementById('setSelect').value).toUpperCase();
+        const setCode = (customCode || setSelect.value).toUpperCase();
         const packCount = parseInt(document.getElementById('packCount').value);
         const multiplier = parseInt(document.getElementById('funMultiplier').value);
         const includeBonus = document.getElementById('includeBonus').checked;
+        const foilToggle = document.getElementById('foilToggle').checked;
         
         status.textContent = `⏳ Pulling data for ${setCode}...`;
         genBtn.disabled = true;
@@ -173,51 +195,38 @@
 
             if (rares.length === 0) throw new Error("Set not found.");
 
-            // Filter Wildcards for Fun Booster (No Commons)
-            const wildcardPool = multiplier > 1 
-                ? anyRarity.filter(c => c.rarity !== 'common') 
-                : anyRarity;
-
+            const wildcardPool = multiplier > 1 ? anyRarity.filter(c => c.rarity !== 'common') : anyRarity;
             const header = "section,count,name,mana_cost,type,set,set_code,collector_number,lang,rarity,artist,finish,usd_price,eur_price,tix_price,scryfall_uri,scryfall_id";
 
             for (let i = 1; i <= packCount; i++) {
                 let packCards = [];
-                
-                // #1-6: Commons
-                for(let j=0; j<6; j++) packCards.push(commons[Math.floor(Math.random()*commons.length)]);
+                for(let j=0; j<6; j++) packCards.push({card: commons[Math.floor(Math.random()*commons.length)], foil: false});
 
-                // #7: Common vs Special Guest (Standard 1.5% * Multiplier)
                 const guestChance = 0.015 * multiplier;
                 if (Math.random() < guestChance && specialGuests.length > 0) {
-                    packCards.push(specialGuests[Math.floor(Math.random()*specialGuests.length)]);
+                    packCards.push({card: specialGuests[Math.floor(Math.random()*specialGuests.length)], foil: false});
                 } else {
-                    packCards.push(commons[Math.floor(Math.random()*commons.length)]);
+                    packCards.push({card: commons[Math.floor(Math.random()*commons.length)], foil: false});
                 }
 
-                // #8-10: 3 Uncommons
-                for(let j=0; j<3; j++) packCards.push(uncommons[Math.floor(Math.random()*uncommons.length)]);
+                for(let j=0; j<3; j++) packCards.push({card: uncommons[Math.floor(Math.random()*uncommons.length)], foil: false});
+                packCards.push({card: wildcardPool[Math.floor(Math.random()*wildcardPool.length)], foil: false});
 
-                // #11: Wildcard (No common if multiplier > 1)
-                packCards.push(wildcardPool[Math.floor(Math.random()*wildcardPool.length)]);
-
-                // #12: Rare/Mythic (Standard 13% * Multiplier)
                 const mythicChance = 0.13 * multiplier;
                 const isMythic = Math.random() < mythicChance && mythics.length > 0;
-                packCards.push((isMythic ? mythics : rares)[Math.floor(Math.random() * (isMythic ? mythics : rares).length)]);
+                packCards.push({card: (isMythic ? mythics : rares)[Math.floor(Math.random() * (isMythic ? mythics : rares).length)], foil: false});
 
-                // #13: Wildcard (No common if multiplier > 1)
-                packCards.push(wildcardPool[Math.floor(Math.random()*wildcardPool.length)]);
+                packCards.push({card: wildcardPool[Math.floor(Math.random()*wildcardPool.length)], foil: foilToggle});
 
-                // #14: Non-Basic Land
                 const landPool = nonBasicLands.length > 0 ? nonBasicLands : uncommons;
-                packCards.push(landPool[Math.floor(Math.random()*landPool.length)]);
+                packCards.push({card: landPool[Math.floor(Math.random()*landPool.length)], foil: false});
 
                 let packRows = [header];
-                packCards.forEach(c => { if(c) packRows.push(formatToFullCSV(c)); });
+                packCards.forEach(obj => { if(obj.card) packRows.push(formatToFullCSV(obj.card, obj.foil)); });
 
                 if (includeBonus) {
                     const bonus = bonusPool[Math.floor(Math.random() * bonusPool.length)];
-                    packRows.push(formatToFullCSV(bonus, bonus.section));
+                    packRows.push(formatToFullCSV(bonus, false, bonus.section));
                 }
 
                 const blob = new Blob([packRows.join("\n")], { type: 'text/csv' });
@@ -233,10 +242,11 @@
             status.textContent = `✅ Generated ${packCount} Boosters!`;
             downloadContainer.style.display = "block";
 
-        } catch (e) {
-            status.textContent = "❌ Error: " + e.message;
-        } finally { genBtn.disabled = false; }
+        } catch (e) { status.textContent = "❌ Error: " + e.message; }
+        finally { genBtn.disabled = false; }
     });
+
+    initSetList();
 </script>
 
 </body>
