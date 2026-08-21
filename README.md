@@ -9,6 +9,7 @@ Lots of vibing here, the goal was to be able to proxy cards for a draft or seale
 * Option to increase the odds of good cards, this removes the chances of a wildcard being common
 * Option to evenly swap for a Guest List card if it exists in the set
 * Will grab a random non-foil version of each card if mulitple versions exist in scryfall
+* Option to download all packs concatenated into a single CSV, in pack order (handy for anything other than MTGProxyPrinter, which will group the duplicates and lose the pack boundaries)
 
 
 Un this on a local server as scryfall will fail on CORS

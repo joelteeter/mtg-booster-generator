@@ -17,6 +17,8 @@
         button:hover { background: #0056b3; }
         .download-area { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-top: 20px; }
         .dl-link { background: #28a745; color: white; text-decoration: none; padding: 10px; text-align: center; border-radius: 6px; font-weight: bold; font-size: 0.85rem; border: 1px solid #1e7e34; }
+        .dl-all { display: block; background: #6f42c1; border-color: #59359a; font-size: 0.95rem; margin-bottom: 8px; }
+        .dl-note { font-size: 0.8rem; color: #777; font-weight: normal; margin: 0 0 18px; }
         #status { margin-top: 15px; font-weight: bold; text-align: center; color: #007bff; }
         #downloadContainer { display: none; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 20px; }
     </style>
@@ -79,6 +81,7 @@
     <div id="status">Ready</div>
     <div id="downloadContainer">
         <label>Download Booster CSVs:</label>
+        <div id="combinedArea"></div>
         <div id="downloadList" class="download-area"></div>
     </div>
 </div>
@@ -88,6 +91,7 @@
     const status = document.getElementById('status');
     const downloadContainer = document.getElementById('downloadContainer');
     const downloadList = document.getElementById('downloadList');
+    const combinedArea = document.getElementById('combinedArea');
     const setSelect = document.getElementById('setSelect');
 
     const bonusPool = [
@@ -199,6 +203,16 @@
         ].join(",");
     }
 
+    function makeDownloadLink(filename, text, csvText, extraClass) {
+        const blob = new Blob([csvText], { type: 'text/csv' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.className = "dl-link" + (extraClass ? " " + extraClass : "");
+        a.download = filename;
+        a.textContent = text;
+        return a;
+    }
+
     genBtn.addEventListener('click', async () => {
         const customCode = document.getElementById('customSet').value.toLowerCase().trim();
         const setCode = (customCode || setSelect.value).toUpperCase();
@@ -211,6 +225,7 @@
         status.textContent = `⏳ Pulling data for ${setCode}...`;
         genBtn.disabled = true;
         downloadList.innerHTML = "";
+        combinedArea.innerHTML = "";
         downloadContainer.style.display = "none";
 
         try {
@@ -249,6 +264,7 @@
             };
 
             const header = "section,count,name,mana_cost,type,set,set_code,collector_number,lang,rarity,artist,finish,usd_price,eur_price,tix_price,scryfall_uri,scryfall_id";
+            const allRows = [];
 
             for (let i = 1; i <= packCount; i++) {
                 console.log(`--- Generating Pack ${i} ---`);
@@ -271,7 +287,7 @@
                 const landPool = Array.from(pools.nonBasicLands.keys()).length > 0 ? pools.nonBasicLands : pools.uncommons;
                 packCards.push({card: getRand(landPool), foil: false});
 
-                let packRows = [header];
+                let packRows = [];
                 packCards.forEach(obj => { if(obj.card) packRows.push(formatToFullCSV(obj.card, obj.foil)); });
 
                 if (includeBonus) {
@@ -279,14 +295,25 @@
                     packRows.push(formatToFullCSV(bonus, false, bonus.section));
                 }
 
-                const blob = new Blob([packRows.join("\n")], { type: 'text/csv' });
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.className = "dl-link";
-                a.download = `${setCode}-Booster-${i}.csv`;
-                a.textContent = `⬇️ Pack ${i}`;
-                downloadList.appendChild(a);
+                allRows.push(...packRows);
+
+                downloadList.appendChild(makeDownloadLink(
+                    `${setCode}-Booster-${i}.csv`,
+                    `⬇️ Pack ${i}`,
+                    [header, ...packRows].join("\n")
+                ));
             }
+
+            combinedArea.appendChild(makeDownloadLink(
+                `${setCode}-AllBoosters-${packCount}.csv`,
+                `⬇️ All ${packCount} Packs (Single CSV)`,
+                [header, ...allRows].join("\n"),
+                "dl-all"
+            ));
+            const note = document.createElement('p');
+            note.className = "dl-note";
+            note.textContent = "Packs are concatenated in order. Note: importers such as MTGProxyPrinter group duplicate cards, so the combined file will not preserve pack boundaries — use the per-pack files if that matters.";
+            combinedArea.appendChild(note);
 
             status.textContent = `✅ Successfully generated ${packCount} boosters.`;
             downloadContainer.style.display = "block";
