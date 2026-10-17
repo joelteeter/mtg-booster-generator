@@ -26,6 +26,25 @@
         #downloadContainer { display: none; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 20px; }
         .hidden { display: none !important; }
 
+        /* Pack preview */
+        #previewArea { margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px; }
+        .btn-secondary { background: #fff; color: #007bff; border: 1px solid #007bff; }
+        .btn-secondary:hover { background: #eef3fb; }
+        .preview-nav { display: flex; gap: 8px; align-items: center; margin-top: 15px; }
+        .preview-nav button { width: auto; margin: 0; padding: 10px 16px; }
+        .preview-nav select { margin: 0; flex: 1; }
+        .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-top: 12px; }
+        .pv-card { margin: 0; font-size: 0.72rem; color: #555; line-height: 1.3; }
+        .pv-img { position: relative; aspect-ratio: 488 / 680; border-radius: 4.75% / 3.5%; overflow: hidden; background: #e3e6ec; }
+        .pv-img img { width: 100%; height: 100%; display: block; object-fit: cover; }
+        .pv-img.foil { box-shadow: 0 0 0 3px #b98cf5, 0 0 10px rgba(150, 90, 255, 0.55); }
+        .pv-img.etched { box-shadow: 0 0 0 3px #d4af37, 0 0 10px rgba(212, 175, 55, 0.6); }
+        .pv-img.flippable { cursor: pointer; }
+        .pv-badge { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.72); color: #fff; font-size: 0.65rem; font-weight: bold; padding: 1px 6px; border-radius: 4px; }
+        .pv-card figcaption { margin-top: 5px; }
+        .pv-card figcaption b { color: #333; }
+        .pv-bonus .pv-img { opacity: 0.85; outline: 2px dashed #9aa5b1; outline-offset: 2px; }
+
         /* Tabs */
         .tabs { display: flex; gap: 6px; border-bottom: 2px solid #e3e3ea; margin-bottom: 6px; }
         .tabs .tab { width: auto; margin: 0; padding: 10px 18px; background: transparent; color: #555; border-radius: 8px 8px 0 0; }
@@ -201,6 +220,19 @@
         <label>Download Booster CSVs:</label>
         <div id="combinedArea"></div>
         <div id="downloadList" class="download-area"></div>
+
+        <div id="previewArea">
+            <button id="previewToggle" class="btn-secondary">👁 Preview packs</button>
+            <div id="previewPanel" class="hidden">
+                <div class="preview-nav">
+                    <button id="prevPack" aria-label="Previous pack">◀</button>
+                    <select id="previewPackSelect" aria-label="Pack to preview"></select>
+                    <button id="nextPack" aria-label="Next pack">▶</button>
+                </div>
+                <p class="hint">Images load from Scryfall's image server (cards.scryfall.io), one pack at a time; no extra API requests. Click a double-faced card to flip it.</p>
+                <div id="previewGrid" class="preview-grid"></div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -717,6 +749,68 @@
         return map ? pickRandomVariant(map) : null;
     }
 
+    // ------------------------------------------------------------------
+    // Pack preview (proof of concept)
+    // Uses image links already present in the Scryfall card objects, so it costs
+    // no API calls; images come from the cards.scryfall.io CDN, and only the
+    // pack being viewed is loaded (lazily).
+    // ------------------------------------------------------------------
+    let lastPacks = [];
+    let previewIndex = 0;
+
+    function faceImages(card, size = 'normal') {
+        if (card.image_uris) return [card.image_uris[size]];
+        if (card.card_faces && card.card_faces.some(f => f.image_uris)) return card.card_faces.filter(f => f.image_uris).map(f => f.image_uris[size]);
+        // Built-in bonus lands only carry an id; Scryfall's CDN path is derived from it
+        if (card.id) return [`https://cards.scryfall.io/${size}/front/${card.id[0]}/${card.id[1]}/${card.id}.jpg`];
+        return [];
+    }
+
+    function renderPreview(idx) {
+        if (!lastPacks.length) return;
+        previewIndex = Math.max(0, Math.min(lastPacks.length - 1, idx));
+        $('previewPackSelect').value = String(previewIndex);
+        $('prevPack').disabled = previewIndex === 0;
+        $('nextPack').disabled = previewIndex === lastPacks.length - 1;
+        const grid = $('previewGrid');
+        grid.innerHTML = lastPacks[previewIndex].map((e, i) => {
+            const imgs = faceImages(e.card);
+            const badge = e.finish === 'foil' ? 'FOIL' : e.finish === 'etched' ? 'ETCHED' : (imgs.length > 1 ? '⟲ FLIP' : '');
+            return `<figure class="pv-card${e.bonus ? ' pv-bonus' : ''}">
+                <div class="pv-img${e.finish !== 'nonfoil' ? ' ' + e.finish : ''}${imgs.length > 1 ? ' flippable' : ''}" data-i="${i}" data-face="0">
+                    ${imgs.length ? `<img src="${esc(imgs[0])}" alt="${esc(e.card.name)}" loading="lazy" decoding="async">` : ''}
+                    ${badge ? `<span class="pv-badge">${badge}</span>` : ''}
+                </div>
+                <figcaption><b>${e.slot ? 'Slot ' + e.slot : 'Separator'}</b> · ${esc(e.label)}<br>${esc(e.card.name)}</figcaption>
+            </figure>`;
+        }).join('');
+    }
+
+    function resetPreview() {
+        $('previewGrid').innerHTML = '';
+        $('previewPackSelect').innerHTML = '';
+    }
+
+    $('previewToggle').addEventListener('click', () => {
+        const panel = $('previewPanel');
+        const opening = panel.classList.contains('hidden');
+        panel.classList.toggle('hidden', !opening);
+        $('previewToggle').textContent = opening ? '🙈 Hide preview' : '👁 Preview packs';
+        if (opening) renderPreview(previewIndex);
+    });
+    $('previewPackSelect').addEventListener('change', e => renderPreview(parseInt(e.target.value, 10)));
+    $('prevPack').addEventListener('click', () => renderPreview(previewIndex - 1));
+    $('nextPack').addEventListener('click', () => renderPreview(previewIndex + 1));
+    $('previewGrid').addEventListener('click', e => {
+        const box = e.target.closest('.pv-img.flippable');
+        if (!box) return;
+        const entry = lastPacks[previewIndex][+box.dataset.i];
+        const imgs = faceImages(entry.card);
+        const face = (+box.dataset.face + 1) % imgs.length;
+        box.dataset.face = face;
+        box.querySelector('img').src = imgs[face];
+    });
+
     genBtn.addEventListener('click', async () => {
         const code = currentCode();
         if (!code) { status.textContent = "❌ Pick a set first."; return; }
@@ -727,6 +821,8 @@
         status.textContent = `⏳ Pulling data for ${setCode}...`;
         genBtn.disabled = true;
         downloadList.innerHTML = "";
+        lastPacks = [];
+        resetPreview();
         combinedArea.innerHTML = "";
         downloadContainer.style.display = "none";
 
@@ -763,18 +859,26 @@
                 status.textContent = `⏳ Building pack ${i} of ${packCount}...`;
                 console.log(`--- Generating Pack ${i} ---`);
                 const packRows = [];
+                const packCards = [];   // kept for the preview (no extra requests)
                 for (const slot of slots) {
                     for (let k = 0; k < slot.n; k++) {
                         const outcome = L.chooseOutcome(slot.outcomes, Math.random);
                         if (!outcome) continue;
                         const card = processCard(await drawCard(outcome, pools));
-                        if (card) packRows.push(formatToFullCSV(card, L.finishFor(outcome, Math.random)));
+                        if (!card) continue;
+                        const finish = L.finishFor(outcome, Math.random);
+                        packRows.push(formatToFullCSV(card, finish));
+                        packCards.push({ card, finish, slot: slot.from + k, label: outcome.label });
                     }
                 }
                 if (bonusPick) {
                     const b = bonusPick();
-                    if (b.card) packRows.push(formatToFullCSV(b.card, "nonfoil", b.section));
+                    if (b.card) {
+                        packRows.push(formatToFullCSV(b.card, "nonfoil", b.section));
+                        packCards.push({ card: b.card, finish: "nonfoil", slot: null, label: "Bonus land", bonus: true });
+                    }
                 }
+                lastPacks.push(packCards);
                 allRows.push(...packRows);
                 downloadList.appendChild(makeDownloadLink(`${setCode}-${label}-${i}.csv`, `⬇️ Pack ${i}`, [header, ...packRows].join("\n")));
             }
@@ -790,6 +894,8 @@
             note.textContent = "Packs are concatenated in order. Note: importers such as MTGProxyPrinter group duplicate cards, so the combined file will not preserve pack boundaries — use the per-pack files if that matters.";
             combinedArea.appendChild(note);
 
+            $('previewPackSelect').innerHTML = lastPacks.map((p, idx) => `<option value="${idx}">Pack ${idx + 1} (${p.length} cards)</option>`).join('');
+            if (!$('previewPanel').classList.contains('hidden')) renderPreview(0);
             status.textContent = `✅ Successfully generated ${packCount} ${mode === 'play' ? 'play' : 'commander'} boosters${opts.vanilla ? ' (vanilla)' : ''}.`;
             downloadContainer.style.display = "block";
         } catch (e) { status.textContent = "❌ Error: " + e.message; console.error(e); }

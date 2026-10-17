@@ -35,6 +35,7 @@ Each tab remembers its own options, so settings chosen for Play Boosters never c
   * Option to evenly swap for a Guest List card if it exists in the set
 * Option to separate boosters with a bonus land, and pick the land type: classic original duals + fetches, shock, slow, scry, surveil, verge, gain, fast, guildgates, desert pingers, creature lands, fetch, original duals, check, pain, filter, bounce, bond, battle, horizon, triomes, pathways, or a random cycle each pack
 * Will grab a random version of each card if multiple versions exist in scryfall
+* **Preview packs** (proof of concept) – after generating, view each pack as card images with its slot, rarity and foil/etched marker; double-faced cards flip on click. Images come from the links already in the Scryfall card data and load from Scryfall's image server (cards.scryfall.io) one pack at a time, so previewing makes no extra API requests
 * Option to download all packs concatenated into a single CSV, in pack order (handy for anything other than MTGProxyPrinter, which will group the duplicates and lose the pack boundaries)
 * Output will be in scryfall csv format (finish column is `nonfoil`, `foil` or `etched`)
 
