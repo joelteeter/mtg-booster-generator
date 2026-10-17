@@ -11,6 +11,9 @@ Lots of vibing here, the goal was to be able to proxy cards for a draft or seale
   * Commander Masters (CMM): 11 commons (Piper 1 in 6), 3 uncommons, 2 legendary uncommons, 1 legendary rare/mythic, 1 rare/mythic, 1 uncommon-or-rare (rare 1 in 3), 1 foil
   * Commander set codes also contain their precon deck cards, so pools are limited to cards Scryfall marks `is:booster`
   * **Any set, built as a Commander booster** – pick any set (e.g. LTR, The Lord of the Rings) and one of the three layouts above. The set's legendary creatures/planeswalkers fill the legendary slots; slots it can't fill (no Backgrounds, no Prismatic Piper, too few legends) fall back to the next closest pool, and the slot table shows which
+* **Planechase Simulator** – shuffles every Plane and Phenomenon on Scryfall (`layout:planar`, ~200 cards) into a planar deck. Planeswalk draws the next plane and puts the one you left on the bottom; phenomena remind you to planeswalk again. Roll the planar die (1 planeswalk face, 1 chaos face, 4 blank) with a per-turn roll counter showing the extra mana cost; "New turn" resets it. Option to leave phenomena out
+* **Archenemy Simulator** – shuffles every Scheme on Scryfall (`layout:scheme`, ~100 cards) into a scheme deck. Setting a scheme in motion reveals the next one; non-ongoing schemes go to the bottom, ongoing schemes stay in play until you abandon them
+* Each simulator loads its cards with one Scryfall search the first time you open its tab, then shows images from Scryfall's image server one card at a time
 
 ## Options
 Each tab remembers its own options, so settings chosen for Play Boosters never carry over to Commander boosters (and vice versa). The slot table tags every slot a fun option changes, and lists which slots each option affects.
@@ -42,5 +45,6 @@ Each tab remembers its own options, so settings chosen for Play Boosters never c
 ## Files
 * `index.html` – UI, Scryfall fetching, CSV export
 * `booster-logic.js` – pack layouts and odds (shared by the generator and the explanation panel)
+* `simulators.js` – Planechase and Archenemy simulators
 
 Run this on a local server as scryfall will fail on CORS, e.g. `python3 -m http.server 8777`
