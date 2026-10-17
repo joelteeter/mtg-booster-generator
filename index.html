@@ -192,6 +192,14 @@
             <input type="checkbox" id="newPagePerPack">
             Start each pack on a new page (PDF and MTGProxyPrinter file)
         </label>
+        <div class="enhance-row">
+            <label class="checkbox-row">
+                <input type="checkbox" id="pdfEnhance">
+                ✨ AI-enhance card images 2× (~600 dpi) in the PDFs
+            </label>
+            <button id="compareEnhance" class="btn-secondary sim-small-btn" disabled>🔍 Compare on one card</button>
+            <p class="hint">Sharper text and edges, using an AI upscaler that runs on your graphics card in this browser (downloads ~3 MB once). Adds roughly a second per card after a slower first card, and makes PDFs about 4× bigger. Best on photo paper, cardstock or a good laser printer.</p>
+        </div>
         <div class="table-wrap">
             <table class="dl-table">
                 <thead><tr><th></th><th>CSV</th><th>PDF fronts</th><th>PDF backs</th><th>MTGProxyPrinter</th></tr></thead>

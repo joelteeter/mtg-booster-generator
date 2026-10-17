@@ -28,7 +28,12 @@
 
     const CDN = {
         sqlDir: "https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/",
-        pdfLib: "https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"
+        pdfLib: "https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js",
+        // Optional AI upscaling (UpscalerJS, MIT; ESRGAN "medium" 2× model, ~2.7 MB, fetched
+        // from jsDelivr by the library itself). TensorFlow.js 4.11 is the version UpscalerJS 1.0 targets.
+        tfjs: "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js",
+        upscaler: "https://cdn.jsdelivr.net/npm/upscaler@1.0.0/dist/browser/umd/upscaler.min.js",
+        esrgan2x: "https://cdn.jsdelivr.net/npm/@upscalerjs/esrgan-medium@1.0.0/dist/umd/models/esrgan-medium/src/x2/index.min.js"
     };
 
     const SCHEMA_V7 = `PRAGMA user_version = 7;
@@ -111,6 +116,46 @@ CREATE TABLE DocumentDimensions (
         }
         return sqlPromise;
     }
+    // ------------------------------------------------------------------
+    // Optional 2× AI upscaling (runs on the graphics card through WebGL)
+    // ------------------------------------------------------------------
+    const UPSCALE = { patchSize: 128, padding: 8 };   // small tiles were by far the fastest in testing
+    let upscalerPromise = null;
+    function getUpscaler() {
+        if (!upscalerPromise) {
+            upscalerPromise = (async () => {
+                await loadScript(CDN.tfjs);
+                await loadScript(CDN.upscaler);
+                await loadScript(CDN.esrgan2x);
+                await root.tf.ready();
+                const up = new root.Upscaler({ model: root.ESRGANMedium2x });
+                await up.warmup([UPSCALE]);      // compiles the model for this GPU once
+                return up;
+            })().catch(e => { upscalerPromise = null; throw new Error("Couldn't start the AI upscaler: " + e.message); });
+        }
+        return upscalerPromise;
+    }
+
+    // One image at a time: the GPU does the work, so running several at once only adds memory
+    let upscaleQueue = Promise.resolve();
+    function upscaleCanvas(canvas) {
+        const job = upscaleQueue.then(async () => {
+            const up = await getUpscaler();
+            const tf = root.tf;
+            const out = await up.upscale(canvas, Object.assign({ output: "tensor" }, UPSCALE));
+            const pixels = tf.tidy(() => out.clipByValue(0, 255).cast("int32"));
+            out.dispose();
+            const result = document.createElement("canvas");
+            result.width = pixels.shape[1];
+            result.height = pixels.shape[0];
+            await tf.browser.toPixels(pixels, result);
+            pixels.dispose();
+            return result;
+        });
+        upscaleQueue = job.catch(() => {});
+        return job;
+    }
+
     async function getPdfLib() {
         if (root.PDFLib) return root.PDFLib;
         await loadScript(CDN.pdfLib);
@@ -205,7 +250,7 @@ CREATE TABLE DocumentDimensions (
         return `https://backs.scryfall.io/${size}/${id[0]}/${id[1]}/${id}.${size === "png" ? "png" : "jpg"}`;
     }
 
-    const imageCache = new Map();   // "url|bleedPx" → Promise<{ bytes, bleedPx }>
+    const imageCache = new Map();   // "url|bleedPx|enhance" → Promise<{ bytes, bleedPx }>
 
     /*
      * Downloads a card image and returns it as a JPEG, B pixels larger on every side:
@@ -214,14 +259,16 @@ CREATE TABLE DocumentDimensions (
      *   • the B-pixel bleed repeats the card's outermost row/column of pixels outward,
      *     the way MTGProxyPrinter's own bleed works
      * The PDF then clips the bleed away on sides that touch a neighbouring card.
+     * With enhance, the card is AI-upscaled 2× (1490×2080, ~600 dpi) after the corners
+     * are filled; bleedPx stays in 300 dpi units so the PDF layout is unchanged.
      */
-    async function browserImageLoader(url, bleedPx = 0) {
+    async function preparedCard(url) {
         const res = await fetch(url);
         if (!res.ok) throw new Error(`Image download failed (${res.status})`);
         const bmp = await createImageBitmap(await res.blob());
-        const W = CARD_PX.w, H = CARD_PX.h, B = Math.max(0, Math.round(bleedPx));
+        const W = CARD_PX.w, H = CARD_PX.h;
 
-        // 1) Card at 745×1040 with filled corners
+        // Card at 745×1040 with filled corners
         const card = document.createElement("canvas");
         card.width = W; card.height = H;
         const c = card.getContext("2d", { willReadFrequently: true });
@@ -235,8 +282,16 @@ CREATE TABLE DocumentDimensions (
             c.fillRect(x, y, R, R);
         }
         c.globalCompositeOperation = "source-over";
+        return card;
+    }
 
-        // 2) Extend by B pixels on every side by stretching the edge pixels
+    async function browserImageLoader(url, bleedPx = 0, enhance = false) {
+        let card = await preparedCard(url);
+        let scale = 1;
+        if (enhance) { card = await upscaleCanvas(card); scale = 2; }
+        const W = card.width, H = card.height, B = Math.max(0, Math.round(bleedPx)) * scale;
+
+        // Extend by B pixels on every side by stretching the edge pixels
         let out = card;
         if (B > 0) {
             out = document.createElement("canvas");
@@ -254,7 +309,7 @@ CREATE TABLE DocumentDimensions (
             o.drawImage(card, W - 1, H - 1, 1, 1, W + B, H + B, B, B);
         }
         const blob = await new Promise(r => out.toBlob(r, "image/jpeg", 0.92));
-        return { bytes: new Uint8Array(await blob.arrayBuffer()), bleedPx: B };
+        return { bytes: new Uint8Array(await blob.arrayBuffer()), bleedPx: B / scale };
     }
 
     function averageColour(ctx, x, y, w, h) {
@@ -283,7 +338,7 @@ CREATE TABLE DocumentDimensions (
     // ------------------------------------------------------------------
     // PDF
     // opts: { side: 'front'|'back', paper: 'letter'|'a4', bleedMm, newPagePerPack,
-    //         quality: 'high'|'fast', dfcMode: 'separate'|'frontOnly',
+    //         quality: 'high'|'fast', enhance (2× AI upscale), dfcMode: 'separate'|'frontOnly',
     //         flip: 'long'|'short' (backs only), customBackUrl (backs only),
     //         cutLines (default: on, except fronts in "frontOnly" mode),
     //         onProgress(done, total), imageLoader(url) }
@@ -333,9 +388,9 @@ CREATE TABLE DocumentDimensions (
         report();
         const images = new Map();
         await mapLimit(urls, 6, async url => {
-            const key = url + "|" + bleedPx;
+            const key = url + "|" + bleedPx + "|" + (opts.enhance ? "2x" : "1x");
             if (!imageCache.has(key)) {
-                imageCache.set(key, loader(url, bleedPx).catch(e => { imageCache.delete(key); throw e; }));
+                imageCache.set(key, loader(url, bleedPx, !!opts.enhance).catch(e => { imageCache.delete(key); throw e; }));
             }
             images.set(url, await imageCache.get(key));
             done++;
@@ -404,7 +459,22 @@ CREATE TABLE DocumentDimensions (
         return pdf.save();
     }
 
-    const api = { buildSaveFile, buildPdf, layoutPages, expandFaces, isDfc, imageUrl, cardBackUrl, placementsFor, PAPER, CARD_PT, PER_PAGE, SCHEMA_V7 };
+    // For the "Compare on one card" view: the same card plain-resized to 2× and AI-upscaled
+    async function compareEnhance(card, quality) {
+        const url = imageUrl(card, quality, 0);
+        const base = await preparedCard(url);
+        const t0 = performance.now();
+        const enhanced = await upscaleCanvas(base);
+        const ms = Math.round(performance.now() - t0);
+        const plain = document.createElement("canvas");
+        plain.width = enhanced.width; plain.height = enhanced.height;
+        const p = plain.getContext("2d");
+        p.imageSmoothingQuality = "high";
+        p.drawImage(base, 0, 0, plain.width, plain.height);
+        return { plain, enhanced, ms };
+    }
+
+    const api = { compareEnhance, buildSaveFile, buildPdf, layoutPages, expandFaces, isDfc, imageUrl, cardBackUrl, placementsFor, PAPER, CARD_PT, PER_PAGE, SCHEMA_V7 };
     if (typeof module !== "undefined" && module.exports) module.exports = api;
     root.Exporter = api;
 })(typeof window !== "undefined" ? window : globalThis);

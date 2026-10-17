@@ -1,2 +1,5 @@
 # MTGProxyPrinter documents (test/sample save files)
 *.mtgproxies
+
+# macOS folder metadata
+.DS_Store

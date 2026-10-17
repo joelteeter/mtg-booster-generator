@@ -144,6 +144,18 @@ td.slotnum { white-space: nowrap; font-weight: bold; color: #333; }
 .modifiers { font-size: 0.85rem; padding-left: 20px; margin: 10px 0 0; }
 .modifiers li { margin-bottom: 4px; }
 .sources { font-size: 0.75rem; color: #777; margin-top: 10px; }
+
+/* AI enhance option and comparison view */
+.enhance-row { margin-top: 6px; }
+.enhance-row .checkbox-row { display: inline-flex; margin-right: 10px; }
+.enhance-compare { position: fixed; inset: 0; background: rgba(10, 12, 18, 0.88); z-index: 1000; display: flex; align-items: center; justify-content: center; cursor: zoom-out; padding: 16px; box-sizing: border-box; }
+.enhance-compare-inner { color: #fff; text-align: center; max-width: 100%; max-height: 100%; overflow: auto; }
+.enhance-compare-title { font-weight: bold; margin-bottom: 10px; }
+.enhance-compare-pair { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+.enhance-compare figure { margin: 0; }
+.enhance-compare figcaption { font-size: 0.85rem; margin-bottom: 4px; color: #ddd; }
+.enhance-compare canvas { max-width: min(46vw, 920px); height: auto; border-radius: 4px; background: #fff; }
+.enhance-compare .muted { color: #bbb; margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -332,6 +344,14 @@ td.slotnum { white-space: nowrap; font-weight: bold; color: #333; }
             <input type="checkbox" id="newPagePerPack">
             Start each pack on a new page (PDF and MTGProxyPrinter file)
         </label>
+        <div class="enhance-row">
+            <label class="checkbox-row">
+                <input type="checkbox" id="pdfEnhance">
+                ✨ AI-enhance card images 2× (~600 dpi) in the PDFs
+            </label>
+            <button id="compareEnhance" class="btn-secondary sim-small-btn" disabled>🔍 Compare on one card</button>
+            <p class="hint">Sharper text and edges, using an AI upscaler that runs on your graphics card in this browser (downloads ~3 MB once). Adds roughly a second per card after a slower first card, and makes PDFs about 4× bigger. Best on photo paper, cardstock or a good laser printer.</p>
+        </div>
         <div class="table-wrap">
             <table class="dl-table">
                 <thead><tr><th></th><th>CSV</th><th>PDF fronts</th><th>PDF backs</th><th>MTGProxyPrinter</th></tr></thead>
@@ -1557,7 +1577,8 @@ genBtn.addEventListener('click', async () => {
  * downloads.js
  * ------------
  * Downloads table: CSV, PDF fronts/backs and MTGProxyPrinter file for all
- * packs or one pack, the double-faced card badges and the custom card back.
+ * packs or one pack, the double-faced card badges, the custom card back and
+ * the "Compare on one card" view for the AI-enhance option.
  */
 "use strict";
 
@@ -1585,6 +1606,7 @@ function renderDownloadRows() {
         <td><button class="dl-btn back" data-kind="back" data-idx="${idx}">⬇ Backs</button></td>
         <td><button class="dl-btn mpp" data-kind="mpp" data-idx="${idx}">⬇ .mtgproxies</button></td>
     </tr>`;
+    $('compareEnhance').disabled = !n;
     $('dlRows').innerHTML = row(0, `All ${n} packs`) + lastPacks.map((p, i) => row(i + 1, `Pack ${i + 1}`)).join('');
 }
 
@@ -1623,9 +1645,10 @@ async function exportFile(kind, idx) {
                 paper: $('pdfPaper').value,
                 bleedMm: parseFloat($('pdfBleed').value),
                 quality: $('pdfQuality').value,
+                enhance: $('pdfEnhance').checked,
                 newPagePerPack,
                 title: lastExport.base[idx] + (side === 'back' ? ' (backs)' : ''),
-                onProgress: (done, total) => { st.textContent = `⏳ ${side === 'back' ? 'Backs' : 'Fronts'} PDF for ${what}: card images ${done} of ${total}…`; }
+                onProgress: (done, total) => { st.textContent = `⏳ ${side === 'back' ? 'Backs' : 'Fronts'} PDF for ${what}: ${$('pdfEnhance').checked ? 'AI-enhancing' : 'preparing'} card images ${done} of ${total}…`; }
             });
             st.textContent = `⏳ Saving PDF…`;
             saveBytes(bytes, lastExport.base[idx] + (side === 'back' ? '-backs' : '') + '.pdf', 'application/pdf');
@@ -1658,6 +1681,63 @@ $('backFile').addEventListener('change', () => {
 $('dlRows').addEventListener('click', e => {
     const b = e.target.closest('button[data-kind]');
     if (b) exportFile(b.dataset.kind, parseInt(b.dataset.idx, 10));
+});
+
+// ------------------------------------------------------------------
+// "Compare on one card": plain 2× resize vs AI-enhanced, same crop side by side
+// ------------------------------------------------------------------
+function packForComparison() {
+    const idx = parseInt($('previewPackSelect').value, 10);
+    const pack = lastPacks[Number.isFinite(idx) ? idx : 0] || lastPacks[0] || [];
+    // prefer a card with rules text (not a land / the separator)
+    return pack.find(e => !e.bonus && !/Land/.test(e.card.type_line || '')) || pack[0];
+}
+
+async function showEnhanceComparison() {
+    const entry = packForComparison();
+    if (!entry) return;
+    const btn = $('compareEnhance');
+    btn.disabled = true;
+    const st = $('exportStatus');
+    st.textContent = `⏳ AI-enhancing "${entry.card.name}"… (the first run also downloads and prepares the upscaler)`;
+    try {
+        const { plain, enhanced, ms } = await window.Exporter.compareEnhance(entry.card, $('pdfQuality').value);
+        // Crop: the rules text box, where the difference shows most
+        const crop = { x: Math.round(enhanced.width * 0.05), y: Math.round(enhanced.height * 0.58), w: Math.round(enhanced.width * 0.62), h: Math.round(enhanced.height * 0.2) };
+        const view = cv => {
+            const c = document.createElement('canvas');
+            c.width = crop.w; c.height = crop.h;
+            c.getContext('2d').drawImage(cv, crop.x, crop.y, crop.w, crop.h, 0, 0, crop.w, crop.h);
+            return c;
+        };
+        let box = $('enhanceCompare');
+        if (!box) {
+            box = document.createElement('div');
+            box.id = 'enhanceCompare';
+            box.className = 'enhance-compare';
+            box.addEventListener('click', () => box.classList.add('hidden'));
+            document.body.appendChild(box);
+        }
+        box.innerHTML = `<div class="enhance-compare-inner">
+            <div class="enhance-compare-title">${esc(entry.card.name)}: rules text area at 600 dpi, 1:1 pixels</div>
+            <div class="enhance-compare-pair"><figure><figcaption>Plain 2× resize</figcaption></figure><figure><figcaption>✨ AI-enhanced 2×</figcaption></figure></div>
+            <div class="muted">Click anywhere to close</div></div>`;
+        const figs = box.querySelectorAll('figure');
+        figs[0].appendChild(view(plain));
+        figs[1].appendChild(view(enhanced));
+        box.classList.remove('hidden');
+        st.textContent = `✅ AI-enhanced "${entry.card.name}" in ${(ms / 1000).toFixed(1)} s.`;
+    } catch (e) {
+        console.error(e);
+        st.textContent = `❌ ${e.message}`;
+    } finally {
+        btn.disabled = false;
+    }
+}
+$('compareEnhance').addEventListener('click', showEnhanceComparison);
+document.addEventListener('keydown', e => {
+    const box = $('enhanceCompare');
+    if (e.key === 'Escape' && box) box.classList.add('hidden');
 });
 </script>
 <script>
@@ -2056,7 +2136,12 @@ $('previewGrid').addEventListener('click', e => {
 
     const CDN = {
         sqlDir: "https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/",
-        pdfLib: "https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"
+        pdfLib: "https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js",
+        // Optional AI upscaling (UpscalerJS, MIT; ESRGAN "medium" 2× model, ~2.7 MB, fetched
+        // from jsDelivr by the library itself). TensorFlow.js 4.11 is the version UpscalerJS 1.0 targets.
+        tfjs: "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js",
+        upscaler: "https://cdn.jsdelivr.net/npm/upscaler@1.0.0/dist/browser/umd/upscaler.min.js",
+        esrgan2x: "https://cdn.jsdelivr.net/npm/@upscalerjs/esrgan-medium@1.0.0/dist/umd/models/esrgan-medium/src/x2/index.min.js"
     };
 
     const SCHEMA_V7 = `PRAGMA user_version = 7;
@@ -2139,6 +2224,46 @@ CREATE TABLE DocumentDimensions (
         }
         return sqlPromise;
     }
+    // ------------------------------------------------------------------
+    // Optional 2× AI upscaling (runs on the graphics card through WebGL)
+    // ------------------------------------------------------------------
+    const UPSCALE = { patchSize: 128, padding: 8 };   // small tiles were by far the fastest in testing
+    let upscalerPromise = null;
+    function getUpscaler() {
+        if (!upscalerPromise) {
+            upscalerPromise = (async () => {
+                await loadScript(CDN.tfjs);
+                await loadScript(CDN.upscaler);
+                await loadScript(CDN.esrgan2x);
+                await root.tf.ready();
+                const up = new root.Upscaler({ model: root.ESRGANMedium2x });
+                await up.warmup([UPSCALE]);      // compiles the model for this GPU once
+                return up;
+            })().catch(e => { upscalerPromise = null; throw new Error("Couldn't start the AI upscaler: " + e.message); });
+        }
+        return upscalerPromise;
+    }
+
+    // One image at a time: the GPU does the work, so running several at once only adds memory
+    let upscaleQueue = Promise.resolve();
+    function upscaleCanvas(canvas) {
+        const job = upscaleQueue.then(async () => {
+            const up = await getUpscaler();
+            const tf = root.tf;
+            const out = await up.upscale(canvas, Object.assign({ output: "tensor" }, UPSCALE));
+            const pixels = tf.tidy(() => out.clipByValue(0, 255).cast("int32"));
+            out.dispose();
+            const result = document.createElement("canvas");
+            result.width = pixels.shape[1];
+            result.height = pixels.shape[0];
+            await tf.browser.toPixels(pixels, result);
+            pixels.dispose();
+            return result;
+        });
+        upscaleQueue = job.catch(() => {});
+        return job;
+    }
+
     async function getPdfLib() {
         if (root.PDFLib) return root.PDFLib;
         await loadScript(CDN.pdfLib);
@@ -2233,7 +2358,7 @@ CREATE TABLE DocumentDimensions (
         return `https://backs.scryfall.io/${size}/${id[0]}/${id[1]}/${id}.${size === "png" ? "png" : "jpg"}`;
     }
 
-    const imageCache = new Map();   // "url|bleedPx" → Promise<{ bytes, bleedPx }>
+    const imageCache = new Map();   // "url|bleedPx|enhance" → Promise<{ bytes, bleedPx }>
 
     /*
      * Downloads a card image and returns it as a JPEG, B pixels larger on every side:
@@ -2242,14 +2367,16 @@ CREATE TABLE DocumentDimensions (
      *   • the B-pixel bleed repeats the card's outermost row/column of pixels outward,
      *     the way MTGProxyPrinter's own bleed works
      * The PDF then clips the bleed away on sides that touch a neighbouring card.
+     * With enhance, the card is AI-upscaled 2× (1490×2080, ~600 dpi) after the corners
+     * are filled; bleedPx stays in 300 dpi units so the PDF layout is unchanged.
      */
-    async function browserImageLoader(url, bleedPx = 0) {
+    async function preparedCard(url) {
         const res = await fetch(url);
         if (!res.ok) throw new Error(`Image download failed (${res.status})`);
         const bmp = await createImageBitmap(await res.blob());
-        const W = CARD_PX.w, H = CARD_PX.h, B = Math.max(0, Math.round(bleedPx));
+        const W = CARD_PX.w, H = CARD_PX.h;
 
-        // 1) Card at 745×1040 with filled corners
+        // Card at 745×1040 with filled corners
         const card = document.createElement("canvas");
         card.width = W; card.height = H;
         const c = card.getContext("2d", { willReadFrequently: true });
@@ -2263,8 +2390,16 @@ CREATE TABLE DocumentDimensions (
             c.fillRect(x, y, R, R);
         }
         c.globalCompositeOperation = "source-over";
+        return card;
+    }
 
-        // 2) Extend by B pixels on every side by stretching the edge pixels
+    async function browserImageLoader(url, bleedPx = 0, enhance = false) {
+        let card = await preparedCard(url);
+        let scale = 1;
+        if (enhance) { card = await upscaleCanvas(card); scale = 2; }
+        const W = card.width, H = card.height, B = Math.max(0, Math.round(bleedPx)) * scale;
+
+        // Extend by B pixels on every side by stretching the edge pixels
         let out = card;
         if (B > 0) {
             out = document.createElement("canvas");
@@ -2282,7 +2417,7 @@ CREATE TABLE DocumentDimensions (
             o.drawImage(card, W - 1, H - 1, 1, 1, W + B, H + B, B, B);
         }
         const blob = await new Promise(r => out.toBlob(r, "image/jpeg", 0.92));
-        return { bytes: new Uint8Array(await blob.arrayBuffer()), bleedPx: B };
+        return { bytes: new Uint8Array(await blob.arrayBuffer()), bleedPx: B / scale };
     }
 
     function averageColour(ctx, x, y, w, h) {
@@ -2311,7 +2446,7 @@ CREATE TABLE DocumentDimensions (
     // ------------------------------------------------------------------
     // PDF
     // opts: { side: 'front'|'back', paper: 'letter'|'a4', bleedMm, newPagePerPack,
-    //         quality: 'high'|'fast', dfcMode: 'separate'|'frontOnly',
+    //         quality: 'high'|'fast', enhance (2× AI upscale), dfcMode: 'separate'|'frontOnly',
     //         flip: 'long'|'short' (backs only), customBackUrl (backs only),
     //         cutLines (default: on, except fronts in "frontOnly" mode),
     //         onProgress(done, total), imageLoader(url) }
@@ -2361,9 +2496,9 @@ CREATE TABLE DocumentDimensions (
         report();
         const images = new Map();
         await mapLimit(urls, 6, async url => {
-            const key = url + "|" + bleedPx;
+            const key = url + "|" + bleedPx + "|" + (opts.enhance ? "2x" : "1x");
             if (!imageCache.has(key)) {
-                imageCache.set(key, loader(url, bleedPx).catch(e => { imageCache.delete(key); throw e; }));
+                imageCache.set(key, loader(url, bleedPx, !!opts.enhance).catch(e => { imageCache.delete(key); throw e; }));
             }
             images.set(url, await imageCache.get(key));
             done++;
@@ -2432,7 +2567,22 @@ CREATE TABLE DocumentDimensions (
         return pdf.save();
     }
 
-    const api = { buildSaveFile, buildPdf, layoutPages, expandFaces, isDfc, imageUrl, cardBackUrl, placementsFor, PAPER, CARD_PT, PER_PAGE, SCHEMA_V7 };
+    // For the "Compare on one card" view: the same card plain-resized to 2× and AI-upscaled
+    async function compareEnhance(card, quality) {
+        const url = imageUrl(card, quality, 0);
+        const base = await preparedCard(url);
+        const t0 = performance.now();
+        const enhanced = await upscaleCanvas(base);
+        const ms = Math.round(performance.now() - t0);
+        const plain = document.createElement("canvas");
+        plain.width = enhanced.width; plain.height = enhanced.height;
+        const p = plain.getContext("2d");
+        p.imageSmoothingQuality = "high";
+        p.drawImage(base, 0, 0, plain.width, plain.height);
+        return { plain, enhanced, ms };
+    }
+
+    const api = { compareEnhance, buildSaveFile, buildPdf, layoutPages, expandFaces, isDfc, imageUrl, cardBackUrl, placementsFor, PAPER, CARD_PT, PER_PAGE, SCHEMA_V7 };
     if (typeof module !== "undefined" && module.exports) module.exports = api;
     root.Exporter = api;
 })(typeof window !== "undefined" ? window : globalThis);

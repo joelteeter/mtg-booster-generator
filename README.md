@@ -13,7 +13,7 @@ No install, build step or local server is needed to use either: the app talks to
 You need an internet connection for:
 * **Scryfall's API** – card and set data. Requests are spaced ~150 ms apart (Scryfall asks for ≤10 per second); if Scryfall answers "429 Too Many Requests", the app waits the time Scryfall asks for and retries, showing a message while it waits
 * **Scryfall's image server** (cards.scryfall.io, backs.scryfall.io) – card images for the preview, the PDFs and the simulators. It isn't rate-limited
-* **jsDelivr** – the PDF library (pdf-lib) and the SQLite library (sql.js), loaded the first time you download a PDF or MTGProxyPrinter file
+* **jsDelivr** – the PDF library (pdf-lib) and the SQLite library (sql.js), loaded the first time you download a PDF or MTGProxyPrinter file; and, only if you use AI-enhance, TensorFlow.js, UpscalerJS and its ESRGAN model (~3 MB)
 
 Serving the folder over HTTP (e.g. `python3 -m http.server 8777`) still works, but isn't required.
 
@@ -78,6 +78,7 @@ Every format is available for all packs together or for each pack on its own.
   * card images from Scryfall's 745×1040 PNGs (300 dpi), or the faster ~270 dpi JPGs
   * cut lines across the page, under the cards
   * each card's rounded corners are filled from the pixels next to them, so small crosshairs mark every card corner on top of the cards; they invert the colour underneath, so they show on both black and white borders
+  * optional **✨ AI-enhance 2×**: each card is upscaled to 1490×2080 (~600 dpi) by an ESRGAN model ([UpscalerJS](https://upscalerjs.com), MIT) running on your graphics card in the browser, for sharper text and edges. The first card takes several seconds while the model loads and prepares; after that it's roughly a second or less per card, and PDFs get about 4× bigger. **Compare on one card** shows a plain 2× resize next to the AI version of a card from your packs before you commit to a whole PDF
   * optional outer bleed (1–3 mm, default 2 mm): the card's edge pixels are stretched past the outside edges of the card grid (like MTGProxyPrinter's own bleed), so borderless and full-art cards continue their art and a slightly-off cut doesn't leave a white strip
 * **PDF backs** – the same pages as the fronts PDF with every position mirrored, so printing it on the reverse puts each back behind its card. Choose whether your printer flips on the long edge (left column ↔ right column) or the short edge (top row ↔ bottom row). Every normal card gets the same standard Magic card back, or your own image (picked from your computer, never uploaded). Use the same paper, bleed and "new page" settings for both PDFs
 * **Double-faced cards** – choose either:
@@ -97,10 +98,10 @@ js/scryfall.js           Scryfall requests (queue + retries), card pools, Specia
 js/csv.js                CSV rows in Scryfall's format
 js/ui.js                 form state, per-tab controls and the "How each card slot is determined" panel
 js/generate.js           pack generation and the Generate button
-js/downloads.js          downloads table (CSV / PDF fronts / PDF backs / MTGProxyPrinter) and card back picker
+js/downloads.js          downloads table (CSV / PDF fronts / PDF backs / MTGProxyPrinter), card back picker, AI-enhance comparison
 js/preview.js            pack preview
 js/simulators.js         Planechase and Archenemy simulators
-js/export.js             PDF and MTGProxyPrinter file builders
+js/export.js             PDF builder (incl. optional AI 2× upscaling) and MTGProxyPrinter file builder
 js/main.js               start-up: fills the set lists and wires up the tabs (loaded last)
 build.py                 bundles everything into dist/mtg-booster-generator.html
 dist/                    the single-file build
@@ -117,5 +118,6 @@ It needs only Python 3 (no packages), inlines every local stylesheet and script 
 ## Credits
 * Card data and images: [Scryfall](https://scryfall.com). Magic: The Gathering is © Wizards of the Coast; this is an unofficial fan tool for play-testing proxies
 * The MTGProxyPrinter save-file format (`document-v7.sql`, embedded in `js/export.js`) is from MTGProxyPrinter by Thomas Hess, GPL-3.0
+* Libraries, loaded on demand from jsDelivr: [pdf-lib](https://pdf-lib.js.org) (MIT), [sql.js](https://sql.js.org) (MIT), and for AI-enhance [UpscalerJS](https://upscalerjs.com) (MIT) with [TensorFlow.js](https://www.tensorflow.org/js) (Apache-2.0)
 * Pack layouts and odds: Wizards' "Collecting" articles, StarCityGames' product guides and the booster data on [mtg.wtf](https://mtg.wtf)
 * Licensed under the GPL-3.0 (see `LICENSE`)

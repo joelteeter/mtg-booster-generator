@@ -2,7 +2,8 @@
  * downloads.js
  * ------------
  * Downloads table: CSV, PDF fronts/backs and MTGProxyPrinter file for all
- * packs or one pack, the double-faced card badges and the custom card back.
+ * packs or one pack, the double-faced card badges, the custom card back and
+ * the "Compare on one card" view for the AI-enhance option.
  */
 "use strict";
 
@@ -30,6 +31,7 @@ function renderDownloadRows() {
         <td><button class="dl-btn back" data-kind="back" data-idx="${idx}">⬇ Backs</button></td>
         <td><button class="dl-btn mpp" data-kind="mpp" data-idx="${idx}">⬇ .mtgproxies</button></td>
     </tr>`;
+    $('compareEnhance').disabled = !n;
     $('dlRows').innerHTML = row(0, `All ${n} packs`) + lastPacks.map((p, i) => row(i + 1, `Pack ${i + 1}`)).join('');
 }
 
@@ -68,9 +70,10 @@ async function exportFile(kind, idx) {
                 paper: $('pdfPaper').value,
                 bleedMm: parseFloat($('pdfBleed').value),
                 quality: $('pdfQuality').value,
+                enhance: $('pdfEnhance').checked,
                 newPagePerPack,
                 title: lastExport.base[idx] + (side === 'back' ? ' (backs)' : ''),
-                onProgress: (done, total) => { st.textContent = `⏳ ${side === 'back' ? 'Backs' : 'Fronts'} PDF for ${what}: card images ${done} of ${total}…`; }
+                onProgress: (done, total) => { st.textContent = `⏳ ${side === 'back' ? 'Backs' : 'Fronts'} PDF for ${what}: ${$('pdfEnhance').checked ? 'AI-enhancing' : 'preparing'} card images ${done} of ${total}…`; }
             });
             st.textContent = `⏳ Saving PDF…`;
             saveBytes(bytes, lastExport.base[idx] + (side === 'back' ? '-backs' : '') + '.pdf', 'application/pdf');
@@ -103,4 +106,61 @@ $('backFile').addEventListener('change', () => {
 $('dlRows').addEventListener('click', e => {
     const b = e.target.closest('button[data-kind]');
     if (b) exportFile(b.dataset.kind, parseInt(b.dataset.idx, 10));
+});
+
+// ------------------------------------------------------------------
+// "Compare on one card": plain 2× resize vs AI-enhanced, same crop side by side
+// ------------------------------------------------------------------
+function packForComparison() {
+    const idx = parseInt($('previewPackSelect').value, 10);
+    const pack = lastPacks[Number.isFinite(idx) ? idx : 0] || lastPacks[0] || [];
+    // prefer a card with rules text (not a land / the separator)
+    return pack.find(e => !e.bonus && !/Land/.test(e.card.type_line || '')) || pack[0];
+}
+
+async function showEnhanceComparison() {
+    const entry = packForComparison();
+    if (!entry) return;
+    const btn = $('compareEnhance');
+    btn.disabled = true;
+    const st = $('exportStatus');
+    st.textContent = `⏳ AI-enhancing "${entry.card.name}"… (the first run also downloads and prepares the upscaler)`;
+    try {
+        const { plain, enhanced, ms } = await window.Exporter.compareEnhance(entry.card, $('pdfQuality').value);
+        // Crop: the rules text box, where the difference shows most
+        const crop = { x: Math.round(enhanced.width * 0.05), y: Math.round(enhanced.height * 0.58), w: Math.round(enhanced.width * 0.62), h: Math.round(enhanced.height * 0.2) };
+        const view = cv => {
+            const c = document.createElement('canvas');
+            c.width = crop.w; c.height = crop.h;
+            c.getContext('2d').drawImage(cv, crop.x, crop.y, crop.w, crop.h, 0, 0, crop.w, crop.h);
+            return c;
+        };
+        let box = $('enhanceCompare');
+        if (!box) {
+            box = document.createElement('div');
+            box.id = 'enhanceCompare';
+            box.className = 'enhance-compare';
+            box.addEventListener('click', () => box.classList.add('hidden'));
+            document.body.appendChild(box);
+        }
+        box.innerHTML = `<div class="enhance-compare-inner">
+            <div class="enhance-compare-title">${esc(entry.card.name)}: rules text area at 600 dpi, 1:1 pixels</div>
+            <div class="enhance-compare-pair"><figure><figcaption>Plain 2× resize</figcaption></figure><figure><figcaption>✨ AI-enhanced 2×</figcaption></figure></div>
+            <div class="muted">Click anywhere to close</div></div>`;
+        const figs = box.querySelectorAll('figure');
+        figs[0].appendChild(view(plain));
+        figs[1].appendChild(view(enhanced));
+        box.classList.remove('hidden');
+        st.textContent = `✅ AI-enhanced "${entry.card.name}" in ${(ms / 1000).toFixed(1)} s.`;
+    } catch (e) {
+        console.error(e);
+        st.textContent = `❌ ${e.message}`;
+    } finally {
+        btn.disabled = false;
+    }
+}
+$('compareEnhance').addEventListener('click', showEnhanceComparison);
+document.addEventListener('keydown', e => {
+    const box = $('enhanceCompare');
+    if (e.key === 'Escape' && box) box.classList.add('hidden');
 });
