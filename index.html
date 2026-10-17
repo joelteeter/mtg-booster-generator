@@ -2,33 +2,87 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MTG Play Booster CSV Generator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MTG Booster CSV Generator</title>
     <style>
-        body { font-family: system-ui, sans-serif; max-width: 800px; margin: 40px auto; background: #f4f4f9; padding: 20px; line-height: 1.6; }
+        body { font-family: system-ui, sans-serif; max-width: 900px; margin: 40px auto; background: #f4f4f9; padding: 20px; line-height: 1.6; }
         .container { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { margin-top: 0; }
         label { display: block; margin-top: 15px; font-weight: bold; color: #555; }
         select, input, button { width: 100%; padding: 12px; margin-top: 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 1rem; box-sizing: border-box; }
-        .flex-row { display: flex; gap: 10px; align-items: flex-end; }
-        .flex-row > div { flex: 1; }
+        .flex-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+        .flex-row > div, .flex-row > label { flex: 1; min-width: 220px; }
         .checkbox-row { display: flex; align-items: center; gap: 10px; margin-top: 15px; cursor: pointer; font-weight: bold; }
         .checkbox-row input { width: auto; margin: 0; cursor: pointer; }
         .info-box { background: #e7f3ff; border-left: 4px solid #007bff; padding: 15px; margin-top: 20px; border-radius: 4px; font-size: 0.9rem; }
         button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; margin-top: 20px; transition: 0.2s; }
         button:hover { background: #0056b3; }
+        button:disabled { background: #8bb8ea; cursor: wait; }
         .download-area { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-top: 20px; }
         .dl-link { background: #28a745; color: white; text-decoration: none; padding: 10px; text-align: center; border-radius: 6px; font-weight: bold; font-size: 0.85rem; border: 1px solid #1e7e34; }
         .dl-all { display: block; background: #6f42c1; border-color: #59359a; font-size: 0.95rem; margin-bottom: 8px; }
         .dl-note { font-size: 0.8rem; color: #777; font-weight: normal; margin: 0 0 18px; }
         #status { margin-top: 15px; font-weight: bold; text-align: center; color: #007bff; }
         #downloadContainer { display: none; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 20px; }
+        .hidden { display: none !important; }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 6px; border-bottom: 2px solid #e3e3ea; margin-bottom: 6px; }
+        .tabs .tab { width: auto; margin: 0; padding: 10px 18px; background: transparent; color: #555; border-radius: 8px 8px 0 0; }
+        .tabs .tab:hover { background: #eef3fb; }
+        .tabs .tab.active { background: #007bff; color: white; }
+        .tab-blurb { font-size: 0.85rem; color: #666; margin: 8px 0 0; }
+        #setInfo { font-size: 0.8rem; color: #666; margin-top: 6px; min-height: 1.2em; }
+
+        /* Option groups */
+        fieldset { border: 1px solid #dde1e8; border-radius: 8px; margin-top: 18px; padding: 2px 14px 14px; }
+        legend { font-weight: bold; color: #555; padding: 0 6px; }
+        fieldset:disabled { opacity: 0.45; }
+        .vanilla-row { background: #fff8e6; border: 1px solid #f1d98a; border-radius: 8px; padding: 10px 14px; margin-top: 18px; }
+        .vanilla-row .checkbox-row { margin-top: 0; }
+        .hint { font-size: 0.8rem; color: #777; font-weight: normal; margin: 4px 0 0; }
+
+        /* How-it-works panel */
+        details.how { margin-top: 20px; border: 1px solid #cfe0f5; border-radius: 8px; background: #fafcff; }
+        details.how > summary { cursor: pointer; padding: 12px 15px; font-weight: bold; color: #0056b3; }
+        details.how > summary .mode-badge { font-weight: normal; color: #666; font-size: 0.85rem; margin-left: 6px; }
+        .how-body { padding: 0 15px 15px; }
+        .table-wrap { overflow-x: auto; }
+        table.slots { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        table.slots th { text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: #667; padding: 6px 8px; border-bottom: 2px solid #dde5f0; }
+        table.slots td { border-top: 1px solid #e5e9f0; padding: 8px; vertical-align: top; }
+        td.slotnum { white-space: nowrap; font-weight: bold; color: #333; }
+        .oc { white-space: nowrap; }
+        .oc b { display: inline-block; min-width: 48px; text-align: right; margin-right: 4px; }
+        .rar { display: inline-block; padding: 0 6px; border-radius: 4px; font-size: 0.72rem; font-weight: bold; }
+        .r-common { background: #e9ecef; color: #333; }
+        .r-uncommon { background: #d3dde3; color: #263238; }
+        .r-rare { background: #f5e3a3; color: #5c4400; }
+        .r-mythic { background: #f8c9a8; color: #7a2e00; }
+        .r-special { background: #e3d4f7; color: #4a2a7a; }
+        .r-land { background: #d7ecd9; color: #1e4d25; }
+        .muted { color: #888; font-size: 0.75rem; }
+        .fun-tag { display: inline-block; margin-top: 3px; font-size: 0.7rem; color: #8a5a00; background: #fff3d6; border-radius: 4px; padding: 0 6px; }
+        .expect { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; }
+        .expect span { background: #eef3fb; border-radius: 6px; padding: 4px 10px; font-size: 0.8rem; }
+        .modifiers { font-size: 0.85rem; padding-left: 20px; margin: 10px 0 0; }
+        .modifiers li { margin-bottom: 4px; }
+        .sources { font-size: 0.75rem; color: #777; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>📦 Play Booster CSV Generator</h2>
-    
-    <div class="flex-row">
+    <h2>📦 Booster CSV Generator</h2>
+
+    <div class="tabs" role="tablist">
+        <button class="tab active" data-mode="play" role="tab">Play Booster</button>
+        <button class="tab" data-mode="commander" role="tab">Commander Draft Booster</button>
+    </div>
+    <p class="tab-blurb" id="tabBlurb"></p>
+
+    <!-- Play booster set picker -->
+    <div id="playSetRow" class="flex-row">
         <div>
             <label for="setSelect">Choose Expansion (Live API):</label>
             <select id="setSelect"><option value="">Loading...</option></select>
@@ -39,43 +93,107 @@
         </div>
     </div>
 
+    <!-- Commander set picker -->
+    <div id="cmdSetRow" class="hidden">
+        <div class="flex-row">
+            <div>
+                <label for="cmdSource">Card source:</label>
+                <select id="cmdSource">
+                    <option value="official">Official Commander booster set</option>
+                    <option value="any">Any set, built as a Commander booster</option>
+                </select>
+            </div>
+        </div>
+        <div id="cmdOfficialRow" class="flex-row">
+            <div>
+                <label for="cmdSetSelect">Commander Booster Set:</label>
+                <select id="cmdSetSelect"></select>
+            </div>
+        </div>
+        <div id="cmdAnyRow" class="hidden">
+            <div class="flex-row">
+                <div>
+                    <label for="cmdAnySetSelect">Choose Set (Live API):</label>
+                    <select id="cmdAnySetSelect"><option value="">Loading...</option></select>
+                </div>
+                <div>
+                    <label for="cmdAnyCustom">Or Type Set Code:</label>
+                    <input type="text" id="cmdAnyCustom" placeholder="e.g. ltr, dmu, otj">
+                </div>
+            </div>
+            <div class="flex-row">
+                <div>
+                    <label for="cmdLayout">Pack layout (card slots):</label>
+                    <select id="cmdLayout">
+                        <option value="cmr">Commander Legends: 2 legends, foil-etched chance</option>
+                        <option value="clb">Battle for Baldur's Gate: 1 legend + 1 Background</option>
+                        <option value="cmm">Commander Masters: 3 legends, extra rare chance</option>
+                    </select>
+                </div>
+            </div>
+            <p class="hint">Uses the chosen layout's slots and odds with the set's own cards: its legendary creatures and planeswalkers fill the legendary slots. Slots the set can't fill (no Backgrounds, no Prismatic Piper, too few legends) fall back as shown in the slot table.</p>
+        </div>
+    </div>
+    <div id="setInfo"></div>
+
     <div class="flex-row">
         <div>
             <label for="packCount">Number of Packs:</label>
             <input type="number" id="packCount" value="3" min="1" max="100">
         </div>
-        <div>
-            <label for="funMultiplier">Fun Booster Multiplier:</label>
-            <select id="funMultiplier">
-                <option value="1">x1 (Standard Odds)</option>
-                <option value="2">x2</option>
-                <option value="3">x3</option>
-                <option value="4">x4</option>
-                <option value="5">x5</option>
-            </select>
-        </div>
     </div>
 
-    <div class="info-box">
-        <strong>✨ Version Selection Logic:</strong>
-        <p style="margin:5px 0">Fetches <code>unique:prints</code> to find all art variants. If a card has multiple versions, the console will log which specific Collector Number was chosen.</p>
-    </div>
-
-    <div class="checkbox-row">
-        <input type="checkbox" id="preferGuestList">
-        Prefer Guest List versions (50% swap chance)?
-    </div>
-
-    <div class="flex-row">
+    <div class="vanilla-row">
         <label class="checkbox-row">
-            <input type="checkbox" id="foilToggle">
-            Enable Foil Slot (#13)?
+            <input type="checkbox" id="vanillaToggle">
+            🍦 Vanilla mode: official pack odds for every slot
         </label>
+        <p class="hint" id="vanillaHint"></p>
+    </div>
+
+    <fieldset id="funOptions">
+        <legend>🎉 Fun options</legend>
+        <div class="flex-row">
+            <div>
+                <label for="funMultiplier">Fun Booster Multiplier:</label>
+                <select id="funMultiplier">
+                    <option value="1">x1 (Standard Odds)</option>
+                    <option value="2">x2</option>
+                    <option value="3">x3</option>
+                    <option value="4">x4</option>
+                    <option value="5">x5</option>
+                </select>
+            </div>
+        </div>
+        <label class="checkbox-row">
+            <input type="checkbox" id="preferGuestList">
+            Prefer Guest List versions (50% swap chance)?
+        </label>
+        <label class="checkbox-row play-only">
+            <input type="checkbox" id="foilToggle">
+            Make the second wildcard (slot 13) foil?
+        </label>
+        <label class="checkbox-row play-only">
+            <input type="checkbox" id="listToggle">
+            Add The List to slot 7 (12.5% × multiplier)?
+        </label>
+    </fieldset>
+
+    <fieldset>
+        <legend>🗺️ Pack separator</legend>
         <label class="checkbox-row">
             <input type="checkbox" id="includeBonus" checked>
-            Include Bonus Dual/Fetch?
+            Add a bonus land after each pack?
         </label>
-    </div>
+        <label for="bonusType">Bonus land type:</label>
+        <select id="bonusType"></select>
+        <p class="hint">The bonus land is not part of the pack, so it stays available in vanilla mode.</p>
+    </fieldset>
+
+    <details class="how" id="howItWorks">
+        <summary>How each card slot is determined <span class="mode-badge" id="modeBadge"></span></summary>
+        <div class="how-body" id="explainBody"></div>
+    </details>
 
     <button id="genBtn">Generate Booster Files</button>
     <div id="status">Ready</div>
@@ -86,14 +204,36 @@
     </div>
 </div>
 
+<script src="booster-logic.js"></script>
 <script>
-    const genBtn = document.getElementById('genBtn');
-    const status = document.getElementById('status');
-    const downloadContainer = document.getElementById('downloadContainer');
-    const downloadList = document.getElementById('downloadList');
-    const combinedArea = document.getElementById('combinedArea');
-    const setSelect = document.getElementById('setSelect');
+    const L = window.BoosterLogic;
+    const $ = id => document.getElementById(id);
+    const genBtn = $('genBtn');
+    const status = $('status');
+    const downloadContainer = $('downloadContainer');
+    const downloadList = $('downloadList');
+    const combinedArea = $('combinedArea');
+    const setSelect = $('setSelect');
+    const cmdSetSelect = $('cmdSetSelect');
 
+    let mode = 'play';
+    // Every option is remembered separately for each tab, so a setting chosen
+    // for Play Boosters never leaks into Commander boosters (and vice versa).
+    const OPT_IDS = ['packCount', 'vanillaToggle', 'funMultiplier', 'preferGuestList', 'foilToggle', 'listToggle', 'includeBonus', 'bonusType'];
+    const modeState = {};
+    function readControls() {
+        const o = {};
+        OPT_IDS.forEach(id => { const el = $(id); o[id] = el.type === 'checkbox' ? el.checked : el.value; });
+        return o;
+    }
+    function writeControls(o) {
+        OPT_IDS.forEach(id => { const el = $(id); if (el.type === 'checkbox') el.checked = o[id]; else el.value = o[id]; });
+    }
+    const setMeta = {};          // code -> Scryfall set object
+    const poolCache = {};        // "mode:code" -> Promise<pools>
+    const loadedPools = {};      // "mode:code" -> pools (once resolved)
+
+    // Classic bonus pool (original duals + fetch lands, fixed printings)
     const bonusPool = [
         { section: "columna", name: "Plateau", mana_cost: "", type_line: "Land — Mountain Plains", set_name: "30th Anniversary Edition", set: "30a", collector_number: "275", artist: "Drew Tucker", usd: "210.25", eur: "250.57", tix: "2.96", uri: "https://scryfall.com", id: "d5ba61cb-0c57-4a94-91a9-6ce0a27b9db7" },
         { section: "columna", name: "Scrubland", mana_cost: "", type_line: "Land — Plains Swamp", set_name: "30th Anniversary Edition", set: "30a", collector_number: "277", artist: "Jesper Myrfors", usd: "228.59", eur: "100.0", tix: "3.74", uri: "https://scryfall.com", id: "eb9a95ba-4c64-4547-b497-d06f3b9a397f" },
@@ -117,87 +257,177 @@
         { section: "columnb", name: "Marsh Flats", mana_cost: "", type_line: "Land", set_name: "Modern Horizons 2", set: "mh2", collector_number: "476", artist: "Izzy", usd: "28.91", eur: "24.3", tix: "0.91", uri: "https://scryfall.com", id: "4e8397e6-d13a-4996-8fde-b8a9895de287" }
     ];
 
-    // Initialize set list using the correct API endpoint root
-    async function initSetList() {
-        const root = "https://api.scryfall.com/";
-        try {
-            const response = await fetch(root + "sets", {
-                method: 'GET',
-                headers: { 'Accept': 'application/json', 'User-Agent': 'MTGBoosterSim/1.0' }
-            });
-            const data = await response.json();
-            const allowedTypes = ['expansion', 'core', 'masters', 'draft_innovation'];
-            const filteredSets = data.data
-                .filter(s => allowedTypes.includes(s.set_type) && s.code.length === 3)
-                .sort((a, b) => new Date(b.released_at) - new Date(a.released_at));
-
-            setSelect.innerHTML = filteredSets.map(s => 
-                `<option value="${s.code}">${s.name} (${s.code.toUpperCase()})</option>`
-            ).join('');
-        } catch (e) {
-            setSelect.innerHTML = `<option value="">Error loading sets</option>`;
-            console.error("Set fetch failed:", e);
-        }
+    // ------------------------------------------------------------------
+    // Scryfall access (throttled to ~9 requests/second, paginated)
+    // ------------------------------------------------------------------
+    const API = "https://api.scryfall.com/";
+    const HEADERS = { 'Accept': 'application/json', 'User-Agent': 'MTGBoosterSim/1.0' };
+    let nextSlot = 0;
+    async function sfFetch(url) {
+        const now = Date.now();
+        const at = Math.max(now, nextSlot);
+        nextSlot = at + 110;
+        if (at > now) await new Promise(r => setTimeout(r, at - now));
+        return fetch(url, { method: 'GET', headers: HEADERS });
     }
 
     async function fetchPool(query) {
-        const endpoint = "https://api.scryfall.com/cards/search?q=";
-        
-        // Append unique:prints to the query string to ensure all art variations are returned
-        const fullQuery = query + " unique:prints";
-        const fullUrl = endpoint + encodeURIComponent(fullQuery);
-        
-        //console.log("Fetching from API:", fullUrl);
-
-        const response = await fetch(fullUrl, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'User-Agent': 'MTGBoosterSim/1.0' 
+        // unique:prints returns every art variant; follow next_page so big sets aren't cut off at 175 cards
+        let url = API + "cards/search?q=" + encodeURIComponent(query + " unique:prints");
+        const out = [];
+        while (url) {
+            const response = await sfFetch(url);
+            if (!response.ok) {
+                if (response.status === 404) return out;
+                throw new Error(`Scryfall API Error: ${response.status}`);
             }
-        });
-
-        if (!response.ok) {
-            if (response.status === 404) return []; 
-            throw new Error(`Scryfall API Error: ${response.status}`);
+            const data = await response.json();
+            out.push(...data.data);
+            url = data.has_more ? data.next_page : null;
         }
+        return out;
+    }
+    const optional = p => p.catch(e => { console.warn("Optional query failed:", e.message); return []; });
 
-        const data = await response.json();
-        return data.data;
+    async function fetchRandom(query) {
+        const res = await sfFetch(API + "cards/random?q=" + encodeURIComponent(query));
+        if (!res.ok) throw new Error(`Scryfall API Error: ${res.status}`);
+        return res.json();
     }
 
-    function groupByName(cards) {
-        const map = new Map();
-        cards.forEach(c => {
-            if (!map.has(c.name)) map.set(c.name, []);
-            map.get(c.name).push(c);
-        });
-        return map;
+    let spgPromise = null;
+    function getSpg() {
+        if (!spgPromise) spgPromise = fetchPool(`set:spg`).then(L.groupByName).catch(e => { spgPromise = null; throw e; });
+        return spgPromise;
     }
 
-    function pickRandomVariant(nameMap) {
-        const names = Array.from(nameMap.keys());
-        if (names.length === 0) return null;
-        const randomName = names[Math.floor(Math.random() * names.length)];
-        const variants = nameMap.get(randomName);
-        
-        const chosen = variants[Math.floor(Math.random() * variants.length)];
+    async function getSetMeta(code) {
+        if (setMeta[code]) return setMeta[code];
+        try {
+            const res = await sfFetch(API + "sets/" + code);
+            if (res.ok) setMeta[code] = await res.json();
+        } catch (e) { /* not fatal */ }
+        return setMeta[code] || null;
+    }
 
-        // Log if there was a choice between multiple versions
-        if (variants.length > 1) {
-            const ids = variants.map(v => v.collector_number).join(", ");
-            console.log(`Selection logic: Chose ID ${chosen.collector_number} out of available [${ids}] for card "${randomName}"`);
+    // ------------------------------------------------------------------
+    // Card pools
+    // ------------------------------------------------------------------
+    async function loadPlayPools(code) {
+        const s = `s:${code} -is:promo`;
+        const [commons, uncommons, rares, mythics, nonBasicLands, landSlot, spg] = await Promise.all([
+            fetchPool(`${s} r:common -t:basic`),
+            fetchPool(`${s} r:uncommon -t:basic`),
+            fetchPool(`${s} r:rare -t:basic`),
+            fetchPool(`${s} r:mythic -t:basic`),
+            fetchPool(`${s} t:land -t:basic`),
+            optional(fetchPool(`${s} (t:basic or (r:common t:land -t:creature))`)),
+            getSpg(),
+            getSetMeta(code)
+        ]);
+        if (rares.length === 0) throw new Error(`Set "${code.toUpperCase()}" not found (no rares).`);
+        const G = L.groupByName;
+        return {
+            commons: G(commons), uncommons: G(uncommons), rares: G(rares), mythics: G(mythics),
+            nonBasicLands: G(nonBasicLands), landSlot: G(landSlot), spg
+        };
+    }
+
+    async function loadCommanderPools(code) {
+        const s = `s:${code} -is:promo`;
+        const [C0, U0, R0, M0, boosterCards, piper, etched, spg] = await Promise.all([
+            fetchPool(`${s} r:common -t:basic`),
+            fetchPool(`${s} r:uncommon -t:basic`),
+            fetchPool(`${s} r:rare -t:basic`),
+            fetchPool(`${s} r:mythic -t:basic`),
+            // These set codes also hold their Commander precon deck cards; is:booster
+            // tells us which card names actually appear in draft boosters.
+            optional(fetchPool(`${s} is:booster -t:basic`)),
+            optional(fetchPool(`s:${code} !"The Prismatic Piper"`)),
+            code === 'cmr' ? optional(fetchPool(`s:${code} is:etched`)) : Promise.resolve([]),
+            getSpg(),
+            getSetMeta(code)
+        ]);
+        if (R0.length === 0) throw new Error(`Set "${code.toUpperCase()}" not found (no rares).`);
+        // Keep every printing (showcase, borderless…) of a name+rarity that is in boosters
+        const inBooster = new Set(boosterCards.map(c => c.name + '|' + c.rarity));
+        const keep = arr => inBooster.size ? arr.filter(c => inBooster.has(c.name + '|' + c.rarity)) : arr;
+        const [C, U, R, M] = [keep(C0), keep(U0), keep(R0), keep(M0)];
+        const G = L.groupByName;
+        const legend = c => L.isLegendCreatureOrPW(c) && !L.isBackground(c);
+        const plain = c => !L.isLegendCreatureOrPW(c) && !L.isBackground(c) && !L.isPiper(c);
+        return {
+            // legendary commons stay in the common slots (the official commander sets have none)
+            commons: G(C.filter(c => !L.isBackground(c) && !L.isPiper(c))), uncommons: G(U.filter(plain)), rares: G(R.filter(plain)), mythics: G(M.filter(plain)),
+            legC: G(C.filter(legend)), legU: G(U.filter(legend)), legR: G(R.filter(legend)), legM: G(M.filter(legend)),
+            legAll: G([...C, ...U, ...R, ...M].filter(legend)),
+            bgCU: G([...C, ...U].filter(L.isBackground)), bgR: G([...R, ...M].filter(L.isBackground)),
+            piper: G(piper.filter(L.isPiper)),
+            etched: G(etched.filter(legend)),
+            allC: G(C.filter(c => !L.isPiper(c))), allU: G(U), allR: G(R), allM: G(M),
+            spg
+        };
+    }
+
+    function ensureLoaded(m, code) {
+        const key = m + ':' + code;
+        if (!poolCache[key]) {
+            poolCache[key] = (m === 'play' ? loadPlayPools(code) : loadCommanderPools(code))
+                .then(p => { loadedPools[key] = p; return p; })
+                .catch(e => { delete poolCache[key]; throw e; });
         }
-
-        return chosen;
+        return poolCache[key];
     }
 
-    function formatToFullCSV(card, isFoil = false, manualSection = null) {
+    // ------------------------------------------------------------------
+    // Bonus land cycles
+    // ------------------------------------------------------------------
+    const cycleCache = {};
+    function loadCycle(cycle) {
+        if (cycle.builtIn) return Promise.resolve(L.groupByName(bonusPool));
+        if (!cycleCache[cycle.id]) {
+            cycleCache[cycle.id] = fetchPool(L.landCycleQuery(cycle) + " -border:gold -is:oversized")
+                .then(L.groupByName)
+                .catch(e => { delete cycleCache[cycle.id]; throw e; });
+        }
+        return cycleCache[cycle.id];
+    }
+
+    async function prepareBonus(typeId) {
+        const real = L.LAND_CYCLES.filter(c => c.id !== 'random');
+        if (typeId === 'random') {
+            const maps = [];
+            for (const c of real) {
+                try { const m = await loadCycle(c); if (m.size) maps.push({ cycle: c, map: m }); } catch (e) { console.warn(`Skipping ${c.label}:`, e.message); }
+            }
+            if (!maps.length) throw new Error("Could not load any bonus land cycle.");
+            return () => {
+                const pick = maps[Math.floor(Math.random() * maps.length)];
+                const card = L.pickFromMap(pick.map, Math.random);
+                return { card, section: card.section || null, cycle: pick.cycle.label };
+            };
+        }
+        const cycle = real.find(c => c.id === typeId) || real[0];
+        const map = await loadCycle(cycle);
+        if (!map.size) throw new Error(`No printings found for ${cycle.label}.`);
+        return () => {
+            const card = L.pickFromMap(map, Math.random);
+            return { card, section: card.section || null, cycle: cycle.label };
+        };
+    }
+
+    // ------------------------------------------------------------------
+    // CSV
+    // ------------------------------------------------------------------
+    function formatToFullCSV(card, finish = "nonfoil", manualSection = null) {
+        if (finish === true) finish = "foil";
+        if (finish === false) finish = "nonfoil";
         const section = manualSection || (card.type_line && card.type_line.toLowerCase().includes("land") ? "lands" : "nonlands");
+        const manaCost = card.mana_cost ?? (card.card_faces ? card.card_faces.map(f => f.mana_cost || '').join(' // ') : '');
         return [
-            section, 1, `"${card.name}"`, `"${card.mana_cost || ''}"`, `"${card.type_line || ''}"`,
+            section, 1, `"${card.name}"`, `"${manaCost || ''}"`, `"${card.type_line || ''}"`,
             `"${card.set_name || ''}"`, card.set || "", `"${card.collector_number || ''}"`,
-            card.lang || "en", card.rarity || "", `"${card.artist || ''}"`, isFoil ? "foil" : "nonfoil",
+            card.lang || "en", card.rarity || "", `"${card.artist || ''}"`, finish,
             card.usd || card.prices?.usd || "", card.eur || card.prices?.eur || "",
             card.tix || card.prices?.tix || "", card.scryfall_uri || card.uri || "", card.id || ""
         ].join(",");
@@ -213,15 +443,287 @@
         return a;
     }
 
+    // ------------------------------------------------------------------
+    // UI state
+    // ------------------------------------------------------------------
+    const cmdAny = () => mode === 'commander' && $('cmdSource').value === 'any';
+    function currentCode() {
+        if (mode === 'commander') {
+            if (!cmdAny()) return cmdSetSelect.value;
+            return ($('cmdAnyCustom').value.trim() || $('cmdAnySetSelect').value || '').toLowerCase();
+        }
+        return ($('customSet').value.trim() || setSelect.value || '').toLowerCase();
+    }
+    // Which commander slot layout to use: the set's own, or the one chosen for "any set"
+    function currentLayout() {
+        if (mode !== 'commander') return null;
+        return cmdAny() ? $('cmdLayout').value : cmdSetSelect.value;
+    }
+
+    function getOpts() {
+        const vanilla = $('vanillaToggle').checked;
+        const code = currentCode();
+        const meta = setMeta[code];
+        const released = meta ? meta.released_at : null;
+        return {
+            vanilla,
+            mult: vanilla ? 1 : parseInt($('funMultiplier').value, 10),
+            guest: !vanilla && $('preferGuestList').checked,
+            // play-only fun options never apply to commander boosters
+            foilToggle: mode === 'play' && !vanilla && $('foilToggle').checked,
+            listToggle: mode === 'play' && !vanilla && $('listToggle').checked,
+            listEra: !!released && released >= L.PLAY_BOOSTER_START && released < L.LIST_ERA_END,
+            released,
+            includeBonus: $('includeBonus').checked,
+            bonusType: $('bonusType').value
+        };
+    }
+
+    function buildSpec(code, opts, stats) {
+        return mode === 'play' ? L.playSpec(opts, stats) : L.commanderSpec(currentLayout(), opts, stats);
+    }
+
+    function syncControls() {
+        const vanilla = $('vanillaToggle').checked;
+        $('funOptions').disabled = vanilla;
+        document.querySelectorAll('.play-only').forEach(el => el.classList.toggle('hidden', mode !== 'play'));
+        $('bonusType').disabled = !$('includeBonus').checked;
+        $('playSetRow').classList.toggle('hidden', mode !== 'play');
+        $('cmdSetRow').classList.toggle('hidden', mode !== 'commander');
+        $('cmdOfficialRow').classList.toggle('hidden', cmdAny());
+        $('cmdAnyRow').classList.toggle('hidden', !cmdAny());
+        document.querySelectorAll('.tabs .tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+        $('tabBlurb').textContent = mode === 'play'
+            ? "14-card Play Boosters from any expansion, core or masters set."
+            : "20-card Commander draft boosters: the official sets (Commander Legends, Battle for Baldur's Gate, Commander Masters), or any set built with one of their layouts.";
+        $('vanillaHint').textContent = mode === 'play'
+            ? "Uses the real Play Booster layout: a basic/common land in the land slot, a non-foil wildcard, a traditional foil wildcard, published rare/mythic and Special Guest odds. Fun options are switched off."
+            : (cmdAny()
+                ? "Uses the chosen layout's published odds with this set's cards. Fun options (multiplier, Guest List swap) are switched off."
+                : "Uses the published Commander draft booster layout for the chosen set. Fun options (multiplier, Guest List swap) are switched off.");
+    }
+
+    // ------------------------------------------------------------------
+    // Explanation panel
+    // ------------------------------------------------------------------
+    const pct = p => p == null ? '' : (p >= 0.9995 ? '100%' : (p * 100 < 0.1 && p > 0 ? '<0.1%' : (p * 100).toFixed(1) + '%'));
+    const esc = s => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+
+    function rarityClass(label) {
+        if (/mythic/i.test(label)) return 'r-mythic';
+        if (/rare/i.test(label)) return 'r-rare';
+        if (/uncommon/i.test(label)) return 'r-uncommon';
+        if (/land/i.test(label)) return 'r-land';
+        if (/common/i.test(label)) return 'r-common';
+        return 'r-special';
+    }
+
+    function foilText(outcomes) {
+        let pf = 0, pe = 0, unknown = false;
+        outcomes.forEach(o => {
+            if (o.p == null) { unknown = true; return; }
+            if (o.foil === 'etched') pe += o.p; else pf += o.p * (o.foil || 0);
+        });
+        if (unknown) {
+            const all = outcomes.every(o => o.foil === 1);
+            const none = outcomes.every(o => !o.foil);
+            return all ? 'Always (traditional foil)' : none ? 'Non-foil' : 'Sometimes';
+        }
+        const parts = [];
+        if (pe > 0) parts.push(`${pct(pe)} foil-etched`);
+        if (pf >= 0.9995) parts.push(pe > 0 ? 'otherwise traditional foil' : 'Always (traditional foil)');
+        else if (pf > 0) parts.push(`${pct(pf)} traditional foil`);
+        return parts.length ? parts.join(' · ') : 'Non-foil';
+    }
+
+    function specialText(outcomes) {
+        const tagged = outcomes.filter(o => o.tag);
+        if (!tagged.length) return '<span class="muted">—</span>';
+        return tagged.map(o => `${esc(o.tag)} ${o.p == null ? '' : '<b>' + pct(o.p) + '</b>'}`).join('<br>');
+    }
+
+    const POOL_NAMES = {
+        legC: 'legendary commons', legU: 'legendary uncommons', legR: 'legendary rares', legM: 'legendary mythics',
+        legAll: 'any legendary creature/planeswalker', uncommons: 'nonlegendary uncommons', rares: 'nonlegendary rares',
+        commons: 'commons', nonBasicLands: 'non-basic lands', landSlot: 'basic/common lands', etched: 'foil-etched legends'
+    };
+    const FUN_NAMES = { mult: 'multiplier', foilToggle: 'foil toggle', listToggle: 'List toggle', landUpgrade: 'land upgrade' };
+    function funTags(slot, opts) {
+        if (opts.vanilla || !slot.affects || !slot.affects.length) return '';
+        const active = slot.affects.filter(t => t !== 'foilToggle' || opts.foilToggle).filter(t => t !== 'listToggle' || opts.listToggle);
+        return active.length ? `<div class="fun-tag">✦ Fun: ${active.map(t => FUN_NAMES[t]).join(', ')}</div>` : '';
+    }
+
+    function renderExplain() {
+        const code = currentCode();
+        const opts = getOpts();
+        const key = mode + ':' + code;
+        const pools = loadedPools[key];
+        const stats = pools ? L.statsFromPools(pools) : null;
+        const slots = buildSpec(code, opts, stats);
+
+        const layoutTxt = mode === 'commander' && cmdAny() ? ` · ${L.LAYOUTS[currentLayout()]}` : '';
+        $('modeBadge').textContent = `— ${mode === 'play' ? 'Play' : 'Commander'} · ${code ? code.toUpperCase() : 'no set'}${layoutTxt} · ${opts.vanilla ? 'Vanilla (official odds)' : 'Fun mode x' + opts.mult}`;
+
+        const rows = slots.map(s => {
+            const slotLabel = s.from === s.to ? `${s.from}` : `${s.from}–${s.to}`;
+            const outs = s.outcomes.map(o => {
+                const n = stats ? L.poolCount(stats, o.pool) : null;
+                const used = L.usedPool(stats, o.pool);
+                const fellBack = stats && Array.isArray(o.pool) && used !== o.pool[0];
+                const size = n != null && isFinite(n)
+                    ? ` <span class="muted">(${fellBack ? 'none in set → ' + esc(POOL_NAMES[used] || used) + ', ' : ''}${n} card${n === 1 ? '' : 's'})</span>` : '';
+                const formula = o.formula ? `<div class="muted" style="margin-left:52px">${esc(o.formula)}</div>` : '';
+                return `<div class="oc"><b>${o.p == null ? '?' : pct(o.p)}</b><span class="rar ${rarityClass(o.label)}">${esc(o.label)}</span>${size}</div>${o.p == null || (o.p > 0 && o.p < 1) ? formula : ''}`;
+            }).join('');
+            return `<tr>
+                <td class="slotnum">${slotLabel}${s.n > 1 ? `<div class="muted">${s.n} cards</div>` : ''}</td>
+                <td><strong>${esc(s.title)}</strong><div class="muted">${esc(s.types)}</div>${funTags(s, opts)}</td>
+                <td>${outs || '<span class="muted">No cards available</span>'}</td>
+                <td>${foilText(s.outcomes)}</td>
+                <td>${specialText(s.outcomes)}</td>
+            </tr>`;
+        }).join('');
+
+        const total = slots.reduce((a, s) => a + s.n, 0);
+        let expectHtml = '';
+        if (stats) {
+            const exp = L.expectedCounts(slots);
+            const sum = re => Object.entries(exp).filter(([k]) => re.test(k)).reduce((a, [, v]) => a + v, 0);
+            const chips = [
+                ['Rares + mythics', sum(/rare|mythic/i)],
+                ['Mythics', sum(/mythic/i)],
+                ['Foils', exp.__foil || 0]
+            ];
+            if (mode === 'commander') chips.push(['Legendaries', sum(/legend|background/i)]);
+            const sg = sum(/special guest|the list|piper/i);
+            if (sg > 0) chips.push([mode === 'play' ? 'List / Special Guest' : 'Prismatic Piper', sg]);
+            expectHtml = `<div class="expect">${chips.map(([k, v]) => `<span>${k}: <b>${v.toFixed(2)}</b> per pack</span>`).join('')}</div>`;
+        }
+
+        // Options in effect for THIS tab, and which slots each one changes
+        const slotList = tag => slots.filter(s => (s.affects || []).includes(tag)).map(s => s.from === s.to ? s.from : `${s.from}–${s.to}`).join(', ');
+        const mods = [];
+        if (mode === 'commander' && cmdAny()) {
+            const lay = currentLayout();
+            const legs = stats ? `${stats.legC || 0} common, ${stats.legU || 0} uncommon, ${stats.legR || 0} rare and ${stats.legM || 0} mythic legendary creatures/planeswalkers` : 'its legendary creatures/planeswalkers';
+            mods.push(`<b>Commander booster from any set:</b> ${esc(L.LAYOUTS[lay])} filled with ${esc(code.toUpperCase())} cards: ${legs}${stats && (stats.bgCU || stats.bgR) ? `, ${(stats.bgCU || 0) + (stats.bgR || 0)} Backgrounds` : ''}.`
+                + (stats && (stats.legAll || 0) < 10 ? ' <b>This set has very few legends</b>, so legendary slots repeat often or fall back to nonlegendary cards.' : ''));
+        }
+        if (opts.vanilla) {
+            mods.push('<b>Vanilla:</b> on. Official odds for every slot; this tab\'s fun options are switched off.');
+        } else {
+            mods.push(opts.mult > 1
+                ? `<b>Fun multiplier x${opts.mult}</b> (slot${slotList('mult').includes(',') ? 's' : ''} ${slotList('mult')}): upgrade chances are multiplied and capped at 100%${mode === 'play' ? ' (Special Guest/List, mythic)' : ' (legendary rare/mythic, rare Background, mythic, rare in the uncommon-or-rare slot, foil-etched)'}; commons are removed from ${mode === 'play' ? 'the wildcards' : 'the foil slot'}.`
+                : `<b>Fun multiplier x1:</b> standard odds (would affect slots ${slotList('mult')}).`);
+            if (opts.guest) mods.push(`<b>Guest List swap</b> (slots 1–${total}): after a card is drawn, if it has a Special Guests printing it is swapped to that printing 50% of the time.`);
+            if (mode === 'play') {
+                if (opts.foilToggle) mods.push(`<b>Foil wildcard</b> (slot ${slotList('foilToggle')}): the second wildcard is always traditional foil.`);
+                if (opts.listToggle) mods.push(`<b>The List</b> (slot ${slotList('listToggle')}): 12.5% × multiplier chance of a random card from The List.`);
+                mods.push(`<b>Land upgrade</b> (slot ${slotList('landUpgrade')}): fun mode always swaps the basic land for a random non-basic land from the set.`);
+            }
+        }
+        mods.push('<b>Printing:</b> a card name is chosen uniformly from the slot\'s pool, then one of that card\'s printings in the set (regular, showcase, borderless, etc.) is chosen at random.');
+        if (opts.includeBonus) {
+            const cyc = L.LAND_CYCLES.find(c => c.id === opts.bonusType);
+            const names = cyc && cyc.names ? `: ${cyc.names.join(', ')}` : (cyc && cyc.builtIn ? ': 10 original duals + 10 fetch lands' : '');
+            mods.push(`<b>Bonus land (card ${total + 1}):</b> after each pack, one random ${esc(cyc ? cyc.label : '')}${esc(names)}. It marks the pack boundary and is not part of the pack.`);
+        }
+        if (mode === 'play' && opts.released && opts.released < L.PLAY_BOOSTER_START) {
+            mods.push(`<b>Note:</b> this set (released ${opts.released}) predates Play Boosters, so it is simulated with the modern Play Booster layout rather than its original draft/set booster.`);
+        }
+        if (mode === 'play' && opts.vanilla) {
+            mods.push(opts.listEra
+                ? '<b>The List:</b> this set is from the MKM–Bloomburrow era, when 12.5% of Play Boosters had a List card (Special Guests included) in slot 7.'
+                : '<b>The List:</b> not in Play Boosters for this set; slot 7 only upgrades to a Special Guest (1 in 64).');
+        }
+        mods.push('<b>Approximate:</b> foil-slot rarity uses per-card weights of 4 : 2 : 1 : ½ (common : uncommon : rare : mythic), close to Duskmourn\'s published foil sheet. Wildcard split (18% / 67% / 15%) also comes from the Duskmourn sheet.');
+
+        $('explainBody').innerHTML = `
+            ${stats ? '' : `<p class="muted">${code ? 'Loading card counts for ' + esc(code.toUpperCase()) + '… percentages that depend on the set show a formula until then.' : 'Pick a set to see exact percentages.'}</p>`}
+            <div class="table-wrap"><table class="slots">
+                <thead><tr><th>Slot</th><th>Card types</th><th>Possible cards &amp; chance</th><th>Foil</th><th>List / Special</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table></div>
+            ${expectHtml}
+            <ul class="modifiers">${mods.map(m => `<li>${m}</li>`).join('')}</ul>
+            <p class="sources">Pack layouts: Wizards' <a href="https://magic.wizards.com/en/news/feature/collecting-commander-masters" target="_blank" rel="noopener">Collecting Commander Masters</a>,
+            StarCityGames' <a href="https://articles.starcitygames.com/magic-the-gathering/your-guide-to-commander-legends-battle-for-baldurs-gate-products/" target="_blank" rel="noopener">Baldur's Gate product guide</a>,
+            and the booster data on <a href="https://www.mtg.wtf/pack/cmr-draft" target="_blank" rel="noopener">mtg.wtf</a> (CMR, CMM, MKM and DSK Play Boosters).</p>`;
+    }
+
+    let loadTimer = null;
+    function refresh() {
+        syncControls();
+        renderExplain();
+        clearTimeout(loadTimer);
+        loadTimer = setTimeout(async () => {
+            const code = currentCode();
+            if (!code) return;
+            const m = mode;
+            const key = m + ':' + code;
+            if (loadedPools[key]) { showSetInfo(m, code); return; }
+            $('setInfo').textContent = `⏳ Loading ${code.toUpperCase()} card pools…`;
+            try {
+                await ensureLoaded(m, code);
+                if (mode === m && currentCode() === code) { showSetInfo(m, code); renderExplain(); }
+            } catch (e) {
+                if (mode === m && currentCode() === code) $('setInfo').textContent = '❌ ' + e.message;
+            }
+        }, 350);
+    }
+
+    function showSetInfo(m, code) {
+        const p = loadedPools[m + ':' + code];
+        if (!p) return;
+        const meta = setMeta[code] || L.COMMANDER_SETS[code];
+        const name = meta ? meta.name : code.toUpperCase();
+        const rel = meta ? (meta.released_at || meta.released || '') : '';
+        const c = k => (p[k] ? p[k].size : 0);
+        const counts = m === 'play'
+            ? `${c('commons')} commons · ${c('uncommons')} uncommons · ${c('rares')} rares · ${c('mythics')} mythics · ${c('nonBasicLands')} non-basic lands`
+            : `${c('commons')} C · ${c('uncommons')} U · ${c('rares')} R · ${c('mythics')} M in regular slots · ${c('legAll')} legends (${c('legC')} C · ${c('legU')} U · ${c('legR')} R · ${c('legM')} M)` + (c('bgCU') + c('bgR') ? ` · ${c('bgCU') + c('bgR')} backgrounds` : '');
+        $('setInfo').textContent = `✅ ${name}${rel ? ' (' + rel + ')' : ''}: ${counts} (unique card names)`;
+    }
+
+    // ------------------------------------------------------------------
+    // Generation
+    // ------------------------------------------------------------------
+    function pickRandomVariant(nameMap) {
+        const names = Array.from(nameMap.keys());
+        if (names.length === 0) return null;
+        const randomName = names[Math.floor(Math.random() * names.length)];
+        const variants = nameMap.get(randomName);
+        const chosen = variants[Math.floor(Math.random() * variants.length)];
+        if (variants.length > 1) {
+            const ids = variants.map(v => v.collector_number).join(", ");
+            console.log(`Selection logic: Chose ID ${chosen.collector_number} out of available [${ids}] for card "${randomName}"`);
+        }
+        return chosen;
+    }
+
+    async function drawCard(outcome, pools) {
+        if (outcome.pool === 'LIST') {
+            try {
+                const card = await fetchRandom('set:plst');
+                console.log(`📜 The List: "${card.name}"`);
+                return card;
+            } catch (e) {
+                console.warn("The List fetch failed, using a common instead:", e.message);
+                return pickRandomVariant(pools.commons);
+            }
+        }
+        const map = L.resolvePool(pools, outcome.pool);
+        return map ? pickRandomVariant(map) : null;
+    }
+
     genBtn.addEventListener('click', async () => {
-        const customCode = document.getElementById('customSet').value.toLowerCase().trim();
-        const setCode = (customCode || setSelect.value).toUpperCase();
-        const packCount = parseInt(document.getElementById('packCount').value);
-        const multiplier = parseInt(document.getElementById('funMultiplier').value);
-        const includeBonus = document.getElementById('includeBonus').checked;
-        const foilToggle = document.getElementById('foilToggle').checked;
-        const preferGuest = document.getElementById('preferGuestList').checked;
-        
+        const code = currentCode();
+        if (!code) { status.textContent = "❌ Pick a set first."; return; }
+        const setCode = code.toUpperCase();
+        const packCount = Math.max(1, parseInt($('packCount').value, 10) || 1);
+        const opts = getOpts();
+
         status.textContent = `⏳ Pulling data for ${setCode}...`;
         genBtn.disabled = true;
         downloadList.innerHTML = "";
@@ -229,83 +731,56 @@
         downloadContainer.style.display = "none";
 
         try {
-            const [rares, mythics, uncommons, commons, nonBasicLands, anyRarity, spgAll] = await Promise.all([
-                fetchPool(`s:${setCode} r:rare -is:promo -t:basic`),
-                fetchPool(`s:${setCode} r:mythic -is:promo -t:basic`),
-                fetchPool(`s:${setCode} r:uncommon -is:promo -t:basic`),
-                fetchPool(`s:${setCode} r:common -is:promo -t:basic`),
-                fetchPool(`s:${setCode} t:land -t:basic -is:promo`),
-                fetchPool(`s:${setCode} -is:promo -t:basic`),
-                fetchPool(`set:spg`)
-            ]);
+            const pools = await ensureLoaded(mode, code);
+            const freshOpts = getOpts();     // set meta may have arrived during loading
+            const slots = buildSpec(code, freshOpts, L.statsFromPools(pools));
+            renderExplain();
 
-            if (rares.length === 0) throw new Error("Set not found.");
-
-            const pools = {
-                rares: groupByName(rares),
-                mythics: groupByName(mythics),
-                uncommons: groupByName(uncommons),
-                commons: groupByName(commons),
-                nonBasicLands: groupByName(nonBasicLands),
-                wildcard: groupByName(multiplier > 1 ? anyRarity.filter(c => c.rarity !== 'common') : anyRarity)
-            };
-
-            const spgMap = new Map();
-            spgAll.forEach(c => spgMap.set(c.name, c));
+            let bonusPick = null;
+            if (opts.includeBonus) {
+                status.textContent = `⏳ Loading bonus lands...`;
+                bonusPick = await prepareBonus(opts.bonusType);
+            }
 
             const processCard = (card) => {
-                if (!card) return null;
-                if (preferGuest && spgMap.has(card.name) && Math.random() < 0.5) {
-                    const guestVersion = spgMap.get(card.name);
-                    console.log(`✨ SWAP: Used Special Guest ID ${guestVersion.collector_number} for "${card.name}"`);
-                    return guestVersion;
+                if (!card || !opts.guest) return card;
+                const guest = pools.spg && pools.spg.get(L.nameKey(card));
+                if (guest && Math.random() < 0.5) {
+                    const g = guest[Math.floor(Math.random() * guest.length)];
+                    console.log(`✨ SWAP: Used Special Guest ID ${g.collector_number} for "${card.name}"`);
+                    return g;
                 }
                 return card;
             };
 
             const header = "section,count,name,mana_cost,type,set,set_code,collector_number,lang,rarity,artist,finish,usd_price,eur_price,tix_price,scryfall_uri,scryfall_id";
             const allRows = [];
+            const layoutTag = cmdAny() ? `-${currentLayout().toUpperCase()}Layout` : '';
+            const label = mode === 'play' ? 'Booster' : `CommanderBooster${layoutTag}`;
+            const allLabel = mode === 'play' ? 'AllBoosters' : `AllCommanderBoosters${layoutTag}`;
 
             for (let i = 1; i <= packCount; i++) {
+                status.textContent = `⏳ Building pack ${i} of ${packCount}...`;
                 console.log(`--- Generating Pack ${i} ---`);
-                let packCards = [];
-                const getRand = (pool) => processCard(pickRandomVariant(pool));
-
-                for(let j=0; j<6; j++) packCards.push({card: getRand(pools.commons), foil: false});
-                const guestChance = 0.015 * multiplier;
-                if (Math.random() < guestChance && spgAll.length > 0) {
-                    packCards.push({card: spgAll[Math.floor(Math.random()*spgAll.length)], foil: false});
-                } else {
-                    packCards.push({card: getRand(pools.commons), foil: false});
+                const packRows = [];
+                for (const slot of slots) {
+                    for (let k = 0; k < slot.n; k++) {
+                        const outcome = L.chooseOutcome(slot.outcomes, Math.random);
+                        if (!outcome) continue;
+                        const card = processCard(await drawCard(outcome, pools));
+                        if (card) packRows.push(formatToFullCSV(card, L.finishFor(outcome, Math.random)));
+                    }
                 }
-                for(let j=0; j<3; j++) packCards.push({card: getRand(pools.uncommons), foil: false});
-                packCards.push({card: getRand(pools.wildcard), foil: false});
-                const mythicChance = 0.13 * multiplier;
-                const pool12 = (Math.random() < mythicChance && Array.from(pools.mythics.keys()).length > 0) ? pools.mythics : pools.rares;
-                packCards.push({card: getRand(pool12), foil: false});
-                packCards.push({card: getRand(pools.wildcard), foil: foilToggle});
-                const landPool = Array.from(pools.nonBasicLands.keys()).length > 0 ? pools.nonBasicLands : pools.uncommons;
-                packCards.push({card: getRand(landPool), foil: false});
-
-                let packRows = [];
-                packCards.forEach(obj => { if(obj.card) packRows.push(formatToFullCSV(obj.card, obj.foil)); });
-
-                if (includeBonus) {
-                    const bonus = bonusPool[Math.floor(Math.random() * bonusPool.length)];
-                    packRows.push(formatToFullCSV(bonus, false, bonus.section));
+                if (bonusPick) {
+                    const b = bonusPick();
+                    if (b.card) packRows.push(formatToFullCSV(b.card, "nonfoil", b.section));
                 }
-
                 allRows.push(...packRows);
-
-                downloadList.appendChild(makeDownloadLink(
-                    `${setCode}-Booster-${i}.csv`,
-                    `⬇️ Pack ${i}`,
-                    [header, ...packRows].join("\n")
-                ));
+                downloadList.appendChild(makeDownloadLink(`${setCode}-${label}-${i}.csv`, `⬇️ Pack ${i}`, [header, ...packRows].join("\n")));
             }
 
             combinedArea.appendChild(makeDownloadLink(
-                `${setCode}-AllBoosters-${packCount}.csv`,
+                `${setCode}-${allLabel}-${packCount}.csv`,
                 `⬇️ All ${packCount} Packs (Single CSV)`,
                 [header, ...allRows].join("\n"),
                 "dl-all"
@@ -315,12 +790,63 @@
             note.textContent = "Packs are concatenated in order. Note: importers such as MTGProxyPrinter group duplicate cards, so the combined file will not preserve pack boundaries — use the per-pack files if that matters.";
             combinedArea.appendChild(note);
 
-            status.textContent = `✅ Successfully generated ${packCount} boosters.`;
+            status.textContent = `✅ Successfully generated ${packCount} ${mode === 'play' ? 'play' : 'commander'} boosters${opts.vanilla ? ' (vanilla)' : ''}.`;
             downloadContainer.style.display = "block";
-        } catch (e) { status.textContent = "❌ Error: " + e.message; }
+        } catch (e) { status.textContent = "❌ Error: " + e.message; console.error(e); }
         finally { genBtn.disabled = false; }
     });
 
+    // ------------------------------------------------------------------
+    // Init
+    // ------------------------------------------------------------------
+    async function initSetList() {
+        try {
+            const response = await sfFetch(API + "sets");
+            const data = await response.json();
+            data.data.forEach(s => { setMeta[s.code] = s; });
+            const allowedTypes = ['expansion', 'core', 'masters', 'draft_innovation'];
+            const commanderCodes = Object.keys(L.COMMANDER_SETS);
+            const filteredSets = data.data
+                .filter(s => allowedTypes.includes(s.set_type) && s.code.length === 3 && !commanderCodes.includes(s.code))
+                .sort((a, b) => new Date(b.released_at) - new Date(a.released_at));
+            setSelect.innerHTML = filteredSets.map(s => `<option value="${s.code}">${s.name} (${s.code.toUpperCase()})</option>`).join('');
+            // "Any set" commander boosters can use every set, including the official commander ones
+            $('cmdAnySetSelect').innerHTML = data.data
+                .filter(s => allowedTypes.includes(s.set_type) && s.code.length === 3)
+                .sort((a, b) => new Date(b.released_at) - new Date(a.released_at))
+                .map(s => `<option value="${s.code}">${s.name} (${s.code.toUpperCase()})</option>`).join('');
+        } catch (e) {
+            setSelect.innerHTML = `<option value="">Error loading sets</option>`;
+            $('cmdAnySetSelect').innerHTML = `<option value="">Error loading sets</option>`;
+            console.error("Set fetch failed:", e);
+        }
+        refresh();
+    }
+
+    cmdSetSelect.innerHTML = Object.values(L.COMMANDER_SETS)
+        .sort((a, b) => b.released.localeCompare(a.released))
+        .map(s => `<option value="${s.code}">${s.name} (${s.code.toUpperCase()})</option>`).join('');
+    $('bonusType').innerHTML = L.LAND_CYCLES.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+
+    // Each tab starts from the page defaults and then keeps its own settings
+    const defaults = readControls();
+    modeState.play = Object.assign({}, defaults);
+    modeState.commander = Object.assign({}, defaults);
+    document.querySelectorAll('.tabs .tab').forEach(t => t.addEventListener('click', () => {
+        if (t.dataset.mode === mode) return;
+        modeState[mode] = readControls();
+        mode = t.dataset.mode;
+        writeControls(modeState[mode]);
+        downloadContainer.style.display = "none";
+        status.textContent = "Ready";
+        refresh();
+    }));
+    ['setSelect', 'customSet', 'cmdSource', 'cmdSetSelect', 'cmdAnySetSelect', 'cmdAnyCustom', 'cmdLayout',
+     'vanillaToggle', 'funMultiplier', 'preferGuestList', 'foilToggle', 'listToggle', 'includeBonus', 'bonusType']
+        .forEach(id => $(id).addEventListener('change', refresh));
+
+    syncControls();
+    renderExplain();
     initSetList();
 </script>
 
