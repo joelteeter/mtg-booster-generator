@@ -70,10 +70,10 @@ async function exportFile(kind, idx) {
                 paper: $('pdfPaper').value,
                 bleedMm: parseFloat($('pdfBleed').value),
                 quality: $('pdfQuality').value,
-                enhance: side !== 'back' && $('pdfEnhance').checked,   // fronts only: backs aren't worth the wait
+                enhance: $('pdfEnhance').checked,   // export.js skips plain card backs; only card faces are upscaled
                 newPagePerPack,
                 title: lastExport.base[idx] + (side === 'back' ? ' (backs)' : ''),
-                onProgress: (done, total) => { st.textContent = `⏳ ${side === 'back' ? 'Backs' : 'Fronts'} PDF for ${what}: ${side !== 'back' && $('pdfEnhance').checked ? 'AI-enhancing' : 'preparing'} card images ${done} of ${total}…`; }
+                onProgress: (done, total) => { st.textContent = `⏳ ${side === 'back' ? 'Backs' : 'Fronts'} PDF for ${what}: ${$('pdfEnhance').checked ? 'AI-enhancing' : 'preparing'} card images ${done} of ${total}…`; }
             });
             st.textContent = `⏳ Saving PDF…`;
             saveBytes(bytes, lastExport.base[idx] + (side === 'back' ? '-backs' : '') + '.pdf', 'application/pdf');

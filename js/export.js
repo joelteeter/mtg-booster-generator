@@ -341,7 +341,7 @@ CREATE TABLE DocumentDimensions (
     // ------------------------------------------------------------------
     // PDF
     // opts: { side: 'front'|'back', paper: 'letter'|'a4', bleedMm, newPagePerPack,
-    //         quality: 'high'|'fast', enhance (2× AI upscale), dfcMode: 'separate'|'frontOnly',
+    //         quality: 'high'|'fast', enhance (2× AI upscale of card faces; plain backs never), dfcMode: 'separate'|'frontOnly',
     //         flip: 'long'|'short' (backs only), customBackUrl (backs only),
     //         cutLines (default: on, except fronts in "frontOnly" mode),
     //         onProgress(done, total), imageLoader(url) }
@@ -355,17 +355,20 @@ CREATE TABLE DocumentDimensions (
         const back = opts.side === "back";
         return cards.map((entry, i) => {
             let col = i % GRID.cols, row = Math.floor(i / GRID.cols);
-            let url;
+            let url, enhance = !!opts.enhance;
             if (!back) {
                 url = imageUrl(entry.card, opts.quality, entry.face || 0);
             } else {
                 if (opts.flip === "short") row = GRID.rows - 1 - row;
                 else col = GRID.cols - 1 - col;
-                url = (opts.dfcMode === "frontOnly" && entry.face !== 1 && isDfc(entry.card))
-                    ? imageUrl(entry.card, opts.quality, 1)
-                    : (opts.customBackUrl || cardBackUrl(entry.card, opts.quality));
+                if (opts.dfcMode === "frontOnly" && entry.face !== 1 && isDfc(entry.card)) {
+                    url = imageUrl(entry.card, opts.quality, 1);   // a real card face: enhanced like the fronts
+                } else {
+                    url = opts.customBackUrl || cardBackUrl(entry.card, opts.quality);
+                    enhance = false;                                // plain card backs are never upscaled
+                }
             }
-            return { col, row, url };
+            return { col, row, url, enhance };
         });
     }
 
@@ -385,15 +388,17 @@ CREATE TABLE DocumentDimensions (
             : !(opts.side !== "back" && opts.dfcMode === "frontOnly");
 
         // Download/convert each distinct image once (cached across exports)
+        const enhanceUrls = new Set(pages.flat().filter(p => p.enhance).map(p => p.url));
         const urls = [...new Set(pages.flat().map(p => p.url).filter(Boolean))];
         let done = 0;
         const report = () => opts.onProgress && opts.onProgress(done, urls.length);
         report();
         const images = new Map();
         await mapLimit(urls, 6, async url => {
-            const key = url + "|" + bleedPx + "|" + (opts.enhance ? "2x" : "1x");
+            const enhance = enhanceUrls.has(url);
+            const key = url + "|" + bleedPx + "|" + (enhance ? "2x" : "1x");
             if (!imageCache.has(key)) {
-                imageCache.set(key, loader(url, bleedPx, !!opts.enhance).catch(e => { imageCache.delete(key); throw e; }));
+                imageCache.set(key, loader(url, bleedPx, enhance).catch(e => { imageCache.delete(key); throw e; }));
             }
             images.set(url, await imageCache.get(key));
             done++;
