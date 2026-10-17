@@ -183,8 +183,11 @@
         if (v) {
             slots.push({ n: 1, title: "Rare or mythic", types: "Any non-basic rare or mythic", outcomes: rareMythic(stats, "rares", "mythics", 1, ["Rare", "Mythic"], nf) });
             slots.push({
-                n: 1, title: "Land", types: "Basic land, or a common non-creature land from the set",
-                outcomes: [{ pool: ["landSlot", "nonBasicLands", "commons"], label: "Land (basic / common land)", p: 1, foil: 0.2, formula: "20% of land slots are traditional foil" }]
+                n: 1, title: "Land", types: "Basic land, or one of the set's common dual lands",
+                outcomes: [
+                    { pool: ["landBasics", "nonBasicLands", "commons"], label: "Basic land", p: 0.5, foil: 0.2, formula: "half of land slots (Duskmourn sheet); 20% foil" },
+                    { pool: "landDuals", label: "Common dual land", p: 0.5, foil: 0.2, formula: "half of land slots, if the set has common duals; 20% foil" }
+                ]
             });
             const rm = rareMythic(stats, "rares", "mythics", 1, ["Rare", "Mythic"], nf);
             slots.push({

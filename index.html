@@ -514,7 +514,7 @@
 
     let spgPromise = null;
     function getSpg() {
-        if (!spgPromise) spgPromise = fetchPool(`set:spg`).then(L.groupByName).catch(e => { spgPromise = null; throw e; });
+        if (!spgPromise) spgPromise = fetchPool(`set:spg`).catch(e => { spgPromise = null; throw e; });
         return spgPromise;
     }
 
@@ -532,21 +532,45 @@
     // ------------------------------------------------------------------
     async function loadPlayPools(code) {
         const s = `s:${code} -is:promo`;
-        const [commons, uncommons, rares, mythics, nonBasicLands, landSlot, spg] = await Promise.all([
+        const [C0, U0, R0, M0, nonBasicLands0, landSlot, boosterCards, spgAll, meta] = await Promise.all([
             fetchPool(`${s} r:common -t:basic`),
             fetchPool(`${s} r:uncommon -t:basic`),
             fetchPool(`${s} r:rare -t:basic`),
             fetchPool(`${s} r:mythic -t:basic`),
             fetchPool(`${s} t:land -t:basic`),
             optional(fetchPool(`${s} (t:basic or (r:common t:land -t:creature))`)),
+            // Many set codes also hold cards that aren't in Play Boosters (e.g. Foundations'
+            // starter-kit cards); is:booster says which are. Some sets have no is:booster
+            // data on Scryfall yet; then every card is kept.
+            optional(fetchPool(`${s} is:booster -t:basic`)),
             getSpg(),
             getSetMeta(code)
         ]);
-        if (rares.length === 0) throw new Error(`Set "${code.toUpperCase()}" not found (no rares).`);
+        if (R0.length === 0) throw new Error(`Set "${code.toUpperCase()}" not found (no rares).`);
         const G = L.groupByName;
+        const inBooster = new Set(boosterCards.map(c => c.name + '|' + c.rarity));
+        const keep = arr => {
+            if (!inBooster.size) return arr;
+            const kept = arr.filter(c => inBooster.has(c.name + '|' + c.rarity));
+            return kept.length ? kept : arr;
+        };
+        // Real Play Boosters put the set's common dual lands in the land slot only (half
+        // the time; basics the other half), so they're taken out of the common slots.
+        // Other common lands such as Terramorphic Expanse stay on the common sheet.
+        const isBasic = c => /Basic/.test(c.type_line || '');
+        const isCommonDual = c => !isBasic(c) && (c.produced_mana || []).filter(m => 'WUBRG'.includes(m)).length >= 2;
+        const landBasics = landSlot.filter(isBasic);
+        const landDuals = landSlot.filter(isCommonDual);
+        const landSlotOnly = new Set(landDuals.map(c => c.name));
+        const commons = keep(C0).filter(c => !landSlotOnly.has(c.name));
+        // Special Guests: only this set's own (they share its release date)
+        const released = meta && meta.released_at;
+        const ownSpg = released ? spgAll.filter(c => c.released_at === released) : [];
         return {
-            commons: G(commons), uncommons: G(uncommons), rares: G(rares), mythics: G(mythics),
-            nonBasicLands: G(nonBasicLands), landSlot: G(landSlot), spg
+            commons: G(commons.length ? commons : C0), uncommons: G(keep(U0)), rares: G(keep(R0)), mythics: G(keep(M0)),
+            nonBasicLands: G(keep(nonBasicLands0)), landBasics: G(landBasics), landDuals: G(landDuals),
+            spg: G(ownSpg.length ? ownSpg : spgAll), spgAll: G(spgAll),
+            meta: { boosterFiltered: inBooster.size > 0, ownSpg: ownSpg.length, landSlotOnly: landSlotOnly.size }
         };
     }
 
@@ -582,7 +606,7 @@
             piper: G(piper.filter(L.isPiper)),
             etched: G(etched.filter(legend)),
             allC: G(C.filter(c => !L.isPiper(c))), allU: G(U), allR: G(R), allM: G(M),
-            spg
+            spgAll: G(spg)
         };
     }
 
@@ -760,13 +784,35 @@
     const POOL_NAMES = {
         legC: 'legendary commons', legU: 'legendary uncommons', legR: 'legendary rares', legM: 'legendary mythics',
         legAll: 'any legendary creature/planeswalker', uncommons: 'nonlegendary uncommons', rares: 'nonlegendary rares',
-        commons: 'commons', nonBasicLands: 'non-basic lands', landSlot: 'basic/common lands', etched: 'foil-etched legends'
+        commons: 'commons', nonBasicLands: 'non-basic lands', landBasics: 'basic lands', landDuals: 'common dual lands', etched: 'foil-etched legends'
     };
     const FUN_NAMES = { mult: 'multiplier', foilToggle: 'foil toggle', listToggle: 'List toggle', landUpgrade: 'land upgrade' };
     function funTags(slot, opts) {
         if (opts.vanilla || !slot.affects || !slot.affects.length) return '';
         const active = slot.affects.filter(t => t !== 'foilToggle' || opts.foilToggle).filter(t => t !== 'listToggle' || opts.listToggle);
         return active.length ? `<div class="fun-tag">✦ Fun: ${active.map(t => FUN_NAMES[t]).join(', ')}</div>` : '';
+    }
+
+    // Expected number of land cards per pack: each outcome picks a card name uniformly
+    // from its pool, so its land chance is (land names ÷ all names) in that pool
+    const landShareCache = new WeakMap();
+    function landShare(map) {
+        if (!landShareCache.has(map)) {
+            let n = 0;
+            for (const variants of map.values()) if (/\bLand\b/.test(variants[0].type_line || '')) n++;
+            landShareCache.set(map, map.size ? n / map.size : 0);
+        }
+        return landShareCache.get(map);
+    }
+    function expectedLands(slots, pools) {
+        if (!pools) return null;
+        let total = 0;
+        for (const s of slots) for (const o of s.outcomes) {
+            if (o.p == null || o.pool === 'LIST') continue;
+            const map = L.resolvePool(pools, o.pool);
+            if (map) total += s.n * o.p * landShare(map);
+        }
+        return total;
     }
 
     function renderExplain() {
@@ -811,6 +857,8 @@
                 ['Foils', exp.__foil || 0]
             ];
             if (mode === 'commander') chips.push(['Legendaries', sum(/legend|background/i)]);
+            const lands = expectedLands(slots, pools);
+            if (lands != null) chips.push([opts.includeBonus ? 'Lands (+1 separator)' : 'Lands', lands]);
             const sg = sum(/special guest|the list|piper/i);
             if (sg > 0) chips.push([mode === 'play' ? 'List / Special Guest' : 'Prismatic Piper', sg]);
             expectHtml = `<div class="expect">${chips.map(([k, v]) => `<span>${k}: <b>${v.toFixed(2)}</b> per pack</span>`).join('')}</div>`;
@@ -905,9 +953,15 @@
     // ------------------------------------------------------------------
     // Generation
     // ------------------------------------------------------------------
-    function pickRandomVariant(nameMap) {
-        const names = Array.from(nameMap.keys());
+    // exclude: card names already in this pack. Real packs come from collated print
+    // sheets, so the same card essentially never appears twice in one pack.
+    function pickRandomVariant(nameMap, exclude) {
+        let names = Array.from(nameMap.keys());
         if (names.length === 0) return null;
+        if (exclude && exclude.size) {
+            const fresh = names.filter(n => !exclude.has(n));
+            if (fresh.length) names = fresh;
+        }
         const randomName = names[Math.floor(Math.random() * names.length)];
         const variants = nameMap.get(randomName);
         const chosen = variants[Math.floor(Math.random() * variants.length)];
@@ -918,7 +972,7 @@
         return chosen;
     }
 
-    async function drawCard(outcome, pools) {
+    async function drawCard(outcome, pools, exclude) {
         if (outcome.pool === 'LIST') {
             try {
                 const card = await fetchRandom('set:plst');
@@ -926,11 +980,11 @@
                 return card;
             } catch (e) {
                 console.warn("The List fetch failed, using a common instead:", e.message);
-                return pickRandomVariant(pools.commons);
+                return pickRandomVariant(pools.commons, exclude);
             }
         }
         const map = L.resolvePool(pools, outcome.pool);
-        return map ? pickRandomVariant(map) : null;
+        return map ? pickRandomVariant(map, exclude) : null;
     }
 
     // ------------------------------------------------------------------
@@ -1124,7 +1178,7 @@
 
             const processCard = (card) => {
                 if (!card || !opts.guest) return card;
-                const guest = pools.spg && pools.spg.get(L.nameKey(card));
+                const guest = pools.spgAll && pools.spgAll.get(L.nameKey(card));
                 if (guest && Math.random() < 0.5) {
                     const g = guest[Math.floor(Math.random() * guest.length)];
                     console.log(`✨ SWAP: Used Special Guest ID ${g.collector_number} for "${card.name}"`);
@@ -1145,11 +1199,14 @@
                 console.log(`--- Generating Pack ${i} ---`);
                 const packRows = [];
                 const packCards = [];   // kept for the preview (no extra requests)
+                const usedNames = new Set();
                 for (const slot of slots) {
                     for (let k = 0; k < slot.n; k++) {
                         const outcome = L.chooseOutcome(slot.outcomes, Math.random);
                         if (!outcome) continue;
-                        const card = processCard(await drawCard(outcome, pools));
+                        const drawn = await drawCard(outcome, pools, usedNames);
+                        if (drawn && !/Basic/.test(drawn.type_line || '')) usedNames.add(L.nameKey(drawn));
+                        const card = processCard(drawn);
                         if (!card) continue;
                         const finish = L.finishFor(outcome, Math.random);
                         packRows.push(formatToFullCSV(card, finish));

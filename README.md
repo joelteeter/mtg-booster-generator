@@ -28,7 +28,7 @@ Each tab remembers its own options, so settings chosen for Play Boosters never c
 | Land upgrade (non-basic land) | slot 14, always on in fun mode | – |
 | Bonus land | after the pack | after the pack |
 
-* **Vanilla mode** – official odds for every slot, fun options switched off. For Play Boosters that means a real basic/common land slot (20% foil), a non-foil wildcard, a traditional-foil wildcard, mythic share of M ÷ (2R + M), Special Guests in 1 of 64 packs, and The List in slot 7 for MKM–Bloomburrow era sets
+* **Vanilla mode** – official odds for every slot, fun options switched off. For Play Boosters that means a real land slot (half basic land, half one of the set's common dual lands, 20% foil), a non-foil wildcard, a traditional-foil wildcard, mythic share of M ÷ (2R + M), Special Guests in 1 of 64 packs, and The List in slot 7 for MKM–Bloomburrow era sets
 * **How each card slot is determined** – collapsible panel showing every slot's card types, rarity odds, foil chance and List / Special Guest / Piper chance, with exact percentages for the chosen set. It updates as options change, and the generator uses the same numbers
 * Fun options (non-vanilla):
   * Fun Booster Multiplier increases upgrade odds (mythics, Special Guests, legendary rares, etc.) and removes commons from wildcard/foil slots
@@ -37,6 +37,12 @@ Each tab remembers its own options, so settings chosen for Play Boosters never c
   * Option to add The List to slot 7 (Play Booster)
   * Option to evenly swap for a Guest List card if it exists in the set
 * Option to separate boosters with a bonus land, and pick the land type: classic original duals + fetches, shock, slow, scry, surveil, verge, gain, fast, guildgates, desert pingers, creature lands, fetch, original duals, check, pain, filter, bounce, bond, battle, horizon, triomes, pathways, or a random cycle each pack
+* **Play Booster pools follow real collation:**
+  * cards Scryfall marks as not in boosters (e.g. Foundations' starter-kit cards) are left out, when the set has that data
+  * the set's common dual lands appear only in the land slot, not the common slots
+  * slot 7's Special Guest comes from that set's own Special Guests
+  * no card name appears twice in the same pack (basic lands aside), as with collated print sheets
+  * the slot panel shows the expected number of lands per pack
 * Will grab a random version of each card if multiple versions exist in scryfall
 * **Preview packs** (proof of concept) – after generating, view each pack as card images with its slot, rarity and foil/etched marker; double-faced cards flip on click. Images come from the links already in the Scryfall card data and load from Scryfall's image server (cards.scryfall.io) one pack at a time, so previewing makes no extra API requests
 * **Downloads** – for all packs together, or each pack on its own, in three formats:
