@@ -119,7 +119,10 @@ CREATE TABLE DocumentDimensions (
     // ------------------------------------------------------------------
     // Optional 2× AI upscaling (runs on the graphics card through WebGL)
     // ------------------------------------------------------------------
-    const UPSCALE = { patchSize: 128, padding: 8 };   // small tiles were by far the fastest in testing
+    // Measured (Mac, Apple GPU, Chrome, 744×1040 card): ~10–11 s per card with 128 px tiles on WebGL.
+    // WebGPU was no faster (~11 s), 256 px tiles were much slower (~25 s), and the lighter
+    // esrgan-slim model was ~6 s but softer, so medium + WebGL + 128 px tiles is kept.
+    const UPSCALE = { patchSize: 128, padding: 8 };
     let upscalerPromise = null;
     function getUpscaler() {
         if (!upscalerPromise) {
