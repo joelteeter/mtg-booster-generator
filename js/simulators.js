@@ -8,7 +8,7 @@
  * so one printing per card name), done the first time the tab is opened.
  * Images load from Scryfall's image server, one card at a time.
  *
- * Relies on sfFetch() and API from the main script (throttled Scryfall access).
+ * Relies on sfFetch() and API from js/scryfall.js (throttled Scryfall access).
  */
 (function () {
     "use strict";

@@ -4,7 +4,11 @@ Generate Magic: The Gathering booster packs from Scryfall data, then print them 
 Lots of vibing here. The goal is to proxy cards for drafts: generate packs that follow real booster odds (or deliberately fun ones), then print them, with each pack's cards kept together and a separator land between packs.
 
 ## Running it
-Open `index.html` in a modern browser (Firefox, Chrome, Safari or Edge). No install, build step or local server is needed: it talks to the Scryfall API directly, which accepts requests from a page opened from disk.
+Two ways, both working the same:
+* **Single file:** open `dist/mtg-booster-generator.html` in a modern browser (Firefox, Chrome, Safari or Edge). Everything is inside that one file, so you can copy, email or share it on its own
+* **From source:** open `index.html` in the project folder (it loads `css/` and `js/` from next to it)
+
+No install, build step or local server is needed to use either: the app talks to the Scryfall API directly, which accepts requests from a page opened from disk.
 
 You need an internet connection for:
 * **Scryfall's API** – card and set data. Requests are spaced ~150 ms apart (Scryfall asks for ≤10 per second); if Scryfall answers "429 Too Many Requests", the app waits the time Scryfall asks for and retries, showing a message while it waits
@@ -84,13 +88,34 @@ Every format is available for all packs together or for each pack on its own.
 * **Start each pack on a new page** (PDFs and MTGProxyPrinter file)
 
 ## Files
-* `index.html` – UI, Scryfall access, pack generation, preview and CSV export
-* `booster-logic.js` – pack layouts and odds, shared by the generator and the slot panel
-* `export.js` – PDF fronts/backs and MTGProxyPrinter file export
-* `simulators.js` – Planechase and Archenemy simulators
+```
+index.html               page markup; loads the styles and scripts below
+css/styles.css           all styles
+js/booster-logic.js      pack layouts and odds, shared by the generator and the slot panel
+js/state.js              shared state: DOM shortcuts, current tab, per-tab options, pool caches
+js/scryfall.js           Scryfall requests (queue + retries), card pools, Special Guests, separator lands
+js/csv.js                CSV rows in Scryfall's format
+js/ui.js                 form state, per-tab controls and the "How each card slot is determined" panel
+js/generate.js           pack generation and the Generate button
+js/downloads.js          downloads table (CSV / PDF fronts / PDF backs / MTGProxyPrinter) and card back picker
+js/preview.js            pack preview
+js/simulators.js         Planechase and Archenemy simulators
+js/export.js             PDF and MTGProxyPrinter file builders
+js/main.js               start-up: fills the set lists and wires up the tabs (loaded last)
+build.py                 bundles everything into dist/mtg-booster-generator.html
+dist/                    the single-file build
+```
+The scripts are plain browser scripts that share one global scope, so the order of the `<script>` tags in `index.html` matters: `booster-logic.js` and `state.js` first, `main.js` last.
+
+## Development
+Edit the files under `css/` and `js/` (and `index.html` for markup), test by opening `index.html`, then rebuild the single file:
+```
+python3 build.py
+```
+It needs only Python 3 (no packages), inlines every local stylesheet and script into `dist/mtg-booster-generator.html`, and leaves the on-demand CDN libraries as links. Commit the rebuilt `dist/` file along with your changes so the shareable version stays current.
 
 ## Credits
 * Card data and images: [Scryfall](https://scryfall.com). Magic: The Gathering is © Wizards of the Coast; this is an unofficial fan tool for play-testing proxies
-* The MTGProxyPrinter save-file format (`document-v7.sql`, embedded in `export.js`) is from MTGProxyPrinter by Thomas Hess, GPL-3.0
+* The MTGProxyPrinter save-file format (`document-v7.sql`, embedded in `js/export.js`) is from MTGProxyPrinter by Thomas Hess, GPL-3.0
 * Pack layouts and odds: Wizards' "Collecting" articles, StarCityGames' product guides and the booster data on [mtg.wtf](https://mtg.wtf)
 * Licensed under the GPL-3.0 (see `LICENSE`)
