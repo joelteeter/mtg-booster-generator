@@ -39,12 +39,19 @@ Each tab remembers its own options, so settings chosen for Play Boosters never c
 * Option to separate boosters with a bonus land, and pick the land type: classic original duals + fetches, shock, slow, scry, surveil, verge, gain, fast, guildgates, desert pingers, creature lands, fetch, original duals, check, pain, filter, bounce, bond, battle, horizon, triomes, pathways, or a random cycle each pack
 * Will grab a random version of each card if multiple versions exist in scryfall
 * **Preview packs** (proof of concept) – after generating, view each pack as card images with its slot, rarity and foil/etched marker; double-faced cards flip on click. Images come from the links already in the Scryfall card data and load from Scryfall's image server (cards.scryfall.io) one pack at a time, so previewing makes no extra API requests
-* Option to download all packs concatenated into a single CSV, in pack order (handy for anything other than MTGProxyPrinter, which will group the duplicates and lose the pack boundaries)
-* Output will be in scryfall csv format (finish column is `nonfoil`, `foil` or `etched`)
+* **Downloads** – for all packs together, or each pack on its own, in three formats:
+  * **CSV** – Scryfall CSV format (finish column is `nonfoil`, `foil` or `etched`). MTGProxyPrinter's CSV import merges duplicate cards, so pack order and separator lands get lost there
+  * **PDF** – built in the browser with pdf-lib: US Letter or A4, 3×3 cards at 63×88 mm (Scryfall's 745×1040 PNGs at 300 dpi, or the faster ~270 dpi JPGs), with cut lines across the page like MTGProxyPrinter's export. Upgrades: each rounded corner is filled from the pixels next to it, and an optional outer bleed (1–3 mm) stretches the card's edge pixels past the outside edges of the card grid (like MTGProxyPrinter's bleed), so borderless and full-art cards continue their art and a slightly-off cut doesn't leave a white strip. Because the corners are filled, small crosshairs mark every card corner on top of the cards; they invert the colour underneath, so they show on both black and white borders
+  * **MTGProxyPrinter save file (`.mtgproxies`)** – built in the browser with sql.js in MTGProxyPrinter's own document format (v7), so File → Open keeps every card in pack order. The file carries no layout settings, so MTGProxyPrinter uses your own defaults
+  * **PDF backs** – the same pages as the fronts PDF with every position mirrored, so printing it on the reverse puts each back behind its card. Choose whether your printer flips on the long edge (left column ↔ right column) or the short edge (top row ↔ bottom row). Every normal card gets the same standard Magic card back (never special backs like the 30th Anniversary Edition one), or your own image (picked from your computer, never uploaded)
+  * **Double-faced cards** – either the front and back as two separate cards (for sleeves), or front only with the back face printed behind it on the backs PDF (in that mode the fronts PDF has no cut lines; they print on the backs only). The MTGProxyPrinter file follows the same setting; the CSV lists each card once
+  * Option to start each pack on a new page (PDFs and save file)
+  * Packs that contain double-faced cards are flagged (⟲ with a count, hover for the card names) in the downloads table, the preview's pack list and the "generated" message
 
 ## Files
 * `index.html` – UI, Scryfall fetching, CSV export
 * `booster-logic.js` – pack layouts and odds (shared by the generator and the explanation panel)
 * `simulators.js` – Planechase and Archenemy simulators
+* `export.js` – fronts/backs PDF and MTGProxyPrinter save-file export (loads pdf-lib and sql.js from jsDelivr the first time you use them)
 
 Run this on a local server as scryfall will fail on CORS, e.g. `python3 -m http.server 8777`

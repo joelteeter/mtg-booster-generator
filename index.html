@@ -21,7 +21,22 @@
         .download-area { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-top: 20px; }
         .dl-link { background: #28a745; color: white; text-decoration: none; padding: 10px; text-align: center; border-radius: 6px; font-weight: bold; font-size: 0.85rem; border: 1px solid #1e7e34; }
         .dl-all { display: block; background: #6f42c1; border-color: #59359a; font-size: 0.95rem; margin-bottom: 8px; }
-        .dl-note { font-size: 0.8rem; color: #777; font-weight: normal; margin: 0 0 18px; }
+        .dl-note { font-size: 0.8rem; color: #777; font-weight: normal; margin: 10px 0 18px; }
+        .export-opts select { margin-top: 4px; }
+        .export-opts label { margin-top: 8px; }
+        table.dl-table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 0.9rem; }
+        table.dl-table th { text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: #667; padding: 4px 6px; }
+        table.dl-table td { padding: 4px 6px; border-top: 1px solid #eef0f4; white-space: nowrap; }
+        table.dl-table tr.all-row td { background: #f6f2fc; font-weight: bold; }
+        .dl-btn { display: inline-block; width: auto; margin: 0; padding: 6px 12px; font-size: 0.8rem; border-radius: 6px; font-weight: bold; text-decoration: none; border: 1px solid; cursor: pointer; }
+        .dl-btn.csv { background: #28a745; border-color: #1e7e34; color: #fff; }
+        .dl-btn.pdf { background: #dc3545; border-color: #b52a37; color: #fff; }
+        .dfc-badge { display: inline-block; margin-left: 6px; padding: 0 7px; border-radius: 10px; background: #e6f0ff; color: #1f4fa3; border: 1px solid #b7cff5; font-size: 0.72rem; font-weight: bold; cursor: help; }
+        table.dl-table tr.has-dfc td:first-child { box-shadow: inset 3px 0 0 #3b7ddd; }
+        .dl-btn.back { background: #8a5a2b; border-color: #6e4620; color: #fff; }
+        .dl-btn.mpp { background: #6f42c1; border-color: #59359a; color: #fff; }
+        .dl-btn:disabled { opacity: 0.5; cursor: wait; }
+        .export-status { margin-top: 8px; font-size: 0.85rem; font-weight: bold; color: #007bff; min-height: 1.2em; }
         #status { margin-top: 15px; font-weight: bold; text-align: center; color: #007bff; }
         #downloadContainer { display: none; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 20px; }
         .hidden { display: none !important; }
@@ -259,9 +274,75 @@
     <button id="genBtn">Generate Booster Files</button>
     <div id="status">Ready</div>
     <div id="downloadContainer">
-        <label>Download Booster CSVs:</label>
-        <div id="combinedArea"></div>
-        <div id="downloadList" class="download-area"></div>
+        <label>Downloads</label>
+        <div class="flex-row export-opts">
+            <div>
+                <label for="pdfPaper">PDF paper:</label>
+                <select id="pdfPaper">
+                    <option value="letter">US Letter</option>
+                    <option value="a4">A4</option>
+                </select>
+            </div>
+            <div>
+                <label for="pdfBleed">PDF outer bleed:</label>
+                <select id="pdfBleed">
+                    <option value="0">None (like MTGProxyPrinter)</option>
+                    <option value="1">1 mm</option>
+                    <option value="2" selected>2 mm</option>
+                    <option value="3">3 mm</option>
+                </select>
+            </div>
+            <div>
+                <label for="pdfQuality">PDF card images:</label>
+                <select id="pdfQuality">
+                    <option value="high">High: Scryfall PNG, 300 dpi</option>
+                    <option value="fast">Faster: Scryfall large JPG, ~270 dpi</option>
+                </select>
+            </div>
+        </div>
+        <div class="flex-row export-opts">
+            <div>
+                <label for="dfcMode">Double-faced cards:</label>
+                <select id="dfcMode">
+                    <option value="separate">Front and back as separate cards (for sleeves)</option>
+                    <option value="frontOnly">Front only; back face goes on the backs PDF (cut lines on backs only)</option>
+                </select>
+            </div>
+            <div>
+                <label for="backFlip">Backs PDF, printer flips on:</label>
+                <select id="backFlip">
+                    <option value="long">Long edge (left column ↔ right column)</option>
+                    <option value="short">Short edge (top row ↔ bottom row)</option>
+                </select>
+            </div>
+            <div>
+                <label for="backImage">Card back for normal cards:</label>
+                <select id="backImage">
+                    <option value="standard">Standard Magic card back</option>
+                    <option value="custom">My own image…</option>
+                </select>
+                <input type="file" id="backFile" accept="image/png,image/jpeg,image/webp" class="hidden">
+                <p class="hint" id="backFileHint"></p>
+            </div>
+        </div>
+        <label class="checkbox-row">
+            <input type="checkbox" id="newPagePerPack">
+            Start each pack on a new page (PDF and MTGProxyPrinter file)
+        </label>
+        <div class="table-wrap">
+            <table class="dl-table">
+                <thead><tr><th></th><th>CSV</th><th>PDF fronts</th><th>PDF backs</th><th>MTGProxyPrinter</th></tr></thead>
+                <tbody id="dlRows"></tbody>
+            </table>
+        </div>
+        <div id="exportStatus" class="export-status"></div>
+        <p class="dl-note">
+            <b>CSV:</b> Scryfall format; MTGProxyPrinter's CSV import merges duplicate cards, so pack order is lost there.
+            <b>PDF fronts:</b> 3×3 cards at 63×88 mm with cut lines; rounded corners are filled from the pixels next to them, the outer bleed stretches each card's edge pixels outward, and inverted-colour crosshairs mark every card corner for cutting.
+            <b>PDF backs:</b> same pages as the fronts PDF with every position mirrored, so printing it on the back of the fronts puts each back behind its card. Use the same paper, bleed and "new page" settings for both. With "front only" double-faced cards, the cut lines are printed on the backs only.
+            <b>MTGProxyPrinter:</b> a <code>.mtgproxies</code> document; open it with File → Open to print every card in pack order with your own MTGProxyPrinter settings (it follows the double-faced card setting too).
+            The CSV lists each card once, as MTGProxyPrinter's import expects.
+        </p>
 
         <div id="previewArea">
             <button id="previewToggle" class="btn-secondary">👁 Preview packs</button>
@@ -310,8 +391,6 @@
     const genBtn = $('genBtn');
     const status = $('status');
     const downloadContainer = $('downloadContainer');
-    const downloadList = $('downloadList');
-    const combinedArea = $('combinedArea');
     const setSelect = $('setSelect');
     const cmdSetSelect = $('cmdSetSelect');
 
@@ -360,14 +439,53 @@
     // Scryfall access (throttled to ~9 requests/second, paginated)
     // ------------------------------------------------------------------
     const API = "https://api.scryfall.com/";
-    const HEADERS = { 'Accept': 'application/json', 'User-Agent': 'MTGBoosterSim/1.0' };
+    // Only CORS-safelisted headers: a custom User-Agent makes the browser send an extra
+    // OPTIONS "preflight" before every request, doubling the load on Scryfall. The
+    // browser sends its own User-Agent anyway.
+    const HEADERS = { 'Accept': 'application/json' };
+    const REQUEST_GAP_MS = 150;     // ≈6–7 requests/second; Scryfall asks for ≤10/s on average
+    const MAX_RETRIES = 3;
     let nextSlot = 0;
-    async function sfFetch(url) {
+
+    // One shared queue: every Scryfall API request waits for its turn
+    function takeTurn(extraDelayMs = 0) {
         const now = Date.now();
-        const at = Math.max(now, nextSlot);
-        nextSlot = at + 110;
-        if (at > now) await new Promise(r => setTimeout(r, at - now));
-        return fetch(url, { method: 'GET', headers: HEADERS });
+        const at = Math.max(now, nextSlot) + extraDelayMs;
+        nextSlot = at + REQUEST_GAP_MS;
+        return at > now ? new Promise(r => setTimeout(r, at - now)) : Promise.resolve();
+    }
+
+    function rateLimitNotice(msg) {
+        console.warn(msg);
+        const el = document.getElementById('status');
+        if (el && el.offsetParent !== null) el.textContent = msg;
+        const sim = document.getElementById('simStatus');
+        if (sim && sim.offsetParent !== null) sim.textContent = msg;
+    }
+
+    async function sfFetch(url) {
+        let backoff = 0;
+        for (let attempt = 0; ; attempt++) {
+            await takeTurn(backoff);
+            let res;
+            try {
+                res = await fetch(url, { method: 'GET', headers: HEADERS });
+            } catch (e) {
+                // A 429 without CORS headers shows up as a network error; treat it as "slow down"
+                if (attempt >= MAX_RETRIES) throw new Error("Couldn't reach Scryfall (network error or rate limit). Wait a minute and try again.");
+                backoff = 10000 * (attempt + 1);
+                rateLimitNotice(`⏳ Scryfall didn't answer; trying again in ${backoff / 1000}s…`);
+                continue;
+            }
+            if (res.status !== 429) return res;
+            if (attempt >= MAX_RETRIES) throw new Error("Scryfall is rate-limiting requests (429). Wait a minute and try again.");
+            const retryAfter = parseFloat(res.headers.get('Retry-After'));
+            backoff = (Number.isFinite(retryAfter) ? retryAfter : 10) * 1000 + 500;
+            // Hold the whole queue, so other pending requests don't keep hitting the limit
+            nextSlot = Math.max(nextSlot, Date.now() + backoff);
+            rateLimitNotice(`⏳ Scryfall asked us to slow down; continuing in ${Math.ceil(backoff / 1000)}s…`);
+            backoff = 0;
+        }
     }
 
     async function fetchPool(query) {
@@ -532,15 +650,6 @@
         ].join(",");
     }
 
-    function makeDownloadLink(filename, text, csvText, extraClass) {
-        const blob = new Blob([csvText], { type: 'text/csv' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.className = "dl-link" + (extraClass ? " " + extraClass : "");
-        a.download = filename;
-        a.textContent = text;
-        return a;
-    }
 
     // ------------------------------------------------------------------
     // UI state
@@ -825,6 +934,105 @@
     }
 
     // ------------------------------------------------------------------
+    // Downloads: CSV, PDF and MTGProxyPrinter save file, for all packs or one
+    // (row 0 = all packs, row n = pack n)
+    // ------------------------------------------------------------------
+    let lastExport = null;
+    let exporting = false;
+
+    // Double-faced cards per pack (they need the "Double-faced cards" print choice)
+    const dfcCount = pack => pack.filter(e => window.Exporter && window.Exporter.isDfc(e.card)).length;
+    const dfcNames = pack => pack.filter(e => window.Exporter && window.Exporter.isDfc(e.card)).map(e => e.card.name).join(', ');
+    const dfcBadge = (n, title) => n ? ` <span class="dfc-badge" title="${esc(title)}">⟲ ${n} double-faced</span>` : '';
+
+    function renderDownloadRows() {
+        const n = lastPacks.length;
+        const total = lastPacks.reduce((a, p) => a + dfcCount(p), 0);
+        const row = (idx, name) => `<tr class="${idx === 0 ? 'all-row' : ''}${idx > 0 && dfcCount(lastPacks[idx - 1]) ? ' has-dfc' : ''}">
+            <td>${name}${idx === 0
+                ? dfcBadge(total, `${total} double-faced card(s) across all packs`)
+                : dfcBadge(dfcCount(lastPacks[idx - 1]), dfcNames(lastPacks[idx - 1]))}</td>
+            <td><a class="dl-btn csv" href="${URL.createObjectURL(new Blob([lastExport.csv[idx]], { type: 'text/csv' }))}" download="${esc(lastExport.base[idx])}.csv">⬇ CSV</a></td>
+            <td><button class="dl-btn pdf" data-kind="pdf" data-idx="${idx}">⬇ Fronts</button></td>
+            <td><button class="dl-btn back" data-kind="back" data-idx="${idx}">⬇ Backs</button></td>
+            <td><button class="dl-btn mpp" data-kind="mpp" data-idx="${idx}">⬇ .mtgproxies</button></td>
+        </tr>`;
+        $('dlRows').innerHTML = row(0, `All ${n} packs`) + lastPacks.map((p, i) => row(i + 1, `Pack ${i + 1}`)).join('');
+    }
+
+    function saveBytes(bytes, filename, type) {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([bytes], { type }));
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 60000);
+    }
+
+    async function exportFile(kind, idx) {
+        if (exporting || !lastExport) return;
+        exporting = true;
+        const buttons = document.querySelectorAll('#dlRows button');
+        buttons.forEach(b => b.disabled = true);
+        const packs = idx === 0 ? lastPacks : [lastPacks[idx - 1]];
+        const what = idx === 0 ? `all ${packs.length} packs` : `pack ${idx}`;
+        const newPagePerPack = $('newPagePerPack').checked;
+        const st = $('exportStatus');
+        try {
+            if (kind === 'mpp') {
+                st.textContent = `⏳ Building MTGProxyPrinter file for ${what}…`;
+                const bytes = await window.Exporter.buildSaveFile(packs, { newPagePerPack, dfcMode: $('dfcMode').value });
+                saveBytes(bytes, lastExport.base[idx] + '.mtgproxies', 'application/vnd.sqlite3');
+            } else {
+                const side = kind === 'back' ? 'back' : 'front';
+                if (side === 'back' && $('backImage').value === 'custom' && !customBackUrl) throw new Error('Choose your card back image first.');
+                const t0 = Date.now();
+                const bytes = await window.Exporter.buildPdf(packs, {
+                    side,
+                    dfcMode: $('dfcMode').value,
+                    flip: $('backFlip').value,
+                    customBackUrl: side === 'back' && $('backImage').value === 'custom' ? customBackUrl : null,
+                    paper: $('pdfPaper').value,
+                    bleedMm: parseFloat($('pdfBleed').value),
+                    quality: $('pdfQuality').value,
+                    newPagePerPack,
+                    title: lastExport.base[idx] + (side === 'back' ? ' (backs)' : ''),
+                    onProgress: (done, total) => { st.textContent = `⏳ ${side === 'back' ? 'Backs' : 'Fronts'} PDF for ${what}: card images ${done} of ${total}…`; }
+                });
+                st.textContent = `⏳ Saving PDF…`;
+                saveBytes(bytes, lastExport.base[idx] + (side === 'back' ? '-backs' : '') + '.pdf', 'application/pdf');
+                console.log(`PDF built in ${((Date.now() - t0) / 1000).toFixed(1)}s, ${(bytes.length / 1048576).toFixed(1)} MB`);
+            }
+            st.textContent = `✅ ${{ pdf: 'Fronts PDF', back: 'Backs PDF', mpp: 'MTGProxyPrinter file' }[kind]} for ${what} downloaded.`;
+        } catch (e) {
+            console.error(e);
+            st.textContent = `❌ Export failed: ${e.message}`;
+        } finally {
+            exporting = false;
+            buttons.forEach(b => b.disabled = false);
+        }
+    }
+    // Custom card back: kept as a local object URL, never uploaded anywhere
+    let customBackUrl = null;
+    $('backImage').addEventListener('change', () => {
+        const custom = $('backImage').value === 'custom';
+        $('backFile').classList.toggle('hidden', !custom);
+        if (custom && !customBackUrl) $('backFile').click();
+    });
+    $('backFile').addEventListener('change', () => {
+        const f = $('backFile').files[0];
+        if (!f) return;
+        if (customBackUrl) URL.revokeObjectURL(customBackUrl);
+        customBackUrl = URL.createObjectURL(f);
+        $('backFileHint').textContent = `Using ${f.name}; it's stretched to 63×88 mm (745×1040 px works best).`;
+    });
+
+    $('dlRows').addEventListener('click', e => {
+        const b = e.target.closest('button[data-kind]');
+        if (b) exportFile(b.dataset.kind, parseInt(b.dataset.idx, 10));
+    });
+
+    // ------------------------------------------------------------------
     // Pack preview (proof of concept)
     // Uses image links already present in the Scryfall card objects, so it costs
     // no API calls; images come from the cards.scryfall.io CDN, and only the
@@ -895,10 +1103,11 @@
 
         status.textContent = `⏳ Pulling data for ${setCode}...`;
         genBtn.disabled = true;
-        downloadList.innerHTML = "";
+        $('dlRows').innerHTML = "";
+        $('exportStatus').textContent = "";
         lastPacks = [];
+        lastExport = null;
         resetPreview();
-        combinedArea.innerHTML = "";
         downloadContainer.style.display = "none";
 
         try {
@@ -926,6 +1135,7 @@
 
             const header = "section,count,name,mana_cost,type,set,set_code,collector_number,lang,rarity,artist,finish,usd_price,eur_price,tix_price,scryfall_uri,scryfall_id";
             const allRows = [];
+            const packCsv = [];
             const layoutTag = cmdAny() ? `-${currentLayout().toUpperCase()}Layout` : '';
             const label = mode === 'play' ? 'Booster' : `CommanderBooster${layoutTag}`;
             const allLabel = mode === 'play' ? 'AllBoosters' : `AllCommanderBoosters${layoutTag}`;
@@ -955,23 +1165,20 @@
                 }
                 lastPacks.push(packCards);
                 allRows.push(...packRows);
-                downloadList.appendChild(makeDownloadLink(`${setCode}-${label}-${i}.csv`, `⬇️ Pack ${i}`, [header, ...packRows].join("\n")));
+                packCsv.push([header, ...packRows].join("\n"));
             }
 
-            combinedArea.appendChild(makeDownloadLink(
-                `${setCode}-${allLabel}-${packCount}.csv`,
-                `⬇️ All ${packCount} Packs (Single CSV)`,
-                [header, ...allRows].join("\n"),
-                "dl-all"
-            ));
-            const note = document.createElement('p');
-            note.className = "dl-note";
-            note.textContent = "Packs are concatenated in order. Note: importers such as MTGProxyPrinter group duplicate cards, so the combined file will not preserve pack boundaries — use the per-pack files if that matters.";
-            combinedArea.appendChild(note);
+            lastExport = {
+                base: [`${setCode}-${allLabel}-${packCount}`].concat(packCsv.map((_, i) => `${setCode}-${label}-${i + 1}`)),
+                csv: [[header, ...allRows].join("\n")].concat(packCsv)
+            };
+            renderDownloadRows();
 
-            $('previewPackSelect').innerHTML = lastPacks.map((p, idx) => `<option value="${idx}">Pack ${idx + 1} (${p.length} cards)</option>`).join('');
+            $('previewPackSelect').innerHTML = lastPacks.map((p, idx) => `<option value="${idx}">Pack ${idx + 1} (${p.length} cards)${dfcCount(p) ? ` ⟲ ${dfcCount(p)} double-faced` : ''}</option>`).join('');
             if (!$('previewPanel').classList.contains('hidden')) renderPreview(0);
-            status.textContent = `✅ Successfully generated ${packCount} ${mode === 'play' ? 'play' : 'commander'} boosters${opts.vanilla ? ' (vanilla)' : ''}.`;
+            const dfcPacks = lastPacks.filter(p => dfcCount(p)).length;
+            status.textContent = `✅ Successfully generated ${packCount} ${mode === 'play' ? 'play' : 'commander'} boosters${opts.vanilla ? ' (vanilla)' : ''}.`
+                + (dfcPacks ? ` ⟲ ${dfcPacks} pack${dfcPacks === 1 ? '' : 's'} contain double-faced cards; check the "Double-faced cards" print setting.` : '');
             downloadContainer.style.display = "block";
         } catch (e) { status.textContent = "❌ Error: " + e.message; console.error(e); }
         finally { genBtn.disabled = false; }
@@ -1031,6 +1238,7 @@
     initSetList();
 </script>
 <script src="simulators.js"></script>
+<script src="export.js"></script>
 
 </body>
 </html>
