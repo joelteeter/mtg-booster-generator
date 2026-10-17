@@ -347,7 +347,7 @@ td.slotnum { white-space: nowrap; font-weight: bold; color: #333; }
         <div class="enhance-row">
             <label class="checkbox-row">
                 <input type="checkbox" id="pdfEnhance">
-                ✨ AI-enhance card images 2× (~600 dpi) in the PDFs
+                ✨ AI-enhance card images 2× (~600 dpi) in the fronts PDFs
             </label>
             <button id="compareEnhance" class="btn-secondary sim-small-btn" disabled>🔍 Compare on one card</button>
             <p class="hint">Sharper text and edges, using an AI upscaler that runs on your graphics card in this browser (downloads ~3 MB once). Slow: about 10 seconds per card (≈2½ min per pack, ≈20 min for 8 packs), and PDFs get about 4× bigger. Best on photo paper, cardstock or a good laser printer.</p>
@@ -1645,10 +1645,10 @@ async function exportFile(kind, idx) {
                 paper: $('pdfPaper').value,
                 bleedMm: parseFloat($('pdfBleed').value),
                 quality: $('pdfQuality').value,
-                enhance: $('pdfEnhance').checked,
+                enhance: side !== 'back' && $('pdfEnhance').checked,   // fronts only: backs aren't worth the wait
                 newPagePerPack,
                 title: lastExport.base[idx] + (side === 'back' ? ' (backs)' : ''),
-                onProgress: (done, total) => { st.textContent = `⏳ ${side === 'back' ? 'Backs' : 'Fronts'} PDF for ${what}: ${$('pdfEnhance').checked ? 'AI-enhancing' : 'preparing'} card images ${done} of ${total}…`; }
+                onProgress: (done, total) => { st.textContent = `⏳ ${side === 'back' ? 'Backs' : 'Fronts'} PDF for ${what}: ${side !== 'back' && $('pdfEnhance').checked ? 'AI-enhancing' : 'preparing'} card images ${done} of ${total}…`; }
             });
             st.textContent = `⏳ Saving PDF…`;
             saveBytes(bytes, lastExport.base[idx] + (side === 'back' ? '-backs' : '') + '.pdf', 'application/pdf');
