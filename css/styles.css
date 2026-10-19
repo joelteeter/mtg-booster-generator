@@ -130,7 +130,21 @@ td.slotnum { white-space: nowrap; font-weight: bold; color: #333; }
 .r-special { background: #e3d4f7; color: #4a2a7a; }
 .r-land { background: #d7ecd9; color: #1e4d25; }
 .muted { color: #888; font-size: 0.75rem; }
-.fun-tag { display: inline-block; margin-top: 3px; font-size: 0.7rem; color: #8a5a00; background: #fff3d6; border-radius: 4px; padding: 0 6px; }
+/* Slots whose determination differs from the official (vanilla) layout */
+table.slots tr.changed td { background: #fffdf4; }
+table.slots tr.changed td.slotnum { box-shadow: inset 3px 0 0 #e0a800; }
+.diff-tag { margin-top: 4px; font-size: 0.7rem; color: #8a5a00; background: #fff3d6; border: 1px solid #f2dca6; border-radius: 4px; padding: 3px 6px; }
+.diff-head { display: block; font-weight: bold; margin-bottom: 2px; }
+.diff-line + .diff-line { margin-top: 1px; }
+.diff-tag .was { color: #a98a55; font-weight: normal; }
+.diff-tag .up, .vanilla-diff .up { color: #1a7f37; }
+.diff-tag .down, .vanilla-diff .down { color: #b3261e; }
+.vanilla-diff { margin: 10px 0; padding: 8px 10px; font-size: 0.8rem; background: #fff8e8; border: 1px solid #f0d9a0; border-left: 4px solid #e0a800; border-radius: 4px; }
+.vanilla-diff.same { background: #eef7ee; border-color: #cfe4cf; border-left-color: #4a8f4a; }
+.vanilla-diff ul { margin: 6px 0 0; padding-left: 18px; }
+.vanilla-diff li { margin-bottom: 3px; }
+.vanilla-diff .was { color: #a98a55; }
+.vanilla-diff .reorder-note { margin: 6px 0 0; }
 .expect { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; }
 .expect span { background: #eef3fb; border-radius: 6px; padding: 4px 10px; font-size: 0.8rem; }
 .modifiers { font-size: 0.85rem; padding-left: 20px; margin: 10px 0 0; }

@@ -406,10 +406,71 @@
         return exp;
     }
 
+    // ---------------------------------------------------------------------
+    // Vanilla comparison
+    // ---------------------------------------------------------------------
+    /*
+     * Compare a spec with the same set's vanilla spec, so the panel can show
+     * what the chosen options actually changed instead of only which option
+     * touches a slot. Both specs are built from the same `stats`, so anything
+     * caused by the set's own contents (no mythics, no Backgrounds, empty
+     * pools dropped and renormalised) cancels out, leaving only the changes
+     * the options are responsible for.
+     *
+     * Slots are aligned by card position: each slot is compared with the
+     * vanilla slot holding its first card. Play Boosters reorder and retitle
+     * slots between vanilla and fun mode, so the two lists are not parallel.
+     *
+     * Returns one array of change records per slot, for the UI to format:
+     *   { kind: "title",   fromTitle, toTitle }
+     *   { kind: "added",   label, toP }
+     *   { kind: "removed", label, fromP }
+     *   { kind: "p",       label, fromP, toP }
+     *   { kind: "foil",    label, fromFoil, toFoil }
+     */
+    const DIFF_EPS = 0.005; // ignore sub-half-point wobble from renormalising
+
+    function slotAtPosition(slots, pos) {
+        for (const s of slots) if (pos >= s.from && pos <= s.to) return s;
+        return null;
+    }
+
+    // label -> { p, foil }. A label can appear more than once in a slot (a
+    // fallback pool landing on a tier that is already there), so chances add.
+    function outcomesByLabel(slot) {
+        const m = new Map();
+        for (const o of slot.outcomes) {
+            const prev = m.get(o.label);
+            if (!prev) m.set(o.label, { p: o.p, foil: o.foil });
+            else prev.p = prev.p == null || o.p == null ? null : prev.p + o.p;
+        }
+        return m;
+    }
+
+    function diffSlotFromVanilla(slot, vSlot) {
+        const changes = [];
+        if (!vSlot) return changes;
+        if (slot.title !== vSlot.title) changes.push({ kind: "title", fromTitle: vSlot.title, toTitle: slot.title });
+        const cur = outcomesByLabel(slot), van = outcomesByLabel(vSlot);
+        cur.forEach((o, label) => {
+            const v = van.get(label);
+            if (!v) { changes.push({ kind: "added", label: label, toP: o.p }); return; }
+            if (o.p != null && v.p != null && Math.abs(o.p - v.p) >= DIFF_EPS) changes.push({ kind: "p", label: label, fromP: v.p, toP: o.p });
+            if (String(o.foil || 0) !== String(v.foil || 0)) changes.push({ kind: "foil", label: label, fromFoil: v.foil || 0, toFoil: o.foil || 0 });
+        });
+        van.forEach((v, label) => { if (!cur.has(label)) changes.push({ kind: "removed", label: label, fromP: v.p }); });
+        return changes;
+    }
+
+    function diffFromVanilla(slots, vanillaSlots) {
+        if (!vanillaSlots) return slots.map(() => []);
+        return slots.map(s => diffSlotFromVanilla(s, slotAtPosition(vanillaSlots, s.from)));
+    }
+
     const api = {
         COMMANDER_SETS, LAYOUTS, usedPool, PLAY_BOOSTER_START, LIST_ERA_END, LAND_CYCLES, landCycleQuery,
         isLegendCreatureOrPW, isBackground, isPiper, typeLine,
-        playSpec, commanderSpec, finalize, poolCount,
+        playSpec, commanderSpec, finalize, poolCount, diffFromVanilla,
         resolvePool, chooseOutcome, pickFromMap, finishFor, statsFromPools, groupByName, nameKey, expectedCounts
     };
     if (typeof module !== "undefined" && module.exports) module.exports = api;

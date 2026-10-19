@@ -138,7 +138,21 @@ td.slotnum { white-space: nowrap; font-weight: bold; color: #333; }
 .r-special { background: #e3d4f7; color: #4a2a7a; }
 .r-land { background: #d7ecd9; color: #1e4d25; }
 .muted { color: #888; font-size: 0.75rem; }
-.fun-tag { display: inline-block; margin-top: 3px; font-size: 0.7rem; color: #8a5a00; background: #fff3d6; border-radius: 4px; padding: 0 6px; }
+/* Slots whose determination differs from the official (vanilla) layout */
+table.slots tr.changed td { background: #fffdf4; }
+table.slots tr.changed td.slotnum { box-shadow: inset 3px 0 0 #e0a800; }
+.diff-tag { margin-top: 4px; font-size: 0.7rem; color: #8a5a00; background: #fff3d6; border: 1px solid #f2dca6; border-radius: 4px; padding: 3px 6px; }
+.diff-head { display: block; font-weight: bold; margin-bottom: 2px; }
+.diff-line + .diff-line { margin-top: 1px; }
+.diff-tag .was { color: #a98a55; font-weight: normal; }
+.diff-tag .up, .vanilla-diff .up { color: #1a7f37; }
+.diff-tag .down, .vanilla-diff .down { color: #b3261e; }
+.vanilla-diff { margin: 10px 0; padding: 8px 10px; font-size: 0.8rem; background: #fff8e8; border: 1px solid #f0d9a0; border-left: 4px solid #e0a800; border-radius: 4px; }
+.vanilla-diff.same { background: #eef7ee; border-color: #cfe4cf; border-left-color: #4a8f4a; }
+.vanilla-diff ul { margin: 6px 0 0; padding-left: 18px; }
+.vanilla-diff li { margin-bottom: 3px; }
+.vanilla-diff .was { color: #a98a55; }
+.vanilla-diff .reorder-note { margin: 6px 0 0; }
 .expect { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; }
 .expect span { background: #eef3fb; border-radius: 6px; padding: 4px 10px; font-size: 0.8rem; }
 .modifiers { font-size: 0.85rem; padding-left: 20px; margin: 10px 0 0; }
@@ -817,10 +831,71 @@ td.slotnum { white-space: nowrap; font-weight: bold; color: #333; }
         return exp;
     }
 
+    // ---------------------------------------------------------------------
+    // Vanilla comparison
+    // ---------------------------------------------------------------------
+    /*
+     * Compare a spec with the same set's vanilla spec, so the panel can show
+     * what the chosen options actually changed instead of only which option
+     * touches a slot. Both specs are built from the same `stats`, so anything
+     * caused by the set's own contents (no mythics, no Backgrounds, empty
+     * pools dropped and renormalised) cancels out, leaving only the changes
+     * the options are responsible for.
+     *
+     * Slots are aligned by card position: each slot is compared with the
+     * vanilla slot holding its first card. Play Boosters reorder and retitle
+     * slots between vanilla and fun mode, so the two lists are not parallel.
+     *
+     * Returns one array of change records per slot, for the UI to format:
+     *   { kind: "title",   fromTitle, toTitle }
+     *   { kind: "added",   label, toP }
+     *   { kind: "removed", label, fromP }
+     *   { kind: "p",       label, fromP, toP }
+     *   { kind: "foil",    label, fromFoil, toFoil }
+     */
+    const DIFF_EPS = 0.005; // ignore sub-half-point wobble from renormalising
+
+    function slotAtPosition(slots, pos) {
+        for (const s of slots) if (pos >= s.from && pos <= s.to) return s;
+        return null;
+    }
+
+    // label -> { p, foil }. A label can appear more than once in a slot (a
+    // fallback pool landing on a tier that is already there), so chances add.
+    function outcomesByLabel(slot) {
+        const m = new Map();
+        for (const o of slot.outcomes) {
+            const prev = m.get(o.label);
+            if (!prev) m.set(o.label, { p: o.p, foil: o.foil });
+            else prev.p = prev.p == null || o.p == null ? null : prev.p + o.p;
+        }
+        return m;
+    }
+
+    function diffSlotFromVanilla(slot, vSlot) {
+        const changes = [];
+        if (!vSlot) return changes;
+        if (slot.title !== vSlot.title) changes.push({ kind: "title", fromTitle: vSlot.title, toTitle: slot.title });
+        const cur = outcomesByLabel(slot), van = outcomesByLabel(vSlot);
+        cur.forEach((o, label) => {
+            const v = van.get(label);
+            if (!v) { changes.push({ kind: "added", label: label, toP: o.p }); return; }
+            if (o.p != null && v.p != null && Math.abs(o.p - v.p) >= DIFF_EPS) changes.push({ kind: "p", label: label, fromP: v.p, toP: o.p });
+            if (String(o.foil || 0) !== String(v.foil || 0)) changes.push({ kind: "foil", label: label, fromFoil: v.foil || 0, toFoil: o.foil || 0 });
+        });
+        van.forEach((v, label) => { if (!cur.has(label)) changes.push({ kind: "removed", label: label, fromP: v.p }); });
+        return changes;
+    }
+
+    function diffFromVanilla(slots, vanillaSlots) {
+        if (!vanillaSlots) return slots.map(() => []);
+        return slots.map(s => diffSlotFromVanilla(s, slotAtPosition(vanillaSlots, s.from)));
+    }
+
     const api = {
         COMMANDER_SETS, LAYOUTS, usedPool, PLAY_BOOSTER_START, LIST_ERA_END, LAND_CYCLES, landCycleQuery,
         isLegendCreatureOrPW, isBackground, isPiper, typeLine,
-        playSpec, commanderSpec, finalize, poolCount,
+        playSpec, commanderSpec, finalize, poolCount, diffFromVanilla,
         resolvePool, chooseOutcome, pickFromMap, finishFor, statsFromPools, groupByName, nameKey, expectedCounts
     };
     if (typeof module !== "undefined" && module.exports) module.exports = api;
@@ -1268,10 +1343,43 @@ const POOL_NAMES = {
     commons: 'commons', nonBasicLands: 'non-basic lands', landBasics: 'basic lands', landDuals: 'common dual lands', etched: 'foil-etched legends'
 };
 const FUN_NAMES = { mult: 'multiplier', foilToggle: 'foil toggle', listToggle: 'List toggle', landUpgrade: 'land upgrade' };
-function funTags(slot, opts) {
-    if (opts.vanilla || !slot.affects || !slot.affects.length) return '';
-    const active = slot.affects.filter(t => t !== 'foilToggle' || opts.foilToggle).filter(t => t !== 'listToggle' || opts.listToggle);
-    return active.length ? `<div class="fun-tag">✦ Fun: ${active.map(t => FUN_NAMES[t]).join(', ')}</div>` : '';
+
+// Which of this tab's options are responsible for a slot differing from vanilla
+function slotOptionNames(slot, opts) {
+    if (opts.vanilla || !slot.affects || !slot.affects.length) return [];
+    return slot.affects
+        .filter(t => t !== 'foilToggle' || opts.foilToggle)
+        .filter(t => t !== 'listToggle' || opts.listToggle)
+        .map(t => FUN_NAMES[t]);
+}
+
+// The options for this tab with every fun option switched off, so the current
+// spec can be compared against the official layout for the same set.
+function vanillaOpts(opts) {
+    return Object.assign({}, opts, { vanilla: true, mult: 1, guest: false, foilToggle: false, listToggle: false });
+}
+
+const foilWord = f => f === 'etched' ? 'foil-etched' : !f ? 'non-foil' : f === 1 ? 'always foil' : pct(f) + ' foil';
+
+// One change record from L.diffFromVanilla as readable HTML
+function changeText(c) {
+    switch (c.kind) {
+        case 'title': return `now <b>${esc(c.toTitle)}</b> <span class="was">(vanilla: ${esc(c.fromTitle)})</span>`;
+        case 'added': return `<b>${esc(c.label)}</b> added${c.toP == null ? '' : ' at ' + pct(c.toP)}`;
+        case 'removed': return `<b>${esc(c.label)}</b> removed <span class="was">(vanilla ${pct(c.fromP) || 'possible'})</span>`;
+        case 'p': return `<b>${esc(c.label)}</b> ${pct(c.fromP)} → ${pct(c.toP)} ${c.toP > c.fromP ? '<span class="up">▲</span>' : '<span class="down">▼</span>'}`;
+        case 'foil': return `<b>${esc(c.label)}</b> ${foilWord(c.fromFoil)} → ${foilWord(c.toFoil)}`;
+    }
+    return '';
+}
+
+// Per-row callout naming the responsible options and every concrete change
+function changeTag(changes, slot, opts) {
+    if (!changes.length) return '';
+    const who = slotOptionNames(slot, opts);
+    return `<div class="diff-tag"><span class="diff-head">✦ Differs from vanilla${who.length ? ' · ' + esc(who.join(', ')) : ''}</span>`
+        + changes.map(c => `<div class="diff-line">${changeText(c)}</div>`).join('')
+        + `</div>`;
 }
 
 // Expected number of land cards per pack: each outcome picks a card name uniformly
@@ -1303,11 +1411,16 @@ function renderExplain() {
     const pools = loadedPools[key];
     const stats = pools ? L.statsFromPools(pools) : null;
     const slots = buildSpec(code, opts, stats);
+    // Same set, same card counts, official odds: anything that differs is down
+    // to the options chosen on this tab.
+    const diffs = L.diffFromVanilla(slots, opts.vanilla ? null : buildSpec(code, vanillaOpts(opts), stats));
+    const diffCount = diffs.reduce((a, c) => a + c.length, 0);
 
     const layoutTxt = mode === 'commander' && cmdAny() ? ` · ${L.LAYOUTS[currentLayout()]}` : '';
-    $('modeBadge').textContent = `— ${mode === 'play' ? 'Play' : 'Commander'} · ${code ? code.toUpperCase() : 'no set'}${layoutTxt} · ${opts.vanilla ? 'Vanilla (official odds)' : 'Fun mode x' + opts.mult}`;
+    $('modeBadge').textContent = `— ${mode === 'play' ? 'Play' : 'Commander'} · ${code ? code.toUpperCase() : 'no set'}${layoutTxt} · ${opts.vanilla ? 'Vanilla (official odds)' : 'Fun mode x' + opts.mult}${diffCount ? ` · ${diffCount} change${diffCount === 1 ? '' : 's'} from vanilla` : ''}`;
 
-    const rows = slots.map(s => {
+    const rows = slots.map((s, si) => {
+        const changes = diffs[si];
         const slotLabel = s.from === s.to ? `${s.from}` : `${s.from}–${s.to}`;
         const outs = s.outcomes.map(o => {
             const n = stats ? L.poolCount(stats, o.pool) : null;
@@ -1318,9 +1431,9 @@ function renderExplain() {
             const formula = o.formula ? `<div class="muted" style="margin-left:52px">${esc(o.formula)}</div>` : '';
             return `<div class="oc"><b>${o.p == null ? '?' : pct(o.p)}</b><span class="rar ${rarityClass(o.label)}">${esc(o.label)}</span>${size}</div>${o.p == null || (o.p > 0 && o.p < 1) ? formula : ''}`;
         }).join('');
-        return `<tr>
+        return `<tr${changes.length ? ' class="changed"' : ''}>
             <td class="slotnum">${slotLabel}${s.n > 1 ? `<div class="muted">${s.n} cards</div>` : ''}</td>
-            <td><strong>${esc(s.title)}</strong><div class="muted">${esc(s.types)}</div>${funTags(s, opts)}</td>
+            <td><strong>${esc(s.title)}</strong><div class="muted">${esc(s.types)}</div>${changeTag(changes, s, opts)}</td>
             <td>${outs || '<span class="muted">No cards available</span>'}</td>
             <td>${foilText(s.outcomes)}</td>
             <td>${specialText(s.outcomes)}</td>
@@ -1343,6 +1456,30 @@ function renderExplain() {
         const sg = sum(/special guest|the list|piper/i);
         if (sg > 0) chips.push([mode === 'play' ? 'List / Special Guest' : 'Prismatic Piper', sg]);
         expectHtml = `<div class="expect">${chips.map(([k, v]) => `<span>${k}: <b>${v.toFixed(2)}</b> per pack</span>`).join('')}</div>`;
+    }
+
+    // Summary of everything that deviates from the official layout
+    let diffHtml = '';
+    if (!opts.vanilla) {
+        const items = slots.map((s, i) => diffs[i].length
+            ? `<li><b>Slot ${s.from === s.to ? s.from : s.from + '–' + s.to}</b> (${esc(s.title)}): ${diffs[i].map(changeText).join('; ')}</li>`
+            : '').filter(Boolean);
+        // The Guest List swap changes which printing is used after a card is
+        // drawn, so it never shows up as a change to a slot's odds.
+        const guestItem = opts.guest
+            ? `<li><b>Every slot:</b> a drawn card that has a Special Guests printing is swapped to it 50% of the time — this changes the printing, not which card fills the slot, so none of the chances above move.</li>`
+            : '';
+        // Fun mode rebuilds the tail of a Play Booster in a different order, so
+        // a row is compared with whatever vanilla puts at the same card position.
+        const reordered = diffs.some(cs => cs.some(c => c.kind === 'title'))
+            ? `<p class="muted reorder-note">Fun mode changes what some positions hold, so each row is compared with the vanilla slot at the same card position — not with a slot of the same name.</p>`
+            : '';
+        if (items.length || guestItem) {
+            diffHtml = `<div class="vanilla-diff"><b>✦ ${diffCount || 'No'} change${diffCount === 1 ? '' : 's'} from vanilla</b>`
+                + `<span class="muted"> — highlighted in the table below</span><ul>${items.join('')}${guestItem}</ul>${reordered}</div>`;
+        } else {
+            diffHtml = `<div class="vanilla-diff same"><b>✓ No differences from vanilla</b><span class="muted"> — the options chosen leave every slot at its official odds for this set.</span></div>`;
+        }
     }
 
     // Options in effect for THIS tab, and which slots each one changes
@@ -1385,6 +1522,7 @@ function renderExplain() {
 
     $('explainBody').innerHTML = `
         ${stats ? '' : `<p class="muted">${code ? 'Loading card counts for ' + esc(code.toUpperCase()) + '… percentages that depend on the set show a formula until then.' : 'Pick a set to see exact percentages.'}</p>`}
+        ${diffHtml}
         <div class="table-wrap"><table class="slots">
             <thead><tr><th>Slot</th><th>Card types</th><th>Possible cards &amp; chance</th><th>Foil</th><th>List / Special</th></tr></thead>
             <tbody>${rows}</tbody>

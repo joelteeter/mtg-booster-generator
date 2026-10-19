@@ -119,10 +119,43 @@ const POOL_NAMES = {
     commons: 'commons', nonBasicLands: 'non-basic lands', landBasics: 'basic lands', landDuals: 'common dual lands', etched: 'foil-etched legends'
 };
 const FUN_NAMES = { mult: 'multiplier', foilToggle: 'foil toggle', listToggle: 'List toggle', landUpgrade: 'land upgrade' };
-function funTags(slot, opts) {
-    if (opts.vanilla || !slot.affects || !slot.affects.length) return '';
-    const active = slot.affects.filter(t => t !== 'foilToggle' || opts.foilToggle).filter(t => t !== 'listToggle' || opts.listToggle);
-    return active.length ? `<div class="fun-tag">✦ Fun: ${active.map(t => FUN_NAMES[t]).join(', ')}</div>` : '';
+
+// Which of this tab's options are responsible for a slot differing from vanilla
+function slotOptionNames(slot, opts) {
+    if (opts.vanilla || !slot.affects || !slot.affects.length) return [];
+    return slot.affects
+        .filter(t => t !== 'foilToggle' || opts.foilToggle)
+        .filter(t => t !== 'listToggle' || opts.listToggle)
+        .map(t => FUN_NAMES[t]);
+}
+
+// The options for this tab with every fun option switched off, so the current
+// spec can be compared against the official layout for the same set.
+function vanillaOpts(opts) {
+    return Object.assign({}, opts, { vanilla: true, mult: 1, guest: false, foilToggle: false, listToggle: false });
+}
+
+const foilWord = f => f === 'etched' ? 'foil-etched' : !f ? 'non-foil' : f === 1 ? 'always foil' : pct(f) + ' foil';
+
+// One change record from L.diffFromVanilla as readable HTML
+function changeText(c) {
+    switch (c.kind) {
+        case 'title': return `now <b>${esc(c.toTitle)}</b> <span class="was">(vanilla: ${esc(c.fromTitle)})</span>`;
+        case 'added': return `<b>${esc(c.label)}</b> added${c.toP == null ? '' : ' at ' + pct(c.toP)}`;
+        case 'removed': return `<b>${esc(c.label)}</b> removed <span class="was">(vanilla ${pct(c.fromP) || 'possible'})</span>`;
+        case 'p': return `<b>${esc(c.label)}</b> ${pct(c.fromP)} → ${pct(c.toP)} ${c.toP > c.fromP ? '<span class="up">▲</span>' : '<span class="down">▼</span>'}`;
+        case 'foil': return `<b>${esc(c.label)}</b> ${foilWord(c.fromFoil)} → ${foilWord(c.toFoil)}`;
+    }
+    return '';
+}
+
+// Per-row callout naming the responsible options and every concrete change
+function changeTag(changes, slot, opts) {
+    if (!changes.length) return '';
+    const who = slotOptionNames(slot, opts);
+    return `<div class="diff-tag"><span class="diff-head">✦ Differs from vanilla${who.length ? ' · ' + esc(who.join(', ')) : ''}</span>`
+        + changes.map(c => `<div class="diff-line">${changeText(c)}</div>`).join('')
+        + `</div>`;
 }
 
 // Expected number of land cards per pack: each outcome picks a card name uniformly
@@ -154,11 +187,16 @@ function renderExplain() {
     const pools = loadedPools[key];
     const stats = pools ? L.statsFromPools(pools) : null;
     const slots = buildSpec(code, opts, stats);
+    // Same set, same card counts, official odds: anything that differs is down
+    // to the options chosen on this tab.
+    const diffs = L.diffFromVanilla(slots, opts.vanilla ? null : buildSpec(code, vanillaOpts(opts), stats));
+    const diffCount = diffs.reduce((a, c) => a + c.length, 0);
 
     const layoutTxt = mode === 'commander' && cmdAny() ? ` · ${L.LAYOUTS[currentLayout()]}` : '';
-    $('modeBadge').textContent = `— ${mode === 'play' ? 'Play' : 'Commander'} · ${code ? code.toUpperCase() : 'no set'}${layoutTxt} · ${opts.vanilla ? 'Vanilla (official odds)' : 'Fun mode x' + opts.mult}`;
+    $('modeBadge').textContent = `— ${mode === 'play' ? 'Play' : 'Commander'} · ${code ? code.toUpperCase() : 'no set'}${layoutTxt} · ${opts.vanilla ? 'Vanilla (official odds)' : 'Fun mode x' + opts.mult}${diffCount ? ` · ${diffCount} change${diffCount === 1 ? '' : 's'} from vanilla` : ''}`;
 
-    const rows = slots.map(s => {
+    const rows = slots.map((s, si) => {
+        const changes = diffs[si];
         const slotLabel = s.from === s.to ? `${s.from}` : `${s.from}–${s.to}`;
         const outs = s.outcomes.map(o => {
             const n = stats ? L.poolCount(stats, o.pool) : null;
@@ -169,9 +207,9 @@ function renderExplain() {
             const formula = o.formula ? `<div class="muted" style="margin-left:52px">${esc(o.formula)}</div>` : '';
             return `<div class="oc"><b>${o.p == null ? '?' : pct(o.p)}</b><span class="rar ${rarityClass(o.label)}">${esc(o.label)}</span>${size}</div>${o.p == null || (o.p > 0 && o.p < 1) ? formula : ''}`;
         }).join('');
-        return `<tr>
+        return `<tr${changes.length ? ' class="changed"' : ''}>
             <td class="slotnum">${slotLabel}${s.n > 1 ? `<div class="muted">${s.n} cards</div>` : ''}</td>
-            <td><strong>${esc(s.title)}</strong><div class="muted">${esc(s.types)}</div>${funTags(s, opts)}</td>
+            <td><strong>${esc(s.title)}</strong><div class="muted">${esc(s.types)}</div>${changeTag(changes, s, opts)}</td>
             <td>${outs || '<span class="muted">No cards available</span>'}</td>
             <td>${foilText(s.outcomes)}</td>
             <td>${specialText(s.outcomes)}</td>
@@ -194,6 +232,30 @@ function renderExplain() {
         const sg = sum(/special guest|the list|piper/i);
         if (sg > 0) chips.push([mode === 'play' ? 'List / Special Guest' : 'Prismatic Piper', sg]);
         expectHtml = `<div class="expect">${chips.map(([k, v]) => `<span>${k}: <b>${v.toFixed(2)}</b> per pack</span>`).join('')}</div>`;
+    }
+
+    // Summary of everything that deviates from the official layout
+    let diffHtml = '';
+    if (!opts.vanilla) {
+        const items = slots.map((s, i) => diffs[i].length
+            ? `<li><b>Slot ${s.from === s.to ? s.from : s.from + '–' + s.to}</b> (${esc(s.title)}): ${diffs[i].map(changeText).join('; ')}</li>`
+            : '').filter(Boolean);
+        // The Guest List swap changes which printing is used after a card is
+        // drawn, so it never shows up as a change to a slot's odds.
+        const guestItem = opts.guest
+            ? `<li><b>Every slot:</b> a drawn card that has a Special Guests printing is swapped to it 50% of the time — this changes the printing, not which card fills the slot, so none of the chances above move.</li>`
+            : '';
+        // Fun mode rebuilds the tail of a Play Booster in a different order, so
+        // a row is compared with whatever vanilla puts at the same card position.
+        const reordered = diffs.some(cs => cs.some(c => c.kind === 'title'))
+            ? `<p class="muted reorder-note">Fun mode changes what some positions hold, so each row is compared with the vanilla slot at the same card position — not with a slot of the same name.</p>`
+            : '';
+        if (items.length || guestItem) {
+            diffHtml = `<div class="vanilla-diff"><b>✦ ${diffCount || 'No'} change${diffCount === 1 ? '' : 's'} from vanilla</b>`
+                + `<span class="muted"> — highlighted in the table below</span><ul>${items.join('')}${guestItem}</ul>${reordered}</div>`;
+        } else {
+            diffHtml = `<div class="vanilla-diff same"><b>✓ No differences from vanilla</b><span class="muted"> — the options chosen leave every slot at its official odds for this set.</span></div>`;
+        }
     }
 
     // Options in effect for THIS tab, and which slots each one changes
@@ -236,6 +298,7 @@ function renderExplain() {
 
     $('explainBody').innerHTML = `
         ${stats ? '' : `<p class="muted">${code ? 'Loading card counts for ' + esc(code.toUpperCase()) + '… percentages that depend on the set show a formula until then.' : 'Pick a set to see exact percentages.'}</p>`}
+        ${diffHtml}
         <div class="table-wrap"><table class="slots">
             <thead><tr><th>Slot</th><th>Card types</th><th>Possible cards &amp; chance</th><th>Foil</th><th>List / Special</th></tr></thead>
             <tbody>${rows}</tbody>

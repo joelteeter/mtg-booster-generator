@@ -30,6 +30,7 @@ Serving the folder over HTTP (e.g. `python3 -m http.server 8777`) still works, b
 
 ## How packs are built
 * **How each card slot is determined** – a collapsible panel showing every slot's card types, rarity odds, foil chance and List / Special Guest / Piper chance, with exact percentages for the chosen set, plus the expected rares, mythics, foils, lands (and legends, for Commander) per pack. It updates as options change, and the generator uses the same numbers
+* **Changes from vanilla** – whenever an option moves a slot away from the official layout, the panel builds the same set's vanilla slots alongside the current ones and compares them. A summary box lists every difference (`Mythic 14.3% → 57.1% ▲`, `Common removed`, `now Rare or mythic (vanilla: Land)`), each affected row is highlighted and carries a callout naming the option responsible, and the heading shows the total. Both sides are built from the same card counts, so a set's own gaps (no Backgrounds, no mythics) never show up as a change. If the chosen options happen to leave every slot at official odds, it says so instead. In Play Boosters fun mode reorders the last slots, so rows are compared by card position rather than by slot name — the panel notes this
 * **Vanilla mode** – official odds for every slot, with the fun options switched off. For Play Boosters that means:
   * 7 commons, 3 uncommons, 1 rare or mythic (mythic share M ÷ (2R + M), each mythic printed half as often as each rare)
   * slot 7 can be a Special Guest (1 in 64 packs), or a card from The List for sets from Murders at Karlov Manor to Bloomburrow
@@ -45,7 +46,7 @@ Serving the folder over HTTP (e.g. `python3 -m http.server 8777`) still works, b
 * Approximations, flagged in the slot panel: the vanilla wildcard rarity split (18% / 67% / 15%) and foil-slot rarity weights come from Duskmourn's published sheets
 
 ## Options
-Each tab remembers its own options, so settings chosen for Play Boosters never carry over to Commander boosters (and vice versa). The slot panel tags every slot a fun option changes, and lists which slots each option affects.
+Each tab remembers its own options, so settings chosen for Play Boosters never carry over to Commander boosters (and vice versa). The slot panel highlights every slot that differs from vanilla, shows the before → after for each change, names the option responsible, and lists which slots each option affects.
 
 | Option | Play Booster | Commander |
 |---|---|---|
