@@ -30,7 +30,7 @@ Serving the folder over HTTP (e.g. `python3 -m http.server 8777`) still works, b
 
 ## How packs are built
 * **How each card slot is determined** – a collapsible panel showing every slot's card types, rarity odds, foil chance and List / Special Guest / Piper chance, with exact percentages for the chosen set, plus the expected rares, mythics, foils, lands (and legends, for Commander) per pack. It updates as options change, and the generator uses the same numbers
-* **Changes from vanilla** – whenever an option moves a slot away from the official layout, the panel builds the same set's vanilla slots alongside the current ones and compares them. A summary box lists every difference (`Mythic 14.3% → 57.1% ▲`, `Common removed`, `now Rare or mythic (vanilla: Land)`), each affected row is highlighted and carries a callout naming the option responsible, and the heading shows the total. Both sides are built from the same card counts, so a set's own gaps (no Backgrounds, no mythics) never show up as a change. If the chosen options happen to leave every slot at official odds, it says so instead. In Play Boosters fun mode reorders the last slots, so rows are compared by card position rather than by slot name — the panel notes this
+* **Changes from vanilla** – whenever an option moves a slot away from the official layout, the panel builds the same set's vanilla slots alongside the current ones and compares them. A summary box lists every difference (`Mythic 14.3% → 57.1% ▲`, `Common removed`, `now Rare or mythic (vanilla: Land)`), each affected row is highlighted and carries a callout naming the option responsible, and the heading shows the total. Both sides are built from the same card counts, so a set's own gaps (no Backgrounds, no mythics) never show up as a change. If the chosen options happen to leave every slot at official odds, it says so instead.
 * **Vanilla mode** – official odds for every slot, with the fun options switched off. For Play Boosters that means:
   * 7 commons, 3 uncommons, 1 rare or mythic (mythic share M ÷ (2R + M), each mythic printed half as often as each rare)
   * slot 7 can be a Special Guest (1 in 64 packs), or a card from The List for sets from Murders at Karlov Manor to Bloomburrow
@@ -42,6 +42,7 @@ Serving the folder over HTTP (e.g. `python3 -m http.server 8777`) still works, b
   * slot 7's Special Guest comes from that set's own Special Guests
   * no card name appears twice in the same pack (basic lands aside), as with collated print sheets
   * one printing of each card is chosen at random (regular, showcase, borderless…)
+* Every slot sits where it does in a real Play Booster — 6 commons, the List/Special Guest slot, 3 uncommons, rare/mythic, land, wildcard, foil wildcard — in both vanilla and fun mode. Fun mode changes what fills a slot, never where it falls, so a printed pack reads in pack order and the separator land after each pack is the only land at the boundary
 * Sets released before Play Boosters existed (February 2024) use the Play Booster layout; the slot panel notes this
 * Approximations, flagged in the slot panel: the vanilla wildcard rarity split (18% / 67% / 15%) and foil-slot rarity weights come from Duskmourn's published sheets
 
@@ -51,17 +52,17 @@ Each tab remembers its own options, so settings chosen for Play Boosters never c
 | Option | Play Booster | Commander |
 |---|---|---|
 | Vanilla mode | yes | yes |
-| Fun multiplier | slots 7, 11, 12, 13 | legendary, rare/mythic, uncommon-or-rare and foil slots |
+| Fun multiplier | slots 7, 11, 13, 14 | legendary, rare/mythic, uncommon-or-rare and foil slots |
 | Guest List swap | every pack slot | every pack slot |
-| Foil second wildcard | slot 13 | – |
+| Foil second wildcard | slot 14 | – |
 | The List in slot 7 | slot 7 | – |
-| Land upgrade (non-basic land) | slot 14, always on in fun mode | – |
+| Land upgrade (non-basic land) | slot 12, always on in fun mode | – |
 | Bonus land | after the pack | after the pack |
 
 * **Fun options** (not vanilla):
   * Fun multiplier (x1–x5) – raises upgrade odds (mythics, Special Guests, legendary rares, etc.) and removes commons from the wildcard/foil slots
   * Wildcards pick evenly across every card name in the set, so rares and mythics turn up far more often than in real packs
-  * The land slot becomes a random non-basic land from the set (Play Booster)
+  * The land slot (12) becomes a random non-basic land from the set (Play Booster)
   * Make the second wildcard foil (Play Booster)
   * Add The List to slot 7 (Play Booster)
   * Guest List swap – a card that has a Special Guests printing swaps to it 50% of the time

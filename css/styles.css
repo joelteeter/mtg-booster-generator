@@ -144,7 +144,6 @@ table.slots tr.changed td.slotnum { box-shadow: inset 3px 0 0 #e0a800; }
 .vanilla-diff ul { margin: 6px 0 0; padding-left: 18px; }
 .vanilla-diff li { margin-bottom: 3px; }
 .vanilla-diff .was { color: #a98a55; }
-.vanilla-diff .reorder-note { margin: 6px 0 0; }
 .expect { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; }
 .expect span { background: #eef3fb; border-radius: 6px; padding: 4px 10px; font-size: 0.8rem; }
 .modifiers { font-size: 0.85rem; padding-left: 20px; margin: 10px 0 0; }

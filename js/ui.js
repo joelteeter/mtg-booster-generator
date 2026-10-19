@@ -135,6 +135,20 @@ function vanillaOpts(opts) {
     return Object.assign({}, opts, { vanilla: true, mult: 1, guest: false, foilToggle: false, listToggle: false });
 }
 
+// Outcomes in a slot usually gain or lose foil together; say that once
+// instead of repeating the same sentence for every rarity.
+function collapseChanges(changes) {
+    const out = [], byShift = new Map();
+    for (const c of changes) {
+        if (c.kind !== 'foil') { out.push(c); continue; }
+        const k = String(c.fromFoil) + '>' + String(c.toFoil);
+        const seen = byShift.get(k);
+        if (seen) seen.labels.push(c.label);
+        else { const merged = Object.assign({}, c, { labels: [c.label] }); byShift.set(k, merged); out.push(merged); }
+    }
+    return out;
+}
+
 const foilWord = f => f === 'etched' ? 'foil-etched' : !f ? 'non-foil' : f === 1 ? 'always foil' : pct(f) + ' foil';
 
 // One change record from L.diffFromVanilla as readable HTML
@@ -144,7 +158,10 @@ function changeText(c) {
         case 'added': return `<b>${esc(c.label)}</b> added${c.toP == null ? '' : ' at ' + pct(c.toP)}`;
         case 'removed': return `<b>${esc(c.label)}</b> removed <span class="was">(vanilla ${pct(c.fromP) || 'possible'})</span>`;
         case 'p': return `<b>${esc(c.label)}</b> ${pct(c.fromP)} → ${pct(c.toP)} ${c.toP > c.fromP ? '<span class="up">▲</span>' : '<span class="down">▼</span>'}`;
-        case 'foil': return `<b>${esc(c.label)}</b> ${foilWord(c.fromFoil)} → ${foilWord(c.toFoil)}`;
+        case 'foil': {
+            const many = c.labels && c.labels.length > 1;
+            return `${many ? `All ${c.labels.length} rarities` : `<b>${esc(c.label)}</b>`} ${foilWord(c.fromFoil)} → ${foilWord(c.toFoil)}`;
+        }
     }
     return '';
 }
@@ -189,7 +206,7 @@ function renderExplain() {
     const slots = buildSpec(code, opts, stats);
     // Same set, same card counts, official odds: anything that differs is down
     // to the options chosen on this tab.
-    const diffs = L.diffFromVanilla(slots, opts.vanilla ? null : buildSpec(code, vanillaOpts(opts), stats));
+    const diffs = L.diffFromVanilla(slots, opts.vanilla ? null : buildSpec(code, vanillaOpts(opts), stats)).map(collapseChanges);
     const diffCount = diffs.reduce((a, c) => a + c.length, 0);
 
     const layoutTxt = mode === 'commander' && cmdAny() ? ` · ${L.LAYOUTS[currentLayout()]}` : '';
@@ -245,14 +262,9 @@ function renderExplain() {
         const guestItem = opts.guest
             ? `<li><b>Every slot:</b> a drawn card that has a Special Guests printing is swapped to it 50% of the time — this changes the printing, not which card fills the slot, so none of the chances above move.</li>`
             : '';
-        // Fun mode rebuilds the tail of a Play Booster in a different order, so
-        // a row is compared with whatever vanilla puts at the same card position.
-        const reordered = diffs.some(cs => cs.some(c => c.kind === 'title'))
-            ? `<p class="muted reorder-note">Fun mode changes what some positions hold, so each row is compared with the vanilla slot at the same card position — not with a slot of the same name.</p>`
-            : '';
         if (items.length || guestItem) {
             diffHtml = `<div class="vanilla-diff"><b>✦ ${diffCount || 'No'} change${diffCount === 1 ? '' : 's'} from vanilla</b>`
-                + `<span class="muted"> — highlighted in the table below</span><ul>${items.join('')}${guestItem}</ul>${reordered}</div>`;
+                + `<span class="muted"> — highlighted in the table below</span><ul>${items.join('')}${guestItem}</ul></div>`;
         } else {
             diffHtml = `<div class="vanilla-diff same"><b>✓ No differences from vanilla</b><span class="muted"> — the options chosen leave every slot at its official odds for this set.</span></div>`;
         }
