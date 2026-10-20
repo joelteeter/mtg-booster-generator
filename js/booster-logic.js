@@ -225,12 +225,18 @@
                 outcomes: rareMythicFoilSlot(stats, { C: "commons", U: "uncommons", R: "rares", M: "mythics" }, 1)
             });
         } else {
+            /*
+             * Every card name equally likely at x1 (weights all 1), then each
+             * step up weights rares and mythics more and commons less. The
+             * multiplier used to do nothing here but switch commons off at x2,
+             * so x2 to x5 produced identical wildcards.
+             */
             const wild = (foil) => weightedTiers(stats, [
-                { pool: "commons", label: "Common", w: mult > 1 ? 0 : 1 },
+                { pool: "commons", label: "Common", w: 1 / mult },
                 { pool: "uncommons", label: "Uncommon", w: 1 },
-                { pool: "rares", label: "Rare", w: 1 },
-                { pool: "mythics", label: "Mythic", w: 1 }
-            ].filter(t => t.w > 0), { foil });
+                { pool: "rares", label: "Rare", w: mult },
+                { pool: "mythics", label: "Mythic", w: mult }
+            ], { foil });
             // Same slot positions as vanilla (rare/mythic, land, wildcard,
             // foil wildcard) so a fun pack is laid out like a real one and the
             // land never lands next to the separator land that follows a pack.
@@ -247,7 +253,7 @@
                 n: 1, affects: ["landUpgrade"], title: "Land (upgraded)", types: "Random non-basic land from the set (replaces the basic)",
                 outcomes: [{ pool: ["nonBasicLands", "uncommons"], label: "Non-basic land", p: 1, foil: 0, formula: "falls back to an uncommon if the set has no non-basic lands" }]
             });
-            slots.push({ n: 1, affects: ["mult"], title: "Wildcard", types: mult > 1 ? "Any non-basic uncommon/rare/mythic (commons removed by multiplier)" : "Any non-basic card, every card name equally likely", outcomes: wild(0) });
+            slots.push({ n: 1, affects: ["mult"], title: "Wildcard", types: mult > 1 ? "Any non-basic card; the multiplier weights rares and mythics up and commons down" : "Any non-basic card, every card name equally likely", outcomes: wild(0) });
             // Without the toggle this follows the 2027 rule (foil only on rare
             // and mythic); the toggle is a fun override that foils anything.
             slots.push({

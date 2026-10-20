@@ -68,8 +68,8 @@ Each tab remembers its own options, so settings chosen for Booster Packs never c
 | Bonus land | after the pack | after the pack |
 
 * **Fun options** (not vanilla):
-  * Fun multiplier (x1–x5) – raises upgrade odds (mythics, Special Guests, legendary rares, etc.) and removes commons from the wildcard/foil slots
-  * Wildcards pick evenly across every card name in the set, so rares and mythics turn up far more often than in real packs
+  * Fun multiplier (x1–x5) – raises upgrade odds (mythics, Special Guests, legendary rares, etc.); it removes commons from the Commander foil slot, and on Booster Packs it weights the wildcard slots towards rares and mythics
+  * Wildcards start from every card name being equally likely at x1, so rares and mythics already turn up far more often than in real packs; each step of the multiplier weights rares and mythics up by that factor and commons down by it, so the dial keeps moving all the way to x5
   * The land slot (12) becomes a random non-basic land from the set (Booster Pack)
   * Make the second wildcard foil (Booster Pack)
   * Add The List to slot 7 (Booster Pack)

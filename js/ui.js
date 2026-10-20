@@ -310,7 +310,7 @@ function renderExplain() {
         mods.push('<b>Vanilla:</b> on. Official odds for every slot; this tab\'s fun options are switched off.');
     } else {
         mods.push(opts.mult > 1
-            ? `<b>Fun multiplier x${opts.mult}</b> (slot${slotList('mult').includes(',') ? 's' : ''} ${slotList('mult')}): upgrade chances are multiplied and capped at 100%${mode === 'play' ? ' (Special Guest/List, mythic)' : ' (legendary rare/mythic, rare Background, mythic, rare in the uncommon-or-rare slot, foil-etched)'}; commons are removed from ${mode === 'play' ? 'the wildcards' : 'the foil slot'}.`
+            ? `<b>Fun multiplier x${opts.mult}</b> (slot${slotList('mult').includes(',') ? 's' : ''} ${slotList('mult')}): upgrade chances are multiplied and capped at 100%${mode === 'play' ? ' (Special Guest/List, mythic)' : ' (legendary rare/mythic, rare Background, mythic, rare in the uncommon-or-rare slot, foil-etched)'}; ${mode === 'play' ? 'the wildcards weight rares and mythics up and commons down by the same factor' : 'commons are removed from the foil slot'}.`
             : `<b>Fun multiplier x1:</b> the multiplier itself changes nothing (it would affect slots ${slotList('mult')}), but the other fun options still apply \u2014 see the changes listed above.`);
         if (opts.guest) mods.push(`<b>Guest List swap</b> (slots 1–${total}): after a card is drawn, if it has a Special Guests printing it is swapped to that printing 50% of the time.`);
         if (mode === 'play') {
