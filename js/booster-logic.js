@@ -483,8 +483,9 @@
      * the options are responsible for.
      *
      * Slots are aligned by card position: each slot is compared with the
-     * vanilla slot holding its first card. Play Boosters reorder and retitle
-     * slots between vanilla and fun mode, so the two lists are not parallel.
+     * vanilla slot holding its first card. Both modes now lay the slots out in
+     * the same order, so this is a straight pairing; matching by position
+     * rather than by title also keeps it right if that ever stops being true.
      *
      * Returns one array of change records per slot, for the UI to format:
      *   { kind: "title",   fromTitle, toTitle }

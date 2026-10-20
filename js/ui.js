@@ -65,10 +65,10 @@ function syncControls() {
     $('cmdAnyRow').classList.toggle('hidden', !cmdAny());
     document.querySelectorAll('.tabs .tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
     $('tabBlurb').textContent = mode === 'play'
-        ? "14-card Booster Packs (formerly Play Boosters) from any expansion, core or masters set, using Wizards' 2027 booster rules for every set."
+        ? "14-card Booster Packs \u2014 Play Boosters renamed \u2014 from any expansion, core or masters set, built with Wizards' 2027 rules."
         : "20-card Commander draft boosters: the official sets (Commander Legends, Battle for Baldur's Gate, Commander Masters), or any set built with one of their layouts.";
     $('vanillaHint').textContent = mode === 'play'
-        ? "Uses the real Booster Pack layout: a basic or common land in the land slot, a non-foil wildcard, a last wildcard that is traditional foil only when it is a rare or mythic, and published rare/mythic and Special Guest odds. Fun options are switched off."
+        ? "Official odds for every slot, in the real order: 6 commons, a seventh that can be a Special Guest, 3 uncommons, a rare or mythic, a land, then two wildcards \u2014 the last foil only when it is a rare or mythic. Fun options are switched off."
         : (cmdAny()
             ? "Uses the chosen layout's published odds with this set's cards. Fun options (multiplier, Guest List swap) are switched off."
             : "Uses the published Commander draft booster layout for the chosen set. Fun options (multiplier, Guest List swap) are switched off.");
@@ -290,6 +290,13 @@ function renderExplain() {
         }
     }
 
+    // The last wildcard's own foil chance: under the 2027 rules that is simply
+    // the chance it comes out a rare or mythic (or 100% with the fun toggle on).
+    const lastSlot = slots[slots.length - 1];
+    const pFoilSlot = mode === 'play' && lastSlot && lastSlot.outcomes.every(o => o.p != null)
+        ? lastSlot.outcomes.reduce((a, o) => a + (o.foil === 1 ? o.p : 0), 0)
+        : null;
+
     // Options in effect for THIS tab, and which slots each one changes
     const slotList = tag => slots.filter(s => (s.affects || []).includes(tag)).map(s => s.from === s.to ? s.from : `${s.from}–${s.to}`).join(', ');
     const mods = [];
@@ -309,7 +316,7 @@ function renderExplain() {
         if (mode === 'play') {
             if (opts.foilToggle) mods.push(`<b>Foil wildcard</b> (slot ${slotList('foilToggle')}): the second wildcard is always traditional foil.`);
             if (opts.listToggle) mods.push(`<b>The List</b> (slot ${slotList('listToggle')}): 12.5% × multiplier chance of a random card from The List.`);
-            mods.push(`<b>Land upgrade</b> (slot ${slotList('landUpgrade')}): fun mode always swaps the basic land for a random non-basic land from the set. That pool is every non-basic land the set has, the common dual lands included, so a common land is still a likely result \u2014 the card counts in the slot row show the mix.`);
+            mods.push(`<b>Land upgrade</b> (slot ${slotList('landUpgrade')}): the basic land is always swapped for a random non-basic land. The pool is every non-basic land the set has, common duals included, so a common land is still the likely result \u2014 the slot row shows the mix.`);
         }
     }
     mods.push('<b>Printing:</b> a card name is chosen uniformly from the slot\'s pool, then one of that card\'s printings in the set (regular, showcase, borderless, etc.) is chosen at random. The only exception is a God Pack\'s Booster Fun slots, which prefer an alternate treatment when the set printed one.');
@@ -327,9 +334,14 @@ function renderExplain() {
             : '<b>The List:</b> not in Play Boosters for this set; slot 7 only upgrades to a Special Guest (1 in 64).');
     }
     if (mode === 'play') {
-        mods.push('<b>Foil (2027 Booster Pack rules):</b> foil commons and uncommons no longer exist, so the last slot is traditional foil only when it lands on a rare or mythic, and a pack is no longer guaranteed to contain one. Its rarity odds are unchanged \u2014 the "Foils per pack" figure above is what is left. '
+        mods.push('<b>Foil (2027 rules):</b> foil commons and uncommons no longer exist, and no pack is guaranteed a foil. '
+            + (opts.foilToggle
+                ? 'The foil wildcard option above overrides that and foils the last slot whatever it is. '
+                : 'The last wildcard is foil only when it comes out a rare or mythic' + (pFoilSlot != null ? `, which is <b>${pct(pFoilSlot)}</b> of packs for this set` : '') + '. ')
+            + 'The land slot can still add a foil land on top. '
             + '<a href="https://magic.wizards.com/en/news/announcements/updating-our-boosters-in-2027" target="_blank" rel="noopener">Updating Our Boosters in 2027</a>');
-        mods.push('<b>God Pack:</b> every pack has its own 1 in 1,000 chance (0.1%) of being a God Pack instead of a normal one \u2014 10 non-foil, 2 Booster Fun and 2 traditional foil Booster Fun rares/mythics. The God Pack celebration card belongs to the non-playable 15th slot, which this app never generates, so a God Pack here is 14 cards like any other. Generated God Packs are marked \u2728 in the pack list.');
+        mods.push('<b>God Pack:</b> each pack rolls its own 1 in 1,000 chance (0.1%) of being a God Pack instead: all 14 cards rare or mythic \u2014 10 plain, 2 Booster Fun, 2 traditional foil Booster Fun. '
+            + 'Wizards\' 15th card, the celebration card, belongs to the non-playable slot this app never generates. God Packs are marked \u2728 in the pack list and the status line.');
     }
     mods.push('<b>Approximate:</b> the last wildcard\'s rarity uses per-card weights of 4 : 2 : 1 : ½ (common : uncommon : rare : mythic), close to Duskmourn\'s published foil sheet from when that slot was always foil. The non-foil wildcard\'s split (18% / 67% / 15%) also comes from the Duskmourn sheet.');
 

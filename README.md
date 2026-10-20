@@ -18,7 +18,7 @@ You need an internet connection for:
 Serving the folder over HTTP (e.g. `python3 -m http.server 8777`) still works, but isn't required.
 
 ## Tabs
-* **Play Booster** – 14-card Play Boosters from any expansion, core, masters or draft-innovation set
+* **Booster Pack** – 14-card Booster Packs (Play Boosters renamed, see below) from any expansion, core, masters or draft-innovation set
 * **Commander Draft Booster** – 20-card draft boosters from the official Commander booster sets:
   * Commander Legends (CMR): 13 commons (the Prismatic Piper replaces one in 1 of 6 packs), 3 uncommons, 2 legends (uncommon/rare/mythic weighted 4:2:1 per card), 1 rare/mythic, 1 foil (a foil-etched legend in 1 of 15)
   * Battle for Baldur's Gate (CLB): 13 commons, 3 uncommons, 1 legend (rare/mythic 31%), 1 Background (rare 1 in 12), 1 rare/mythic, 1 foil
@@ -31,7 +31,7 @@ Serving the folder over HTTP (e.g. `python3 -m http.server 8777`) still works, b
 ## How packs are built
 * **How each card slot is determined** – a collapsible panel showing every slot's card types, rarity odds, foil chance and List / Special Guest / Piper chance, with exact percentages for the chosen set, plus the expected rares, mythics, foils, lands (and legends, for Commander) per pack. It updates as options change, and the generator uses the same numbers
 * **Changes from vanilla** – whenever an option moves a slot away from the official layout, the panel builds the same set's vanilla slots alongside the current ones and compares them. A summary box lists every difference (`Mythic 14.3% → 57.1% ▲`, `Common removed`, `now Rare or mythic (vanilla: Land)`), each affected row is highlighted and carries a callout naming the option responsible, and the heading shows the total. Both sides are built from the same card counts, so a set's own gaps (no Backgrounds, no mythics) never show up as a change. If the chosen options happen to leave every slot at official odds, it says so instead.
-* **Vanilla mode** – official odds for every slot, with the fun options switched off. For Play Boosters that means:
+* **Vanilla mode** – official odds for every slot, with the fun options switched off. For Booster Packs that means:
   * 7 commons, 3 uncommons, 1 rare or mythic (mythic share M ÷ (2R + M), each mythic printed half as often as each rare)
   * slot 7 can be a Special Guest (1 in 64 packs), or a card from The List for sets from Murders at Karlov Manor to Bloomburrow
   * a land slot: half basic land, half one of the set's common dual lands, 20% foil
@@ -43,7 +43,7 @@ Serving the folder over HTTP (e.g. `python3 -m http.server 8777`) still works, b
   * slot 7's Special Guest comes from that set's own Special Guests
   * no card name appears twice in the same pack (basic lands aside), as with collated print sheets
   * one printing of each card is chosen at random (regular, showcase, borderless…)
-* Every slot sits where it does in a real Play Booster — 6 commons, the List/Special Guest slot, 3 uncommons, rare/mythic, land, wildcard, foil wildcard — in both vanilla and fun mode. Fun mode changes what fills a slot, never where it falls, so a printed pack reads in pack order and the separator land after each pack is the only land at the boundary
+* Every slot sits where it does in a real pack — 6 commons, the List/Special Guest slot, 3 uncommons, rare/mythic, land, wildcard, last wildcard — in both vanilla and fun mode. Fun mode changes what fills a slot, never where it falls, so a printed pack reads in pack order and the separator land after each pack is the only land at the boundary
 * Sets released before Play Boosters existed (February 2024) use the Play Booster layout; the slot panel notes this
 ## 2027 Booster Pack rules
 Wizards' [Updating Our Boosters in 2027](https://magic.wizards.com/en/news/announcements/updating-our-boosters-in-2027) renames Play Boosters to Booster Packs and changes what is in them. Those rules are used for every set here, not only 2027 ones, since the point of this tool is to proxy packs for play rather than to reproduce the collation of older print runs.
@@ -55,9 +55,9 @@ Wizards' [Updating Our Boosters in 2027](https://magic.wizards.com/en/news/annou
 * Approximations, flagged in the slot panel: the vanilla wildcard rarity split (18% / 67% / 15%) and foil-slot rarity weights come from Duskmourn's published sheets
 
 ## Options
-Each tab remembers its own options, so settings chosen for Play Boosters never carry over to Commander boosters (and vice versa). The slot panel highlights every slot that differs from vanilla, shows the before → after for each change, names the option responsible, and lists which slots each option affects.
+Each tab remembers its own options, so settings chosen for Booster Packs never carry over to Commander boosters (and vice versa). The slot panel highlights every slot that differs from vanilla, shows the before → after for each change, names the option responsible, and lists which slots each option affects.
 
-| Option | Play Booster | Commander |
+| Option | Booster Pack | Commander |
 |---|---|---|
 | Vanilla mode | yes | yes |
 | Fun multiplier | slots 7, 11, 13, 14 | legendary, rare/mythic, uncommon-or-rare and foil slots |
@@ -70,9 +70,9 @@ Each tab remembers its own options, so settings chosen for Play Boosters never c
 * **Fun options** (not vanilla):
   * Fun multiplier (x1–x5) – raises upgrade odds (mythics, Special Guests, legendary rares, etc.) and removes commons from the wildcard/foil slots
   * Wildcards pick evenly across every card name in the set, so rares and mythics turn up far more often than in real packs
-  * The land slot (12) becomes a random non-basic land from the set (Play Booster)
-  * Make the second wildcard foil (Play Booster)
-  * Add The List to slot 7 (Play Booster)
+  * The land slot (12) becomes a random non-basic land from the set (Booster Pack)
+  * Make the second wildcard foil (Booster Pack)
+  * Add The List to slot 7 (Booster Pack)
   * Guest List swap – a card that has a Special Guests printing swaps to it 50% of the time
 * **Bonus land / pack separator** – an extra land after each pack (not part of the pack, so it's also available in vanilla mode). Choose the type: classic (original duals + fetch lands), shock, slow, scry, surveil, verge, gain, fast, guildgates, desert pingers, creature lands, fetch, original duals, check, pain, filter, bounce, bond, battle, horizon, triomes, pathways, or a different random cycle each pack
 

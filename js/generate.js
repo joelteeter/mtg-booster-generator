@@ -144,7 +144,7 @@ genBtn.addEventListener('click', async () => {
         if (!$('previewPanel').classList.contains('hidden')) renderPreview(0);
         const dfcPacks = lastPacks.filter(p => dfcCount(p)).length;
         const godPacks = lastPacks.filter(p => p.godPack).length;
-        status.textContent = `✅ Successfully generated ${packCount} ${mode === 'play' ? 'play' : 'commander'} boosters${opts.vanilla ? ' (vanilla)' : ''}.`
+        status.textContent = `✅ Successfully generated ${packCount} ${mode === 'play' ? 'Booster Pack' : 'Commander booster'}${packCount === 1 ? '' : 's'}${opts.vanilla ? ' (vanilla)' : ''}.`
             + (godPacks ? ` ✨ ${godPacks} God Pack${godPacks === 1 ? '' : 's'} (all 14 cards rare or mythic)!` : '')
             + (dfcPacks ? ` ⟲ ${dfcPacks} pack${dfcPacks === 1 ? '' : 's'} contain double-faced cards; check the "Double-faced cards" print setting.` : '');
         downloadContainer.style.display = "block";
