@@ -619,12 +619,33 @@ table.slots tr.changed td.slotnum { box-shadow: inset 3px 0 0 #e0a800; }
             spgP = clamp01(0.015 * mult);
             listP = opts.listToggle ? Math.min(1 - spgP, 0.125 * mult) : 0;
         }
-        const slot7 = [{ pool: "commons", label: "Common", p: 1 - spgP - listP, foil: 0 }];
+        // Fun mode upgrades the seventh common to an uncommon; the List and
+        // Special Guest chances on top of it are unchanged.
+        const baseWord = v ? "Common" : "Uncommon";
+        const slot7 = [{ pool: v ? "commons" : "uncommons", label: baseWord, p: 1 - spgP - listP, foil: 0 }];
         if (listP > 0) slot7.push({ pool: "LIST", label: "The List", tag: "The List", p: listP, foil: 0, formula: v ? "12.5% List slot minus Special Guests" : `12.5% × ${mult}` });
         slot7.push({ pool: "spg", label: "Special Guest", tag: "Special Guest", p: spgP, foil: 0, formula: v ? "1 in 64 packs" : `1.5% × ${mult}` });
-        slots.push({ n: 1, affects: v ? [] : ["mult", "listToggle"], title: listP > 0 ? "Common / The List / Special Guest" : "Common or Special Guest", types: listP > 0 ? "Common from the set, a card from The List, or a Special Guest" : "Common from the set, or a Special Guest", outcomes: slot7 });
+        slots.push({
+            n: 1, affects: v ? [] : ["mult", "listToggle", "slotUpgrade"],
+            title: listP > 0 ? `${baseWord} / The List / Special Guest` : `${baseWord} or Special Guest`,
+            types: (listP > 0
+                ? `${baseWord} from the set, a card from The List, or a Special Guest`
+                : `${baseWord} from the set, or a Special Guest`)
+                + (v ? "" : " (fun mode upgrades this common to an uncommon)"),
+            outcomes: slot7
+        });
 
-        slots.push({ n: 3, title: "Uncommon", types: "Any non-basic uncommon", outcomes: [{ pool: "uncommons", label: "Uncommon", p: 1, foil: 0 }] });
+        if (v) {
+            slots.push({ n: 3, title: "Uncommon", types: "Any non-basic uncommon", outcomes: [{ pool: "uncommons", label: "Uncommon", p: 1, foil: 0 }] });
+        } else {
+            // Fun mode turns the third guaranteed uncommon into a guaranteed rare.
+            slots.push({ n: 2, title: "Uncommon", types: "Any non-basic uncommon", outcomes: [{ pool: "uncommons", label: "Uncommon", p: 1, foil: 0 }] });
+            slots.push({
+                n: 1, affects: ["slotUpgrade"], title: "Rare",
+                types: "Any non-basic rare (fun mode upgrades the third uncommon)",
+                outcomes: [{ pool: "rares", label: "Rare", p: 1, foil: 0 }]
+            });
+        }
 
         if (v) {
             slots.push({ n: 1, title: "Rare or mythic", types: "Any non-basic rare or mythic", outcomes: rareMythic(stats, "rares", "mythics", 1, ["Rare", "Mythic"], nf) });
@@ -1414,7 +1435,7 @@ const POOL_NAMES = {
     legAll: 'any legendary creature/planeswalker', uncommons: 'nonlegendary uncommons', rares: 'nonlegendary rares',
     commons: 'commons', nonBasicLands: 'non-basic lands', landBasics: 'basic lands', landDuals: 'common dual lands', etched: 'foil-etched legends'
 };
-const FUN_NAMES = { mult: 'multiplier', foilToggle: 'foil toggle', listToggle: 'List toggle', landUpgrade: 'land upgrade' };
+const FUN_NAMES = { mult: 'multiplier', foilToggle: 'foil toggle', listToggle: 'List toggle', landUpgrade: 'land upgrade', slotUpgrade: 'slot upgrades' };
 
 // Which of this tab's options are responsible for a slot differing from vanilla
 function slotOptionNames(slot, opts) {
@@ -1612,6 +1633,7 @@ function renderExplain() {
         if (mode === 'play') {
             if (opts.foilToggle) mods.push(`<b>Foil wildcard</b> (slot ${slotList('foilToggle')}): the second wildcard is always traditional foil.`);
             if (opts.listToggle) mods.push(`<b>The List</b> (slot ${slotList('listToggle')}): 12.5% × multiplier chance of a random card from The List.`);
+            mods.push(`<b>Slot upgrades</b> (slots ${slotList('slotUpgrade')}): the seventh common becomes an uncommon, and the third guaranteed uncommon becomes a guaranteed rare, so a fun pack always holds one more rare than a real one. Both apply at every multiplier.`);
             mods.push(`<b>Land upgrade</b> (slot ${slotList('landUpgrade')}): the basic land is always swapped for a random non-basic land. The pool is every non-basic land the set has, common duals included, so a common land is still the likely result \u2014 the slot row shows the mix.`);
         }
     }

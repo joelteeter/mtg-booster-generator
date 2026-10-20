@@ -118,7 +118,7 @@ const POOL_NAMES = {
     legAll: 'any legendary creature/planeswalker', uncommons: 'nonlegendary uncommons', rares: 'nonlegendary rares',
     commons: 'commons', nonBasicLands: 'non-basic lands', landBasics: 'basic lands', landDuals: 'common dual lands', etched: 'foil-etched legends'
 };
-const FUN_NAMES = { mult: 'multiplier', foilToggle: 'foil toggle', listToggle: 'List toggle', landUpgrade: 'land upgrade' };
+const FUN_NAMES = { mult: 'multiplier', foilToggle: 'foil toggle', listToggle: 'List toggle', landUpgrade: 'land upgrade', slotUpgrade: 'slot upgrades' };
 
 // Which of this tab's options are responsible for a slot differing from vanilla
 function slotOptionNames(slot, opts) {
@@ -316,6 +316,7 @@ function renderExplain() {
         if (mode === 'play') {
             if (opts.foilToggle) mods.push(`<b>Foil wildcard</b> (slot ${slotList('foilToggle')}): the second wildcard is always traditional foil.`);
             if (opts.listToggle) mods.push(`<b>The List</b> (slot ${slotList('listToggle')}): 12.5% × multiplier chance of a random card from The List.`);
+            mods.push(`<b>Slot upgrades</b> (slots ${slotList('slotUpgrade')}): the seventh common becomes an uncommon, and the third guaranteed uncommon becomes a guaranteed rare, so a fun pack always holds one more rare than a real one. Both apply at every multiplier.`);
             mods.push(`<b>Land upgrade</b> (slot ${slotList('landUpgrade')}): the basic land is always swapped for a random non-basic land. The pool is every non-basic land the set has, common duals included, so a common land is still the likely result \u2014 the slot row shows the mix.`);
         }
     }
