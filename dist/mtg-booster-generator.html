@@ -658,13 +658,14 @@ table.slots tr.changed td.slotnum { box-shadow: inset 3px 0 0 #e0a800; }
             // Same slot positions as vanilla (rare/mythic, land, wildcard,
             // foil wildcard) so a fun pack is laid out like a real one and the
             // land never lands next to the separator land that follows a pack.
-            const pM = clamp01(0.13 * mult);
+            // The set's own mythic share scaled by the multiplier, as vanilla and
+            // the Commander boosters do. This used to be a flat 13%, which only
+            // looked right for sets with the usual 2:1 rare-to-mythic sheet: it
+            // ignored the actual pools, so "x1 (Standard Odds)" did not match
+            // vanilla, and a set with more mythics than rares came out backwards.
             slots.push({
                 n: 1, title: "Rare or mythic", types: "Any non-basic rare or mythic", affects: ["mult"],
-                outcomes: [
-                    { pool: "rares", label: "Rare", p: 1 - pM, foil: 0, formula: "1 − mythic chance" },
-                    { pool: "mythics", label: "Mythic", p: pM, foil: 0, formula: mult > 1 ? `13% × ${mult}` : "13%" }
-                ]
+                outcomes: rareMythic(stats, "rares", "mythics", mult, ["Rare", "Mythic"], nf)
             });
             slots.push({
                 n: 1, affects: ["landUpgrade"], title: "Land (upgraded)", types: "Random non-basic land from the set (replaces the basic)",
@@ -1463,6 +1464,24 @@ function changeTag(changes, slot, opts) {
         + `</div>`;
 }
 
+// Most pools hold a single rarity, so the card count says it all. The
+// non-basic land pool does not: it is every land in the set, which is mostly
+// commons with a few rares, so spell the mix out rather than just "17 cards".
+const rarityMixCache = new WeakMap();
+function rarityMix(map) {
+    if (!rarityMixCache.has(map)) {
+        const counts = {};
+        for (const variants of map.values()) {
+            const r = variants[0].rarity;
+            if (r) counts[r] = (counts[r] || 0) + 1;
+        }
+        const order = ['common', 'uncommon', 'rare', 'mythic'];
+        const parts = order.filter(r => counts[r]).map(r => `${counts[r]} ${r}`);
+        rarityMixCache.set(map, parts.length > 1 ? parts.join(', ') : '');
+    }
+    return rarityMixCache.get(map);
+}
+
 // Expected number of land cards per pack: each outcome picks a card name uniformly
 // from its pool, so its land chance is (land names ÷ all names) in that pool
 const landShareCache = new WeakMap();
@@ -1507,8 +1526,10 @@ function renderExplain() {
             const n = stats ? L.poolCount(stats, o.pool) : null;
             const used = L.usedPool(stats, o.pool);
             const fellBack = stats && Array.isArray(o.pool) && used !== o.pool[0];
+            const map = pools ? L.resolvePool(pools, o.pool) : null;
+            const mix = map ? rarityMix(map) : '';
             const size = n != null && isFinite(n)
-                ? ` <span class="muted">(${fellBack ? 'none in set → ' + esc(POOL_NAMES[used] || used) + ', ' : ''}${n} card${n === 1 ? '' : 's'})</span>` : '';
+                ? ` <span class="muted">(${fellBack ? 'none in set → ' + esc(POOL_NAMES[used] || used) + ', ' : ''}${n} card${n === 1 ? '' : 's'}${mix ? ': ' + esc(mix) : ''})</span>` : '';
             const formula = o.formula ? `<div class="muted" style="margin-left:52px">${esc(o.formula)}</div>` : '';
             return `<div class="oc"><b>${o.p == null ? '?' : pct(o.p)}</b><span class="rar ${rarityClass(o.label)}">${esc(o.label)}</span>${size}</div>${o.p == null || (o.p > 0 && o.p < 1) ? formula : ''}`;
         }).join('');

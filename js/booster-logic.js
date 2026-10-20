@@ -234,13 +234,14 @@
             // Same slot positions as vanilla (rare/mythic, land, wildcard,
             // foil wildcard) so a fun pack is laid out like a real one and the
             // land never lands next to the separator land that follows a pack.
-            const pM = clamp01(0.13 * mult);
+            // The set's own mythic share scaled by the multiplier, as vanilla and
+            // the Commander boosters do. This used to be a flat 13%, which only
+            // looked right for sets with the usual 2:1 rare-to-mythic sheet: it
+            // ignored the actual pools, so "x1 (Standard Odds)" did not match
+            // vanilla, and a set with more mythics than rares came out backwards.
             slots.push({
                 n: 1, title: "Rare or mythic", types: "Any non-basic rare or mythic", affects: ["mult"],
-                outcomes: [
-                    { pool: "rares", label: "Rare", p: 1 - pM, foil: 0, formula: "1 − mythic chance" },
-                    { pool: "mythics", label: "Mythic", p: pM, foil: 0, formula: mult > 1 ? `13% × ${mult}` : "13%" }
-                ]
+                outcomes: rareMythic(stats, "rares", "mythics", mult, ["Rare", "Mythic"], nf)
             });
             slots.push({
                 n: 1, affects: ["landUpgrade"], title: "Land (upgraded)", types: "Random non-basic land from the set (replaces the basic)",

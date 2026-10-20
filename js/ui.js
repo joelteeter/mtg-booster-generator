@@ -175,6 +175,24 @@ function changeTag(changes, slot, opts) {
         + `</div>`;
 }
 
+// Most pools hold a single rarity, so the card count says it all. The
+// non-basic land pool does not: it is every land in the set, which is mostly
+// commons with a few rares, so spell the mix out rather than just "17 cards".
+const rarityMixCache = new WeakMap();
+function rarityMix(map) {
+    if (!rarityMixCache.has(map)) {
+        const counts = {};
+        for (const variants of map.values()) {
+            const r = variants[0].rarity;
+            if (r) counts[r] = (counts[r] || 0) + 1;
+        }
+        const order = ['common', 'uncommon', 'rare', 'mythic'];
+        const parts = order.filter(r => counts[r]).map(r => `${counts[r]} ${r}`);
+        rarityMixCache.set(map, parts.length > 1 ? parts.join(', ') : '');
+    }
+    return rarityMixCache.get(map);
+}
+
 // Expected number of land cards per pack: each outcome picks a card name uniformly
 // from its pool, so its land chance is (land names ÷ all names) in that pool
 const landShareCache = new WeakMap();
@@ -219,8 +237,10 @@ function renderExplain() {
             const n = stats ? L.poolCount(stats, o.pool) : null;
             const used = L.usedPool(stats, o.pool);
             const fellBack = stats && Array.isArray(o.pool) && used !== o.pool[0];
+            const map = pools ? L.resolvePool(pools, o.pool) : null;
+            const mix = map ? rarityMix(map) : '';
             const size = n != null && isFinite(n)
-                ? ` <span class="muted">(${fellBack ? 'none in set → ' + esc(POOL_NAMES[used] || used) + ', ' : ''}${n} card${n === 1 ? '' : 's'})</span>` : '';
+                ? ` <span class="muted">(${fellBack ? 'none in set → ' + esc(POOL_NAMES[used] || used) + ', ' : ''}${n} card${n === 1 ? '' : 's'}${mix ? ': ' + esc(mix) : ''})</span>` : '';
             const formula = o.formula ? `<div class="muted" style="margin-left:52px">${esc(o.formula)}</div>` : '';
             return `<div class="oc"><b>${o.p == null ? '?' : pct(o.p)}</b><span class="rar ${rarityClass(o.label)}">${esc(o.label)}</span>${size}</div>${o.p == null || (o.p > 0 && o.p < 1) ? formula : ''}`;
         }).join('');
