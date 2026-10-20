@@ -207,7 +207,7 @@
             types: (listP > 0
                 ? `${baseWord} from the set, a card from The List, or a Special Guest`
                 : `${baseWord} from the set, or a Special Guest`)
-                + (v ? "" : " (fun mode upgrades this common to an uncommon)"),
+                + (v ? "" : " (fun mode upgrades the seventh common to an uncommon)"),
             outcomes: slot7
         });
 

@@ -30,7 +30,7 @@ Serving the folder over HTTP (e.g. `python3 -m http.server 8777`) still works, b
 
 ## How packs are built
 * **How each card slot is determined** – a collapsible panel showing every slot's card types, rarity odds, foil chance and List / Special Guest / Piper chance, with exact percentages for the chosen set, plus the expected rares, mythics, foils, lands (and legends, for Commander) per pack. It updates as options change, and the generator uses the same numbers
-* **Changes from vanilla** – whenever an option moves a slot away from the official layout, the panel builds the same set's vanilla slots alongside the current ones and compares them. A summary box lists every difference (`Mythic 14.3% → 57.1% ▲`, `Common removed`, `now Rare or mythic (vanilla: Land)`), each affected row is highlighted and carries a callout naming the option responsible, and the heading shows the total. Both sides are built from the same card counts, so a set's own gaps (no Backgrounds, no mythics) never show up as a change. If the chosen options happen to leave every slot at official odds, it says so instead.
+* **Changes from vanilla** – whenever an option moves a slot away from the official layout, the panel builds the same set's vanilla slots alongside the current ones and compares them. A summary box lists every difference (`Mythic 14.3% → 57.1% ▲`, `Common removed`, `now Rare (vanilla: Uncommon)`), each affected row is highlighted and carries a callout naming the option responsible, and the heading shows the total. Both sides are built from the same card counts, so a set's own gaps (no Backgrounds, no mythics) never show up as a change. If the chosen options happen to leave every slot at official odds, it says so instead.
 * **Vanilla mode** – official odds for every slot, with the fun options switched off. For Booster Packs that means:
   * 7 commons, 3 uncommons, 1 rare or mythic (mythic share M ÷ (2R + M), each mythic printed half as often as each rare)
   * slot 7 can be a Special Guest (1 in 64 packs), or a card from The List for sets from Murders at Karlov Manor to Bloomburrow
@@ -43,8 +43,8 @@ Serving the folder over HTTP (e.g. `python3 -m http.server 8777`) still works, b
   * slot 7's Special Guest comes from that set's own Special Guests
   * no card name appears twice in the same pack (basic lands aside), as with collated print sheets
   * one printing of each card is chosen at random (regular, showcase, borderless…)
-* Every slot sits where it does in a real pack — 6 commons, the List/Special Guest slot, 3 uncommons, rare/mythic, land, wildcard, last wildcard — in both vanilla and fun mode. Fun mode changes what fills a slot, never where it falls, so a printed pack reads in pack order and the separator land after each pack is the only land at the boundary
-* Sets released before Play Boosters existed (February 2024) use the Play Booster layout; the slot panel notes this
+* Every slot sits where it does in a real pack — 6 commons, the List/Special Guest slot, 3 uncommons, rare/mythic, land, wildcard, last wildcard — in both vanilla and fun mode. Fun mode changes what fills a slot, never where it falls, so a printed pack reads in pack order and the separator land after each pack is the only land at the boundary. A fun pack therefore keeps the same 14 positions but reads 6 commons, 3 uncommons (slot 7 included), 2 rares, a land and 2 wildcards
+* Sets released before Play Boosters existed (February 2024) are simulated with the current Booster Pack layout rather than their original draft or set booster; the slot panel notes this
 ## 2027 Booster Pack rules
 Wizards' [Updating Our Boosters in 2027](https://magic.wizards.com/en/news/announcements/updating-our-boosters-in-2027) renames Play Boosters to Booster Packs and changes what is in them. Those rules are used for every set here, not only 2027 ones, since the point of this tool is to proxy packs for play rather than to reproduce the collation of older print runs.
 * **Foil commons and uncommons are gone, and no pack is guaranteed a foil.** The last slot keeps the rarity odds the old foil wildcard had, but is traditional foil only when it lands on a rare or mythic. Nothing had to be invented for this: the chance of a foil in that slot is simply its rare + mythic chance (about 12% for a typical set), which is why packs with no foil at all are now the norm
@@ -52,7 +52,7 @@ Wizards' [Updating Our Boosters in 2027](https://magic.wizards.com/en/news/annou
 * **Not changed:** the land slot is still foil 20% of the time. Wizards' announcement removes foil commons and uncommons but says nothing about the land slot, and Collector Booster God Packs still list a foil land, so it was left alone rather than guessed at
 * **Not implemented:** Japan Showcase cards in the wildcard slot. Scryfall has no `promo:japanshowcase` predicate to query them with yet
 
-* Approximations, flagged in the slot panel: the vanilla wildcard rarity split (18% / 67% / 15%) and foil-slot rarity weights come from Duskmourn's published sheets
+* Approximations, flagged in the slot panel: the vanilla non-foil wildcard's rarity split (18% / 67% / 15%) and the last wildcard's rarity weights (4 : 2 : 1 : ½) both come from Duskmourn's published sheets, the latter from when that slot was always foil
 
 ## Options
 Each tab remembers its own options, so settings chosen for Booster Packs never carry over to Commander boosters (and vice versa). The slot panel highlights every slot that differs from vanilla, shows the before → after for each change, names the option responsible, and lists which slots each option affects.
@@ -60,6 +60,7 @@ Each tab remembers its own options, so settings chosen for Booster Packs never c
 | Option | Booster Pack | Commander |
 |---|---|---|
 | Vanilla mode | yes | yes |
+| Slot upgrades | slots 7 and 10, always on in fun mode | – |
 | Fun multiplier | slots 7, 11, 13, 14 | legendary, rare/mythic, uncommon-or-rare and foil slots |
 | Guest List swap | every pack slot | every pack slot |
 | Foil second wildcard | slot 14 | – |
