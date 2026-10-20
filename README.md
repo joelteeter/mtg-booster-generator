@@ -131,6 +131,8 @@ python3 build.py
 It needs only Python 3 (no packages), inlines every local stylesheet and script into `dist/mtg-booster-generator.html`, and leaves the on-demand CDN libraries as links. Commit the rebuilt `dist/` file along with your changes so the shareable version stays current.
 
 ## Deploying
+Open work and decisions still to make are tracked in [TODO.md](TODO.md).
+
 The site is hosted on Netlify, which builds it straight from this repo. There is no build step: `netlify.toml` publishes the repo root as-is.
 
 | Branch | URL | Who can see it | Cost |
