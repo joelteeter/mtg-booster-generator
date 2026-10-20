@@ -130,6 +130,34 @@ python3 build.py
 ```
 It needs only Python 3 (no packages), inlines every local stylesheet and script into `dist/mtg-booster-generator.html`, and leaves the on-demand CDN libraries as links. Commit the rebuilt `dist/` file along with your changes so the shareable version stays current.
 
+## Deploying
+The site is hosted on Netlify, which builds it straight from this repo. There is no build step: `netlify.toml` publishes the repo root as-is.
+
+| Branch | URL | Who can see it | Cost |
+|---|---|---|---|
+| `main` | [mtg-draft-generator.netlify.app](https://mtg-draft-generator.netlify.app) | public | **15 credits per deploy** |
+| `dev` | dev--mtg-draft-generator.netlify.app | Netlify sign-in only | free |
+
+Netlify's credit plans charge [15 credits for every successful production deploy](https://docs.netlify.com/manage/accounts-and-billing/billing/billing-for-credit-based-plans/how-credits-work/) and nothing at all for branch deploys or deploy previews, however long the build takes. The free plan gets 300 credits a month, so **`main` is worth about 20 pushes a month and `dev` is unlimited**. Work on `dev`:
+
+```
+git checkout dev
+# ...commits...
+git push                      # free branch deploy, private
+```
+
+and release by merging, which is the one step that costs credits:
+
+```
+git checkout main && git merge dev && git push && git checkout dev
+```
+
+A few things worth knowing:
+* running out of credits does not just block deploys — Netlify pauses the project and visitors get a "Site not available" page, so leave headroom
+* failed deploys, and rolling production back to an earlier deploy, are free
+* the `dev` URL is private because the project protects non-production contexts (`sso_login_context: non_production`); sign in to the Netlify account that owns the site to view it
+* `[skip ci]` in a commit message stops Netlify building that commit at all, which is handy for README-only changes on `main`
+
 ## Credits
 * Card data and images: [Scryfall](https://scryfall.com). Magic: The Gathering is © Wizards of the Coast; this is an unofficial fan tool for play-testing proxies
 * The MTGProxyPrinter save-file format (`document-v7.sql`, embedded in `js/export.js`) is from MTGProxyPrinter by Thomas Hess, GPL-3.0
