@@ -156,7 +156,7 @@ A few things worth knowing:
 * running out of credits does not just block deploys — Netlify pauses the project and visitors get a "Site not available" page, so leave headroom
 * failed deploys, and rolling production back to an earlier deploy, are free
 * the `dev` URL is private because the project protects non-production contexts (`sso_login_context: non_production`); sign in to the Netlify account that owns the site to view it
-* `[skip ci]` in a commit message stops Netlify building that commit at all, which is handy for README-only changes on `main`
+* `[skip ci]` (or `[skip netlify]`) anywhere in a commit message stops Netlify building that commit, which is how to land a README-only change on `main` for free. Netlify [announced it in 2018](https://www.netlify.com/blog/2018/10/08/get-more-control-over-netlify-continuous-deployment-with-deploy-skipping/) and it is not in the current docs, so check the deploy list afterwards rather than assuming; with several commits pushed together only the last one needs the token, and it does not affect deploy previews
 
 ## Credits
 * Card data and images: [Scryfall](https://scryfall.com). Magic: The Gathering is © Wizards of the Coast; this is an unofficial fan tool for play-testing proxies
