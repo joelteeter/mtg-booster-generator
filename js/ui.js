@@ -306,6 +306,11 @@ function renderExplain() {
             ? '<b>The List:</b> this set is from the MKM–Bloomburrow era, when 12.5% of Play Boosters had a List card (Special Guests included) in slot 7.'
             : '<b>The List:</b> not in Play Boosters for this set; slot 7 only upgrades to a Special Guest (1 in 64).');
     }
+    if (mode === 'play') {
+        mods.push('<b>Foil (2027 Booster Pack rules):</b> foil commons and uncommons no longer exist, so the last slot is traditional foil only when it lands on a rare or mythic, and a pack is no longer guaranteed to contain one. Its rarity odds are unchanged \u2014 the "Foils per pack" figure above is what is left. '
+            + '<a href="https://magic.wizards.com/en/news/announcements/updating-our-boosters-in-2027" target="_blank" rel="noopener">Updating Our Boosters in 2027</a>');
+        mods.push('<b>God Pack:</b> every pack has its own 1 in 1,000 chance (0.1%) of being a God Pack instead of a normal one \u2014 10 non-foil, 2 Booster Fun and 2 traditional foil Booster Fun rares/mythics. The God Pack celebration card belongs to the non-playable 15th slot, which this app never generates, so a God Pack here is 14 cards like any other. Generated God Packs are marked \u2728 in the pack list.');
+    }
     mods.push('<b>Approximate:</b> foil-slot rarity uses per-card weights of 4 : 2 : 1 : ½ (common : uncommon : rare : mythic), close to Duskmourn\'s published foil sheet. Wildcard split (18% / 67% / 15%) also comes from the Duskmourn sheet.');
 
     $('explainBody').innerHTML = `

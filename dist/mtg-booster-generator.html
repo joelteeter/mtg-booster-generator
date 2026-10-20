@@ -563,8 +563,30 @@ table.slots tr.changed td.slotnum { box-shadow: inset 3px 0 0 #e0a800; }
         return kept.map(o => Object.assign({}, o, { p: o.p / total }));
     }
 
+    /*
+     * Booster Pack foil slot (2027 rules, "Updating Our Boosters in 2027").
+     *
+     * The rarity odds are the ones the old foil wildcard always had, but only
+     * the rare and mythic outcomes come out foil: Wizards removed foil commons
+     * and uncommons, so a foil in a pack is always a rare or mythic and most
+     * packs now contain no foil at all. The chance of a foil per pack is
+     * therefore just P(rare) + P(mythic) here — nothing had to be invented for
+     * the "no longer guaranteed" part, which Wizards did not put a number on.
+     */
+    function rareMythicFoilSlot(stats, keys, mult) {
+        const fun = mult > 1;
+        const tiers = [
+            { pool: keys.C, label: "Common", w: fun ? 0 : 4, foil: 0 },
+            { pool: keys.U, label: "Uncommon", w: 2, foil: 0 },
+            { pool: keys.R, label: "Rare", w: 1 * mult, foil: 1 },
+            { pool: keys.M, label: "Mythic", w: 0.5 * mult, foil: 1 }
+        ].filter(t => t.w > 0);
+        return weightedTiers(stats, tiers).map((o, i) => Object.assign(o, { foil: tiers[i].foil }));
+    }
+
     // Foil slot ("traditional foil of any rarity") — per-card weights 4:2:1:½.
     // Calibrated against Duskmourn's published foil sheet (~58% commons).
+    // Still used by the Commander draft boosters, which are not Booster Packs.
     function anyRarityFoil(stats, keys, mult, extra) {
         const fun = mult > 1;
         const tiers = [
@@ -622,8 +644,9 @@ table.slots tr.changed td.slotnum { box-shadow: inset 3px 0 0 #e0a800; }
                 ].concat(scale(rm, 0.15).map(o => Object.assign(o, { formula: "≈15% rare/mythic, split " + (o.label === "Mythic" ? "by mythic share" : "by rare share") })))
             });
             slots.push({
-                n: 1, title: "Foil wildcard", types: "Any non-basic card of any rarity, traditional foil",
-                outcomes: anyRarityFoil(stats, { C: "commons", U: "uncommons", R: "rares", M: "mythics" }, 1, { foil: 1 })
+                n: 1, title: "Wildcard (foil if rare or mythic)",
+                types: "Any non-basic card of any rarity; traditional foil only when it is a rare or mythic",
+                outcomes: rareMythicFoilSlot(stats, { C: "commons", U: "uncommons", R: "rares", M: "mythics" }, 1)
             });
         } else {
             const wild = (foil) => weightedTiers(stats, [
@@ -648,7 +671,14 @@ table.slots tr.changed td.slotnum { box-shadow: inset 3px 0 0 #e0a800; }
                 outcomes: [{ pool: ["nonBasicLands", "uncommons"], label: "Non-basic land", p: 1, foil: 0, formula: "falls back to an uncommon if the set has no non-basic lands" }]
             });
             slots.push({ n: 1, affects: ["mult"], title: "Wildcard", types: mult > 1 ? "Any non-basic uncommon/rare/mythic (commons removed by multiplier)" : "Any non-basic card, every card name equally likely", outcomes: wild(0) });
-            slots.push({ n: 1, affects: ["mult", "foilToggle"], title: opts.foilToggle ? "Wildcard (foil)" : "Wildcard", types: "Same pool as the first wildcard", outcomes: wild(opts.foilToggle ? 1 : 0) });
+            // Without the toggle this follows the 2027 rule (foil only on rare
+            // and mythic); the toggle is a fun override that foils anything.
+            slots.push({
+                n: 1, affects: ["mult", "foilToggle"],
+                title: opts.foilToggle ? "Wildcard (foil)" : "Wildcard (foil if rare or mythic)",
+                types: "Same pool as the first wildcard" + (opts.foilToggle ? ", always foil" : "; foil only when rare or mythic"),
+                outcomes: opts.foilToggle ? wild(1) : wild(0).map(o => Object.assign(o, { foil: /Rare|Mythic/.test(o.label) ? 1 : 0 }))
+            });
         }
         return finalizeSlots(slots, stats);
     }
@@ -834,6 +864,37 @@ table.slots tr.changed td.slotnum { box-shadow: inset 3px 0 0 #e0a800; }
     }
 
     // ---------------------------------------------------------------------
+    // God Packs (2027 onward)
+    // ---------------------------------------------------------------------
+    /*
+     * Each Booster Pack has an independent 1-in-1,000 chance of being a God
+     * Pack, in which all 14 playable cards are rares or mythics:
+     *   10 non-foil, 2 non-foil Booster Fun, 2 traditional foil Booster Fun.
+     * The 15th card is the God Pack celebration card, which lives in the
+     * non-playable slot this app does not simulate (as with tokens and art
+     * cards), so it is not generated.
+     */
+    const GOD_PACK_CHANCE = 0.001;
+
+    function godPackSpec(stats) {
+        const rm = extra => rareMythic(stats, "rares", "mythics", 1, ["Rare", "Mythic"], extra);
+        return finalizeSlots([
+            { n: 10, title: "Rare or mythic", types: "Any non-basic rare or mythic", outcomes: rm({ foil: 0 }) },
+            { n: 2, title: "Booster Fun rare or mythic", types: "Rare or mythic in a Booster Fun treatment", outcomes: rm({ foil: 0, boosterFun: true }) },
+            { n: 2, title: "Booster Fun rare or mythic (foil)", types: "Rare or mythic in a Booster Fun treatment, traditional foil", outcomes: rm({ foil: 1, boosterFun: true }) }
+        ], stats);
+    }
+
+    // A "Booster Fun" printing is one of the set's alternate treatments rather
+    // than its default frame: showcase, borderless, extended-art or full-art.
+    function isBoosterFun(card) {
+        if (!card) return false;
+        if (card.border_color === "borderless" || card.full_art) return true;
+        const fx = card.frame_effects || [];
+        return fx.indexOf("showcase") >= 0 || fx.indexOf("extendedart") >= 0 || fx.indexOf("inverted") >= 0;
+    }
+
+    // ---------------------------------------------------------------------
     // Vanilla comparison
     // ---------------------------------------------------------------------
     /*
@@ -898,6 +959,7 @@ table.slots tr.changed td.slotnum { box-shadow: inset 3px 0 0 #e0a800; }
         COMMANDER_SETS, LAYOUTS, usedPool, PLAY_BOOSTER_START, LIST_ERA_END, LAND_CYCLES, landCycleQuery,
         isLegendCreatureOrPW, isBackground, isPiper, typeLine,
         playSpec, commanderSpec, finalize, poolCount, diffFromVanilla,
+        godPackSpec, GOD_PACK_CHANCE, isBoosterFun,
         resolvePool, chooseOutcome, pickFromMap, finishFor, statsFromPools, groupByName, nameKey, expectedCounts
     };
     if (typeof module !== "undefined" && module.exports) module.exports = api;
@@ -1532,6 +1594,11 @@ function renderExplain() {
             ? '<b>The List:</b> this set is from the MKM–Bloomburrow era, when 12.5% of Play Boosters had a List card (Special Guests included) in slot 7.'
             : '<b>The List:</b> not in Play Boosters for this set; slot 7 only upgrades to a Special Guest (1 in 64).');
     }
+    if (mode === 'play') {
+        mods.push('<b>Foil (2027 Booster Pack rules):</b> foil commons and uncommons no longer exist, so the last slot is traditional foil only when it lands on a rare or mythic, and a pack is no longer guaranteed to contain one. Its rarity odds are unchanged \u2014 the "Foils per pack" figure above is what is left. '
+            + '<a href="https://magic.wizards.com/en/news/announcements/updating-our-boosters-in-2027" target="_blank" rel="noopener">Updating Our Boosters in 2027</a>');
+        mods.push('<b>God Pack:</b> every pack has its own 1 in 1,000 chance (0.1%) of being a God Pack instead of a normal one \u2014 10 non-foil, 2 Booster Fun and 2 traditional foil Booster Fun rares/mythics. The God Pack celebration card belongs to the non-playable 15th slot, which this app never generates, so a God Pack here is 14 cards like any other. Generated God Packs are marked \u2728 in the pack list.');
+    }
     mods.push('<b>Approximate:</b> foil-slot rarity uses per-card weights of 4 : 2 : 1 : ½ (common : uncommon : rare : mythic), close to Duskmourn\'s published foil sheet. Wildcard split (18% / 67% / 15%) also comes from the Duskmourn sheet.');
 
     $('explainBody').innerHTML = `
@@ -1598,7 +1665,7 @@ function showSetInfo(m, code) {
 // ------------------------------------------------------------------
 // exclude: card names already in this pack. Real packs come from collated print
 // sheets, so the same card essentially never appears twice in one pack.
-function pickRandomVariant(nameMap, exclude) {
+function pickRandomVariant(nameMap, exclude, prefer) {
     let names = Array.from(nameMap.keys());
     if (names.length === 0) return null;
     if (exclude && exclude.size) {
@@ -1606,7 +1673,13 @@ function pickRandomVariant(nameMap, exclude) {
         if (fresh.length) names = fresh;
     }
     const randomName = names[Math.floor(Math.random() * names.length)];
-    const variants = nameMap.get(randomName);
+    let variants = nameMap.get(randomName);
+    // Booster Fun slots want an alternate treatment; fall back to whatever the
+    // card has if the set never printed one.
+    if (prefer) {
+        const matching = variants.filter(prefer);
+        if (matching.length) variants = matching;
+    }
     const chosen = variants[Math.floor(Math.random() * variants.length)];
     if (variants.length > 1) {
         const ids = variants.map(v => v.collector_number).join(", ");
@@ -1616,6 +1689,7 @@ function pickRandomVariant(nameMap, exclude) {
 }
 
 async function drawCard(outcome, pools, exclude) {
+    const prefer = outcome.boosterFun ? L.isBoosterFun : null;
     if (outcome.pool === 'LIST') {
         try {
             const card = await fetchRandom('set:plst');
@@ -1623,11 +1697,11 @@ async function drawCard(outcome, pools, exclude) {
             return card;
         } catch (e) {
             console.warn("The List fetch failed, using a common instead:", e.message);
-            return pickRandomVariant(pools.commons, exclude);
+            return pickRandomVariant(pools.commons, exclude, prefer);
         }
     }
     const map = L.resolvePool(pools, outcome.pool);
-    return map ? pickRandomVariant(map, exclude) : null;
+    return map ? pickRandomVariant(map, exclude, prefer) : null;
 }
 
 genBtn.addEventListener('click', async () => {
@@ -1649,7 +1723,10 @@ genBtn.addEventListener('click', async () => {
     try {
         const pools = await ensureLoaded(mode, code);
         const freshOpts = getOpts();     // set meta may have arrived during loading
-        const slots = buildSpec(code, freshOpts, L.statsFromPools(pools));
+        const poolStats = L.statsFromPools(pools);
+        const slots = buildSpec(code, freshOpts, poolStats);
+        // Play Boosters only: Commander draft boosters are not Booster Packs.
+        const godSlots = mode === 'play' ? L.godPackSpec(poolStats) : null;
         renderExplain();
 
         let bonusPick = null;
@@ -1682,7 +1759,11 @@ genBtn.addEventListener('click', async () => {
             const packRows = [];
             const packCards = [];   // kept for the preview (no extra requests)
             const usedNames = new Set();
-            for (const slot of slots) {
+            // Independent 1-in-1,000 roll for every pack, not one in each 1,000.
+            const godPack = !!godSlots && Math.random() < L.GOD_PACK_CHANCE;
+            if (godPack) console.log(`✨ GOD PACK: pack ${i} is all rares and mythics`);
+            packCards.godPack = godPack;
+            for (const slot of (godPack ? godSlots : slots)) {
                 for (let k = 0; k < slot.n; k++) {
                     const outcome = L.chooseOutcome(slot.outcomes, Math.random);
                     if (!outcome) continue;
@@ -1713,10 +1794,12 @@ genBtn.addEventListener('click', async () => {
         };
         renderDownloadRows();
 
-        $('previewPackSelect').innerHTML = lastPacks.map((p, idx) => `<option value="${idx}">Pack ${idx + 1} (${p.length} cards)${dfcCount(p) ? ` ⟲ ${dfcCount(p)} double-faced` : ''}</option>`).join('');
+        $('previewPackSelect').innerHTML = lastPacks.map((p, idx) => `<option value="${idx}">Pack ${idx + 1} (${p.length} cards)${p.godPack ? ' ✨ God Pack' : ''}${dfcCount(p) ? ` ⟲ ${dfcCount(p)} double-faced` : ''}</option>`).join('');
         if (!$('previewPanel').classList.contains('hidden')) renderPreview(0);
         const dfcPacks = lastPacks.filter(p => dfcCount(p)).length;
+        const godPacks = lastPacks.filter(p => p.godPack).length;
         status.textContent = `✅ Successfully generated ${packCount} ${mode === 'play' ? 'play' : 'commander'} boosters${opts.vanilla ? ' (vanilla)' : ''}.`
+            + (godPacks ? ` ✨ ${godPacks} God Pack${godPacks === 1 ? '' : 's'} (all 14 cards rare or mythic)!` : '')
             + (dfcPacks ? ` ⟲ ${dfcPacks} pack${dfcPacks === 1 ? '' : 's'} contain double-faced cards; check the "Double-faced cards" print setting.` : '');
         downloadContainer.style.display = "block";
     } catch (e) { status.textContent = "❌ Error: " + e.message; console.error(e); }

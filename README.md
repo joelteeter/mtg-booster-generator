@@ -35,7 +35,8 @@ Serving the folder over HTTP (e.g. `python3 -m http.server 8777`) still works, b
   * 7 commons, 3 uncommons, 1 rare or mythic (mythic share M ÷ (2R + M), each mythic printed half as often as each rare)
   * slot 7 can be a Special Guest (1 in 64 packs), or a card from The List for sets from Murders at Karlov Manor to Bloomburrow
   * a land slot: half basic land, half one of the set's common dual lands, 20% foil
-  * a non-foil wildcard and a traditional-foil wildcard
+  * a non-foil wildcard, then a second wildcard that is traditional foil only when it turns out to be a rare or mythic
+  * an independent 1 in 1,000 chance of a God Pack instead (see below)
 * **Pools follow real collation**:
   * cards Scryfall marks as not in boosters are left out, when the set has that data (e.g. Foundations' starter-kit cards; the Commander sets' precon cards)
   * a set's common dual lands appear only in the land slot, not the common slots
@@ -44,6 +45,13 @@ Serving the folder over HTTP (e.g. `python3 -m http.server 8777`) still works, b
   * one printing of each card is chosen at random (regular, showcase, borderless…)
 * Every slot sits where it does in a real Play Booster — 6 commons, the List/Special Guest slot, 3 uncommons, rare/mythic, land, wildcard, foil wildcard — in both vanilla and fun mode. Fun mode changes what fills a slot, never where it falls, so a printed pack reads in pack order and the separator land after each pack is the only land at the boundary
 * Sets released before Play Boosters existed (February 2024) use the Play Booster layout; the slot panel notes this
+## 2027 Booster Pack rules
+Wizards' [Updating Our Boosters in 2027](https://magic.wizards.com/en/news/announcements/updating-our-boosters-in-2027) renames Play Boosters to Booster Packs and changes what is in them. Those rules are used for every set here, not only 2027 ones, since the point of this tool is to proxy packs for play rather than to reproduce the collation of older print runs.
+* **Foil commons and uncommons are gone, and no pack is guaranteed a foil.** The last slot keeps the rarity odds the old foil wildcard had, but is traditional foil only when it lands on a rare or mythic. Nothing had to be invented for this: the chance of a foil in that slot is simply its rare + mythic chance (about 12% for a typical set), which is why packs with no foil at all are now the norm
+* **God Packs.** Every pack has its own 1 in 1,000 chance (not one guaranteed in each 1,000) of being a God Pack, in which all 14 playable cards are rares or mythics: 10 non-foil, 2 Booster Fun, and 2 traditional foil Booster Fun. Booster Fun means a showcase, borderless, extended-art or full-art printing; if the set never printed one for the card drawn, its normal printing is used. The 10 plain slots follow the usual rule of picking any printing at random, so some of them come out Booster Fun too. The God Pack celebration card belongs to the non-playable 15th slot, which this tool has never generated, so a God Pack is still 14 cards. Generated God Packs are marked ✨ in the pack list, the preview and the status line
+* **Not changed:** the land slot is still foil 20% of the time. Wizards' announcement removes foil commons and uncommons but says nothing about the land slot, and Collector Booster God Packs still list a foil land, so it was left alone rather than guessed at
+* **Not implemented:** Japan Showcase cards in the wildcard slot. Scryfall has no `promo:japanshowcase` predicate to query them with yet
+
 * Approximations, flagged in the slot panel: the vanilla wildcard rarity split (18% / 67% / 15%) and foil-slot rarity weights come from Duskmourn's published sheets
 
 ## Options

@@ -139,8 +139,30 @@
         return kept.map(o => Object.assign({}, o, { p: o.p / total }));
     }
 
+    /*
+     * Booster Pack foil slot (2027 rules, "Updating Our Boosters in 2027").
+     *
+     * The rarity odds are the ones the old foil wildcard always had, but only
+     * the rare and mythic outcomes come out foil: Wizards removed foil commons
+     * and uncommons, so a foil in a pack is always a rare or mythic and most
+     * packs now contain no foil at all. The chance of a foil per pack is
+     * therefore just P(rare) + P(mythic) here — nothing had to be invented for
+     * the "no longer guaranteed" part, which Wizards did not put a number on.
+     */
+    function rareMythicFoilSlot(stats, keys, mult) {
+        const fun = mult > 1;
+        const tiers = [
+            { pool: keys.C, label: "Common", w: fun ? 0 : 4, foil: 0 },
+            { pool: keys.U, label: "Uncommon", w: 2, foil: 0 },
+            { pool: keys.R, label: "Rare", w: 1 * mult, foil: 1 },
+            { pool: keys.M, label: "Mythic", w: 0.5 * mult, foil: 1 }
+        ].filter(t => t.w > 0);
+        return weightedTiers(stats, tiers).map((o, i) => Object.assign(o, { foil: tiers[i].foil }));
+    }
+
     // Foil slot ("traditional foil of any rarity") — per-card weights 4:2:1:½.
     // Calibrated against Duskmourn's published foil sheet (~58% commons).
+    // Still used by the Commander draft boosters, which are not Booster Packs.
     function anyRarityFoil(stats, keys, mult, extra) {
         const fun = mult > 1;
         const tiers = [
@@ -198,8 +220,9 @@
                 ].concat(scale(rm, 0.15).map(o => Object.assign(o, { formula: "≈15% rare/mythic, split " + (o.label === "Mythic" ? "by mythic share" : "by rare share") })))
             });
             slots.push({
-                n: 1, title: "Foil wildcard", types: "Any non-basic card of any rarity, traditional foil",
-                outcomes: anyRarityFoil(stats, { C: "commons", U: "uncommons", R: "rares", M: "mythics" }, 1, { foil: 1 })
+                n: 1, title: "Wildcard (foil if rare or mythic)",
+                types: "Any non-basic card of any rarity; traditional foil only when it is a rare or mythic",
+                outcomes: rareMythicFoilSlot(stats, { C: "commons", U: "uncommons", R: "rares", M: "mythics" }, 1)
             });
         } else {
             const wild = (foil) => weightedTiers(stats, [
@@ -224,7 +247,14 @@
                 outcomes: [{ pool: ["nonBasicLands", "uncommons"], label: "Non-basic land", p: 1, foil: 0, formula: "falls back to an uncommon if the set has no non-basic lands" }]
             });
             slots.push({ n: 1, affects: ["mult"], title: "Wildcard", types: mult > 1 ? "Any non-basic uncommon/rare/mythic (commons removed by multiplier)" : "Any non-basic card, every card name equally likely", outcomes: wild(0) });
-            slots.push({ n: 1, affects: ["mult", "foilToggle"], title: opts.foilToggle ? "Wildcard (foil)" : "Wildcard", types: "Same pool as the first wildcard", outcomes: wild(opts.foilToggle ? 1 : 0) });
+            // Without the toggle this follows the 2027 rule (foil only on rare
+            // and mythic); the toggle is a fun override that foils anything.
+            slots.push({
+                n: 1, affects: ["mult", "foilToggle"],
+                title: opts.foilToggle ? "Wildcard (foil)" : "Wildcard (foil if rare or mythic)",
+                types: "Same pool as the first wildcard" + (opts.foilToggle ? ", always foil" : "; foil only when rare or mythic"),
+                outcomes: opts.foilToggle ? wild(1) : wild(0).map(o => Object.assign(o, { foil: /Rare|Mythic/.test(o.label) ? 1 : 0 }))
+            });
         }
         return finalizeSlots(slots, stats);
     }
@@ -410,6 +440,37 @@
     }
 
     // ---------------------------------------------------------------------
+    // God Packs (2027 onward)
+    // ---------------------------------------------------------------------
+    /*
+     * Each Booster Pack has an independent 1-in-1,000 chance of being a God
+     * Pack, in which all 14 playable cards are rares or mythics:
+     *   10 non-foil, 2 non-foil Booster Fun, 2 traditional foil Booster Fun.
+     * The 15th card is the God Pack celebration card, which lives in the
+     * non-playable slot this app does not simulate (as with tokens and art
+     * cards), so it is not generated.
+     */
+    const GOD_PACK_CHANCE = 0.001;
+
+    function godPackSpec(stats) {
+        const rm = extra => rareMythic(stats, "rares", "mythics", 1, ["Rare", "Mythic"], extra);
+        return finalizeSlots([
+            { n: 10, title: "Rare or mythic", types: "Any non-basic rare or mythic", outcomes: rm({ foil: 0 }) },
+            { n: 2, title: "Booster Fun rare or mythic", types: "Rare or mythic in a Booster Fun treatment", outcomes: rm({ foil: 0, boosterFun: true }) },
+            { n: 2, title: "Booster Fun rare or mythic (foil)", types: "Rare or mythic in a Booster Fun treatment, traditional foil", outcomes: rm({ foil: 1, boosterFun: true }) }
+        ], stats);
+    }
+
+    // A "Booster Fun" printing is one of the set's alternate treatments rather
+    // than its default frame: showcase, borderless, extended-art or full-art.
+    function isBoosterFun(card) {
+        if (!card) return false;
+        if (card.border_color === "borderless" || card.full_art) return true;
+        const fx = card.frame_effects || [];
+        return fx.indexOf("showcase") >= 0 || fx.indexOf("extendedart") >= 0 || fx.indexOf("inverted") >= 0;
+    }
+
+    // ---------------------------------------------------------------------
     // Vanilla comparison
     // ---------------------------------------------------------------------
     /*
@@ -474,6 +535,7 @@
         COMMANDER_SETS, LAYOUTS, usedPool, PLAY_BOOSTER_START, LIST_ERA_END, LAND_CYCLES, landCycleQuery,
         isLegendCreatureOrPW, isBackground, isPiper, typeLine,
         playSpec, commanderSpec, finalize, poolCount, diffFromVanilla,
+        godPackSpec, GOD_PACK_CHANCE, isBoosterFun,
         resolvePool, chooseOutcome, pickFromMap, finishFor, statsFromPools, groupByName, nameKey, expectedCounts
     };
     if (typeof module !== "undefined" && module.exports) module.exports = api;

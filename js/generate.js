@@ -11,7 +11,7 @@
 // ------------------------------------------------------------------
 // exclude: card names already in this pack. Real packs come from collated print
 // sheets, so the same card essentially never appears twice in one pack.
-function pickRandomVariant(nameMap, exclude) {
+function pickRandomVariant(nameMap, exclude, prefer) {
     let names = Array.from(nameMap.keys());
     if (names.length === 0) return null;
     if (exclude && exclude.size) {
@@ -19,7 +19,13 @@ function pickRandomVariant(nameMap, exclude) {
         if (fresh.length) names = fresh;
     }
     const randomName = names[Math.floor(Math.random() * names.length)];
-    const variants = nameMap.get(randomName);
+    let variants = nameMap.get(randomName);
+    // Booster Fun slots want an alternate treatment; fall back to whatever the
+    // card has if the set never printed one.
+    if (prefer) {
+        const matching = variants.filter(prefer);
+        if (matching.length) variants = matching;
+    }
     const chosen = variants[Math.floor(Math.random() * variants.length)];
     if (variants.length > 1) {
         const ids = variants.map(v => v.collector_number).join(", ");
@@ -29,6 +35,7 @@ function pickRandomVariant(nameMap, exclude) {
 }
 
 async function drawCard(outcome, pools, exclude) {
+    const prefer = outcome.boosterFun ? L.isBoosterFun : null;
     if (outcome.pool === 'LIST') {
         try {
             const card = await fetchRandom('set:plst');
@@ -36,11 +43,11 @@ async function drawCard(outcome, pools, exclude) {
             return card;
         } catch (e) {
             console.warn("The List fetch failed, using a common instead:", e.message);
-            return pickRandomVariant(pools.commons, exclude);
+            return pickRandomVariant(pools.commons, exclude, prefer);
         }
     }
     const map = L.resolvePool(pools, outcome.pool);
-    return map ? pickRandomVariant(map, exclude) : null;
+    return map ? pickRandomVariant(map, exclude, prefer) : null;
 }
 
 genBtn.addEventListener('click', async () => {
@@ -62,7 +69,10 @@ genBtn.addEventListener('click', async () => {
     try {
         const pools = await ensureLoaded(mode, code);
         const freshOpts = getOpts();     // set meta may have arrived during loading
-        const slots = buildSpec(code, freshOpts, L.statsFromPools(pools));
+        const poolStats = L.statsFromPools(pools);
+        const slots = buildSpec(code, freshOpts, poolStats);
+        // Play Boosters only: Commander draft boosters are not Booster Packs.
+        const godSlots = mode === 'play' ? L.godPackSpec(poolStats) : null;
         renderExplain();
 
         let bonusPick = null;
@@ -95,7 +105,11 @@ genBtn.addEventListener('click', async () => {
             const packRows = [];
             const packCards = [];   // kept for the preview (no extra requests)
             const usedNames = new Set();
-            for (const slot of slots) {
+            // Independent 1-in-1,000 roll for every pack, not one in each 1,000.
+            const godPack = !!godSlots && Math.random() < L.GOD_PACK_CHANCE;
+            if (godPack) console.log(`✨ GOD PACK: pack ${i} is all rares and mythics`);
+            packCards.godPack = godPack;
+            for (const slot of (godPack ? godSlots : slots)) {
                 for (let k = 0; k < slot.n; k++) {
                     const outcome = L.chooseOutcome(slot.outcomes, Math.random);
                     if (!outcome) continue;
@@ -126,10 +140,12 @@ genBtn.addEventListener('click', async () => {
         };
         renderDownloadRows();
 
-        $('previewPackSelect').innerHTML = lastPacks.map((p, idx) => `<option value="${idx}">Pack ${idx + 1} (${p.length} cards)${dfcCount(p) ? ` ⟲ ${dfcCount(p)} double-faced` : ''}</option>`).join('');
+        $('previewPackSelect').innerHTML = lastPacks.map((p, idx) => `<option value="${idx}">Pack ${idx + 1} (${p.length} cards)${p.godPack ? ' ✨ God Pack' : ''}${dfcCount(p) ? ` ⟲ ${dfcCount(p)} double-faced` : ''}</option>`).join('');
         if (!$('previewPanel').classList.contains('hidden')) renderPreview(0);
         const dfcPacks = lastPacks.filter(p => dfcCount(p)).length;
+        const godPacks = lastPacks.filter(p => p.godPack).length;
         status.textContent = `✅ Successfully generated ${packCount} ${mode === 'play' ? 'play' : 'commander'} boosters${opts.vanilla ? ' (vanilla)' : ''}.`
+            + (godPacks ? ` ✨ ${godPacks} God Pack${godPacks === 1 ? '' : 's'} (all 14 cards rare or mythic)!` : '')
             + (dfcPacks ? ` ⟲ ${dfcPacks} pack${dfcPacks === 1 ? '' : 's'} contain double-faced cards; check the "Double-faced cards" print setting.` : '');
         downloadContainer.style.display = "block";
     } catch (e) { status.textContent = "❌ Error: " + e.message; console.error(e); }
