@@ -198,7 +198,7 @@
         const slot7 = [{ pool: "commons", label: "Common", p: 1 - spgP - listP, foil: 0 }];
         if (listP > 0) slot7.push({ pool: "LIST", label: "The List", tag: "The List", p: listP, foil: 0, formula: v ? "12.5% List slot minus Special Guests" : `12.5% × ${mult}` });
         slot7.push({ pool: "spg", label: "Special Guest", tag: "Special Guest", p: spgP, foil: 0, formula: v ? "1 in 64 packs" : `1.5% × ${mult}` });
-        slots.push({ n: 1, affects: v ? [] : ["mult", "listToggle"], title: listP > 0 ? "Common / The List / Special Guest" : "Common or Special Guest", types: "Common from the set, or a Special Guests / The List card", outcomes: slot7 });
+        slots.push({ n: 1, affects: v ? [] : ["mult", "listToggle"], title: listP > 0 ? "Common / The List / Special Guest" : "Common or Special Guest", types: listP > 0 ? "Common from the set, a card from The List, or a Special Guest" : "Common from the set, or a Special Guest", outcomes: slot7 });
 
         slots.push({ n: 3, title: "Uncommon", types: "Any non-basic uncommon", outcomes: [{ pool: "uncommons", label: "Uncommon", p: 1, foil: 0 }] });
 

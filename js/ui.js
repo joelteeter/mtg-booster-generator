@@ -65,10 +65,10 @@ function syncControls() {
     $('cmdAnyRow').classList.toggle('hidden', !cmdAny());
     document.querySelectorAll('.tabs .tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
     $('tabBlurb').textContent = mode === 'play'
-        ? "14-card Play Boosters from any expansion, core or masters set."
+        ? "14-card Booster Packs (formerly Play Boosters) from any expansion, core or masters set, using Wizards' 2027 booster rules for every set."
         : "20-card Commander draft boosters: the official sets (Commander Legends, Battle for Baldur's Gate, Commander Masters), or any set built with one of their layouts.";
     $('vanillaHint').textContent = mode === 'play'
-        ? "Uses the real Play Booster layout: a basic/common land in the land slot, a non-foil wildcard, a traditional foil wildcard, published rare/mythic and Special Guest odds. Fun options are switched off."
+        ? "Uses the real Booster Pack layout: a basic or common land in the land slot, a non-foil wildcard, a last wildcard that is traditional foil only when it is a rare or mythic, and published rare/mythic and Special Guest odds. Fun options are switched off."
         : (cmdAny()
             ? "Uses the chosen layout's published odds with this set's cards. Fun options (multiplier, Guest List swap) are switched off."
             : "Uses the published Commander draft booster layout for the chosen set. Fun options (multiplier, Guest List swap) are switched off.");
@@ -304,22 +304,22 @@ function renderExplain() {
     } else {
         mods.push(opts.mult > 1
             ? `<b>Fun multiplier x${opts.mult}</b> (slot${slotList('mult').includes(',') ? 's' : ''} ${slotList('mult')}): upgrade chances are multiplied and capped at 100%${mode === 'play' ? ' (Special Guest/List, mythic)' : ' (legendary rare/mythic, rare Background, mythic, rare in the uncommon-or-rare slot, foil-etched)'}; commons are removed from ${mode === 'play' ? 'the wildcards' : 'the foil slot'}.`
-            : `<b>Fun multiplier x1:</b> standard odds (would affect slots ${slotList('mult')}).`);
+            : `<b>Fun multiplier x1:</b> the multiplier itself changes nothing (it would affect slots ${slotList('mult')}), but the other fun options still apply \u2014 see the changes listed above.`);
         if (opts.guest) mods.push(`<b>Guest List swap</b> (slots 1–${total}): after a card is drawn, if it has a Special Guests printing it is swapped to that printing 50% of the time.`);
         if (mode === 'play') {
             if (opts.foilToggle) mods.push(`<b>Foil wildcard</b> (slot ${slotList('foilToggle')}): the second wildcard is always traditional foil.`);
             if (opts.listToggle) mods.push(`<b>The List</b> (slot ${slotList('listToggle')}): 12.5% × multiplier chance of a random card from The List.`);
-            mods.push(`<b>Land upgrade</b> (slot ${slotList('landUpgrade')}): fun mode always swaps the basic land for a random non-basic land from the set.`);
+            mods.push(`<b>Land upgrade</b> (slot ${slotList('landUpgrade')}): fun mode always swaps the basic land for a random non-basic land from the set. That pool is every non-basic land the set has, the common dual lands included, so a common land is still a likely result \u2014 the card counts in the slot row show the mix.`);
         }
     }
-    mods.push('<b>Printing:</b> a card name is chosen uniformly from the slot\'s pool, then one of that card\'s printings in the set (regular, showcase, borderless, etc.) is chosen at random.');
+    mods.push('<b>Printing:</b> a card name is chosen uniformly from the slot\'s pool, then one of that card\'s printings in the set (regular, showcase, borderless, etc.) is chosen at random. The only exception is a God Pack\'s Booster Fun slots, which prefer an alternate treatment when the set printed one.');
     if (opts.includeBonus) {
         const cyc = L.LAND_CYCLES.find(c => c.id === opts.bonusType);
         const names = cyc && cyc.names ? `: ${cyc.names.join(', ')}` : (cyc && cyc.builtIn ? ': 10 original duals + 10 fetch lands' : '');
         mods.push(`<b>Bonus land (card ${total + 1}):</b> after each pack, one random ${esc(cyc ? cyc.label : '')}${esc(names)}. It marks the pack boundary and is not part of the pack.`);
     }
     if (mode === 'play' && opts.released && opts.released < L.PLAY_BOOSTER_START) {
-        mods.push(`<b>Note:</b> this set (released ${opts.released}) predates Play Boosters, so it is simulated with the modern Play Booster layout rather than its original draft/set booster.`);
+        mods.push(`<b>Note:</b> this set (released ${opts.released}) predates Play Boosters, so it is simulated with the current Booster Pack layout rather than its original draft or set booster.`);
     }
     if (mode === 'play' && opts.vanilla) {
         mods.push(opts.listEra
@@ -331,7 +331,7 @@ function renderExplain() {
             + '<a href="https://magic.wizards.com/en/news/announcements/updating-our-boosters-in-2027" target="_blank" rel="noopener">Updating Our Boosters in 2027</a>');
         mods.push('<b>God Pack:</b> every pack has its own 1 in 1,000 chance (0.1%) of being a God Pack instead of a normal one \u2014 10 non-foil, 2 Booster Fun and 2 traditional foil Booster Fun rares/mythics. The God Pack celebration card belongs to the non-playable 15th slot, which this app never generates, so a God Pack here is 14 cards like any other. Generated God Packs are marked \u2728 in the pack list.');
     }
-    mods.push('<b>Approximate:</b> foil-slot rarity uses per-card weights of 4 : 2 : 1 : ½ (common : uncommon : rare : mythic), close to Duskmourn\'s published foil sheet. Wildcard split (18% / 67% / 15%) also comes from the Duskmourn sheet.');
+    mods.push('<b>Approximate:</b> the last wildcard\'s rarity uses per-card weights of 4 : 2 : 1 : ½ (common : uncommon : rare : mythic), close to Duskmourn\'s published foil sheet from when that slot was always foil. The non-foil wildcard\'s split (18% / 67% / 15%) also comes from the Duskmourn sheet.');
 
     $('explainBody').innerHTML = `
         ${stats ? '' : `<p class="muted">${code ? 'Loading card counts for ' + esc(code.toUpperCase()) + '… percentages that depend on the set show a formula until then.' : 'Pick a set to see exact percentages.'}</p>`}
@@ -342,7 +342,9 @@ function renderExplain() {
         </table></div>
         ${expectHtml}
         <ul class="modifiers">${mods.map(m => `<li>${m}</li>`).join('')}</ul>
-        <p class="sources">Pack layouts: Wizards' <a href="https://magic.wizards.com/en/news/feature/collecting-commander-masters" target="_blank" rel="noopener">Collecting Commander Masters</a>,
+        <p class="sources">Pack layouts: Wizards' <a href="https://magic.wizards.com/en/news/making-magic/what-are-play-boosters" target="_blank" rel="noopener">What Are Play Boosters?</a> (slot order and odds),
+        <a href="https://magic.wizards.com/en/news/announcements/updating-our-boosters-in-2027" target="_blank" rel="noopener">Updating Our Boosters in 2027</a> (foil slot, God Packs),
+        <a href="https://magic.wizards.com/en/news/feature/collecting-commander-masters" target="_blank" rel="noopener">Collecting Commander Masters</a>,
         StarCityGames' <a href="https://articles.starcitygames.com/magic-the-gathering/your-guide-to-commander-legends-battle-for-baldurs-gate-products/" target="_blank" rel="noopener">Baldur's Gate product guide</a>,
         and the booster data on <a href="https://www.mtg.wtf/pack/cmr-draft" target="_blank" rel="noopener">mtg.wtf</a> (CMR, CMM, MKM and DSK Play Boosters).</p>`;
 }

@@ -20,7 +20,7 @@
             query: 'layout:planar game:paper',
             noun: 'plane',
             drawLabel: '🌀 Planeswalk',
-            blurb: 'Shuffle every Plane and Phenomenon on Scryfall into one planar deck. Planeswalk to reveal the next plane; the plane you leave goes to the bottom of the deck. Roll the planar die on your turn; each extra roll in the same turn costs one more generic mana.',
+            blurb: 'Shuffle every Plane on Scryfall — and every Phenomenon, unless you switch them off below — into one planar deck. Planeswalk to reveal the next plane; the plane you leave goes to the bottom of the deck. Roll the planar die on your turn; each extra roll in the same turn costs one more generic mana.',
             landscape: true
         },
         archenemy: {
