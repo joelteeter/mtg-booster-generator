@@ -102,7 +102,9 @@ Every format is available for all packs together or for each pack on its own.
 
 ## Files
 ```
-index.html               page markup; loads the styles and scripts below
+index.html               page markup; loads the icon, styles and scripts below
+favicon.svg              skull-and-crossbones icon (original art, mana-symbol styling)
+favicon.ico              the same icon at 16-256 px, for /favicon.ico requests
 css/styles.css           all styles
 js/booster-logic.js      pack layouts and odds, shared by the generator and the slot panel
 js/state.js              shared state: DOM shortcuts, current tab, per-tab options, pool caches
@@ -116,6 +118,7 @@ js/simulators.js         Planechase and Archenemy simulators
 js/export.js             PDF builder (incl. optional AI 2× upscaling) and MTGProxyPrinter file builder
 js/main.js               start-up: fills the set lists and wires up the tabs (loaded last)
 build.py                 bundles everything into dist/mtg-booster-generator.html
+                         (the SVG icon is inlined too, so the single file still has one)
 dist/                    the single-file build
 ```
 The scripts are plain browser scripts that share one global scope, so the order of the `<script>` tags in `index.html` matters: `booster-logic.js` and `state.js` first, `main.js` last.
