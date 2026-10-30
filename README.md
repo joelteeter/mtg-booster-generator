@@ -92,7 +92,7 @@ Each tab remembers its own options, so settings chosen for Booster Packs never c
 * the CSV names both tokens on a card, since they are two different cards even though they share one slot; the PDFs and the MTGProxyPrinter file treat them as the two sides of one card
 
 ## Preview
-After generating, **Preview packs** shows one pack at a time as card images, with each card's slot, rarity and a FOIL / ETCHED marker; double-faced cards flip on click. Images come from links already in the Scryfall card data, so previewing makes no extra API requests. Packs containing double-faced cards are flagged (⟲ with a count; hover for the card names) in the downloads table, the preview's pack list and the "generated" message.
+After generating, **Preview packs** shows one pack at a time as card images, with each card's slot, rarity and a FOIL / ETCHED marker. Anything with two sides — a double-faced card, or a token separator or token-sheet card carrying a different token on each side — gets a ⟲ button and turns over with a 3D flip when clicked, with the caption following to the other side's name (it says `front` or `back`, and for a token slot the name changes outright, because the back is a different card). Images come from links already in the Scryfall card data, so previewing makes no extra API requests. Packs containing double-faced cards are flagged (⟲ with a count; hover for the card names) in the downloads table, the preview's pack list and the "generated" message.
 
 ## Downloads
 Every format is available for all packs together or for each pack on its own.

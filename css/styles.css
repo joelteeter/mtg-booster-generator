@@ -88,11 +88,30 @@ table.dl-table tr.has-dfc td:first-child { box-shadow: inset 3px 0 0 #3b7ddd; }
 .pv-img img { width: 100%; height: 100%; display: block; object-fit: cover; }
 .pv-img.foil { box-shadow: 0 0 0 3px #b98cf5, 0 0 10px rgba(150, 90, 255, 0.55); }
 .pv-img.etched { box-shadow: 0 0 0 3px #d4af37, 0 0 10px rgba(212, 175, 55, 0.6); }
-.pv-img.flippable { cursor: pointer; }
+
+/* Two-sided cards: a double-faced card's own faces, or the two different
+   tokens printed on one separator or token-sheet card. */
+.pv-stage { position: relative; aspect-ratio: 488 / 680; perspective: 1200px; }
+.pv-stage.flippable { cursor: pointer; }
+.pv-flipper { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform 0.55s cubic-bezier(0.2, 0.75, 0.3, 1); }
+.pv-stage.flipped .pv-flipper { transform: rotateY(180deg); }
+.pv-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; aspect-ratio: auto; }
+.pv-back { transform: rotateY(180deg); }
+.pv-flip-btn { position: absolute; left: 6px; top: 6px; z-index: 2; width: 26px; height: 26px; padding: 0;
+    border: none; border-radius: 50%; background: rgba(0, 0, 0, 0.66); color: #fff; font-size: 0.95rem; line-height: 26px;
+    cursor: pointer; opacity: 0.82; transition: opacity 0.15s, transform 0.3s; }
+.pv-stage:hover .pv-flip-btn { opacity: 1; }
+.pv-flip-btn:hover { transform: rotate(-180deg); }
+.pv-flip-btn:focus-visible { outline: 2px solid #4b8dfd; outline-offset: 2px; opacity: 1; }
+.pv-stage.flipped .pv-flip-btn { transform: rotate(-180deg); }
+.pv-side { color: #8a93a0; }
+@media (prefers-reduced-motion: reduce) {
+    .pv-flipper, .pv-flip-btn { transition: none; }
+}
 .pv-badge { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.72); color: #fff; font-size: 0.65rem; font-weight: bold; padding: 1px 6px; border-radius: 4px; }
 .pv-card figcaption { margin-top: 5px; }
 .pv-card figcaption b { color: #333; }
-.pv-bonus .pv-img { opacity: 0.85; outline: 2px dashed #9aa5b1; outline-offset: 2px; }
+.pv-bonus .pv-stage { opacity: 0.85; outline: 2px dashed #9aa5b1; outline-offset: 2px; border-radius: 4.75% / 3.5%; }
 
 /* Tabs */
 .tabs { display: flex; gap: 6px; border-bottom: 2px solid #e3e3ea; margin-bottom: 6px; }

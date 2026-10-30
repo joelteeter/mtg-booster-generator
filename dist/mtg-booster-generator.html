@@ -97,11 +97,30 @@ table.dl-table tr.has-dfc td:first-child { box-shadow: inset 3px 0 0 #3b7ddd; }
 .pv-img img { width: 100%; height: 100%; display: block; object-fit: cover; }
 .pv-img.foil { box-shadow: 0 0 0 3px #b98cf5, 0 0 10px rgba(150, 90, 255, 0.55); }
 .pv-img.etched { box-shadow: 0 0 0 3px #d4af37, 0 0 10px rgba(212, 175, 55, 0.6); }
-.pv-img.flippable { cursor: pointer; }
+
+/* Two-sided cards: a double-faced card's own faces, or the two different
+   tokens printed on one separator or token-sheet card. */
+.pv-stage { position: relative; aspect-ratio: 488 / 680; perspective: 1200px; }
+.pv-stage.flippable { cursor: pointer; }
+.pv-flipper { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform 0.55s cubic-bezier(0.2, 0.75, 0.3, 1); }
+.pv-stage.flipped .pv-flipper { transform: rotateY(180deg); }
+.pv-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; aspect-ratio: auto; }
+.pv-back { transform: rotateY(180deg); }
+.pv-flip-btn { position: absolute; left: 6px; top: 6px; z-index: 2; width: 26px; height: 26px; padding: 0;
+    border: none; border-radius: 50%; background: rgba(0, 0, 0, 0.66); color: #fff; font-size: 0.95rem; line-height: 26px;
+    cursor: pointer; opacity: 0.82; transition: opacity 0.15s, transform 0.3s; }
+.pv-stage:hover .pv-flip-btn { opacity: 1; }
+.pv-flip-btn:hover { transform: rotate(-180deg); }
+.pv-flip-btn:focus-visible { outline: 2px solid #4b8dfd; outline-offset: 2px; opacity: 1; }
+.pv-stage.flipped .pv-flip-btn { transform: rotate(-180deg); }
+.pv-side { color: #8a93a0; }
+@media (prefers-reduced-motion: reduce) {
+    .pv-flipper, .pv-flip-btn { transition: none; }
+}
 .pv-badge { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.72); color: #fff; font-size: 0.65rem; font-weight: bold; padding: 1px 6px; border-radius: 4px; }
 .pv-card figcaption { margin-top: 5px; }
 .pv-card figcaption b { color: #333; }
-.pv-bonus .pv-img { opacity: 0.85; outline: 2px dashed #9aa5b1; outline-offset: 2px; }
+.pv-bonus .pv-stage { opacity: 0.85; outline: 2px dashed #9aa5b1; outline-offset: 2px; border-radius: 4.75% / 3.5%; }
 
 /* Tabs */
 .tabs { display: flex; gap: 6px; border-bottom: 2px solid #e3e3ea; margin-bottom: 6px; }
@@ -401,7 +420,7 @@ table.slots tr.changed td.slotnum { box-shadow: inset 3px 0 0 #e0a800; }
                     <select id="previewPackSelect" aria-label="Pack to preview"></select>
                     <button id="nextPack" aria-label="Next pack">▶</button>
                 </div>
-                <p class="hint">Images load from Scryfall's image server (cards.scryfall.io), one pack at a time; no extra API requests. Click a double-faced card to flip it.</p>
+                <p class="hint">Images load from Scryfall's image server (cards.scryfall.io), one pack at a time; no extra API requests. Cards with two sides — double-faced cards, and the token separators and token sheets that carry a different token on each side — show a ⟲ button; click the card to flip it.</p>
                 <div id="previewGrid" class="preview-grid"></div>
             </div>
         </div>
@@ -2224,6 +2243,24 @@ function faceImages(card, size = 'normal') {
     return [];
 }
 
+/*
+ * The two sides of one printed card, as {url, name}. That is a double-faced
+ * card's own faces, or — for a token separator or a token sheet slot — two
+ * different cards, one printed on each side.
+ */
+function cardSides(entry) {
+    const urls = faceImages(entry.card);
+    const faceNames = entry.card.card_faces && entry.card.card_faces.length > 1
+        ? entry.card.card_faces.filter(f => f.image_uris).map(f => f.name)
+        : [];
+    const sides = urls.map((url, i) => ({ url, name: faceNames[i] || entry.card.name }));
+    if (entry.backCard) {
+        const back = faceImages(entry.backCard);
+        if (back.length) sides.push({ url: back[0], name: entry.backCard.name });
+    }
+    return sides;
+}
+
 function renderPreview(idx) {
     if (!lastPacks.length) return;
     previewIndex = Math.max(0, Math.min(lastPacks.length - 1, idx));
@@ -2232,14 +2269,24 @@ function renderPreview(idx) {
     $('nextPack').disabled = previewIndex === lastPacks.length - 1;
     const grid = $('previewGrid');
     grid.innerHTML = lastPacks[previewIndex].map((e, i) => {
-        const imgs = faceImages(e.card);
-        const badge = e.finish === 'foil' ? 'FOIL' : e.finish === 'etched' ? 'ETCHED' : (imgs.length > 1 ? '⟲ FLIP' : '');
+        const sides = cardSides(e);
+        const two = sides.length > 1;
+        const finish = e.finish !== 'nonfoil' ? ' ' + e.finish : '';
+        const badge = e.finish === 'foil' ? 'FOIL' : e.finish === 'etched' ? 'ETCHED' : '';
+        const face = (side, cls) => `<div class="pv-img pv-face ${cls}${finish}">
+                ${side ? `<img src="${esc(side.url)}" alt="${esc(side.name)}" loading="lazy" decoding="async">` : ''}
+                ${badge && cls === 'pv-front' ? `<span class="pv-badge">${badge}</span>` : ''}
+            </div>`;
         return `<figure class="pv-card${e.bonus ? ' pv-bonus' : ''}">
-            <div class="pv-img${e.finish !== 'nonfoil' ? ' ' + e.finish : ''}${imgs.length > 1 ? ' flippable' : ''}" data-i="${i}" data-face="0">
-                ${imgs.length ? `<img src="${esc(imgs[0])}" alt="${esc(e.card.name)}" loading="lazy" decoding="async">` : ''}
-                ${badge ? `<span class="pv-badge">${badge}</span>` : ''}
+            <div class="pv-stage${two ? ' flippable' : ''}" data-i="${i}" data-face="0">
+                <div class="pv-flipper">
+                    ${face(sides[0], 'pv-front')}
+                    ${two ? face(sides[1], 'pv-back') : ''}
+                </div>
+                ${two ? `<button type="button" class="pv-flip-btn" aria-label="Flip to the other side of this card" title="${esc(sides[1].name)} is on the back — click to flip">⟲</button>` : ''}
             </div>
-            <figcaption><b>${e.slot ? 'Slot ' + e.slot : 'Separator'}</b> · ${esc(e.label)}<br>${esc(e.card.name)}</figcaption>
+            <figcaption><b>${e.slot ? 'Slot ' + e.slot : 'Separator'}</b> · ${esc(e.label)}<br>
+                <span class="pv-name">${esc(sides[0].name)}</span>${two ? `<span class="pv-side"> · front</span>` : ''}</figcaption>
         </figure>`;
     }).join('');
 }
@@ -2260,13 +2307,20 @@ $('previewPackSelect').addEventListener('change', e => renderPreview(parseInt(e.
 $('prevPack').addEventListener('click', () => renderPreview(previewIndex - 1));
 $('nextPack').addEventListener('click', () => renderPreview(previewIndex + 1));
 $('previewGrid').addEventListener('click', e => {
-    const box = e.target.closest('.pv-img.flippable');
-    if (!box) return;
-    const entry = lastPacks[previewIndex][+box.dataset.i];
-    const imgs = faceImages(entry.card);
-    const face = (+box.dataset.face + 1) % imgs.length;
-    box.dataset.face = face;
-    box.querySelector('img').src = imgs[face];
+    const stage = e.target.closest('.pv-stage.flippable');
+    if (!stage) return;
+    const entry = lastPacks[previewIndex][+stage.dataset.i];
+    const sides = cardSides(entry);
+    const face = (+stage.dataset.face + 1) % 2;
+    stage.dataset.face = face;
+    stage.classList.toggle('flipped', face === 1);
+    // The back of a token slot is a different card, so the caption follows it.
+    const cap = stage.closest('.pv-card').querySelector('.pv-name');
+    const side = stage.closest('.pv-card').querySelector('.pv-side');
+    if (cap && sides[face]) cap.textContent = sides[face].name;
+    if (side) side.textContent = face === 1 ? ' · back' : ' · front';
+    const btn = stage.querySelector('.pv-flip-btn');
+    if (btn && sides[(face + 1) % 2]) btn.title = `${sides[(face + 1) % 2].name} is on the other side — click to flip`;
 });
 </script>
 <script>
