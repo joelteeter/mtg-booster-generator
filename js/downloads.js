@@ -32,7 +32,12 @@ function renderDownloadRows() {
         <td><button class="dl-btn mpp" data-kind="mpp" data-idx="${idx}">⬇ .mtgproxies</button></td>
     </tr>`;
     $('compareEnhance').disabled = !n;
-    $('dlRows').innerHTML = row(0, `All ${n} packs`) + lastPacks.map((p, i) => row(i + 1, `Pack ${i + 1}`)).join('');
+    // Token sheets ride along after the packs; name them for what they are.
+    const sheets = lastPacks.filter(p => p.tokenSheet).length;
+    const packs = n - sheets;
+    const allLabel = `All ${packs} pack${packs === 1 ? '' : 's'}` + (sheets ? ` + ${sheets} token sheet${sheets === 1 ? '' : 's'}` : '');
+    $('dlRows').innerHTML = row(0, allLabel)
+        + lastPacks.map((p, i) => row(i + 1, p.tokenSheet ? `Token sheet ${p.tokenSheet}` : `Pack ${i + 1}`)).join('');
 }
 
 function saveBytes(bytes, filename, type) {

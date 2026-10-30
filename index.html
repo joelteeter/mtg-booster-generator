@@ -124,11 +124,23 @@
         <legend>🗺️ Pack separator</legend>
         <label class="checkbox-row">
             <input type="checkbox" id="includeBonus" checked>
-            Add a bonus land after each pack?
+            Add a separator card after each pack?
         </label>
-        <label for="bonusType">Bonus land type:</label>
-        <select id="bonusType"></select>
-        <p class="hint">The bonus land is not part of the pack, so it stays available in vanilla mode.</p>
+        <label for="separatorType">Separator card:</label>
+        <select id="separatorType">
+            <option value="land">Land</option>
+            <option value="token">Token (a different token on each side)</option>
+        </select>
+        <div id="separatorLandRow">
+            <label for="bonusType">Bonus land type:</label>
+            <select id="bonusType"></select>
+        </div>
+        <p class="hint">The separator is not part of the pack, so it stays available in vanilla mode. A token separator prints one token on the front and a different one from the same set on the back, so print those pages double-sided.</p>
+        <label class="checkbox-row">
+            <input type="checkbox" id="tokenSheets">
+            Also make token sheets: one of every token in the set
+        </label>
+        <p class="hint">Adds full pages after the packs, in collector-number order, two tokens per card (front and back). A 9-card page holds 18 tokens; any slots left over on the last page are filled with random tokens from the set.</p>
     </fieldset>
 
     <details class="how" id="howItWorks">

@@ -66,7 +66,8 @@ Each tab remembers its own options, so settings chosen for Booster Packs never c
 | Foil second wildcard | slot 14 | – |
 | The List in slot 7 | slot 7 | – |
 | Land upgrade (non-basic land) | slot 12, always on in fun mode | – |
-| Bonus land | after the pack | after the pack |
+| Separator card (land or token) | after the pack | after the pack |
+| Token sheets | after the packs | – |
 
 * **Fun options** (not vanilla):
   * Slot upgrades – the seventh common (slot 7) becomes an uncommon, and the third guaranteed uncommon (slot 10) becomes a guaranteed rare. Both apply at every multiplier, so a fun pack always holds one more rare than a real one
@@ -76,7 +77,19 @@ Each tab remembers its own options, so settings chosen for Booster Packs never c
   * Make the second wildcard foil (Booster Pack)
   * Add The List to slot 7 (Booster Pack)
   * Guest List swap – a card that has a Special Guests printing swaps to it 50% of the time
-* **Bonus land / pack separator** – an extra land after each pack (not part of the pack, so it's also available in vanilla mode). Choose the type: classic (original duals + fetch lands), shock, slow, scry, surveil, verge, gain, fast, guildgates, desert pingers, creature lands, fetch, original duals, check, pain, filter, bounce, bond, battle, horizon, triomes, pathways, or a different random cycle each pack
+* **Pack separator** – an extra card after each pack (not part of the pack, so it's also available in vanilla mode). Choose **land** or **token**:
+  * **Token** – one card carrying two different tokens from the chosen set, one on the front and another on the back, so those pages print double-sided. A set's tokens live in their own Scryfall set (`tdsk` for Duskmourn) along with its emblems, which are included too
+  * **Land** – a random land from a cycle you pick: classic (original duals + fetch lands), shock, slow, scry, surveil, verge, gain, fast, guildgates, desert pingers, creature lands, fetch, original duals, check, pain, filter, bounce, bond, battle, horizon, triomes, pathways, or a different random cycle each pack
+
+## Token sheets
+**Also make token sheets** adds full pages after the packs holding one of every token in the set, so a draft has all of them on hand.
+
+* tokens are ordered by collector number, and kept apart by it rather than by name — a set often prints two different tokens that share one (Duskmourn has two Spirits and two Insects)
+* each card carries two tokens, one per side, so a 9-card page covers 18 of them; print the pages double-sided
+* a token that is already double-faced (Duskmourn's Punchcard) keeps its own two faces and takes a card to itself
+* as many pages as it takes to cover the set; slots left spare on the last page are filled with random tokens from the set rather than left blank, and so is the back of an odd last pair
+* emblems are on the token sheet too and are included
+* the CSV names both tokens on a card, since they are two different cards even though they share one slot; the PDFs and the MTGProxyPrinter file treat them as the two sides of one card
 
 ## Preview
 After generating, **Preview packs** shows one pack at a time as card images, with each card's slot, rarity and a FOIL / ETCHED marker; double-faced cards flip on click. Images come from links already in the Scryfall card data, so previewing makes no extra API requests. Packs containing double-faced cards are flagged (⟲ with a count; hover for the card names) in the downloads table, the preview's pack list and the "generated" message.

@@ -75,10 +75,11 @@ genBtn.addEventListener('click', async () => {
         const godSlots = mode === 'play' ? L.godPackSpec(poolStats) : null;
         renderExplain();
 
-        let bonusPick = null;
+        let bonusPick = null, separatorIsToken = false;
         if (opts.includeBonus) {
-            status.textContent = `⏳ Loading bonus lands...`;
-            bonusPick = await prepareBonus(opts.bonusType);
+            separatorIsToken = opts.separatorType === 'token';
+            status.textContent = separatorIsToken ? `⏳ Loading ${setCode} tokens...` : `⏳ Loading bonus lands...`;
+            bonusPick = separatorIsToken ? await prepareTokenSeparator(code) : await prepareBonus(opts.bonusType);
         }
 
         const processCard = (card) => {
@@ -126,7 +127,13 @@ genBtn.addEventListener('click', async () => {
                 const b = bonusPick();
                 if (b.card) {
                     packRows.push(formatToFullCSV(b.card, "nonfoil", b.section));
-                    packCards.push({ card: b.card, finish: "nonfoil", slot: null, label: "Bonus land", bonus: true });
+                    // One card, two tokens: the back is a different card, so the
+                    // CSV names it too even though it shares the one slot.
+                    if (b.backCard) packRows.push(formatToFullCSV(b.backCard, "nonfoil", b.section));
+                    packCards.push(Object.assign({
+                        card: b.card, finish: "nonfoil", slot: null,
+                        label: separatorIsToken ? "Token separator" : "Bonus land", bonus: true
+                    }, b.backCard ? { backCard: b.backCard, tokenSlot: true } : (b.tokenSlot ? { tokenSlot: true } : {})));
                 }
             }
             lastPacks.push(packCards);
@@ -134,19 +141,47 @@ genBtn.addEventListener('click', async () => {
             packCsv.push([header, ...packRows].join("\n"));
         }
 
+        // Every token in the set, over as many pages as it takes, each slot a
+        // token on the front and a different one on the back.
+        let tokenSheetCount = 0;
+        if (opts.tokenSheets) {
+            status.textContent = `⏳ Loading ${setCode} tokens...`;
+            const tokens = await loadTokens(code);
+            if (!tokens.length) throw new Error(`${setCode} has no tokens on Scryfall (looked in ${L.tokenSetCode(code).toUpperCase()}).`);
+            const sheets = L.tokenSheets(tokens, 9, Math.random);
+            tokenSheetCount = sheets.length;
+            sheets.forEach((sheet, i) => {
+                const rows = [];
+                const cards = sheet.map((s, k) => {
+                    rows.push(formatToFullCSV(s.card, "nonfoil"));
+                    if (s.backCard) rows.push(formatToFullCSV(s.backCard, "nonfoil"));
+                    return Object.assign({}, s, { finish: "nonfoil", slot: k + 1, label: s.filler ? "Token (filler)" : "Token" });
+                });
+                cards.tokenSheet = i + 1;
+                lastPacks.push(cards);
+                allRows.push(...rows);
+                packCsv.push([header, ...rows].join("\n"));
+            });
+        }
+
         lastExport = {
-            base: [`${setCode}-${allLabel}-${packCount}`].concat(packCsv.map((_, i) => `${setCode}-${label}-${i + 1}`)),
+            base: [`${setCode}-${allLabel}-${packCount}`].concat(packCsv.map((_, i) =>
+                i < packCount ? `${setCode}-${label}-${i + 1}` : `${setCode}-TokenSheet-${i - packCount + 1}`)),
             csv: [[header, ...allRows].join("\n")].concat(packCsv)
         };
         renderDownloadRows();
 
-        $('previewPackSelect').innerHTML = lastPacks.map((p, idx) => `<option value="${idx}">Pack ${idx + 1} (${p.length} cards)${p.godPack ? ' ✨ God Pack' : ''}${dfcCount(p) ? ` ⟲ ${dfcCount(p)} double-faced` : ''}</option>`).join('');
+        $('previewPackSelect').innerHTML = lastPacks.map((p, idx) => {
+            const name = p.tokenSheet ? `Token sheet ${p.tokenSheet}` : `Pack ${idx + 1}`;
+            return `<option value="${idx}">${name} (${p.length} cards)${p.godPack ? ' ✨ God Pack' : ''}${dfcCount(p) ? ` ⟲ ${dfcCount(p)} double-faced` : ''}</option>`;
+        }).join('');
         if (!$('previewPanel').classList.contains('hidden')) renderPreview(0);
-        const dfcPacks = lastPacks.filter(p => dfcCount(p)).length;
+        const dfcPacks = lastPacks.filter(p => !p.tokenSheet && dfcCount(p)).length;
         const godPacks = lastPacks.filter(p => p.godPack).length;
         status.textContent = `✅ Successfully generated ${packCount} ${mode === 'play' ? 'Booster Pack' : 'Commander booster'}${packCount === 1 ? '' : 's'}${opts.vanilla ? ' (vanilla)' : ''}.`
             + (godPacks ? ` ✨ ${godPacks} God Pack${godPacks === 1 ? '' : 's'} (all 14 cards rare or mythic)!` : '')
-            + (dfcPacks ? ` ⟲ ${dfcPacks} pack${dfcPacks === 1 ? '' : 's'} contain double-faced cards; check the "Double-faced cards" print setting.` : '');
+            + (tokenSheetCount ? ` 🌟 ${tokenSheetCount} token sheet${tokenSheetCount === 1 ? '' : 's'} with every token in the set; print them double-sided.` : '')
+            + (dfcPacks ? ` ⟲ ${dfcPacks} pack${dfcPacks === 1 ? '' : 's'} ${dfcPacks === 1 ? 'contains' : 'contain'} double-faced cards; check the "Double-faced cards" print setting.` : '');
         downloadContainer.style.display = "block";
     } catch (e) { status.textContent = "❌ Error: " + e.message; console.error(e); }
     finally { genBtn.disabled = false; }

@@ -17,7 +17,7 @@ const cmdSetSelect = $('cmdSetSelect');
 let mode = 'play';
 // Every option is remembered separately for each tab, so a setting chosen
 // for Play Boosters never leaks into Commander boosters (and vice versa).
-const OPT_IDS = ['packCount', 'vanillaToggle', 'funMultiplier', 'preferGuestList', 'foilToggle', 'listToggle', 'includeBonus', 'bonusType'];
+const OPT_IDS = ['packCount', 'vanillaToggle', 'funMultiplier', 'preferGuestList', 'foilToggle', 'listToggle', 'includeBonus', 'separatorType', 'bonusType', 'tokenSheets'];
 const modeState = {};
 function readControls() {
     const o = {};

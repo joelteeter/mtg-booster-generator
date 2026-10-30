@@ -39,7 +39,9 @@ function getOpts() {
         listEra: !!released && released >= L.PLAY_BOOSTER_START && released < L.LIST_ERA_END,
         released,
         includeBonus: $('includeBonus').checked,
-        bonusType: $('bonusType').value
+        separatorType: $('separatorType').value,
+        bonusType: $('bonusType').value,
+        tokenSheets: $('tokenSheets').checked
     };
 }
 
@@ -58,7 +60,10 @@ function syncControls() {
     const vanilla = $('vanillaToggle').checked;
     $('funOptions').disabled = vanilla;
     document.querySelectorAll('.play-only').forEach(el => el.classList.toggle('hidden', mode !== 'play'));
-    $('bonusType').disabled = !$('includeBonus').checked;
+    const sepOn = $('includeBonus').checked;
+    $('separatorType').disabled = !sepOn;
+    $('bonusType').disabled = !sepOn;
+    $('separatorLandRow').classList.toggle('hidden', $('separatorType').value !== 'land');
     $('playSetRow').classList.toggle('hidden', mode !== 'play');
     $('cmdSetRow').classList.toggle('hidden', mode !== 'commander');
     $('cmdOfficialRow').classList.toggle('hidden', cmdAny());
@@ -265,7 +270,7 @@ function renderExplain() {
         ];
         if (mode === 'commander') chips.push(['Legendaries', sum(/legend|background/i)]);
         const lands = expectedLands(slots, pools);
-        if (lands != null) chips.push([opts.includeBonus ? 'Lands (+1 separator)' : 'Lands', lands]);
+        if (lands != null) chips.push([opts.includeBonus && opts.separatorType === 'land' ? 'Lands (+1 separator)' : 'Lands', lands]);
         const sg = sum(/special guest|the list|piper/i);
         if (sg > 0) chips.push([mode === 'play' ? 'List / Special Guest' : 'Prismatic Piper', sg]);
         expectHtml = `<div class="expect">${chips.map(([k, v]) => `<span>${k}: <b>${v.toFixed(2)}</b> per pack</span>`).join('')}</div>`;
@@ -321,10 +326,15 @@ function renderExplain() {
         }
     }
     mods.push('<b>Printing:</b> a card name is chosen uniformly from the slot\'s pool, then one of that card\'s printings in the set (regular, showcase, borderless, etc.) is chosen at random. The only exception is a God Pack\'s Booster Fun slots, which prefer an alternate treatment when the set printed one.');
-    if (opts.includeBonus) {
+    if (opts.includeBonus && opts.separatorType === 'token') {
+        mods.push(`<b>Token separator (card ${total + 1}):</b> after each pack, one card carrying two different tokens from ${code ? esc(code.toUpperCase()) : 'the set'} \u2014 one on the front, another on the back \u2014 so print those pages double-sided. It marks the pack boundary and is not part of the pack.`);
+    } else if (opts.includeBonus) {
         const cyc = L.LAND_CYCLES.find(c => c.id === opts.bonusType);
         const names = cyc && cyc.names ? `: ${cyc.names.join(', ')}` : (cyc && cyc.builtIn ? ': 10 original duals + 10 fetch lands' : '');
         mods.push(`<b>Bonus land (card ${total + 1}):</b> after each pack, one random ${esc(cyc ? cyc.label : '')}${esc(names)}. It marks the pack boundary and is not part of the pack.`);
+    }
+    if (opts.tokenSheets) {
+        mods.push(`<b>Token sheets:</b> after the packs, full pages holding one of every token ${code ? 'in ' + esc(code.toUpperCase()) : 'in the set'}, in collector-number order, two per card (front and back). Tokens that are already double-faced keep their own two faces. Slots left spare on the last page are filled with random tokens from the set.`);
     }
     if (mode === 'play' && opts.released && opts.released < L.PLAY_BOOSTER_START) {
         mods.push(`<b>Note:</b> this set (released ${opts.released}) predates Play Boosters, so it is simulated with the current Booster Pack layout rather than its original draft or set booster.`);

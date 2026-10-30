@@ -195,6 +195,10 @@ CREATE TABLE DocumentDimensions (
     function expandFaces(packs, dfcMode) {
         return packs.map(pack => pack.flatMap(entry => {
             const front = Object.assign({}, entry, { face: 0 });
+            // A token slot is double-sided by design — another token, or the
+            // token's own second face, prints on its back — so it is never
+            // split in two the way a double-faced card can be.
+            if (entry.tokenSlot) return [front];
             return dfcMode === "separate" && isDfc(entry.card) ? [front, Object.assign({}, entry, { face: 1 })] : [front];
         }));
     }
@@ -361,7 +365,11 @@ CREATE TABLE DocumentDimensions (
             } else {
                 if (opts.flip === "short") row = GRID.rows - 1 - row;
                 else col = GRID.cols - 1 - col;
-                if (opts.dfcMode === "frontOnly" && entry.face !== 1 && isDfc(entry.card)) {
+                if (entry.backCard) {
+                    url = imageUrl(entry.backCard, opts.quality, 0);   // a different card on the back of this one
+                } else if (entry.tokenSlot && isDfc(entry.card)) {
+                    url = imageUrl(entry.card, opts.quality, 1);       // a double-faced token's own second face
+                } else if (opts.dfcMode === "frontOnly" && entry.face !== 1 && isDfc(entry.card)) {
                     url = imageUrl(entry.card, opts.quality, 1);   // a real card face: enhanced like the fronts
                 } else {
                     url = opts.customBackUrl || cardBackUrl(entry.card, opts.quality);

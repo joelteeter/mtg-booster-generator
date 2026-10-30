@@ -230,6 +230,34 @@ function loadCycle(cycle) {
     return cycleCache[cycle.id];
 }
 
+// A set's tokens and emblems, newest request cached like the land cycles.
+// fetchPool returns [] for a set with no token set rather than throwing.
+const tokenCache = {};
+async function loadTokens(code) {
+    const key = String(code || "").toLowerCase();
+    if (!key) return [];
+    if (!tokenCache[key]) {
+        tokenCache[key] = fetchPool(`set:${L.tokenSetCode(key)}`)
+            .catch(e => { delete tokenCache[key]; throw e; });
+    }
+    return tokenCache[key];
+}
+
+// Two different tokens per separator: one on the front, another on the back.
+async function prepareTokenSeparator(code) {
+    const tokens = await loadTokens(code);
+    if (!tokens.length) throw new Error(`${String(code).toUpperCase()} has no tokens on Scryfall (looked in ${L.tokenSetCode(code).toUpperCase()}).`);
+    const pool = L.sortTokens(tokens);
+    const pick = () => pool[Math.floor(Math.random() * pool.length)];
+    return () => {
+        const front = pick();
+        let back = pick();
+        // avoid the same token on both sides when the set has more than one
+        for (let i = 0; pool.length > 1 && i < 8 && back.id === front.id; i++) back = pick();
+        return L.tokenPair(front, back);
+    };
+}
+
 async function prepareBonus(typeId) {
     const real = L.LAND_CYCLES.filter(c => c.id !== 'random');
     if (typeId === 'random') {

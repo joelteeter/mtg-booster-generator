@@ -52,7 +52,7 @@ document.querySelectorAll('.tabs .tab').forEach(t => t.addEventListener('click',
     refresh();
 }));
 ['setSelect', 'customSet', 'cmdSource', 'cmdSetSelect', 'cmdAnySetSelect', 'cmdAnyCustom', 'cmdLayout',
- 'vanillaToggle', 'funMultiplier', 'preferGuestList', 'foilToggle', 'listToggle', 'includeBonus', 'bonusType']
+ 'vanillaToggle', 'funMultiplier', 'preferGuestList', 'foilToggle', 'listToggle', 'includeBonus', 'separatorType', 'bonusType', 'tokenSheets']
     .forEach(id => $(id).addEventListener('change', refresh));
 
 syncControls();

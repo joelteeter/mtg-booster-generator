@@ -288,11 +288,23 @@ table.slots tr.changed td.slotnum { box-shadow: inset 3px 0 0 #e0a800; }
         <legend>🗺️ Pack separator</legend>
         <label class="checkbox-row">
             <input type="checkbox" id="includeBonus" checked>
-            Add a bonus land after each pack?
+            Add a separator card after each pack?
         </label>
-        <label for="bonusType">Bonus land type:</label>
-        <select id="bonusType"></select>
-        <p class="hint">The bonus land is not part of the pack, so it stays available in vanilla mode.</p>
+        <label for="separatorType">Separator card:</label>
+        <select id="separatorType">
+            <option value="land">Land</option>
+            <option value="token">Token (a different token on each side)</option>
+        </select>
+        <div id="separatorLandRow">
+            <label for="bonusType">Bonus land type:</label>
+            <select id="bonusType"></select>
+        </div>
+        <p class="hint">The separator is not part of the pack, so it stays available in vanilla mode. A token separator prints one token on the front and a different one from the same set on the back, so print those pages double-sided.</p>
+        <label class="checkbox-row">
+            <input type="checkbox" id="tokenSheets">
+            Also make token sheets: one of every token in the set
+        </label>
+        <p class="hint">Adds full pages after the packs, in collector-number order, two tokens per card (front and back). A 9-card page holds 18 tokens; any slots left over on the last page are filled with random tokens from the set.</p>
     </fieldset>
 
     <details class="how" id="howItWorks">
@@ -924,6 +936,72 @@ table.slots tr.changed td.slotnum { box-shadow: inset 3px 0 0 #e0a800; }
     }
 
     // ---------------------------------------------------------------------
+    // Tokens
+    // ---------------------------------------------------------------------
+    /*
+     * A set's tokens live in their own Scryfall set, "t" plus the set's code
+     * (tdsk for Duskmourn), alongside its emblems. Tokens are kept apart by
+     * collector number rather than by name, because a set often prints two
+     * different tokens that share one: Duskmourn has two Spirits and two
+     * Insects.
+     */
+    const tokenSetCode = code => "t" + String(code || "").toLowerCase();
+
+    // A token that is already double-faced brings its own back with it, so it
+    // fills a slot alone; every other token is paired with a second one.
+    const isDoubleFacedToken = c => !!(c && !c.image_uris && c.card_faces && c.card_faces.length > 1
+        && c.card_faces[0].image_uris && c.card_faces[1].image_uris);
+
+    function sortTokens(tokens) {
+        const num = c => {
+            const m = /\d+/.exec(c.collector_number || "");
+            return m ? parseInt(m[0], 10) : Number.MAX_SAFE_INTEGER;
+        };
+        return tokens.slice().sort((a, b) =>
+            num(a) - num(b) || String(a.collector_number).localeCompare(String(b.collector_number)));
+    }
+
+    // One slot of a token sheet: a token on the front and a different one on
+    // the back, or a double-faced token showing its own two faces.
+    function tokenPair(front, back) {
+        return isDoubleFacedToken(front)
+            ? { card: front, tokenSlot: true }
+            : { card: front, backCard: back || null, tokenSlot: true };
+    }
+
+    /*
+     * Lay every token in the set over as many pages as it takes to get one of
+     * each, printed double-sided: a slot holds one token on the front and a
+     * different one on the back, so a 9-card page covers up to 18 of them.
+     * Slots left over on the last page are filled with random tokens from the
+     * same set rather than left blank, and so is the back of an odd last pair.
+     */
+    function tokenSheets(tokens, perPage, rng) {
+        const all = sortTokens(tokens);
+        if (!all.length) return [];
+        const random = () => all[Math.floor(rng() * all.length)];
+
+        const slots = [], singles = [];
+        for (const t of all) {
+            if (isDoubleFacedToken(t)) slots.push(tokenPair(t));
+            else singles.push(t);
+        }
+        for (let i = 0; i < singles.length; i += 2) slots.push(tokenPair(singles[i], singles[i + 1]));
+
+        while (slots.length % perPage !== 0) {
+            const s = tokenPair(random(), random());
+            s.filler = true;
+            slots.push(s);
+        }
+        // an odd number of single-faced tokens leaves one back empty
+        for (const s of slots) if (!s.backCard && !isDoubleFacedToken(s.card)) s.backCard = random();
+
+        const sheets = [];
+        for (let i = 0; i < slots.length; i += perPage) sheets.push(slots.slice(i, i + perPage));
+        return sheets;
+    }
+
+    // ---------------------------------------------------------------------
     // Vanilla comparison
     // ---------------------------------------------------------------------
     /*
@@ -990,6 +1068,7 @@ table.slots tr.changed td.slotnum { box-shadow: inset 3px 0 0 #e0a800; }
         isLegendCreatureOrPW, isBackground, isPiper, typeLine,
         playSpec, commanderSpec, finalize, poolCount, diffFromVanilla,
         godPackSpec, GOD_PACK_CHANCE, isBoosterFun,
+        tokenSetCode, isDoubleFacedToken, sortTokens, tokenPair, tokenSheets,
         resolvePool, chooseOutcome, pickFromMap, finishFor, statsFromPools, groupByName, nameKey, expectedCounts
     };
     if (typeof module !== "undefined" && module.exports) module.exports = api;
@@ -1017,7 +1096,7 @@ const cmdSetSelect = $('cmdSetSelect');
 let mode = 'play';
 // Every option is remembered separately for each tab, so a setting chosen
 // for Play Boosters never leaks into Commander boosters (and vice versa).
-const OPT_IDS = ['packCount', 'vanillaToggle', 'funMultiplier', 'preferGuestList', 'foilToggle', 'listToggle', 'includeBonus', 'bonusType'];
+const OPT_IDS = ['packCount', 'vanillaToggle', 'funMultiplier', 'preferGuestList', 'foilToggle', 'listToggle', 'includeBonus', 'separatorType', 'bonusType', 'tokenSheets'];
 const modeState = {};
 function readControls() {
     const o = {};
@@ -1265,6 +1344,34 @@ function loadCycle(cycle) {
     return cycleCache[cycle.id];
 }
 
+// A set's tokens and emblems, newest request cached like the land cycles.
+// fetchPool returns [] for a set with no token set rather than throwing.
+const tokenCache = {};
+async function loadTokens(code) {
+    const key = String(code || "").toLowerCase();
+    if (!key) return [];
+    if (!tokenCache[key]) {
+        tokenCache[key] = fetchPool(`set:${L.tokenSetCode(key)}`)
+            .catch(e => { delete tokenCache[key]; throw e; });
+    }
+    return tokenCache[key];
+}
+
+// Two different tokens per separator: one on the front, another on the back.
+async function prepareTokenSeparator(code) {
+    const tokens = await loadTokens(code);
+    if (!tokens.length) throw new Error(`${String(code).toUpperCase()} has no tokens on Scryfall (looked in ${L.tokenSetCode(code).toUpperCase()}).`);
+    const pool = L.sortTokens(tokens);
+    const pick = () => pool[Math.floor(Math.random() * pool.length)];
+    return () => {
+        const front = pick();
+        let back = pick();
+        // avoid the same token on both sides when the set has more than one
+        for (let i = 0; pool.length > 1 && i < 8 && back.id === front.id; i++) back = pick();
+        return L.tokenPair(front, back);
+    };
+}
+
 async function prepareBonus(typeId) {
     const real = L.LAND_CYCLES.filter(c => c.id !== 'random');
     if (typeId === 'random') {
@@ -1357,7 +1464,9 @@ function getOpts() {
         listEra: !!released && released >= L.PLAY_BOOSTER_START && released < L.LIST_ERA_END,
         released,
         includeBonus: $('includeBonus').checked,
-        bonusType: $('bonusType').value
+        separatorType: $('separatorType').value,
+        bonusType: $('bonusType').value,
+        tokenSheets: $('tokenSheets').checked
     };
 }
 
@@ -1376,7 +1485,10 @@ function syncControls() {
     const vanilla = $('vanillaToggle').checked;
     $('funOptions').disabled = vanilla;
     document.querySelectorAll('.play-only').forEach(el => el.classList.toggle('hidden', mode !== 'play'));
-    $('bonusType').disabled = !$('includeBonus').checked;
+    const sepOn = $('includeBonus').checked;
+    $('separatorType').disabled = !sepOn;
+    $('bonusType').disabled = !sepOn;
+    $('separatorLandRow').classList.toggle('hidden', $('separatorType').value !== 'land');
     $('playSetRow').classList.toggle('hidden', mode !== 'play');
     $('cmdSetRow').classList.toggle('hidden', mode !== 'commander');
     $('cmdOfficialRow').classList.toggle('hidden', cmdAny());
@@ -1583,7 +1695,7 @@ function renderExplain() {
         ];
         if (mode === 'commander') chips.push(['Legendaries', sum(/legend|background/i)]);
         const lands = expectedLands(slots, pools);
-        if (lands != null) chips.push([opts.includeBonus ? 'Lands (+1 separator)' : 'Lands', lands]);
+        if (lands != null) chips.push([opts.includeBonus && opts.separatorType === 'land' ? 'Lands (+1 separator)' : 'Lands', lands]);
         const sg = sum(/special guest|the list|piper/i);
         if (sg > 0) chips.push([mode === 'play' ? 'List / Special Guest' : 'Prismatic Piper', sg]);
         expectHtml = `<div class="expect">${chips.map(([k, v]) => `<span>${k}: <b>${v.toFixed(2)}</b> per pack</span>`).join('')}</div>`;
@@ -1639,10 +1751,15 @@ function renderExplain() {
         }
     }
     mods.push('<b>Printing:</b> a card name is chosen uniformly from the slot\'s pool, then one of that card\'s printings in the set (regular, showcase, borderless, etc.) is chosen at random. The only exception is a God Pack\'s Booster Fun slots, which prefer an alternate treatment when the set printed one.');
-    if (opts.includeBonus) {
+    if (opts.includeBonus && opts.separatorType === 'token') {
+        mods.push(`<b>Token separator (card ${total + 1}):</b> after each pack, one card carrying two different tokens from ${code ? esc(code.toUpperCase()) : 'the set'} \u2014 one on the front, another on the back \u2014 so print those pages double-sided. It marks the pack boundary and is not part of the pack.`);
+    } else if (opts.includeBonus) {
         const cyc = L.LAND_CYCLES.find(c => c.id === opts.bonusType);
         const names = cyc && cyc.names ? `: ${cyc.names.join(', ')}` : (cyc && cyc.builtIn ? ': 10 original duals + 10 fetch lands' : '');
         mods.push(`<b>Bonus land (card ${total + 1}):</b> after each pack, one random ${esc(cyc ? cyc.label : '')}${esc(names)}. It marks the pack boundary and is not part of the pack.`);
+    }
+    if (opts.tokenSheets) {
+        mods.push(`<b>Token sheets:</b> after the packs, full pages holding one of every token ${code ? 'in ' + esc(code.toUpperCase()) : 'in the set'}, in collector-number order, two per card (front and back). Tokens that are already double-faced keep their own two faces. Slots left spare on the last page are filled with random tokens from the set.`);
     }
     if (mode === 'play' && opts.released && opts.released < L.PLAY_BOOSTER_START) {
         mods.push(`<b>Note:</b> this set (released ${opts.released}) predates Play Boosters, so it is simulated with the current Booster Pack layout rather than its original draft or set booster.`);
@@ -1794,10 +1911,11 @@ genBtn.addEventListener('click', async () => {
         const godSlots = mode === 'play' ? L.godPackSpec(poolStats) : null;
         renderExplain();
 
-        let bonusPick = null;
+        let bonusPick = null, separatorIsToken = false;
         if (opts.includeBonus) {
-            status.textContent = `⏳ Loading bonus lands...`;
-            bonusPick = await prepareBonus(opts.bonusType);
+            separatorIsToken = opts.separatorType === 'token';
+            status.textContent = separatorIsToken ? `⏳ Loading ${setCode} tokens...` : `⏳ Loading bonus lands...`;
+            bonusPick = separatorIsToken ? await prepareTokenSeparator(code) : await prepareBonus(opts.bonusType);
         }
 
         const processCard = (card) => {
@@ -1845,7 +1963,13 @@ genBtn.addEventListener('click', async () => {
                 const b = bonusPick();
                 if (b.card) {
                     packRows.push(formatToFullCSV(b.card, "nonfoil", b.section));
-                    packCards.push({ card: b.card, finish: "nonfoil", slot: null, label: "Bonus land", bonus: true });
+                    // One card, two tokens: the back is a different card, so the
+                    // CSV names it too even though it shares the one slot.
+                    if (b.backCard) packRows.push(formatToFullCSV(b.backCard, "nonfoil", b.section));
+                    packCards.push(Object.assign({
+                        card: b.card, finish: "nonfoil", slot: null,
+                        label: separatorIsToken ? "Token separator" : "Bonus land", bonus: true
+                    }, b.backCard ? { backCard: b.backCard, tokenSlot: true } : (b.tokenSlot ? { tokenSlot: true } : {})));
                 }
             }
             lastPacks.push(packCards);
@@ -1853,19 +1977,47 @@ genBtn.addEventListener('click', async () => {
             packCsv.push([header, ...packRows].join("\n"));
         }
 
+        // Every token in the set, over as many pages as it takes, each slot a
+        // token on the front and a different one on the back.
+        let tokenSheetCount = 0;
+        if (opts.tokenSheets) {
+            status.textContent = `⏳ Loading ${setCode} tokens...`;
+            const tokens = await loadTokens(code);
+            if (!tokens.length) throw new Error(`${setCode} has no tokens on Scryfall (looked in ${L.tokenSetCode(code).toUpperCase()}).`);
+            const sheets = L.tokenSheets(tokens, 9, Math.random);
+            tokenSheetCount = sheets.length;
+            sheets.forEach((sheet, i) => {
+                const rows = [];
+                const cards = sheet.map((s, k) => {
+                    rows.push(formatToFullCSV(s.card, "nonfoil"));
+                    if (s.backCard) rows.push(formatToFullCSV(s.backCard, "nonfoil"));
+                    return Object.assign({}, s, { finish: "nonfoil", slot: k + 1, label: s.filler ? "Token (filler)" : "Token" });
+                });
+                cards.tokenSheet = i + 1;
+                lastPacks.push(cards);
+                allRows.push(...rows);
+                packCsv.push([header, ...rows].join("\n"));
+            });
+        }
+
         lastExport = {
-            base: [`${setCode}-${allLabel}-${packCount}`].concat(packCsv.map((_, i) => `${setCode}-${label}-${i + 1}`)),
+            base: [`${setCode}-${allLabel}-${packCount}`].concat(packCsv.map((_, i) =>
+                i < packCount ? `${setCode}-${label}-${i + 1}` : `${setCode}-TokenSheet-${i - packCount + 1}`)),
             csv: [[header, ...allRows].join("\n")].concat(packCsv)
         };
         renderDownloadRows();
 
-        $('previewPackSelect').innerHTML = lastPacks.map((p, idx) => `<option value="${idx}">Pack ${idx + 1} (${p.length} cards)${p.godPack ? ' ✨ God Pack' : ''}${dfcCount(p) ? ` ⟲ ${dfcCount(p)} double-faced` : ''}</option>`).join('');
+        $('previewPackSelect').innerHTML = lastPacks.map((p, idx) => {
+            const name = p.tokenSheet ? `Token sheet ${p.tokenSheet}` : `Pack ${idx + 1}`;
+            return `<option value="${idx}">${name} (${p.length} cards)${p.godPack ? ' ✨ God Pack' : ''}${dfcCount(p) ? ` ⟲ ${dfcCount(p)} double-faced` : ''}</option>`;
+        }).join('');
         if (!$('previewPanel').classList.contains('hidden')) renderPreview(0);
-        const dfcPacks = lastPacks.filter(p => dfcCount(p)).length;
+        const dfcPacks = lastPacks.filter(p => !p.tokenSheet && dfcCount(p)).length;
         const godPacks = lastPacks.filter(p => p.godPack).length;
         status.textContent = `✅ Successfully generated ${packCount} ${mode === 'play' ? 'Booster Pack' : 'Commander booster'}${packCount === 1 ? '' : 's'}${opts.vanilla ? ' (vanilla)' : ''}.`
             + (godPacks ? ` ✨ ${godPacks} God Pack${godPacks === 1 ? '' : 's'} (all 14 cards rare or mythic)!` : '')
-            + (dfcPacks ? ` ⟲ ${dfcPacks} pack${dfcPacks === 1 ? '' : 's'} contain double-faced cards; check the "Double-faced cards" print setting.` : '');
+            + (tokenSheetCount ? ` 🌟 ${tokenSheetCount} token sheet${tokenSheetCount === 1 ? '' : 's'} with every token in the set; print them double-sided.` : '')
+            + (dfcPacks ? ` ⟲ ${dfcPacks} pack${dfcPacks === 1 ? '' : 's'} ${dfcPacks === 1 ? 'contains' : 'contain'} double-faced cards; check the "Double-faced cards" print setting.` : '');
         downloadContainer.style.display = "block";
     } catch (e) { status.textContent = "❌ Error: " + e.message; console.error(e); }
     finally { genBtn.disabled = false; }
@@ -1907,7 +2059,12 @@ function renderDownloadRows() {
         <td><button class="dl-btn mpp" data-kind="mpp" data-idx="${idx}">⬇ .mtgproxies</button></td>
     </tr>`;
     $('compareEnhance').disabled = !n;
-    $('dlRows').innerHTML = row(0, `All ${n} packs`) + lastPacks.map((p, i) => row(i + 1, `Pack ${i + 1}`)).join('');
+    // Token sheets ride along after the packs; name them for what they are.
+    const sheets = lastPacks.filter(p => p.tokenSheet).length;
+    const packs = n - sheets;
+    const allLabel = `All ${packs} pack${packs === 1 ? '' : 's'}` + (sheets ? ` + ${sheets} token sheet${sheets === 1 ? '' : 's'}` : '');
+    $('dlRows').innerHTML = row(0, allLabel)
+        + lastPacks.map((p, i) => row(i + 1, p.tokenSheet ? `Token sheet ${p.tokenSheet}` : `Pack ${i + 1}`)).join('');
 }
 
 function saveBytes(bytes, filename, type) {
@@ -2603,6 +2760,10 @@ CREATE TABLE DocumentDimensions (
     function expandFaces(packs, dfcMode) {
         return packs.map(pack => pack.flatMap(entry => {
             const front = Object.assign({}, entry, { face: 0 });
+            // A token slot is double-sided by design — another token, or the
+            // token's own second face, prints on its back — so it is never
+            // split in two the way a double-faced card can be.
+            if (entry.tokenSlot) return [front];
             return dfcMode === "separate" && isDfc(entry.card) ? [front, Object.assign({}, entry, { face: 1 })] : [front];
         }));
     }
@@ -2769,7 +2930,11 @@ CREATE TABLE DocumentDimensions (
             } else {
                 if (opts.flip === "short") row = GRID.rows - 1 - row;
                 else col = GRID.cols - 1 - col;
-                if (opts.dfcMode === "frontOnly" && entry.face !== 1 && isDfc(entry.card)) {
+                if (entry.backCard) {
+                    url = imageUrl(entry.backCard, opts.quality, 0);   // a different card on the back of this one
+                } else if (entry.tokenSlot && isDfc(entry.card)) {
+                    url = imageUrl(entry.card, opts.quality, 1);       // a double-faced token's own second face
+                } else if (opts.dfcMode === "frontOnly" && entry.face !== 1 && isDfc(entry.card)) {
                     url = imageUrl(entry.card, opts.quality, 1);   // a real card face: enhanced like the fronts
                 } else {
                     url = opts.customBackUrl || cardBackUrl(entry.card, opts.quality);
@@ -2951,7 +3116,7 @@ document.querySelectorAll('.tabs .tab').forEach(t => t.addEventListener('click',
     refresh();
 }));
 ['setSelect', 'customSet', 'cmdSource', 'cmdSetSelect', 'cmdAnySetSelect', 'cmdAnyCustom', 'cmdLayout',
- 'vanillaToggle', 'funMultiplier', 'preferGuestList', 'foilToggle', 'listToggle', 'includeBonus', 'bonusType']
+ 'vanillaToggle', 'funMultiplier', 'preferGuestList', 'foilToggle', 'listToggle', 'includeBonus', 'separatorType', 'bonusType', 'tokenSheets']
     .forEach(id => $(id).addEventListener('change', refresh));
 
 syncControls();
