@@ -52,16 +52,15 @@ target, and it matters for two reasons:
 The cost of static export: no API routes, no middleware, no ISR, and the default
 image loader is unavailable. We use none of them.
 
-## What we would lose
+## What we lose
 
-Two things the README currently advertises. Both are real, and both are your call.
+Two things the README currently advertises, both accepted as costs (see Decisions).
 
 1. **The single-file build.** `dist/mtg-booster-generator.html` is one file you can
    email, and `build.py` produces it by inlining every script, the stylesheet and the
-   icon. Next.js emits hashed chunks; there is no equivalent. Keeping the feature
-   means a second bundler pass over the exported output (something like
-   `vite-plugin-singlefile` against a parallel Vite build), which is real work and a
-   second toolchain. Dropping it is a genuine loss of capability.
+   icon. Next.js emits hashed chunks; there is no equivalent, and we have decided not
+   to maintain a second bundler to keep one. This is a genuine loss of capability,
+   not a wash — worth saying plainly before it disappears.
 2. **Opening `index.html` from disk.** Next's chunk loading does not survive
    `file://`. After the move the app needs a web server, even locally.
 
@@ -197,12 +196,18 @@ config. This is several sessions of work, not one. Phases 1 and 2 are
 straightforward and satisfying; phase 5 is the one that will take the longest and
 has the least safety net.
 
-## Open decisions
+## Decisions (settled 30 October 2026)
 
-1. **The single-file build** — keep it (a second bundler pass), or drop it and accept
-   that the shareable artifact goes away?
-2. **Tests** — add Vitest as part of phase 1? I would; it is what makes the port
-   verifiable rather than hopeful.
-3. **In place or side by side** — keep the current app under `legacy/` until parity,
-   or move straight over on the branch and rely on `dev` for comparison?
-4. **State libraries** — Zustand and TanStack Query, or keep it to React built-ins?
+1. **The single-file build is dropped.** No second bundler pass. `build.py`,
+   `dist/mtg-booster-generator.html` and the README's "copy, email or share it on its
+   own" all go at phase 6. Opening `index.html` from disk goes with them: after the
+   move the app needs a web server, locally as well.
+2. **Vitest goes in at phase 1**, with the old-vs-new parity harness, before any UI
+   work. The port is to be verifiable, not hopeful.
+3. **Side by side on a `next` branch.** No `legacy/` directory: the current app stays
+   on `dev` and the two are compared through free branch deploys,
+   `next--mtg-draft-generator.netlify.app` against `dev--mtg-draft-generator.netlify.app`.
+   `main` stays on the current app until phase 6, so nothing spends a credit.
+4. **Zustand for options and packs, TanStack Query for Scryfall.** The 150 ms
+   rate-limit queue stays custom underneath the fetcher; TanStack Query replaces the
+   hand-rolled `poolCache` deduping and caching.
