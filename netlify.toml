@@ -1,11 +1,22 @@
-# Static site: index.html loads css/ and js/ from next to it, so the
-# repo root is published as-is and there is nothing to build.
-# (build.py only produces dist/mtg-booster-generator.html, the shareable
-# single-file copy, which is committed and served at that path too.)
+# Next.js static export.
+#
+# `output: "export"` in next.config.ts writes plain HTML, CSS and JS to `out/`,
+# with no serverless functions. That matters for cost as well as correctness:
+# Netlify meters compute and web requests but not static assets, so hosting
+# stays at exactly what the old static site cost. Build minutes are not metered
+# either, so the build command itself is free.
+#
+# This file is per-branch. `dev` still carries the old version of it, which
+# publishes the repo root as-is with no build — so the old app keeps serving
+# from `dev--mtg-draft-generator.netlify.app` while this branch is compared
+# against it at `next--mtg-draft-generator.netlify.app`.
 
 [build]
-  publish = "."
-  command = ""
+  publish = "out"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "26"
 
 [[headers]]
   for = "/*"
