@@ -28,7 +28,9 @@ anything already settled lives in the README instead.
 
 ## Frontend
 
-- [ ] **Decide on a CSS/UI framework** (Bootstrap, shadcn/ui or something smaller)
+- [ ] **Move to Next.js + TypeScript + shadcn/ui** — planned in [docs/nextjs-migration.md](docs/nextjs-migration.md), not started. Supersedes the framework question below, which it answers: shadcn means React, Tailwind and a bundler, so the no-build property goes
+
+- [ ] ~~Decide on a CSS/UI framework~~ (settled by the above, kept for the reasoning)
   The app is deliberately plain today: browser scripts sharing one global scope,
   no bundler, no install, and `build.py` inlines everything into a single
   shareable HTML file. The README sells that ("No install, build step or local
