@@ -211,3 +211,155 @@ has the least safety net.
 4. **Zustand for options and packs, TanStack Query for Scryfall.** The 150 ms
    rate-limit queue stays custom underneath the fetcher; TanStack Query replaces the
    hand-rolled `poolCache` deduping and caching.
+
+---
+
+# Starting cold
+
+Everything below exists because a session that has not lived through October would
+otherwise have to ask, guess, or rediscover it the hard way.
+
+## Where things are, and how to run them
+
+* Repo: `/Users/joelteeter/develop/mtg booster generator/mtg-booster-generator`
+  (note the spaces in the parent directory — quote paths in shell commands).
+* Branches: `main` is production and **must not be pushed to** before 19 November
+  2026 (see Credits). `dev` is the working branch and the base to cut `next` from.
+* **Node is not on the default PATH.** Every shell call needs
+  `export PATH="/opt/homebrew/bin:$PATH"` first, or `node` and `npm` are not found.
+  Node 26.12.0, npm 11.20.0, installed via Homebrew this month.
+* Rebuild the single-file copy after any change to `js/`, `css/` or `index.html`:
+  `python3 build.py`. It is committed, and forgetting it makes `dist/` drift.
+  (This goes away at phase 6.)
+* Syntax check before trusting anything: `node --check js/<file>.js`.
+* The pack logic runs under plain Node — `require('./js/booster-logic.js')` works
+  because the file exports for CommonJS as well as the browser. That is how every
+  odds change this month was verified, and it is what makes the parity harness easy.
+* Commits end with `Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>`.
+
+## Verifying in a browser without being misled
+
+Three traps cost real time this month. All three make correct code look broken.
+
+1. **`python3 -m http.server` sends no `Cache-Control`.** The browser then invents
+   its own freshness window and serves a stale script even through a reload and a
+   hard reload. The symptom is edited code that will not take effect
+   (`performance.getEntriesByType('resource')` shows `transferSize: 0`). The fix that
+   works: **serve each verification run on a new port.** Netlify is not affected — it
+   sends `max-age=0, must-revalidate` with an ETag.
+2. **The browser pane does not advance CSS transitions or reliably paint while being
+   driven.** A finished `rotateY(180deg)` reads back as 2D identity and loaded images
+   render as grey boxes. Do not conclude anything is broken from this. Check the real
+   state instead: set `style.transition='none'`, force a reflow, and read the computed
+   transform; and check `img.complete && img.naturalWidth > 0` rather than the
+   screenshot.
+3. **The console panel keeps 404s from earlier page loads**, surviving navigation and
+   `console.clear()`. The server's own log is the truth — `grep -c 404 <logfile>`.
+   A stale favicon 404 was reported as current for several turns because of this.
+
+Also: when writing patch scripts in Python, `re.sub` parses `\u` in the
+*replacement* string, and a `"\\u2014"` in a Python literal is the six characters
+`\u2014`, not an em dash. Both bit this month. Anchor on the real character, and use
+a lambda replacement. Always assert the match count before writing a file.
+
+## Facts about the domain that are not in the code
+
+* **Tokens live in their own Scryfall set**, `t` + the set code (`tdsk`). There is no
+  `set:dsk is:token`; that returns nothing.
+* **Tokens must be kept distinct by collector number, not by name.** Duskmourn prints
+  two different Spirits (#6, #8) and two Insects (#5, #13). Every card pool in the app
+  groups by name — tokens are the one place that would silently halve the set.
+* `is:token` **excludes emblems**. We deliberately include them (19 cards in `tdsk`,
+  not 18): they are on the physical token sheet and worth proxying.
+* `fetchPool` appends `unique:prints` and returns `[]` on a 404, so a set with no
+  token set degrades rather than throwing.
+* **Japan Showcase cards cannot be queried yet.** `promo:japanshowcase` returns "All
+  of your terms were ignored". This blocks the 2027 wildcard-slot feature.
+* **The newest released set is often not a draftable one.** On 30 October 2026 it was
+  Mystery Booster Commander Edition: 1 common, 16 uncommons, 0 mythics. The set
+  default therefore prefers `expansion` or `core`. Do not "simplify" that away.
+* Release dates are compared as `YYYY-MM-DD` strings on purpose, so time zones never
+  enter into it.
+
+## Behaviour that is a decision, not an accident
+
+Porting these faithfully matters; "fixing" them would be a regression.
+
+| Behaviour | Why |
+|---|---|
+| Fun multiplier multiplies literally and clamps at 100% | "x3 means three times the mythics" is the intuitive promise. Odds-ratio scaling was offered and declined |
+| Slot 10 in fun mode is a flat rare, never mythic | The point was rares; slot 11 already carries the mythic chance |
+| The land slot is still 20% foil under the 2027 rules | Wizards' announcement is silent on the land slot and Collector Booster God Packs still list a foil land. Guessing was rejected |
+| A God Pack's ten plain slots use the normal random-printing rule | So some come out Booster Fun. Forcing default frames would contradict how every other slot picks printings |
+| The CSV lists both tokens of a separator | They are two different cards. Listing only the front would lose the back |
+| Emblems are included with tokens | See above |
+| The List era logic (`PLAY_BOOSTER_START` 2024-02-09, `LIST_ERA_END` 2024-09-27) is kept | It is a different axis from the 2027 rules and still correct for MKM–Bloomburrow sets |
+
+The 2027 rules themselves come from Wizards' [Updating Our Boosters in
+2027](https://magic.wizards.com/en/news/announcements/updating-our-boosters-in-2027)
+(5 Oct 2026). The slot order and vanilla odds come from [What Are Play
+Boosters?](https://magic.wizards.com/en/news/making-magic/what-are-play-boosters).
+**The mtg.fandom wiki contradicts Wizards on the order of slots 11–13 — Wizards is
+the one we follow.** One derived number is ours, not published: the last wildcard's
+foil chance falls out as its rare + mythic chance, because Wizards never gave a rate.
+
+## The parity harness, concretely
+
+Run `js/booster-logic.js` and `lib/booster/*.ts` over the same inputs and diff the
+specs. Both are pure, so this is a total function comparison, not a UI check.
+
+Sweep at minimum: Play vanilla and fun at x1–x5, each with `foilToggle` and
+`listToggle` on and off; all three Commander layouts, vanilla and fun; `listEra` true
+and false; and `stats = null` (the set still loading). Compare slot titles, `from`,
+`to`, `n`, and every outcome's `label`, `pool`, `p` and `foil`.
+
+Golden values for DSK (81 commons, 100 uncommons, 60 rares, 20 mythics), produced
+from the current code on 30 October 2026:
+
+```
+VANILLA
+  1-6  Common                            Common 100.0%
+    7  Common or Special Guest           Common 98.4%  Special Guest 1.6%
+ 8-10  Uncommon                          Uncommon 100.0%
+   11  Rare or mythic                    Rare 85.7%  Mythic 14.3%
+   12  Land                              Basic land 50.0%  Common dual land 50.0%
+   13  Wildcard (non-foil)               Common 18.0%  Uncommon 67.0%  Rare 12.9%  Mythic 2.1%
+   14  Wildcard (foil if rare or mythic) Common 54.5%  Uncommon 33.7%  Rare 10.1%  Mythic 1.7%
+
+FUN x1
+    7  Uncommon or Special Guest         Uncommon 98.5%  Special Guest 1.5%
+  8-9  Uncommon                          Uncommon 100.0%
+   10  Rare                              Rare 100.0%
+   11  Rare or mythic                    Rare 85.7%  Mythic 14.3%     <- identical to vanilla
+   12  Land (upgraded)                   Non-basic land 100.0%
+   13  Wildcard                          Common 31.0%  Uncommon 38.3%  Rare 23.0%  Mythic 7.7%
+   14  Wildcard (foil if rare or mythic) Common 31.0%  Uncommon 38.3%  Rare 23.0%  Mythic 7.7%
+
+expected per pack   vanilla: Rare 1.087  Mythic 0.181  foil 0.318
+expected per pack   fun x1 : Rare 2.317  Mythic 0.296  foil 0.307
+```
+
+Invariants worth asserting directly, beyond parity:
+
+* vanilla compared with itself produces **exactly 0** changes, for Play and all three
+  Commander layouts. This is the test that catches a broken diff
+* fun x1 slot 11 equals vanilla slot 11 — the multiplier is neutral at x1
+* the mythic share is `M / (2R + M)` scaled by the multiplier and clamped, never a
+  flat constant. A set with more mythics than rares (Marvel: Darkhold Destiny, 1 rare
+  and 3 mythics, gives 60%) is the case that exposed the old hardcoded 13%
+* every multiplier step x1–x5 produces a **different** spec, on a normal set and on a
+  lopsided one
+* slot order is the real pack order in both modes: 11 rare/mythic, 12 land,
+  13 wildcard, 14 foil-if-rare-or-mythic
+* no foil commons or uncommons appear anywhere in a vanilla pack
+* a God Pack is 14 cards, all rare or mythic, with exactly 2 foils and 4 Booster Fun
+* `tokenSheets` covers every distinct token exactly once, fills every page, and backs
+  every slot; `stats = null` must not throw anywhere
+
+## Credits, in one line each
+
+* **Netlify:** 285 of 300 used, 15 left = one production deploy. Resets 19 November
+  2026. Branch deploys are free, build minutes are not metered, static export adds no
+  functions — so the whole migration costs nothing as long as `main` is left alone.
+  Running out **pauses the site**, it does not merely block deploys.
+* **Claude:** the migration is several sessions. Phase 1 is the natural first one.
