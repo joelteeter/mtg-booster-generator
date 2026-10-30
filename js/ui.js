@@ -336,6 +336,9 @@ function renderExplain() {
     if (opts.tokenSheets) {
         mods.push(`<b>Token sheets:</b> after the packs, full pages holding one of every token ${code ? 'in ' + esc(code.toUpperCase()) : 'in the set'}, in collector-number order, two per card (front and back). Tokens that are already double-faced keep their own two faces. Slots left spare on the last page are filled with random tokens from the set.`);
     }
+    if (opts.released && !L.isReleased({ released_at: opts.released })) {
+        mods.push(`<b>Not released yet:</b> ${code ? esc(code.toUpperCase()) : 'This set'} is out on ${esc(opts.released)}. Scryfall only holds the cards spoiled so far, so every chance here is worked out from a part of the set and will move as more are revealed.`);
+    }
     if (mode === 'play' && opts.released && opts.released < L.PLAY_BOOSTER_START) {
         mods.push(`<b>Note:</b> this set (released ${opts.released}) predates Play Boosters, so it is simulated with the current Booster Pack layout rather than its original draft or set booster.`);
     }
@@ -404,5 +407,6 @@ function showSetInfo(m, code) {
     const counts = m === 'play'
         ? `${c('commons')} commons · ${c('uncommons')} uncommons · ${c('rares')} rares · ${c('mythics')} mythics · ${c('nonBasicLands')} non-basic lands`
         : `${c('commons')} C · ${c('uncommons')} U · ${c('rares')} R · ${c('mythics')} M in regular slots · ${c('legAll')} legends (${c('legC')} C · ${c('legU')} U · ${c('legR')} R · ${c('legM')} M)` + (c('bgCU') + c('bgR') ? ` · ${c('bgCU') + c('bgR')} backgrounds` : '');
-    $('setInfo').textContent = `✅ ${name}${rel ? ' (' + rel + ')' : ''}: ${counts} (unique card names)`;
+    const out = L.isReleased(meta || { released_at: rel });
+    $('setInfo').textContent = `${out ? '✅' : '🔜'} ${name}${rel ? ' (' + (out ? rel : 'not out until ' + rel) + ')' : ''}: ${counts} (unique card names)`;
 }

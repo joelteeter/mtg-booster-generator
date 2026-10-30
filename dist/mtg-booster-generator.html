@@ -955,6 +955,25 @@ table.slots tr.changed td.slotnum { box-shadow: inset 3px 0 0 #e0a800; }
     }
 
     // ---------------------------------------------------------------------
+    // Release dates
+    // ---------------------------------------------------------------------
+    /*
+     * Scryfall lists sets long before they are out, and gives released_at as a
+     * plain YYYY-MM-DD. Comparing those as strings keeps time zones out of it:
+     * a set counts as released once its date is not in the future. A set with
+     * no date at all is treated as unreleased rather than assumed out.
+     */
+    function todayISO(now) {
+        const d = now || new Date();
+        const p = n => String(n).padStart(2, "0");
+        return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+    }
+    function isReleased(set, today) {
+        const date = set && (set.released_at || set.released);
+        return !!date && date <= (today || todayISO());
+    }
+
+    // ---------------------------------------------------------------------
     // Tokens
     // ---------------------------------------------------------------------
     /*
@@ -1088,6 +1107,7 @@ table.slots tr.changed td.slotnum { box-shadow: inset 3px 0 0 #e0a800; }
         playSpec, commanderSpec, finalize, poolCount, diffFromVanilla,
         godPackSpec, GOD_PACK_CHANCE, isBoosterFun,
         tokenSetCode, isDoubleFacedToken, sortTokens, tokenPair, tokenSheets,
+        todayISO, isReleased,
         resolvePool, chooseOutcome, pickFromMap, finishFor, statsFromPools, groupByName, nameKey, expectedCounts
     };
     if (typeof module !== "undefined" && module.exports) module.exports = api;
@@ -1780,6 +1800,9 @@ function renderExplain() {
     if (opts.tokenSheets) {
         mods.push(`<b>Token sheets:</b> after the packs, full pages holding one of every token ${code ? 'in ' + esc(code.toUpperCase()) : 'in the set'}, in collector-number order, two per card (front and back). Tokens that are already double-faced keep their own two faces. Slots left spare on the last page are filled with random tokens from the set.`);
     }
+    if (opts.released && !L.isReleased({ released_at: opts.released })) {
+        mods.push(`<b>Not released yet:</b> ${code ? esc(code.toUpperCase()) : 'This set'} is out on ${esc(opts.released)}. Scryfall only holds the cards spoiled so far, so every chance here is worked out from a part of the set and will move as more are revealed.`);
+    }
     if (mode === 'play' && opts.released && opts.released < L.PLAY_BOOSTER_START) {
         mods.push(`<b>Note:</b> this set (released ${opts.released}) predates Play Boosters, so it is simulated with the current Booster Pack layout rather than its original draft or set booster.`);
     }
@@ -1848,7 +1871,8 @@ function showSetInfo(m, code) {
     const counts = m === 'play'
         ? `${c('commons')} commons · ${c('uncommons')} uncommons · ${c('rares')} rares · ${c('mythics')} mythics · ${c('nonBasicLands')} non-basic lands`
         : `${c('commons')} C · ${c('uncommons')} U · ${c('rares')} R · ${c('mythics')} M in regular slots · ${c('legAll')} legends (${c('legC')} C · ${c('legU')} U · ${c('legR')} R · ${c('legM')} M)` + (c('bgCU') + c('bgR') ? ` · ${c('bgCU') + c('bgR')} backgrounds` : '');
-    $('setInfo').textContent = `✅ ${name}${rel ? ' (' + rel + ')' : ''}: ${counts} (unique card names)`;
+    const out = L.isReleased(meta || { released_at: rel });
+    $('setInfo').textContent = `${out ? '✅' : '🔜'} ${name}${rel ? ' (' + (out ? rel : 'not out until ' + rel) + ')' : ''}: ${counts} (unique card names)`;
 }
 </script>
 <script>
@@ -3137,12 +3161,36 @@ async function initSetList() {
         const filteredSets = data.data
             .filter(s => allowedTypes.includes(s.set_type) && s.code.length === 3 && !commanderCodes.includes(s.code))
             .sort((a, b) => new Date(b.released_at) - new Date(a.released_at));
-        setSelect.innerHTML = filteredSets.map(s => `<option value="${s.code}">${s.name} (${s.code.toUpperCase()})</option>`).join('');
+        // Sets that are not out yet are kept, because a partly spoiled set is
+        // still worth simulating, but they are grouped and marked so nobody
+        // picks one by accident, and the newest released set is the default.
+        const today = L.todayISO();
+        const option = s => `<option value="${s.code}">${L.isReleased(s, today) ? '' : '\ud83d\udd1c '}${s.name} (${s.code.toUpperCase()})${L.isReleased(s, today) ? '' : ' \u2014 out ' + s.released_at}</option>`;
+        const grouped = sets => {
+            const upcoming = sets.filter(s => !L.isReleased(s, today));
+            const released = sets.filter(s => L.isReleased(s, today));
+            return (upcoming.length ? `<optgroup label="\ud83d\udd1c Not released yet">${upcoming.map(option).join('')}</optgroup>` : '')
+                 + (released.length ? `<optgroup label="Released">${released.map(option).join('')}</optgroup>` : '');
+        };
+        // Default to the newest released set, but prefer one built for Limited:
+        // the most recent release is often a supplemental or Commander product
+        // (Mystery Booster Commander Edition has 1 common and no mythics at
+        // all), which would open the app on a pack it cannot sensibly build.
+        const DRAFTABLE = ['expansion', 'core'];
+        const selectNewestReleased = (el, sets) => {
+            const out = sets.filter(s => L.isReleased(s, today));    // newest first
+            const pick = out.find(s => DRAFTABLE.includes(s.set_type)) || out[0];
+            if (pick) el.value = pick.code;
+        };
+
+        setSelect.innerHTML = grouped(filteredSets);
+        selectNewestReleased(setSelect, filteredSets);
         // "Any set" commander boosters can use every set, including the official commander ones
-        $('cmdAnySetSelect').innerHTML = data.data
+        const anySets = data.data
             .filter(s => allowedTypes.includes(s.set_type) && s.code.length === 3)
-            .sort((a, b) => new Date(b.released_at) - new Date(a.released_at))
-            .map(s => `<option value="${s.code}">${s.name} (${s.code.toUpperCase()})</option>`).join('');
+            .sort((a, b) => new Date(b.released_at) - new Date(a.released_at));
+        $('cmdAnySetSelect').innerHTML = grouped(anySets);
+        selectNewestReleased($('cmdAnySetSelect'), anySets);
     } catch (e) {
         setSelect.innerHTML = `<option value="">Error loading sets</option>`;
         $('cmdAnySetSelect').innerHTML = `<option value="">Error loading sets</option>`;

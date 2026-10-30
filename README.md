@@ -18,7 +18,7 @@ You need an internet connection for:
 Serving the folder over HTTP (e.g. `python3 -m http.server 8777`) still works, but isn't required.
 
 ## Tabs
-* **Booster Pack** – 14-card Booster Packs (Play Boosters renamed, see below) from any expansion, core, masters or draft-innovation set
+* **Booster Pack** – 14-card Booster Packs (Play Boosters renamed, see below) from any expansion, core, masters or draft-innovation set. Sets Scryfall lists but that are not out yet are grouped under “🔜 Not released yet” with their release date, since Scryfall only holds the cards spoiled so far and odds worked out from a part of a set move as more are revealed — the slot panel says so when one is chosen. The set list opens on the newest released set that is built for Limited (an expansion or core set), rather than the newest release outright, which is often a Commander or supplemental product with too few commons to build a pack from
 * **Commander Draft Booster** – 20-card draft boosters from the official Commander booster sets:
   * Commander Legends (CMR): 13 commons (the Prismatic Piper replaces one in 1 of 6 packs), 3 uncommons, 2 legends (uncommon/rare/mythic weighted 4:2:1 per card), 1 rare/mythic, 1 foil (a foil-etched legend in 1 of 15)
   * Battle for Baldur's Gate (CLB): 13 commons, 3 uncommons, 1 legend (rare/mythic 31%), 1 Background (rare 1 in 12), 1 rare/mythic, 1 foil
