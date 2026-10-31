@@ -580,6 +580,7 @@ The page fits 375px exactly, with the slot table scrolling in its own wrapper.
 * **Dark mode never activates.** shadcn ships dark tokens but nothing sets the
   `dark` class, and the old app has no dark mode either — so this is parity, not
   a regression. Worth deciding on separately rather than slipping it into a port.
+  *(Done after phase 5 — see "Dark mode, and a panel that starts closed".)*
 
 ## Phase 4, done 31 October 2026
 
@@ -693,7 +694,8 @@ Fifteen consecutive full runs clean.
 
 **Dark mode never activates.** Unchanged from phase 3: shadcn ships the tokens,
 nothing sets the `dark` class, and the old app has no dark mode either. Still a
-decision to make on its own rather than inside a port.
+decision to make on its own rather than inside a port. *(Done after phase 5 —
+see "Dark mode, and a panel that starts closed".)*
 
 ## Phase 5, done 31 October 2026
 
@@ -828,6 +830,38 @@ Everything the old app does is now ported. What is left:
   go: it exists to prove the port, not to test the app. Decide before deleting
   which assertions are worth keeping as ordinary tests — the slot-spec golden
   files and the `lib/booster` invariants are the obvious candidates.
-* **Two decisions are still open**: dark mode (shadcn ships the tokens, nothing
-  sets the class, the old app has none either), and whether to keep the old
-  app's URL working.
+* **One decision is still open**: whether to keep the old app's URL working.
+
+## Dark mode, and a panel that starts closed, 31 October 2026
+
+Asked for after phase 5; the only place the port deliberately does more than
+the old app.
+
+**Dark mode.** `next-themes` was already a dependency and shadcn has shipped
+the `.dark` tokens since phase 0 — nothing had ever put the class on `<html>`.
+A `ThemeProvider` in `app/providers.tsx` does, following the system by default
+and remembering an explicit choice in localStorage, and `ThemeToggle` cycles
+system → light → dark so there is a way back to "follow the system" that a
+sun/moon switch would not give. `<html>` carries `suppressHydrationWarning`,
+because next-themes sets that class from a blocking script before the page
+paints and the markup therefore differs from the prerendered HTML by design.
+That script is in `out/index.html` after a build, so a static export gets no
+flash of the wrong theme either.
+
+The toggle reads the theme only after hydration (`useSyncExternalStore` with a
+server snapshot of `false`, not `useEffect` — eslint rejects a `setState` in an
+effect body here), so the prerendered icon and the first client render agree.
+
+Checked both ways: every visible text node on the booster tab, the open slot
+panel, the downloads table, the preview and a simulator, composited against its
+real background and measured for WCAG contrast. 652 elements in light, 649 in
+dark, no failures either way. Switching to "system" and flipping the OS
+preference re-themes live without a reload. The handful of hardcoded colours —
+the foil and etched glows, the plane and scheme card frames, the planar die,
+the zoom and compare overlays — are card chrome that is meant to be dark in
+both themes, exactly as the old CSS had them.
+
+**The slot panel starts closed.** It was `defaultOpen`; the old
+`<details id="howItWorks">` carries no `open` attribute, so this is a parity fix
+as well as a usability one — open, it pushed the Generate button off the first
+screen.

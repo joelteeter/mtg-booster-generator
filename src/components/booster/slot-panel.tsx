@@ -43,7 +43,12 @@ export function SlotPanel() {
   const chips = expectedChips(slots, stats, pools, spec.mode, opts);
 
   return (
-    <Collapsible defaultOpen className="rounded-lg border">
+    /*
+     * Closed to begin with, like the old `<details id="howItWorks">`, which
+     * carried no `open` attribute. It is a reference panel, and leaving it open
+     * pushed the Generate button off the first screen.
+     */
+    <Collapsible className="rounded-lg border">
       <CollapsibleTrigger className="group flex w-full flex-wrap items-center gap-x-2 gap-y-1 px-4 py-3 text-left font-medium hover:bg-muted/50">
         <ChevronRight className="size-4 shrink-0 transition-transform group-data-[state=open]:rotate-90" />
         <span>How each card slot is determined</span>

@@ -11,11 +11,19 @@
  *
  * `onNotice` from the Scryfall client is routed to a Sonner toast here: in the
  * old app it wrote directly into #status and #simStatus.
+ *
+ * `next-themes` puts the `dark` class on <html> before the page paints, which
+ * is what makes shadcn's dark tokens — shipped since phase 0 and until now
+ * never reachable — actually apply. It follows the system by default and
+ * remembers an explicit choice in localStorage. The old app had no dark mode
+ * at all, so this is the one place the port deliberately does more.
  */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "next-themes";
 import { useState } from "react";
+
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -33,9 +41,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
       }),
   );
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>{children}</TooltipProvider>
-      <Toaster position="bottom-right" />
-    </QueryClientProvider>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>{children}</TooltipProvider>
+        <Toaster position="bottom-right" />
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
