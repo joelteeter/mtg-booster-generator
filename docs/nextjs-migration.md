@@ -1,6 +1,6 @@
 # Moving to Next.js + TypeScript + shadcn/ui
 
-Phases 0 and 1 are done and live on the `next` branch. Phase 2 is next.
+Phases 0, 1 and 2 are done and live on the `next` branch. Phase 3 is next.
 
 ## What we have now
 
@@ -162,8 +162,8 @@ Each phase ends somewhere reviewable. Nothing is thrown away until the last one.
 |---|---|---|
 | 0 | Decisions below, then scaffold: Next.js + TS + Tailwind + shadcn, static export, Netlify config | **Done** (30 Oct 2026) |
 | 1 | Port `booster-logic.js` to `lib/booster/*.ts` with types, **plus the parity test harness** | **Done** (30 Oct 2026). 1,925 tests, zero differences |
-| 2 | Scryfall client and pools, typed, with the queue and retry behaviour kept | Next |
-| 3 | UI shell: tabs, set picker, options, slot panel, vanilla diff | The bulk of the shadcn work |
+| 2 | Scryfall client and pools, typed, with the queue and retry behaviour kept | **Done** (31 Oct 2026) |
+| 3 | UI shell: tabs, set picker, options, slot panel, vanilla diff | Next. The bulk of the shadcn work |
 | 4 | Generate, preview (including the flip), CSV | |
 | 5 | Export pipeline: PDF, MTGProxyPrinter, AI enhance | **The risky one** — see below |
 | 6 | Parity sweep, then cut over and retire the old app | |
@@ -442,11 +442,96 @@ render these, and the old UI's handling of them is not covered by any test:
   `loadCommanderPools` builds. This is why the Commander tab has its own pool
   loader, and phase 2 must keep that split.
 
-## Phase 2 notes, for whoever picks it up
+## Phase 2, done 31 October 2026
 
-`js/scryfall.js` is 282 lines. The two pool loaders are the substance:
-`loadPlayPools` and `loadCommanderPools`, whose pool keys `lib/booster` already
-depends on — `tests/fixtures.ts` documents the full set of them. `Card` in
-`lib/booster/types.ts` is the structural subset the pure logic touches; the
-fuller `lib/scryfall/types.ts` should be assignable to it, so nothing in
-`lib/booster` needs to change.
+Commit `ce9e278`. `js/scryfall.js` becomes `src/lib/scryfall/`. 1,986 tests.
+
+The branch deploy is live at `next--mtg-draft-generator.netlify.app`. It needed
+`next` adding to the site's `allowed_branches` (it was `["main", "dev"]`);
+branch deploys are free and it confirms `framework: next` with no functions and
+no edge functions deployed. Non-production deploys sit behind Netlify's edge
+access, so the URL asks you to sign in to the team — that is not a password and
+not a misconfiguration.
+
+### Parity needed a different trick here
+
+`booster-logic.js` exports for CommonJS. `scryfall.js` does not: it is a plain
+browser script declaring top-level `const`s and reading globals from
+`state.js`. `tests/legacy-scryfall.ts` therefore runs it in a `vm` context with
+`L`, `setMeta`, `poolCache`, `document` and `fetch` supplied, and appends an
+expression to collect the declarations — they are in the script's lexical scope,
+so code appended to the same script can see them. `document.getElementById`
+returns a stub whose `textContent` setter forwards to a callback, which is how
+the rate-limit notices are captured.
+
+`tests/fake-scryfall.ts` matches queries **literally** rather than implementing
+Scryfall's search language, and records anything it does not recognise. Every
+parity test asserts both implementations issued exactly the same requests before
+comparing the pools, so a port that asked for something subtly different fails
+loudly instead of getting plausible cards back.
+
+### Behaviour that is a decision, not an accident (phase 2)
+
+Add these to the table above when reading this file:
+
+* **The two loaders' `keep` differs, deliberately.** `loadPlayPools` falls back
+  to the unfiltered list when `is:booster` would empty a rarity, because an
+  empty rarity breaks a guaranteed slot and Scryfall's booster data is
+  sometimes partial. `loadCommanderPools` does **not**: falling back there would
+  readmit the precon-only cards `is:booster` exists to exclude.
+* **`loadCommanderPools` awaits `getSetMeta` and discards the result.** Nine
+  promises, eight destructured. It is not dead code — it warms the shared
+  `setMeta` cache the set picker reads, so the Commander tab populates it too.
+* **The Prismatic Piper is a Legendary Creature**, so the `legend` predicate
+  counts it: it appears in `legAll` and `legC` as well as its own `piper` pool.
+  A legendary slot landing on the Piper is legitimate.
+* **`fetchPool` returns `[]` on a 404**, so a set with no token set degrades
+  rather than throwing.
+* **The 429 hold is `Retry-After + 500ms` and holds the whole queue**, not the
+  one request. A dozen searches are usually already in line behind it.
+
+### Two deliberate changes, both tested
+
+* `rateLimitNotice` wrote straight into `#status` and `#simStatus`, which is the
+  single reason none of this file could be tested before. It is an injected
+  `onNotice` callback now. The clock and `fetch` are injectable for the same
+  reason — no test waits out a real 10-second backoff.
+* The set list sorted by subtracting `Date`s, which yields `NaN` for a set with
+  no `released_at` and leaves the order unspecified. It compares the YYYY-MM-DD
+  strings now, as the rest of the app already does: identical for every set that
+  has a date, deterministic for those that do not.
+
+### Where the old scryfall.js went
+
+| Old | New |
+|---|---|
+| `sfFetch`, `takeTurn`, `fetchPool`, `fetchRandom` | `lib/scryfall/client.ts` |
+| `loadPlayPools`, `loadCommanderPools`, `getSpg`, `getSetMeta`, `loadCycle`, `loadTokens` | `lib/scryfall/pools.ts` |
+| `bonusPool` | `lib/scryfall/bonus-pool.ts` |
+| `poolCache`, `cycleCache`, `tokenCache`, `ensureLoaded` | `lib/scryfall/queries.ts` (TanStack Query) |
+| `initSetList`'s filtering, grouping and default pick, from `js/main.js` | `lib/scryfall/sets.ts` |
+| `rateLimitNotice` | the `onNotice` callback; phase 3 routes it to a toast |
+| `prepareBonus`, `prepareTokenSeparator` | **not ported** — generator concerns, phase 4 |
+
+## Phase 3 notes, for whoever picks it up
+
+The bulk of the shadcn work, and the first phase with no parity harness to lean
+on: the old UI is DOM strings in `js/ui.js` and `js/main.js`, and there is
+nothing pure to diff against. The tests that exist cover everything underneath
+it, so the risk is confined to rendering.
+
+* Only `Button` is generated so far. The rest of the mapping table above —
+  `Tabs`, `Select` with `SelectGroup`, `Checkbox`, `Switch`, `Collapsible`,
+  `Table`, `Badge`, `Tooltip`, `Sonner`, `Progress` — comes in with this phase.
+  The CLI is `npx shadcn@latest add <name>`; `init` already recorded
+  `-b radix -p nova` in `components.json`.
+* The QueryClient provider is not wired up yet. It lands with the first
+  component that needs it; `lib/scryfall/queries.ts` is ready for it.
+* Zustand holds options and packs, per decision 4, and `js/state.js`'s
+  `modeState` — the per-tab option memory — maps onto it directly. `OPT_IDS` in
+  that file is the list of options a tab remembers.
+* Route `onNotice` to a Sonner toast when the provider goes in.
+* Three edge behaviours from the "Behaviour the port exposed" section above have
+  to render sensibly: a slot with no outcomes at all, a still-loading set where
+  only some odds are known, and an empty foil slot on a borrowed Commander
+  layout.
