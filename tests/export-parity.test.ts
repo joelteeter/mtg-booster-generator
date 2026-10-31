@@ -12,6 +12,9 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import initSqlJs from "sql.js";
 
 import {
+  CARD_PT,
+  MM,
+  PAPER,
   SCHEMA_V7,
   buildPdf,
   buildSaveFile,
@@ -30,6 +33,7 @@ import {
   fakeImageLoader,
   legacyExporter,
   recordingPdfLib,
+  splitCutGuides,
 } from "./legacy-export";
 import {
   dfc,
@@ -224,8 +228,25 @@ describe("buildPdf", () => {
         delete (globalThis as any).PDFLib;
       }
 
-      expect(mine.calls).toEqual(theirs.calls);
+      /*
+       * The plain black lines are the one deliberate difference — full-page
+       * rules there, four corner crop marks here — so they are compared
+       * separately. Everything else still has to match call for call.
+       */
+      const mineGuides = splitCutGuides(mine.calls);
+      const theirGuides = splitCutGuides(theirs.calls);
+      expect(mineGuides.rest).toEqual(theirGuides.rest);
       expect(myProgress).toEqual(theirProgress);
+
+      const pageCount = layoutPages(
+        expandFaces(packs, c.dfcMode),
+        !!c.newPagePerPack,
+      ).length;
+      const cuts =
+        c.cutLines !== undefined
+          ? c.cutLines
+          : !(c.side !== "back" && c.dfcMode === "frontOnly");
+      expect(mineGuides.guides).toHaveLength(cuts ? pageCount * 8 : 0);
     });
   }
 
@@ -257,6 +278,154 @@ describe("buildPdf", () => {
       delete (globalThis as any).PDFLib;
     }
     expect(mine.calls).toEqual(theirs.calls);
+  });
+});
+
+/*
+ * The one place the port leaves the old app behind, at the user's request:
+ * MTGProxyPrinter-style rules right across the page are gone, because the
+ * crosshairs already mark every card corner. What is left is a printer's
+ * bracket at the four outside corners of whatever is on the page.
+ */
+describe("crop marks", () => {
+  const ARM = 5 * MM;
+  const near = (a: number, b: number) => Math.abs(a - b) < 1e-6;
+  const round = (n: number) => Math.round(n * 1e6) / 1e6;
+  const sorted = (ns: number[]) => [...new Set(ns)].sort((a, b) => a - b);
+
+  async function marks(
+    pack: PackEntry[][],
+    opts: Record<string, unknown> = {},
+  ) {
+    const rec = recordingPdfLib();
+    await buildPdf(pack, {
+      imageLoader: fakeImageLoader,
+      pdfLib: rec.lib as any,
+      ...opts,
+    });
+    return splitCutGuides(rec.calls).guides.map((g) => g[2]);
+  }
+
+  /** Where the printed area's edges fall, for a given paper and row span. */
+  const edges = (paper: "letter" | "a4", rowsUsed: number) => {
+    const p = PAPER[paper];
+    const x0 = (p.w - 3 * CARD_PT.w) / 2;
+    const yTop = p.h - (p.h - 3 * CARD_PT.h) / 2;
+    return {
+      left: x0,
+      right: x0 + 3 * CARD_PT.w,
+      top: yTop,
+      bottom: yTop - rowsUsed * CARD_PT.h,
+      paper: p,
+    };
+  };
+
+  const fullPage: PackEntry[][] = [packs[0]]; // exactly nine cards
+
+  it("brackets the four corners and nothing else", async () => {
+    const m = await marks(fullPage, { paper: "letter", bleedMm: 2 });
+    const e = edges("letter", 3);
+    const corners = [
+      [e.left, e.top],
+      [e.right, e.top],
+      [e.left, e.bottom],
+      [e.right, e.bottom],
+    ];
+    expect(m).toHaveLength(8);
+    for (const g of m) {
+      // Every arm starts at one of the four corners…
+      expect(
+        corners.some(([x, y]) => near(g.start.x, x) && near(g.start.y, y)),
+      ).toBe(true);
+      // …is exactly one arm long…
+      const len = Math.hypot(g.end.x - g.start.x, g.end.y - g.start.y);
+      expect(len).toBeCloseTo(ARM, 6);
+      // …and points away from the cards, never across them.
+      const outside =
+        g.end.x < e.left || g.end.x > e.right ||
+        g.end.y > e.top || g.end.y < e.bottom;
+      expect(outside).toBe(true);
+    }
+    // Two arms at each corner: one along each edge.
+    for (const [x, y] of corners) {
+      expect(
+        m.filter((g) => near(g.start.x, x) && near(g.start.y, y)),
+      ).toHaveLength(2);
+    }
+  });
+
+  for (const paper of ["letter", "a4"] as const) {
+    it(`stays on the paper (${paper})`, async () => {
+      const m = await marks(fullPage, { paper });
+      const p = PAPER[paper];
+      for (const g of m) {
+        for (const pt of [g.start, g.end]) {
+          expect(pt.x).toBeGreaterThanOrEqual(0);
+          expect(pt.x).toBeLessThanOrEqual(p.w);
+          expect(pt.y).toBeGreaterThanOrEqual(0);
+          expect(pt.y).toBeLessThanOrEqual(p.h);
+        }
+      }
+    });
+  }
+
+  it("follows the printed area on a part-filled page", async () => {
+    // Five cards: two rows used, not three.
+    const short: PackEntry[][] = [packs[0].slice(0, 5)];
+    const m = await marks(short, { paper: "letter" });
+    const e = edges("letter", 2);
+    expect(m).toHaveLength(8);
+    expect(m.some((g) => near(g.start.y, e.bottom))).toBe(true);
+    expect(
+      m.some((g) => near(g.start.y, edges("letter", 3).bottom)),
+    ).toBe(false);
+  });
+
+  it("mirrors with the backs sheet, so the marks meet behind the cards", async () => {
+    const short: PackEntry[][] = [packs[0].slice(0, 5)];
+    const front = await marks(short, { paper: "letter", side: "front" });
+    const back = await marks(short, {
+      paper: "letter",
+      side: "back",
+      flip: "short",
+    });
+    const e = edges("letter", 3);
+    // A short-edge flip turns the sheet over about the middle of the grid.
+    const flip = (y: number) => e.top + e.bottom - y;
+    const ys = (list: typeof front) => sorted(list.map((g) => round(g.start.y)));
+    expect(ys(back)).toEqual(sorted(ys(front).map((y) => round(flip(y)))));
+  });
+
+  /*
+   * A last page with one card is the case where the printed area is not the
+   * whole grid horizontally: mirrored for the backs, that single card moves to
+   * the far column, and the marks have to move with it.
+   */
+  it("brackets the mirrored column when a backs page holds one card", async () => {
+    const one: PackEntry[][] = [packs[0].slice(0, 1)];
+    const front = await marks(one, { paper: "letter", side: "front" });
+    const back = await marks(one, {
+      paper: "letter",
+      side: "back",
+      flip: "long",
+    });
+    const { left: gridLeft, right: gridRight } = edges("letter", 1);
+    const xs = (list: typeof front) => sorted(list.map((g) => round(g.start.x)));
+    expect(xs(front)).toEqual(
+      sorted([gridLeft, gridLeft + CARD_PT.w].map(round)),
+    );
+    expect(xs(back)).toEqual(
+      sorted([gridRight - CARD_PT.w, gridRight].map(round)),
+    );
+  });
+
+  it("is left out when the sheet asks for no cut marks", async () => {
+    expect(await marks(fullPage, { cutLines: false })).toEqual([]);
+    // "Front only" puts them on the backs, so the fronts carry none.
+    expect(await marks(fullPage, { dfcMode: "frontOnly" })).toEqual([]);
+    expect(
+      (await marks(fullPage, { dfcMode: "frontOnly", side: "back" })).length,
+    ).toBe(8);
   });
 });
 
@@ -365,7 +534,9 @@ describe("the canvas corner and bleed passes", () => {
     }
 
     expect(mine.canvases).toEqual(theirs.canvases);
-    expect(minePdf.calls).toEqual(theirPdf.calls);
+    expect(splitCutGuides(minePdf.calls).rest).toEqual(
+      splitCutGuides(theirPdf.calls).rest,
+    );
     // The card, the upscaled copy, and the upscaled copy with its bleed.
     const sizes = mine.canvases.map((c) => [c.width, c.height]);
     expect(sizes).toEqual([

@@ -767,7 +767,12 @@ first.
 | `.mtgproxies` | the same | 7,680 | `f66d2c11…` |
 
 Identical in every case, old app and port: every embedded JPEG, every cut line,
-every crosshair, every clip rectangle. Also checked live: a user-supplied card
+every crosshair, every clip rectangle.
+
+> Those hashes are from commit `017cb8a`. The crop-mark change recorded at the
+> end of this file deliberately changes both PDFs, so they no longer hash the
+> same as the old app's — the save file is untouched, and everything in the
+> PDFs except the plain black lines is still compared call for call. Also checked live: a user-supplied card
 back builds a backs PDF, choosing "my own image" without a file gives the old
 app's exact refusal, and the AI upscaler loads its three scripts from jsDelivr
 and finishes a card in 10.1 s — the old notes measured 10–11 s.
@@ -865,3 +870,42 @@ both themes, exactly as the old CSS had them.
 `<details id="howItWorks">` carries no `open` attribute, so this is a parity fix
 as well as a usability one — open, it pushed the Generate button off the first
 screen.
+
+## Crop marks instead of full-page rules, 31 October 2026
+
+Asked for after phase 5. The first place the port's *output* deliberately
+differs from the old app's.
+
+The old app drew two sets of guides for the same cuts: black rules ruled right
+across the page under the cards, and inverted-colour crosshairs on top at every
+card corner. The crosshairs are the better guide — they are visible on a black
+border and a white one, and they mark every intersection — so the rules were
+redundant and noisy. They are now four printer's brackets instead: a 5 mm arm
+each way at the outside corners of whatever is actually on that page, which is
+the one thing the crosshairs cannot give, because they stop at the grid.
+
+* **The brackets follow the printed area, not the grid.** A last page with five
+  cards is bracketed around two rows, not three. On a backs sheet the
+  placements are mirrored, so the brackets move with them and still meet behind
+  the fronts' — a one-card page is bracketed in the left column on the fronts
+  and the right column on the backs.
+* **No clamping.** A 5 mm arm always fits: the tightest margin this grid leaves
+  is 7.6 mm, above and below the page on US Letter. That is asserted in the
+  tests rather than defended against in the code.
+* **The arms are still drawn under the cards**, so a large bleed covers the
+  part that gets trimmed off, exactly as the rules were.
+
+### What this does to the parity tests
+
+`splitCutGuides` in `tests/legacy-export.ts` separates the plain black lines —
+the only calls without a blend mode — from everything else. The sweep compares
+the rest call for call against the old app as before, and additionally pins the
+count of marks per page across all sixteen option combinations. The geometry
+gets its own tests: where the arms start, how long they are, that they point
+away from the cards, that they stay on the paper on both paper sizes, that they
+follow a part-filled page, that they mirror with the backs, and that they are
+absent when the sheet asks for no cut marks. Eleven mutations, eleven caught.
+
+2,206 tests. The wording in the downloads note, the double-faced-card option and
+`pdf.ts`'s own header was updated too, since "cut lines" no longer describes
+what comes out.

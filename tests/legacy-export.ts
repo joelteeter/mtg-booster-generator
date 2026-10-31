@@ -88,6 +88,26 @@ export interface PdfRecorder {
   calls: any[];
 }
 
+/**
+ * Separates the plain black lines from everything else.
+ *
+ * They are the one place the port deliberately differs: the old app ruled cut
+ * lines right across the page, and the port draws short crop marks at the four
+ * outside corners instead. Everything else — the images, the clips, the
+ * crosshairs, the pages — still has to match exactly, so the two are compared
+ * apart. Crosshairs carry a blend mode; these do not.
+ */
+export function splitCutGuides(calls: any[]): {
+  guides: any[];
+  rest: any[];
+} {
+  const isGuide = (c: any) => c[0] === "drawLine" && c[2] && !c[2].blendMode;
+  return {
+    guides: calls.filter(isGuide),
+    rest: calls.filter((c) => !isGuide(c)),
+  };
+}
+
 export function recordingPdfLib(): PdfRecorder {
   const calls: any[] = [];
   const push = (op: string, ...args: unknown[]) => calls.push([op, ...args.map(plain)]);

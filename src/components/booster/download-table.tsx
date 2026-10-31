@@ -132,15 +132,16 @@ export function DownloadTable() {
       <p className="text-sm text-muted-foreground">
         <b>CSV:</b> Scryfall format; MTGProxyPrinter&apos;s CSV import merges
         duplicate cards, so pack order is lost there.{" "}
-        <b>PDF fronts:</b> 3×3 cards at 63×88 mm with cut lines; rounded corners
-        are filled from the pixels next to them, the outer bleed stretches each
-        card&apos;s edge pixels outward, and inverted-colour crosshairs mark
-        every card corner for cutting.{" "}
+        <b>PDF fronts:</b> 3×3 cards at 63×88 mm; rounded corners are filled
+        from the pixels next to them, the outer bleed stretches each
+        card&apos;s edge pixels outward, inverted-colour crosshairs mark every
+        card corner for cutting, and short crop marks bracket the outside
+        corners of the page.{" "}
         <b>PDF backs:</b> same pages as the fronts PDF with every position
         mirrored, so printing it on the back of the fronts puts each back behind
         its card. Use the same paper, bleed and &ldquo;new page&rdquo; settings
-        for both. With &ldquo;front only&rdquo; double-faced cards, the cut lines
-        are printed on the backs only.{" "}
+        for both. With &ldquo;front only&rdquo; double-faced cards, the cut
+        marks are printed on the backs only.{" "}
         <b>MTGProxyPrinter:</b> a <code>.mtgproxies</code> document; open it with
         File → Open to print every card in pack order with your own
         MTGProxyPrinter settings (it follows the double-faced card setting too).

@@ -1,14 +1,16 @@
 /*
- * The printable PDF: US Letter or A4, 3×3 cards at 63×88 mm, cut lines
- * edge to edge, the same layout MTGProxyPrinter's own PDF export uses.
+ * The printable PDF: US Letter or A4, 3×3 cards at 63×88 mm, the same card
+ * layout MTGProxyPrinter's own PDF export uses.
  *
- * Two things are added on top of that layout. Each card's rounded corners are
- * filled and its edge pixels are stretched outward as bleed (see `images.ts`),
- * with the bleed clipped away on any side that touches a neighbouring card —
- * so bleed only appears at the outside of the grid, where a cut can miss.
- * And every card corner is marked with a crosshair drawn in "difference" blend
- * mode, which inverts whatever is under it, so the mark is visible on a black
- * border and on a white one.
+ * Three things are added on top of that layout. Each card's rounded corners
+ * are filled and its edge pixels are stretched outward as bleed (see
+ * `images.ts`), with the bleed clipped away on any side that touches a
+ * neighbouring card — so bleed only appears at the outside of the grid, where
+ * a cut can miss. Every card corner is marked with a crosshair drawn in
+ * "difference" blend mode, which inverts whatever is under it, so the mark is
+ * visible on a black border and on a white one. And the outside corners of the
+ * printed area carry short crop marks in the margin, which is the one guide
+ * the crosshairs cannot give, because they stop at the grid.
  *
  * A backs PDF uses exactly the same pages with every position mirrored, so
  * printing it on the reverse puts each back behind its own card.
@@ -160,24 +162,43 @@ export async function buildPdf(
       r < GRID.rows &&
       taken.has(r * GRID.cols + c);
 
-    // Cut lines across the whole page, drawn under the cards like MTGProxyPrinter.
+    /*
+     * Crop marks at the four corners of the printed area, drawn under the
+     * cards so the bleed covers the part that gets trimmed away.
+     *
+     * MTGProxyPrinter rules its cut lines right across the page, and so did
+     * this app until now. The crosshairs below already mark every card corner,
+     * including the ones on the outside edge, so full-page rules were a second
+     * set of guides for the same cuts — and a noisy one. What is left is the
+     * usual printer's bracket: a short arm each way at the outside corners of
+     * whatever is actually on this page, which is the one thing the crosshairs
+     * cannot give you, because they stop at the grid.
+     *
+     * A 5 mm arm always has room: the tightest margin this grid leaves is
+     * 7.6 mm, above and below the page on US Letter. The tests check that the
+     * marks stay on the paper rather than the code defending against it.
+     */
     if (drawCutLines) {
       const line = { thickness: 0.4, color: rgb(0, 0, 0) };
-      for (let c = 0; c <= GRID.cols; c++) {
-        const x = x0 + c * CARD_PT.w;
-        page.drawLine({
-          start: { x, y: 0 },
-          end: { x, y: paper.h },
-          ...line,
-        });
+      const arm = 5 * MM;
+      const cols = placed.map((p) => p.col);
+      const rows = placed.map((p) => p.row);
+      const left = x0 + Math.min(...cols) * CARD_PT.w;
+      const right = x0 + (Math.max(...cols) + 1) * CARD_PT.w;
+      const top = yTop - Math.min(...rows) * CARD_PT.h;
+      const bottom = yTop - (Math.max(...rows) + 1) * CARD_PT.h;
+      const mark = (
+        from: { x: number; y: number },
+        to: { x: number; y: number },
+      ) => page.drawLine({ start: from, end: to, ...line });
+
+      for (const x of [left, right]) {
+        mark({ x, y: top }, { x, y: top + arm });
+        mark({ x, y: bottom }, { x, y: bottom - arm });
       }
-      for (let r = 0; r <= GRID.rows; r++) {
-        const y = yTop - r * CARD_PT.h;
-        page.drawLine({
-          start: { x: 0, y },
-          end: { x: paper.w, y },
-          ...line,
-        });
+      for (const y of [top, bottom]) {
+        mark({ x: left, y }, { x: left - arm, y });
+        mark({ x: right, y }, { x: right + arm, y });
       }
     }
 

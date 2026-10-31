@@ -116,8 +116,8 @@ export function ExportOptions() {
                 Front and back as separate cards (for sleeves)
               </SelectItem>
               <SelectItem value="frontOnly">
-                Front only; back face goes on the backs PDF (cut lines on backs
-                only)
+                Front only; back face goes on the backs PDF (cut marks on
+                backs only)
               </SelectItem>
             </SelectContent>
           </Select>
