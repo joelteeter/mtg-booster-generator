@@ -1,6 +1,6 @@
 # Moving to Next.js + TypeScript + shadcn/ui
 
-A plan, not a decision. Nothing here is started.
+Phases 0 and 1 are done and live on the `next` branch. Phase 2 is next.
 
 ## What we have now
 
@@ -160,9 +160,9 @@ Each phase ends somewhere reviewable. Nothing is thrown away until the last one.
 
 | # | Phase | Notes |
 |---|---|---|
-| 0 | Decisions below, then scaffold: Next.js + TS + Tailwind + shadcn, static export, Netlify config | Half a session |
-| 1 | Port `booster-logic.js` to `lib/booster/*.ts` with types, **plus the parity test harness** | The highest-value, lowest-risk piece. Pure in, pure out |
-| 2 | Scryfall client and pools, typed, with the queue and retry behaviour kept | |
+| 0 | Decisions below, then scaffold: Next.js + TS + Tailwind + shadcn, static export, Netlify config | **Done** (30 Oct 2026) |
+| 1 | Port `booster-logic.js` to `lib/booster/*.ts` with types, **plus the parity test harness** | **Done** (30 Oct 2026). 1,925 tests, zero differences |
+| 2 | Scryfall client and pools, typed, with the queue and retry behaviour kept | Next |
 | 3 | UI shell: tabs, set picker, options, slot panel, vanilla diff | The bulk of the shadcn work |
 | 4 | Generate, preview (including the flip), CSV | |
 | 5 | Export pipeline: PDF, MTGProxyPrinter, AI enhance | **The risky one** — see below |
@@ -363,3 +363,90 @@ Invariants worth asserting directly, beyond parity:
   functions — so the whole migration costs nothing as long as `main` is left alone.
   Running out **pauses the site**, it does not merely block deploys.
 * **Claude:** the migration is several sessions. Phase 1 is the natural first one.
+
+---
+
+# Progress
+
+## Phase 0 and 1, done 30 October 2026
+
+On branch `next`, commits `6a21039` and `977fa04`. `main` untouched, so no
+credit spent.
+
+What is on disk now, beyond the plan's target layout:
+
+* Next.js 16.4.3, React 19.3, Tailwind v4, Vitest 5. Tailwind v4 is wired
+  through `@tailwindcss/turbopack` rather than a `postcss.config`, which is what
+  create-next-app now emits — there is no postcss config file to look for.
+* `@types/node` is `^24`, not create-next-app's `^20`. Vitest 5 requires it and
+  will not install otherwise.
+* shadcn's CLI has changed: `init` takes `-b <base>` (`base`, `radix`, `aria`)
+  and `-p <preset>`, and prompts unless both are given. This project is
+  `-b radix -p nova`, recorded in `components.json` as style `radix-nova`.
+  Only `Button` is generated so far; the rest come with the UI in phase 3.
+* shadcn 4 installs itself and a `cn` package as runtime dependencies, and
+  `globals.css` imports `shadcn/tailwind.css`. That is expected, not a mistake.
+* `zustand` and `@tanstack/react-query` are installed but nothing imports them
+  until phases 2 and 3.
+* `vitest.config.mts`, not `.ts`: Vite warns about ESM syntax in a config loaded
+  as CommonJS unless the extension says so.
+* eslint ignores `js/` and `dist/`. They share one global scope, so every
+  function another file calls looks unused. `node --check` still covers them.
+* `netlify.toml` on this branch builds to `out/`. It is a per-branch file, so
+  `dev` keeps its own copy publishing the repo root with no build.
+
+### The old app is still the live one
+
+`js/`, `css/`, `index.html`, `build.py` and `dist/` are byte-identical to `dev`
+and still run. The parity harness requires them, so they stay until phase 6.
+
+### What the harness actually covers
+
+`npm test` runs 1,925 assertions in three files:
+
+* `tests/parity.test.ts` — the sweep. Both implementations over the same inputs,
+  diffed field by field. Stricter than this plan asked for: as well as titles,
+  `from`, `to`, `n`, `label`, `pool`, `p` and `foil`, it compares slot prose,
+  `tag`, `formula` and the `boosterFun` flag, and compares probabilities exactly
+  rather than approximately. Nine set fixtures, including `null`.
+* `tests/invariants.test.ts` — the properties asserted directly, so they survive
+  phase 6 when the old app and the parity tests go.
+* `tests/golden.test.ts` — the Duskmourn table and per-pack expectations above,
+  as literals.
+
+`tests/legacy.ts` loads the old module with `createRequire`. It and
+`tests/parity.test.ts` are deleted in phase 6; the other two stay.
+
+The harness was mutation-checked: odds-ratio scaling instead of literal
+multiplication, a flat 13% mythic share, the land slot losing its foil, slot 10
+turning mythic, slots 12 and 13 swapped to the mtg.fandom order, one word of
+slot prose, and one formula string. All seven caught.
+
+### Behaviour the port exposed, worth knowing before phase 3
+
+Not bugs — the pure logic's answer to a set it cannot fill. The UI will have to
+render these, and the old UI's handling of them is not covered by any test:
+
+* **A slot whose every pool is empty comes out with no outcomes at all.**
+  `finalize` drops outcomes with empty pools and renormalises what is left; if
+  nothing is left, the slot survives with `outcomes: []`. A set with mythics but
+  no rares gets an empty fun slot 10, for instance. Slots therefore sum to 1 or
+  to 0, never anything between.
+* **With `stats = null`, only the pool-derived odds are null.** Fixed rates —
+  1 in 64 Special Guests, half the land slots, 1 in 6 Prismatic Pipers, the
+  vanilla wildcard's 18/67/15 split — are still exactly themselves while the
+  set loads. `expectedCounts` counts those and skips the nulls, so a
+  still-loading set has partial expectations rather than none.
+* **A Commander layout given an ordinary set's `stats` empties its foil slot.**
+  The foil slot reads `allC`/`allU`/`allR`/`allM`, which only
+  `loadCommanderPools` builds. This is why the Commander tab has its own pool
+  loader, and phase 2 must keep that split.
+
+## Phase 2 notes, for whoever picks it up
+
+`js/scryfall.js` is 282 lines. The two pool loaders are the substance:
+`loadPlayPools` and `loadCommanderPools`, whose pool keys `lib/booster` already
+depends on — `tests/fixtures.ts` documents the full set of them. `Card` in
+`lib/booster/types.ts` is the structural subset the pure logic touches; the
+fuller `lib/scryfall/types.ts` should be assignable to it, so nothing in
+`lib/booster` needs to change.
