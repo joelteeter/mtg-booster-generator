@@ -1,6 +1,6 @@
 # Moving to Next.js + TypeScript + shadcn/ui
 
-Phases 0, 1 and 2 are done and live on the `next` branch. Phase 3 is next.
+Phases 0 to 3 are done and live on the `next` branch. Phase 4 is next.
 
 ## What we have now
 
@@ -163,8 +163,8 @@ Each phase ends somewhere reviewable. Nothing is thrown away until the last one.
 | 0 | Decisions below, then scaffold: Next.js + TS + Tailwind + shadcn, static export, Netlify config | **Done** (30 Oct 2026) |
 | 1 | Port `booster-logic.js` to `lib/booster/*.ts` with types, **plus the parity test harness** | **Done** (30 Oct 2026). 1,925 tests, zero differences |
 | 2 | Scryfall client and pools, typed, with the queue and retry behaviour kept | **Done** (31 Oct 2026) |
-| 3 | UI shell: tabs, set picker, options, slot panel, vanilla diff | Next. The bulk of the shadcn work |
-| 4 | Generate, preview (including the flip), CSV | |
+| 3 | UI shell: tabs, set picker, options, slot panel, vanilla diff | **Done** (31 Oct 2026) |
+| 4 | Generate, preview (including the flip), CSV | Next |
 | 5 | Export pipeline: PDF, MTGProxyPrinter, AI enhance | **The risky one** — see below |
 | 6 | Parity sweep, then cut over and retire the old app | |
 
@@ -513,25 +513,91 @@ Add these to the table above when reading this file:
 | `rateLimitNotice` | the `onNotice` callback; phase 3 routes it to a toast |
 | `prepareBonus`, `prepareTokenSeparator` | **not ported** — generator concerns, phase 4 |
 
-## Phase 3 notes, for whoever picks it up
+## Phase 3, done 31 October 2026
 
-The bulk of the shadcn work, and the first phase with no parity harness to lean
-on: the old UI is DOM strings in `js/ui.js` and `js/main.js`, and there is
-nothing pure to diff against. The tests that exist cover everything underneath
-it, so the risk is confined to rendering.
+Commit `077202d`. The UI shell: tabs, both set pickers, the options form, the
+set info line, and the slot panel with its vanilla diff. 2,012 tests.
 
-* Only `Button` is generated so far. The rest of the mapping table above —
-  `Tabs`, `Select` with `SelectGroup`, `Checkbox`, `Switch`, `Collapsible`,
-  `Table`, `Badge`, `Tooltip`, `Sonner`, `Progress` — comes in with this phase.
-  The CLI is `npx shadcn@latest add <name>`; `init` already recorded
-  `-b radix -p nova` in `components.json`.
-* The QueryClient provider is not wired up yet. It lands with the first
-  component that needs it; `lib/scryfall/queries.ts` is ready for it.
-* Zustand holds options and packs, per decision 4, and `js/state.js`'s
-  `modeState` — the per-tab option memory — maps onto it directly. `OPT_IDS` in
-  that file is the list of options a tab remembers.
-* Route `onNotice` to a Sonner toast when the provider goes in.
-* Three edge behaviours from the "Behaviour the port exposed" section above have
-  to render sensibly: a slot with no outcomes at all, a still-loading set where
-  only some odds are known, and an empty foil slot on a borrowed Commander
-  layout.
+### It had a safety net after all
+
+The plan expected none, because the old UI is DOM strings. But much of
+`js/ui.js` is value-in/value-out, so it moved to `lib/explain.ts` and
+`tests/explain.test.ts` compares it against the original, loaded in a VM
+(`tests/legacy-ui.ts`) exactly as `scryfall.js` was. Functions that returned
+HTML return structured data now — React escapes text itself, so the old `esc`
+has no counterpart — and those are compared by checking every value they carry
+appears in the old markup.
+
+What that leaves untested is markup, so the two apps were run side by side and
+compared by hashing the normalised slot table, badge, chips, set info line and
+vanilla-diff list:
+
+| Configuration | Result |
+|---|---|
+| DSK vanilla | identical |
+| DSK fun x3, foil and List toggles on | identical — hash `41624114` |
+| CMM, Commander tab | identical — hash `54f9f303` |
+
+That is the technique to reach for again in phases 4 and 5. Run the old app and
+the new one at once (see below), drive both to the same state, extract the same
+normalised text from each, and compare hashes rather than eyeballing.
+
+### Running both apps at once
+
+The session's parent directory has its own `.claude/launch.json` that serves the
+old app with `python3 -m http.server 8777`. **`preview_start` resolves configs
+from the session's working directory, not the repo**, so asking for a Next dev
+server by name can silently hand you the old app instead — and because every
+string was ported verbatim, the old app looks exactly like a working port. Check
+`document.title` (the old app is "MTG Booster CSV Generator", the new one "MTG
+Booster Pack Generator") or look for a `js/booster-logic.js` script tag.
+
+A `next-dev` entry was added to that parent file, and `.claude/launch.json` in
+the repo has the same for anyone whose cwd is the repo.
+
+Two more traps worth repeating from the October list: the old panel is a
+collapsed `<details>`, and `innerText` returns empty for hidden content, so set
+`details.open = true` before extracting anything from it; and serve each build
+on a **new port**, because `python3 -m http.server` sends no `Cache-Control`.
+
+### Found by checking at phone width
+
+Both real bugs, both fixed:
+
+* A `<fieldset>` defaults to `min-width: min-content`, so the longest bonus-land
+  option forced the whole form wider than the viewport. `min-w-0` on the
+  fieldset.
+* shadcn's `Badge` is `shrink-0` and `overflow-hidden`; the slot panel's long
+  badge pushed the page sideways. It wraps now.
+
+The page fits 375px exactly, with the slot table scrolling in its own wrapper.
+
+### Known gaps, both deliberate
+
+* **The simulator tabs are not ported.** `js/simulators.js` is a separate
+  feature and no phase owns it; the tabs show a placeholder. It needs a home
+  before phase 6 retires the old app.
+* **Dark mode never activates.** shadcn ships dark tokens but nothing sets the
+  `dark` class, and the old app has no dark mode either — so this is parity, not
+  a regression. Worth deciding on separately rather than slipping it into a port.
+
+## Phase 4 notes, for whoever picks it up
+
+Generate, preview (including the card flip) and CSV: `js/generate.js` (188
+lines), `js/preview.js` (104) and `js/csv.js`.
+
+* `prepareBonus` and `prepareTokenSeparator` were deliberately left in
+  `js/scryfall.js` at phase 2 — they are generator concerns. The data they read
+  (`bonusPool`, `loadCycle`, `loadTokens`) is already ported. Both use
+  `Math.random` directly; give them an injected `Rng` as `lib/booster` has, so
+  generated packs can be tested deterministically.
+* The generator is the one place that can be parity-tested *exactly*: seed both
+  implementations' RNG identically and compare the generated packs card for
+  card. That is worth doing — it covers the sampling, the Guest List swap, God
+  Packs and the separators in one sweep.
+* `lastPacks` was a global written by `generate.js` and read by `preview.js` and
+  `downloads.js`. It belongs in the Zustand store next to the options.
+* The flip and the double-sided preview were fixed by hand in October. The
+  browser pane does not advance CSS transitions reliably — do not conclude the
+  flip is broken from a screenshot. Set `style.transition='none'`, force a
+  reflow, and read the computed transform instead.
