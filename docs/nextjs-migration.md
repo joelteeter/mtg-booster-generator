@@ -164,7 +164,7 @@ Each phase ends somewhere reviewable. Nothing is thrown away until the last one.
 | 1 | Port `booster-logic.js` to `lib/booster/*.ts` with types, **plus the parity test harness** | **Done** (30 Oct 2026). 1,925 tests, zero differences |
 | 2 | Scryfall client and pools, typed, with the queue and retry behaviour kept | **Done** (31 Oct 2026) |
 | 3 | UI shell: tabs, set picker, options, slot panel, vanilla diff | **Done** (31 Oct 2026) |
-| 4 | Generate, preview (including the flip), CSV | Next |
+| 4 | Generate, preview (including the flip), CSV, **plus the two simulators** | **Done** (31 Oct 2026). 2,036 tests; the generator is compared card for card |
 | 5 | Export pipeline: PDF, MTGProxyPrinter, AI enhance | **The risky one** — see below |
 | 6 | Parity sweep, then cut over and retire the old app | |
 
@@ -576,28 +576,149 @@ The page fits 375px exactly, with the slot table scrolling in its own wrapper.
 
 * **The simulator tabs are not ported.** `js/simulators.js` is a separate
   feature and no phase owns it; the tabs show a placeholder. It needs a home
-  before phase 6 retires the old app.
+  before phase 6 retires the old app. *(Folded into phase 4.)*
 * **Dark mode never activates.** shadcn ships dark tokens but nothing sets the
   `dark` class, and the old app has no dark mode either — so this is parity, not
   a regression. Worth deciding on separately rather than slipping it into a port.
 
-## Phase 4 notes, for whoever picks it up
+## Phase 4, done 31 October 2026
 
-Generate, preview (including the card flip) and CSV: `js/generate.js` (188
-lines), `js/preview.js` (104) and `js/csv.js`.
+Commit `6a8fd1e`. Generating packs, the preview with its card flip, the CSV
+downloads, and the Planechase and Archenemy simulators. 2,036 tests.
 
-* `prepareBonus` and `prepareTokenSeparator` were deliberately left in
-  `js/scryfall.js` at phase 2 — they are generator concerns. The data they read
-  (`bonusPool`, `loadCycle`, `loadTokens`) is already ported. Both use
-  `Math.random` directly; give them an injected `Rng` as `lib/booster` has, so
-  generated packs can be tested deterministically.
-* The generator is the one place that can be parity-tested *exactly*: seed both
-  implementations' RNG identically and compare the generated packs card for
-  card. That is worth doing — it covers the sampling, the Guest List swap, God
-  Packs and the separators in one sweep.
-* `lastPacks` was a global written by `generate.js` and read by `preview.js` and
-  `downloads.js`. It belongs in the Zustand store next to the options.
-* The flip and the double-sided preview were fixed by hand in October. The
-  browser pane does not advance CSS transitions reliably — do not conclude the
-  flip is broken from a screenshot. Set `style.transition='none'`, force a
-  reflow, and read the computed transform instead.
+The simulators were folded in here rather than left for a phase of their own:
+nothing owned them, and phase 6 cannot retire the old app while a whole tab
+still lives there.
+
+### The exact comparison the plan hoped for
+
+`tests/legacy-generate.ts` is the third and most complete of the parity tricks.
+`scryfall.js`, `csv.js`, `ui.js`, `generate.js`, `preview.js` and `downloads.js`
+are concatenated and run as **one** VM script — which is what the browser
+effectively does, and why it works: those files share a single top-level lexical
+scope (that is how `ui.js` uses `esc` from nowhere in particular), and no two of
+them declare the same name. An expression appended to the end can then see every
+`const` and `let` in that scope, which is how `lastPacks` — a `let` in
+`preview.js` that `generate.js` reassigns — is read back out.
+
+Underneath it: a stub DOM, a stub clock, a fake Scryfall, and `Math.random`
+replaced with a seeded generator. Then the Generate handler is called. Both
+implementations get the same fake and the same seed and consume randomness in
+the same order, so the packs match printing for printing or the port is wrong.
+
+`js/export.js` and `js/booster-logic.js` need none of that — both export for
+CommonJS, so `require` gives the real `isDfc` and the real spec builders.
+
+One sweep covers the pool loading, the spec, the outcome draw, the "no repeated
+names in a pack" rule, the alternate-treatment preference, the Guest List swap,
+God Packs, The List and its fallback, the separator lands and token separators,
+the token sheets, every CSV row, the filenames, the progress messages and the
+final status line. `tests/generate-summary.test.ts` adds the strings the old
+code built straight into `innerHTML` — the pack names, the "All 3 packs + 1
+token sheet" label, the ✨ on a God Pack and the ⟲ double-faced count — by
+reading the markup back out.
+
+### The simulators needed a different trick again
+
+`js/simulators.js` is one IIFE, so nothing in it is in the script's lexical
+scope and the appended-expression trick cannot reach it. What it does do is hand
+one object out through `window.Sims`, so `tests/legacy-simulators.ts` rewrites
+that single line to carry the internals with it. The rewrite is an exact string
+match and **throws if it ever stops matching**, so it cannot quietly start
+testing nothing.
+
+That gives real comparison of the two configurations (three paragraphs of rules
+text, which is exactly the sort of thing a port silently rewords), the planar
+die, the card predicates, the shuffle, and the deck mechanics — driven as a
+scripted sequence of the same calls the buttons make, comparing the deck, the
+current card, the history, the ongoing schemes and the status line after every
+step.
+
+### Mutation testing
+
+Twelve mutations against the generator and twelve against the simulators. All
+caught, but four of the generator's were missed on the first pass and each one
+pointed at a real gap in the scenarios:
+
+* The Guest List swap at 60% instead of 50% was invisible because almost no
+  drawn card shared a name with a Special Guest. The fixture's Special Guests
+  now overlap most of the set's commons.
+* Two CSV mutations were invisible because the fixture's cards had no artist,
+  prices or Scryfall URI, so most of each row was empty string. They have them
+  now — including a comma in the artist name, which is what the quoting is for.
+* Vanilla mode no longer forcing the multiplier to 1 was invisible because the
+  vanilla scenario left the multiplier at 1 anyway.
+
+**One mutation cannot be caught, and that is worth knowing.** Removing the
+`/Basic/` test — the rule that basic lands may repeat within a pack while
+everything else may not — changes nothing, because `landBasics` appears in
+exactly one slot of one layout, so a pack can never draw two basics. The rule is
+right and is ported faithfully, but it is unobservable today and would only
+start to matter if a future layout had two slots that could produce a basic.
+
+### A flaky test, fixed
+
+`tests/scryfall-client.test.ts` had a concurrency test that measured wall-clock
+gaps between requests on the real clock. It failed about one run in ten: a
+millisecond ticking over between the first call and the rest is enough to turn
+40 into 39. It now freezes `now` — which is the scenario anyway, five requests
+claiming their slots at the same instant — and asserts the schedule the queue
+computes, while keeping real timers so the waits genuinely elapse in order.
+Fifteen consecutive full runs clean.
+
+### Behaviour that is a decision, not an accident (phase 4)
+
+| Behaviour | Why |
+|---|---|
+| A pack's separator is not counted as double-faced | `dfcCount` asks whether the *card* has two faces. A token separator is two different cards sharing one printed slot, which the exporter handles separately |
+| The token separator may print the same token twice | The retry is bounded at eight attempts rather than sampling without replacement, so each pack's draw stays independent |
+| "Random" bonus lands skip a cycle that fails to load | One unreachable cycle should not fail a whole generation |
+| `faceImages` returns `undefined` for a size a card lacks | Both implementations do. An empty `src` would hide a data problem rather than show it |
+| The simulators' shuffle rejects biased values from the crypto source | `getRandomValues()[0] % n` favours low indices unless the top of the 32-bit range is discarded |
+
+### Deliberate changes, all three small
+
+* **The options are read once, not twice.** The old handler called `getOpts()`
+  before loading and again after (`freshOpts`), because set metadata could
+  arrive during the load and change `listEra`. The release date now comes from
+  the set-list query, which is independent of the pools, so there is one set of
+  options and it is always the later one. `tests/generate-parity.test.ts`
+  asserts it equals the old `getOpts()` after a run.
+* **The CSV object URL is made on click and revoked a minute later.** The old
+  code built one blob per row on every render and never revoked them.
+* **The preview goes back to the first pack after a run.** The old code did too
+  when the panel was open, and kept a stale index when it was closed.
+
+### Still open
+
+**Dark mode never activates.** Unchanged from phase 3: shadcn ships the tokens,
+nothing sets the `dark` class, and the old app has no dark mode either. Still a
+decision to make on its own rather than inside a port.
+
+## Phase 5 notes, for whoever picks it up
+
+The export pipeline: `js/export.js`, 496 lines, and the parts of
+`js/downloads.js` that drive it. See "Phase 5 is where this gets hard" above for
+the dependency problems; what phase 4 adds to that:
+
+* **The downloads table has only its CSV column.** The PDF fronts, PDF backs and
+  MTGProxyPrinter columns are absent rather than present and dead, as are the
+  export option controls above them (paper, bleed, quality, double-faced mode,
+  back flip, custom card back, "new page per pack", AI enhance). All of that
+  markup is still in the old `index.html` to port from.
+* **`js/export.js` requires cleanly in Node**, which is how phase 4 got the real
+  `isDfc`. So the layout maths — `layoutPages`, `expandFaces`, `placementsFor`
+  — can be parity-tested the easy way, with `createRequire` and no VM at all.
+  That is most of the file's logic and it is currently untested; do it before
+  touching the canvas work.
+* **`isDfc` is already ported**, as `isDoubleFacedToken` in
+  `lib/booster/tokens.ts` and re-exported as `isDfc` from `lib/generate`. The
+  old app defines the same predicate twice; do not add a third.
+* **The pack shape changed.** `lastPacks` entries were arrays with `godPack` and
+  `tokenSheet` hung on them as properties; a `GeneratedPack` is
+  `{ cards, godPack, tokenSheet }`. Anything ported from `downloads.js` or
+  `export.js` that iterates a pack wants `pack.cards`.
+* The canvas bleed-and-corner work is the part with no safety net. It is also
+  the part nobody can see is broken until they print a page, so it is worth
+  rendering a page to an image and comparing against the old app's output rather
+  than trusting a visual check.
