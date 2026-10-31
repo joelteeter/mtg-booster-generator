@@ -21,6 +21,7 @@ import { queryOptions } from "@tanstack/react-query";
 import type { LandCycle } from "@/lib/booster/types";
 
 import type { ScryfallPools } from "./pools";
+import type { Card, UniqueMode } from "./types";
 
 /** One root, so a single `invalidateQueries` clears everything Scryfall. */
 export const scryfallKeys = {
@@ -32,6 +33,8 @@ export const scryfallKeys = {
     [...scryfallKeys.all, "pools", "commander", code] as const,
   tokens: (code: string) => [...scryfallKeys.all, "tokens", code] as const,
   cycle: (id: string) => [...scryfallKeys.all, "cycle", id] as const,
+  search: (query: string, unique?: UniqueMode) =>
+    [...scryfallKeys.all, "search", query, unique ?? null] as const,
 };
 
 const shared = { staleTime: Infinity, retry: false as const };
@@ -39,9 +42,15 @@ const shared = { staleTime: Infinity, retry: false as const };
 export interface ScryfallQueryDeps {
   pools: ScryfallPools;
   getSets: () => Promise<import("./types").ScryfallSet[]>;
+  /** A plain paginated search, for the pools that are not card pools. */
+  searchCards: (query: string, unique?: UniqueMode) => Promise<Card[]>;
 }
 
-export function scryfallQueries({ pools, getSets }: ScryfallQueryDeps) {
+export function scryfallQueries({
+  pools,
+  getSets,
+  searchCards,
+}: ScryfallQueryDeps) {
   return {
     sets: () =>
       queryOptions({ ...shared, queryKey: scryfallKeys.sets(), queryFn: getSets }),
@@ -68,6 +77,19 @@ export function scryfallQueries({ pools, getSets }: ScryfallQueryDeps) {
         queryKey: scryfallKeys.tokens(code),
         queryFn: () => pools.loadTokens(code),
         enabled: !!code,
+      }),
+
+    /*
+     * One search, cached by its exact query text. The simulators use this:
+     * every Plane or every Scheme is a single paginated search rather than a
+     * per-set pool, so there is nothing for `pools.ts` to do with it.
+     */
+    search: (query: string, unique?: UniqueMode) =>
+      queryOptions({
+        ...shared,
+        queryKey: scryfallKeys.search(query, unique),
+        queryFn: () => searchCards(query, unique),
+        enabled: !!query,
       }),
 
     cycle: (cycle: LandCycle) =>

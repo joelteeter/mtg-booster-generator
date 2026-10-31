@@ -15,7 +15,7 @@ import { createScryfallPools } from "@/lib/scryfall/pools";
 import { scryfallQueries } from "@/lib/scryfall/queries";
 import type { ScryfallSet } from "@/lib/scryfall/types";
 
-const client = createScryfallClient({
+export const client = createScryfallClient({
   // The old code wrote these into #status; a toast is the shadcn equivalent.
   onNotice: (message) => toast.warning(message, { duration: 12000 }),
 });
@@ -25,6 +25,7 @@ export const pools = createScryfallPools(client);
 export const queries = scryfallQueries({
   pools,
   getSets: () => client.getSets(),
+  searchCards: (query, unique) => client.search(query, { unique }),
 });
 
 /** Every set Scryfall knows about. Loaded once. */

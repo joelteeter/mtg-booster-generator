@@ -77,32 +77,49 @@ describe("the shared request queue", () => {
    * that inside Scryfall's rate limit.
    */
   /*
-   * This one runs on the real clock and real timers, with the gap shortened to
-   * 20ms. The fake clock cannot model it: it advances time when a sleep is
-   * requested rather than when it elapses, so five requests that claim their
-   * slots in the same tick would all appear to leave at once. Using the real
-   * timers also covers the default `sleep`, which nothing else does.
+   * Real timers with the gap shortened to 20ms, so the waits genuinely elapse
+   * and genuinely elapse in order — the sleep-driven fake clock elsewhere in
+   * this file cannot model that, because it advances time when a sleep is
+   * requested rather than when it ends.
+   *
+   * `now` is frozen, which is the scenario: five requests claiming their slots
+   * at the same instant. It also makes the test exact. Earlier versions
+   * measured the wall-clock gaps between the requests going out and were
+   * flaky — a millisecond ticking over between the first call and the rest is
+   * enough to turn 40 into 39.
    */
   it("staggers requests made concurrently, not just sequential ones", async () => {
     const q = poolQuery("set:x");
     const fake = fakeScryfall({ search: { [q]: [card()] } });
     const gap = 20;
     const dispatched: number[] = [];
+    const waits: number[] = [];
     const timed = ((...args: Parameters<typeof globalThis.fetch>) => {
       dispatched.push(Date.now());
       return fake.fetch(...args);
     }) as typeof globalThis.fetch;
-    const client = createScryfallClient({ fetch: timed, requestGapMs: gap });
+    const start = Date.now();
+    const client = createScryfallClient({
+      fetch: timed,
+      requestGapMs: gap,
+      now: () => start,
+      // Real timers, so the waits actually elapse, and in order.
+      sleep: (ms) => {
+        waits.push(ms);
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      },
+    });
 
     await Promise.all(
       Array.from({ length: 5 }, () => client.fetchPool("set:x")),
     );
 
-    // All five claim a slot in the same tick, but they leave one gap apart:
-    // the queue is shared state, not a per-request delay.
+    // All five claim a slot in the same tick. The first goes out at once and
+    // the rest are held one gap further apart each: the queue is shared state,
+    // not a per-request delay.
     expect(dispatched).toHaveLength(5);
-    for (const g of gaps(dispatched)) expect(g).toBeGreaterThanOrEqual(gap - 5);
-    expect(dispatched[4] - dispatched[0]).toBeGreaterThanOrEqual(gap * 4 - 10);
+    expect(waits).toEqual([gap, gap * 2, gap * 3, gap * 4]);
+    expect(dispatched[4]).toBeGreaterThan(dispatched[0]);
   });
 
   it("holds the whole queue when Scryfall asks us to slow down", async () => {

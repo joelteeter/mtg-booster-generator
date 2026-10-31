@@ -12,8 +12,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 
 import {
-  LIST_ERA_END,
-  PLAY_BOOSTER_START,
   commanderSpec,
   diffFromVanilla,
   playSpec,
@@ -21,6 +19,7 @@ import {
 } from "@/lib/booster";
 import type { CommanderLayout, Slot, Stats } from "@/lib/booster/types";
 import { collapseChanges, vanillaOpts, type CollapsedChange } from "@/lib/explain";
+import { specOptions, type SpecOptions } from "@/lib/options";
 import type { CommanderPools, PlayPools } from "@/lib/scryfall/pools";
 import {
   isBoosterMode,
@@ -34,20 +33,7 @@ import {
 import { useDebounced } from "./use-debounced";
 import { queries, useSetsByCode } from "./use-scryfall";
 
-/** The options object the spec builders take. */
-export interface SpecOptions {
-  vanilla: boolean;
-  mult: number;
-  guest: boolean;
-  foilToggle: boolean;
-  listToggle: boolean;
-  listEra: boolean;
-  released: string | null;
-  includeBonus: boolean;
-  separatorType: "land" | "token";
-  bonusType: string;
-  tokenSheets: boolean;
-}
+export type { SpecOptions };
 
 export interface SpecResult {
   mode: BoosterMode;
@@ -57,6 +43,14 @@ export interface SpecResult {
   stats: Stats | null;
   pools: PlayPools | CommanderPools | null;
   slots: Slot[];
+  /**
+   * The same slots for a different set of pool sizes.
+   *
+   * Generate needs this: it fetches the pools itself, so that pressing it
+   * before they have arrived builds the spec from the real counts rather than
+   * from the nulls the panel is showing. It is the old `freshOpts` rebuild.
+   */
+  buildSlots: (stats: Stats | null) => Slot[];
   /** Null in vanilla mode: there is nothing to compare against. */
   vanillaSlots: Slot[] | null;
   diffs: CollapsedChange[][];
@@ -99,34 +93,17 @@ export function useSpec(): SpecResult {
   const released = setsByCode.get(code)?.released_at ?? null;
 
   const opts: SpecOptions = useMemo(
-    () => ({
-      vanilla: options.vanilla,
-      mult: options.vanilla ? 1 : options.mult,
-      guest: !options.vanilla && options.preferGuestList,
-      // The play-only fun options never apply to Commander boosters.
-      foilToggle:
-        boosterMode === "play" && !options.vanilla && options.foilToggle,
-      listToggle:
-        boosterMode === "play" && !options.vanilla && options.listToggle,
-      listEra:
-        !!released &&
-        released >= PLAY_BOOSTER_START &&
-        released < LIST_ERA_END,
-      released,
-      includeBonus: options.includeBonus,
-      separatorType: options.separatorType,
-      bonusType: options.bonusType,
-      tokenSheets: options.tokenSheets,
-    }),
+    () => specOptions({ mode: boosterMode, options, released }),
     [options, released, boosterMode],
   );
 
   return useMemo(() => {
     const stats = pools ? statsFromPools(pools) : null;
-    const build = (o: SpecOptions) =>
+    const buildWith = (o: SpecOptions, s: Stats | null) =>
       boosterMode === "play"
-        ? playSpec(o, stats)
-        : commanderSpec(layout ?? "cmr", o, stats);
+        ? playSpec(o, s)
+        : commanderSpec(layout ?? "cmr", o, s);
+    const build = (o: SpecOptions) => buildWith(o, stats);
 
     const slots = build(opts);
     // Same set, same card counts, official odds: anything that differs is down
@@ -142,6 +119,7 @@ export function useSpec(): SpecResult {
       stats,
       pools,
       slots,
+      buildSlots: (s: Stats | null) => buildWith(opts, s),
       vanillaSlots,
       diffs,
       diffCount: diffs.reduce((a, c) => a + c.length, 0),

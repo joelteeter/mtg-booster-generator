@@ -24,7 +24,11 @@ function setup(search: Record<string, Card[]>, sets: Record<string, ScryfallSet>
     sleep: async () => {},
   });
   const pools = createScryfallPools(client);
-  const queries = scryfallQueries({ pools, getSets: () => client.getSets() });
+  const queries = scryfallQueries({
+    pools,
+    getSets: () => client.getSets(),
+    searchCards: (query, unique) => client.search(query, { unique }),
+  });
   return { fake, pools, queries };
 }
 
