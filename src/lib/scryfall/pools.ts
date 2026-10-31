@@ -19,14 +19,19 @@ import {
   landCycleQuery,
   tokenSetCode,
 } from "@/lib/booster";
-import type { LandCycle, NameMap, PoolsMeta } from "@/lib/booster/types";
+import type { LandCycle, NameMap, Pools, PoolsMeta } from "@/lib/booster/types";
 
 import { bonusPool } from "./bonus-pool";
 import { optional, type ScryfallClient } from "./client";
 import type { Card, ScryfallSet } from "./types";
 
-/** Pools for one Play Booster set. Keys match what `playSpec` samples. */
-export interface PlayPools {
+/**
+ * Pools for one Play Booster set. Keys match what `playSpec` samples.
+ *
+ * Extends `Pools` so it can be handed straight to the pure layer's
+ * `resolvePool` and `statsFromPools`, which take any keyed bundle of pools.
+ */
+export interface PlayPools extends Pools {
   commons: NameMap;
   uncommons: NameMap;
   rares: NameMap;
@@ -40,7 +45,7 @@ export interface PlayPools {
 }
 
 /** Pools for one Commander draft-booster set. Keys match `commanderSpec`. */
-export interface CommanderPools {
+export interface CommanderPools extends Pools {
   commons: NameMap;
   uncommons: NameMap;
   rares: NameMap;
