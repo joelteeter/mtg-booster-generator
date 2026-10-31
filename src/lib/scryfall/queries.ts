@@ -1,0 +1,80 @@
+/*
+ * TanStack Query wiring for Scryfall.
+ *
+ * This replaces the hand-rolled `poolCache`, `cycleCache` and `tokenCache`
+ * globals: the caching, deduping and in-flight sharing they did by hand are
+ * what Query does by default. The rate-limit queue stays underneath in
+ * `client.ts`, because Query has no notion of being polite to an upstream API.
+ *
+ * `staleTime: Infinity` because a released set's card list does not change
+ * while the tab is open, and refetching a pool is a dozen Scryfall requests.
+ * `retry: false` because `client.request` already retries 429s and network
+ * failures; a Query-level retry would replay the whole fan-out on top of that.
+ * The old `ensureLoaded` behaved the same way — it dropped the cache entry on
+ * failure so the next user action retried, rather than retrying by itself.
+ *
+ * The QueryClient provider lands in phase 3 with the first component that
+ * needs it; these options are plain data and are used from tests today.
+ */
+import { queryOptions } from "@tanstack/react-query";
+
+import type { LandCycle } from "@/lib/booster/types";
+
+import type { ScryfallPools } from "./pools";
+
+/** One root, so a single `invalidateQueries` clears everything Scryfall. */
+export const scryfallKeys = {
+  all: ["scryfall"] as const,
+  sets: () => [...scryfallKeys.all, "sets"] as const,
+  playPools: (code: string) =>
+    [...scryfallKeys.all, "pools", "play", code] as const,
+  commanderPools: (code: string) =>
+    [...scryfallKeys.all, "pools", "commander", code] as const,
+  tokens: (code: string) => [...scryfallKeys.all, "tokens", code] as const,
+  cycle: (id: string) => [...scryfallKeys.all, "cycle", id] as const,
+};
+
+const shared = { staleTime: Infinity, retry: false as const };
+
+export interface ScryfallQueryDeps {
+  pools: ScryfallPools;
+  getSets: () => Promise<import("./types").ScryfallSet[]>;
+}
+
+export function scryfallQueries({ pools, getSets }: ScryfallQueryDeps) {
+  return {
+    sets: () =>
+      queryOptions({ ...shared, queryKey: scryfallKeys.sets(), queryFn: getSets }),
+
+    playPools: (code: string) =>
+      queryOptions({
+        ...shared,
+        queryKey: scryfallKeys.playPools(code),
+        queryFn: () => pools.loadPlayPools(code),
+        enabled: !!code,
+      }),
+
+    commanderPools: (code: string) =>
+      queryOptions({
+        ...shared,
+        queryKey: scryfallKeys.commanderPools(code),
+        queryFn: () => pools.loadCommanderPools(code),
+        enabled: !!code,
+      }),
+
+    tokens: (code: string) =>
+      queryOptions({
+        ...shared,
+        queryKey: scryfallKeys.tokens(code),
+        queryFn: () => pools.loadTokens(code),
+        enabled: !!code,
+      }),
+
+    cycle: (cycle: LandCycle) =>
+      queryOptions({
+        ...shared,
+        queryKey: scryfallKeys.cycle(cycle.id),
+        queryFn: () => pools.loadCycle(cycle),
+      }),
+  };
+}

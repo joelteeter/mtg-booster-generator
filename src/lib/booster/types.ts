@@ -18,7 +18,13 @@ export type Rng = () => number;
  */
 export interface CardFace {
   type_line?: string;
-  image_uris?: Record<string, string>;
+  /*
+   * Only its presence is ever checked here — a token counts as double-faced
+   * when both faces have images. The pure logic never reads a particular
+   * size, so the real Scryfall shape stays in `lib/scryfall/types.ts` and any
+   * of it is assignable to this.
+   */
+  image_uris?: unknown;
 }
 
 export interface Card {
@@ -26,7 +32,7 @@ export interface Card {
   type_line?: string;
   card_faces?: CardFace[];
   collector_number?: string;
-  image_uris?: Record<string, string>;
+  image_uris?: unknown;
   border_color?: string;
   full_art?: boolean;
   frame_effects?: string[];
