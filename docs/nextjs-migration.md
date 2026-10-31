@@ -166,7 +166,7 @@ Each phase ends somewhere reviewable. Nothing is thrown away until the last one.
 | 3 | UI shell: tabs, set picker, options, slot panel, vanilla diff | **Done** (31 Oct 2026) |
 | 4 | Generate, preview (including the flip), CSV, **plus the two simulators** | **Done** (31 Oct 2026). 2,036 tests; the generator is compared card for card |
 | 5 | Export pipeline: PDF, MTGProxyPrinter, AI enhance | **Done** (31 Oct 2026). 2,200 tests; the PDFs and the save file come out byte-identical |
-| 6 | Parity sweep, then cut over and retire the old app | |
+| 6 | Parity sweep, then cut over and retire the old app | **Old app retired** (31 Oct 2026). 2,204 tests. The cut-over to `main` waits for credits |
 
 ### Phase 5 is where this gets hard
 
@@ -818,24 +818,82 @@ and finishes a card in 10.1 s — the old notes measured 10–11 s.
 * **`public/` is now excluded from eslint**, because sql.js's own minified
   loader lives there.
 
-## Phase 6 notes, for whoever picks it up
+## Phase 6, done 31 October 2026
 
-Everything the old app does is now ported. What is left:
+The old app is gone: `js/`, `css/`, `index.html`, `build.py`, `dist/` and the
+two duplicate favicons at the repo root. `main` has not been cut over — see the
+end of this section.
 
-* **The parity sweep and the cut-over.** This branch's `netlify.toml` already
-  builds the Next app; `dev` still carries the old one that publishes the repo
-  root. The cut-over is getting this branch onto `main`. Remember that only
-  `main` triggers a production deploy and that production deploys cost credits
-  — see "Branch and deploys" — so that is the user's call to make, not a step
-  to take while tidying up.
-* **Then delete** `js/`, `css/`, `index.html`, `build.py` and `dist/`, and with
-  them the legacy harnesses (`tests/legacy*.ts`) and the tests that use
-  them: `parity`, `golden`, `explain`, `scryfall-*`, `generate-*`, `simulators`,
-  `export-parity`, `export-run`. That is most of the suite, and it is meant to
-  go: it exists to prove the port, not to test the app. Decide before deleting
-  which assertions are worth keeping as ordinary tests — the slot-spec golden
-  files and the `lib/booster` invariants are the obvious candidates.
-* **One decision is still open**: whether to keep the old app's URL working.
+### The problem phase 6 actually posed
+
+Deleting `js/` deletes the second implementation every parity test compared
+against, and that was most of the suite: 1,890 of 2,207 tests were the
+slot-spec sweep alone, and the export, generator, simulator and slot-panel
+suites were the only coverage those areas had. The plan said those tests were
+scaffolding and were meant to go. That is true of their *purpose* — they existed
+to prove the port — but not of their *value*: a sweep over 999 specs and nine
+stats fixtures is a good regression test whatever it was written for.
+
+So the old app was read out one last time instead of being deleted outright.
+`tests/golden/*.txt` hold what it produced for every case the sweeps covered:
+the specs, the vanilla diffs, the expected counts, the pure helpers, the pool
+loads, the export layout and drawing calls, the save file, the generated packs,
+the download buttons, the slot-panel wording and the simulators. Each file
+records the commit it was read from and says plainly that it cannot be
+regenerated.
+
+The tests kept their shape and their coverage; only the source of the expected
+value changed. What they mean has shifted, and the files say so: they no longer
+ask whether two implementations agree, but whether anything has moved since the
+day they did. When the odds change on purpose — TODO.md has two such changes
+waiting — the right response is to read the diff and re-record by hand.
+
+### How the goldens are written
+
+As text, one value per line, compared with `toBe`. A spec rendered one line per
+slot and one per outcome diffs readably where an object dump does not, and the
+same matrix costs a third of the bytes. Numbers go through `String`, which is
+the shortest text that parses back to the same double, so these are comparisons
+of values and not of a rounded rendering of them.
+
+Two details worth knowing:
+
+* **Cases that produce the same value share one block.** 999 spec cases reduce
+  to 323 distinct specs, which is most of why the files are a manageable size,
+  and seeing which cases collapse together is itself informative.
+* **The PDF operator streams are the exception.** Every one of the sixteen
+  option combinations is kept as a digest and four of them in full. Writing all
+  sixteen out cost a megabyte on its own, and the placements recorded beside
+  them already name every card's cell, so a digest failure is easy to place.
+
+The whole set is 2.1 MB of text, which is the price of keeping 1,888 assertions
+on the odds engine alive without the implementation they were written against.
+
+### What moved
+
+Shared fixtures came out of the test files so a recorder and a test could not
+drift apart: `cases.ts`, `pool-fixtures.ts`, `generate-scenarios.ts`,
+`generate-run.ts`, `sim-fixtures.ts`. `legacy-export.ts` kept its three doubles
+— the deterministic image loader, the recording pdf-lib and the recording
+canvas — and became `export-doubles.ts`; the other five harnesses are gone, and
+so is `parity.test.ts`, replaced by `booster-golden.test.ts` running the same
+matrix.
+
+`tests/fake-scryfall.ts` grew `resetCardIds()`. Pools are compared by printing
+id, and ids came from a module-level counter, so a recorded case only matches
+if it builds its cards from the same starting point.
+
+### Still to do: the cut-over
+
+`next` is the rewrite and is fully ported. `main` and `dev` still serve the
+plain-scripts app, and `dev`'s `netlify.toml` still publishes the repo root with
+no build, which is the rollback if anything is wrong after the merge.
+
+The cut-over is `git checkout main && git merge next`. This branch's
+`netlify.toml` already runs `npm run build` and publishes `out/`, so nothing
+else needs changing. It costs one production deploy — 15 credits — and we were
+at 285/300 in late October, so it waits for the 19 November reset rather than
+spending the last of the month on it.
 
 ## Dark mode, and a panel that starts closed, 31 October 2026
 

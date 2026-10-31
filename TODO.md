@@ -5,6 +5,19 @@ anything already settled lives in the README instead.
 
 ## Deployment
 
+- [ ] **Cut `main` over to the Next.js app** — *waiting on credits*
+  `next` holds the rewrite and is fully ported; `main` and `dev` still serve the
+  plain-scripts app. The cut-over is `git checkout main && git merge next`,
+  which costs one production deploy (15 credits). We were at 285/300 in late
+  October, so it waits for the 19 November reset rather than spending the last
+  of the month's credits on it.
+  - `next`'s `netlify.toml` already runs `npm run build` and publishes `out/`;
+    nothing else needs changing for the cut-over
+  - `dev` keeps the old app until then, which is the rollback if anything is
+    wrong after the merge
+  - check the deployed site before deciding the migration is finished: the
+    branch deploy at `next--mtg-draft-generator.netlify.app` is the same build
+
 - [ ] **Automate the monthly production deploy** — *after 19 November 2026*
   Credits reset on 19 Nov (`next_billing_period_start`), so set this up on the
   20th or later, with the cycle fresh. Deliberately not done in October: the
@@ -15,7 +28,8 @@ anything already settled lives in the README instead.
     it has to live on `main`, not `dev`
   - land it on `main` with `[skip ci]` in the commit message so installing it
     does not itself cost a production deploy
-  - the job merges `dev` into `main`; Netlify then builds once (15 credits)
+  - the job merges the working branch into `main`; Netlify then builds once
+    (15 credits)
   - a cron such as `0 17 20 11 *` fires every year, so guard it on the year or
     delete it after it runs
   - it pushes to `main` unattended, shipping everything accumulated on `dev` in
@@ -28,25 +42,22 @@ anything already settled lives in the README instead.
 
 ## Frontend
 
-- [ ] **Move to Next.js + TypeScript + shadcn/ui** — planned in [docs/nextjs-migration.md](docs/nextjs-migration.md), not started. Supersedes the framework question below, which it answers: shadcn means React, Tailwind and a bundler, so the no-build property goes
+- [x] **Move to Next.js + TypeScript + shadcn/ui** — done, 30–31 October 2026
+  Planned and recorded in [docs/nextjs-migration.md](docs/nextjs-migration.md),
+  carried out in six phases on the `next` branch. The old plain-scripts app,
+  `build.py` and the single-file build in `dist/` are gone; what they did is
+  written up in that document, including what was given up (a file you could
+  email, and opening the app from disk) and why.
 
-- [ ] ~~Decide on a CSS/UI framework~~ (settled by the above, kept for the reasoning)
-  The app is deliberately plain today: browser scripts sharing one global scope,
-  no bundler, no install, and `build.py` inlines everything into a single
-  shareable HTML file. The README sells that ("No install, build step or local
-  server is needed"), so the choice is really about how much of it to give up.
-  - **Bootstrap** (or Bulma, Pico.css, Water.css) is CSS-only. It can be a CDN
-    link or a vendored file and keeps the no-build property; `build.py` would
-    inline it for `dist/` the way it already does for `css/styles.css`, or leave
-    it as a CDN link like pdf-lib. Smallest disruption, and `css/styles.css` is
-    only ~150 lines, so most of it would be replaced rather than fought with.
-  - **shadcn/ui** is not a CSS framework — it is React components you copy into
-    a project, and it needs React, Tailwind and a bundler. Adopting it means
-    rewriting the UI as components and giving up the single-file build unless we
-    add a real bundler step. Much larger job; worth it only if we want a React
-    app, not just better-looking controls.
-  - Worth settling first: do we keep "open `index.html` and it works"? If yes,
-    that rules shadcn out on its own.
+  That settles the CSS/UI framework question this superseded: shadcn/ui means
+  React, Tailwind and a bundler, so the no-build property went with it. The
+  alternative considered was a CSS-only framework (Bootstrap, Bulma, Pico.css)
+  which would have kept it; the reasoning is in the migration document.
+
+- [ ] **Dark mode is new; the old app had none**
+  Added after phase 5 and following the system by default. Nothing here needs
+  doing — it is noted because it is the one place the rewrite does more than
+  the app it replaced, rather than the same thing differently.
 
 ## Pack simulation
 
@@ -96,6 +107,9 @@ anything already settled lives in the README instead.
 
 ## Housekeeping
 
-- [ ] **`dist/` is committed and rebuilt by hand**
-  `python3 build.py` has to be remembered on every change. A pre-commit hook, or
-  building it in CI, would stop the single-file copy drifting from source.
+- [ ] **The golden files cannot be regenerated**
+  `tests/golden/*.txt` hold what the old implementation produced for every case
+  the suite covers, read out of it on its last day. When the odds change on
+  purpose — the 2027 revisit above will — the tests will fail, and the right
+  response is to read the diff and update the file by hand rather than to
+  re-record, which is no longer possible.

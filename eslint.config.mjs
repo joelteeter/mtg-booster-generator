@@ -13,14 +13,6 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     /*
-     * The old app. `js/` is browser scripts sharing one global scope, which
-     * this config cannot read: every function another file calls looks unused.
-     * It is checked with `node --check` instead, and retired in phase 6 along
-     * with build.py and dist/.
-     */
-    "js/**",
-    "dist/**",
-    /*
      * Served as-is, not authored here: `scripts/copy-sql-wasm.mjs` copies
      * sql.js's own minified loader in beside the `.wasm` it fetches.
      */

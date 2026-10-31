@@ -22,3 +22,6 @@ tsconfig.tsbuildinfo
 # sql.js, copied in by scripts/copy-sql-wasm.mjs
 /public/sql-wasm.js
 /public/sql-wasm.wasm
+
+# Stray vitest JSON reporter output
+/.vitest

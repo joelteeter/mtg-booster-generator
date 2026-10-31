@@ -4,18 +4,26 @@ Generate Magic: The Gathering booster packs from Scryfall data, then print them 
 Lots of vibing here. The goal is to proxy cards for drafts: generate packs that follow real booster odds (or deliberately fun ones), then print them, with each pack's cards kept together and a separator land between packs.
 
 ## Running it
-Two ways, both working the same:
-* **Single file:** open `dist/mtg-booster-generator.html` in a modern browser (Firefox, Chrome, Safari or Edge). Everything is inside that one file, so you can copy, email or share it on its own
-* **From source:** open `index.html` in the project folder (it loads `css/` and `js/` from next to it)
+The app is a static site: all of it runs in the browser, and there is no server
+of its own. Open the deployed copy, or run it locally:
+```
+npm install
+npm run dev
+```
+then open http://localhost:3000. `npm run build` writes the whole site to `out/`,
+which can be served by anything that serves files.
 
-No install, build step or local server is needed to use either: the app talks to the Scryfall API directly, which accepts requests from a page opened from disk.
+> Until October 2026 this was plain browser scripts you could open from disk, and
+> `build.py` inlined the whole app into one shareable HTML file. Both are gone:
+> the rewrite to Next.js means the app is bundled, and bundled chunks do not load
+> over `file://`. That is a real loss — a single file you could email was a nice
+> property — and it was given up deliberately, for components, types and a test
+> suite. The reasoning is in [docs/nextjs-migration.md](docs/nextjs-migration.md).
 
 You need an internet connection for:
 * **Scryfall's API** – card and set data. Requests are spaced ~150 ms apart (Scryfall asks for ≤10 per second); if Scryfall answers "429 Too Many Requests", the app waits the time Scryfall asks for and retries, showing a message while it waits
 * **Scryfall's image server** (cards.scryfall.io, backs.scryfall.io) – card images for the preview, the PDFs and the simulators. It isn't rate-limited
-* **jsDelivr** – the PDF library (pdf-lib) and the SQLite library (sql.js), loaded the first time you download a PDF or MTGProxyPrinter file; and, only if you use AI-enhance, TensorFlow.js, UpscalerJS and its ESRGAN model (~3 MB)
-
-Serving the folder over HTTP (e.g. `python3 -m http.server 8777`) still works, but isn't required.
+* **jsDelivr** – only if you use AI-enhance: TensorFlow.js, UpscalerJS and its ESRGAN model (~3 MB), fetched the first time you tick the box. pdf-lib is bundled, and sql.js is served from this site, so the PDFs and the MTGProxyPrinter file need no third-party CDN
 
 ## Tabs
 * **Booster Pack** – 14-card Booster Packs (Play Boosters renamed, see below) from any expansion, core, masters or draft-innovation set. Sets Scryfall lists but that are not out yet are grouped under “🔜 Not released yet” with their release date, since Scryfall only holds the cards spoiled so far and odds worked out from a part of a set move as more are revealed — the slot panel says so when one is chosen. The set list opens on the newest released set that is built for Limited (an expansion or core set), rather than the newest release outright, which is often a Commander or supplemental product with too few commons to build a pack from
@@ -115,48 +123,69 @@ Every format is available for all packs together or for each pack on its own.
 
 ## Files
 ```
-index.html               page markup; loads the icon, styles and scripts below
-favicon.svg              skull-and-crossbones icon (original art, mana-symbol styling)
-favicon.ico              the same icon at 16-256 px, for /favicon.ico requests
-css/styles.css           all styles
-js/booster-logic.js      pack layouts and odds, shared by the generator and the slot panel
-js/state.js              shared state: DOM shortcuts, current tab, per-tab options, pool caches
-js/scryfall.js           Scryfall requests (queue + retries), card pools, Special Guests, separator lands
-js/csv.js                CSV rows in Scryfall's format
-js/ui.js                 form state, per-tab controls and the "How each card slot is determined" panel
-js/generate.js           pack generation and the Generate button
-js/downloads.js          downloads table (CSV / PDF fronts / PDF backs / MTGProxyPrinter), card back picker, AI-enhance comparison
-js/preview.js            pack preview
-js/simulators.js         Planechase and Archenemy simulators
-js/export.js             PDF builder (incl. optional AI 2× upscaling) and MTGProxyPrinter file builder
-js/main.js               start-up: fills the set lists and wires up the tabs (loaded last)
-build.py                 bundles everything into dist/mtg-booster-generator.html
-                         (the SVG icon is inlined too, so the single file still has one)
-dist/                    the single-file build
+src/app/                 the page, the providers and the global stylesheet
+src/components/booster/  tabs, set picker, options, slot panel, generate, downloads, preview
+src/components/sim/      the Planechase and Archenemy simulators
+src/components/ui/       shadcn/ui components
+src/hooks/               use-spec, use-generate, use-export, use-scryfall
+src/store/               options, packs and export settings (Zustand)
+src/lib/booster/         pack layouts and odds, shared by the generator and the slot panel
+src/lib/scryfall/        Scryfall requests (queue + retries), card pools, Special Guests, separator lands
+src/lib/generate/        pack generation, separators, and the wording of a finished run
+src/lib/export/          page layout, card images, the PDFs, the MTGProxyPrinter file, AI upscaling
+src/lib/explain.ts       the "How each card slot is determined" panel's wording
+src/lib/csv.ts           CSV rows in Scryfall's format
+src/lib/preview.ts       card faces and sides for the preview
+src/lib/simulators.ts    planar and scheme deck mechanics
+public/favicon.svg       skull-and-crossbones icon (original art, mana-symbol styling)
+src/app/favicon.ico      the same icon at 16-256 px, for /favicon.ico requests
+scripts/copy-sql-wasm.mjs  copies sql.js into public/ so it is served from this site
+tests/                   the test suite; tests/golden/ holds values recorded from the old app
+docs/nextjs-migration.md how this got here from the plain-scripts version
 ```
-The scripts are plain browser scripts that share one global scope, so the order of the `<script>` tags in `index.html` matters: `booster-logic.js` and `state.js` first, `main.js` last.
+The pure parts — `lib/booster`, `lib/explain`, `lib/csv`, `lib/preview`,
+`lib/simulators`, and the layout half of `lib/export` — have no DOM and no
+network in them. That is what makes them testable, and the test suite leans on
+it heavily.
 
 ## Development
-Edit the files under `css/` and `js/` (and `index.html` for markup), test by opening `index.html`, then rebuild the single file:
 ```
-python3 build.py
+npm run dev        # dev server on :3000
+npm test           # the test suite
+npm run typecheck  # tsc --noEmit
+npm run lint       # eslint
+npm run build      # static export to out/
 ```
-It needs only Python 3 (no packages), inlines every local stylesheet and script into `dist/mtg-booster-generator.html`, and leaves the on-demand CDN libraries as links. Commit the rebuilt `dist/` file along with your changes so the shareable version stays current.
+`npm test` is worth knowing about. Most of it compares against
+`tests/golden/*.txt`, which hold what the previous implementation produced for
+every case the suite covers, read out of it on its last day. Those files cannot
+be regenerated — the code that produced them is gone — so a failure there is
+either a real regression or a change you meant to make, in which case read the
+diff and update the file by hand.
 
 ## Deploying
 Open work and decisions still to make are tracked in [TODO.md](TODO.md).
 
-The site is hosted on Netlify, which builds it straight from this repo. There is no build step: `netlify.toml` publishes the repo root as-is.
+The site is hosted on Netlify, which builds it straight from this repo:
+`netlify.toml` runs `npm run build` and publishes `out/`. Build minutes are not
+metered, so the build itself is free; what costs credits is the production
+deploy, below.
 
 | Branch | URL | Who can see it | Cost |
 |---|---|---|---|
 | `main` | [mtg-draft-generator.netlify.app](https://mtg-draft-generator.netlify.app) | public | **15 credits per deploy** |
+| `next` | next--mtg-draft-generator.netlify.app | Netlify sign-in only | free |
 | `dev` | dev--mtg-draft-generator.netlify.app | Netlify sign-in only | free |
 
-Netlify's credit plans charge [15 credits for every successful production deploy](https://docs.netlify.com/manage/accounts-and-billing/billing/billing-for-credit-based-plans/how-credits-work/) and nothing at all for branch deploys or deploy previews, however long the build takes. The free plan gets 300 credits a month, so **`main` is worth about 20 pushes a month and `dev` is unlimited**. Work on `dev`:
+> **`main` has not been cut over yet.** It still serves the plain-scripts app,
+> and so does `dev`, whose `netlify.toml` publishes the repo root with no build.
+> This branch, `next`, is the rewrite, and the cut-over is merging it into
+> `main` — which costs a production deploy, so it waits for credits.
+
+Netlify's credit plans charge [15 credits for every successful production deploy](https://docs.netlify.com/manage/accounts-and-billing/billing/billing-for-credit-based-plans/how-credits-work/) and nothing at all for branch deploys or deploy previews, however long the build takes. The free plan gets 300 credits a month, so **`main` is worth about 20 pushes a month and a branch is unlimited**. Work on a branch:
 
 ```
-git checkout dev
+git checkout next
 # ...commits...
 git push                      # free branch deploy, private
 ```
@@ -164,18 +193,19 @@ git push                      # free branch deploy, private
 and release by merging, which is the one step that costs credits:
 
 ```
-git checkout main && git merge dev && git push && git checkout dev
+git checkout main && git merge next && git push && git checkout next
 ```
 
 A few things worth knowing:
 * running out of credits does not just block deploys — Netlify pauses the project and visitors get a "Site not available" page, so leave headroom
 * failed deploys, and rolling production back to an earlier deploy, are free
-* the `dev` URL is private because the project protects non-production contexts (`sso_login_context: non_production`); sign in to the Netlify account that owns the site to view it
+* the branch URLs are private because the project protects non-production contexts (`sso_login_context: non_production`); sign in to the Netlify account that owns the site to view it
 * `[skip ci]` (or `[skip netlify]`) anywhere in a commit message stops Netlify building that commit, which is how to land a README-only change on `main` for free. Netlify [announced it in 2018](https://www.netlify.com/blog/2018/10/08/get-more-control-over-netlify-continuous-deployment-with-deploy-skipping/) and it is not in the current docs, so check the deploy list afterwards rather than assuming; with several commits pushed together only the last one needs the token, and it does not affect deploy previews
 
 ## Credits
 * Card data and images: [Scryfall](https://scryfall.com). Magic: The Gathering is © Wizards of the Coast; this is an unofficial fan tool for play-testing proxies
-* The MTGProxyPrinter save-file format (`document-v7.sql`, embedded in `js/export.js`) is from MTGProxyPrinter by Thomas Hess, GPL-3.0
-* Libraries, loaded on demand from jsDelivr: [pdf-lib](https://pdf-lib.js.org) (MIT), [sql.js](https://sql.js.org) (MIT), and for AI-enhance [UpscalerJS](https://upscalerjs.com) (MIT) with [TensorFlow.js](https://www.tensorflow.org/js) (Apache-2.0)
+* The MTGProxyPrinter save-file format (`document-v7.sql`, copied verbatim into `src/lib/export/schema-v7.ts`) is from MTGProxyPrinter by Thomas Hess, GPL-3.0
+* [Next.js](https://nextjs.org), [React](https://react.dev), [Tailwind CSS](https://tailwindcss.com) and [shadcn/ui](https://ui.shadcn.com), with [TanStack Query](https://tanstack.com/query) and [Zustand](https://zustand.docs.pmnd.rs)
+* [pdf-lib](https://pdf-lib.js.org) (MIT) and [sql.js](https://sql.js.org) (MIT) for the PDFs and the MTGProxyPrinter file; for AI-enhance, [UpscalerJS](https://upscalerjs.com) (MIT) with [TensorFlow.js](https://www.tensorflow.org/js) (Apache-2.0), loaded from jsDelivr only when it is used
 * Pack layouts and odds: Wizards' "Collecting" articles, StarCityGames' product guides and the booster data on [mtg.wtf](https://mtg.wtf)
 * Licensed under the GPL-3.0 (see `LICENSE`)
