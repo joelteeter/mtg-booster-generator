@@ -20,6 +20,11 @@ const eslintConfig = defineConfig([
      */
     "js/**",
     "dist/**",
+    /*
+     * Served as-is, not authored here: `scripts/copy-sql-wasm.mjs` copies
+     * sql.js's own minified loader in beside the `.wasm` it fetches.
+     */
+    "public/**",
   ]),
 ]);
 

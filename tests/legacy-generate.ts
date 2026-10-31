@@ -66,8 +66,29 @@ export interface LegacyGenerateOptions {
   controls?: Record<string, string | boolean>;
 }
 
+/** One file `saveBytes` handed to the browser. */
+export interface LegacySave {
+  filename: string;
+  type: string;
+  bytes: unknown;
+}
+
 export interface LegacyApp {
   run(): Promise<LegacyRun>;
+  /** Sets a form control after construction, between exports. */
+  setControl(id: string, value: string | boolean): void;
+  /** Replaces `window.Exporter`, so the calls into it can be recorded. */
+  setExporter(exporter: unknown): void;
+  /** Sets `downloads.js`'s `customBackUrl`, as choosing a file would. */
+  setCustomBack(url: string | null): void;
+  /** Runs one row's download button: `exportFile(kind, idx)`. */
+  exportFile(kind: string, idx: number): Promise<void>;
+  /** The card the "Compare on one card" view would use. */
+  packForComparison(): unknown;
+  /** Everything `#exportStatus` said, in order. */
+  exportStatusHistory(): string[];
+  /** Every file the run offered for download. */
+  saves(): LegacySave[];
   /** The pure helpers from `csv.js` and `preview.js`, for direct comparison. */
   formatToFullCSV(card: any, finish?: any, section?: any): string;
   faceImages(card: any, size?: string): string[];
@@ -81,10 +102,21 @@ export interface LegacyApp {
   cmdAny(): boolean;
 }
 
-function makeElement(id: string, control: string | boolean | undefined) {
+function makeElement(
+  id: string,
+  control: string | boolean | undefined,
+  onClick: (el: any) => void = () => {},
+) {
   const classes = new Set<string>();
   return {
     id,
+    /* `saveBytes` builds an anchor, points it at a blob and clicks it. */
+    href: "",
+    download: "",
+    click() {
+      onClick(this);
+    },
+    remove: () => {},
     value: typeof control === "string" ? control : "",
     checked: control === true,
     textContent: "",
@@ -115,19 +147,33 @@ function makeElement(id: string, control: string | boolean | undefined) {
 export function loadLegacyApp(options: LegacyGenerateOptions): LegacyApp {
   const controls = options.controls ?? {};
   const elements = new Map<string, ReturnType<typeof makeElement>>();
-  const statusHistory: string[] = [];
+  /* Both progress lines are recorded as they change, not just where they end. */
+  const histories: Record<string, string[]> = { status: [], exportStatus: [] };
+  const statusHistory = histories.status;
+  const blobs = new Map<string, { parts: unknown[]; type: string }>();
+  const saves: LegacySave[] = [];
+
+  const onClick = (el: any) => {
+    const blob = blobs.get(el.href);
+    if (blob) {
+      saves.push({
+        filename: el.download,
+        type: blob.type,
+        bytes: blob.parts[0],
+      });
+    }
+  };
 
   const getElementById = (id: string) => {
     if (!elements.has(id)) {
-      const el = makeElement(id, controls[id]);
-      if (id === "status") {
-        // Record the progress line as it changes, not just where it ends up.
+      const el = makeElement(id, controls[id], onClick);
+      if (histories[id]) {
         let text = "";
         Object.defineProperty(el, "textContent", {
           get: () => text,
           set: (v: string) => {
             text = v;
-            statusHistory.push(v);
+            histories[id].push(v);
           },
         });
       }
@@ -161,15 +207,28 @@ export function loadLegacyApp(options: LegacyGenerateOptions): LegacyApp {
     document: {
       getElementById,
       querySelectorAll: () => [] as unknown[],
-      createElement: () => makeElement("created", undefined),
+      createElement: () => makeElement("created", undefined, onClick),
       addEventListener: () => {},
       body: { appendChild: () => {} },
     },
     // `downloads.js` and `preview.js` reach for the exporter's `isDfc`.
     window: { Exporter: require_("../js/export.js") },
-    URL: { createObjectURL: () => "blob:test", revokeObjectURL: () => {} },
+    URL: {
+      createObjectURL: (b: { parts: unknown[]; type: string }) => {
+        const url = `blob:${blobs.size}`;
+        blobs.set(url, b);
+        return url;
+      },
+      revokeObjectURL: () => {},
+    },
     Blob: class {
-      constructor(public parts: unknown[]) {}
+      type: string;
+      constructor(
+        public parts: unknown[],
+        opts?: { type?: string },
+      ) {
+        this.type = opts?.type ?? "";
+      }
     },
     console: { warn: () => {}, error: () => {}, log: () => {} },
     fetch: options.fetch,
@@ -194,7 +253,9 @@ export function loadLegacyApp(options: LegacyGenerateOptions): LegacyApp {
     getLastPacks: () => lastPacks,
     getLastExport: () => lastExport,
     formatToFullCSV, faceImages, cardSides, dfcCount,
-    getOpts, buildSpec, currentCode, currentLayout, cmdAny
+    getOpts, buildSpec, currentCode, currentLayout, cmdAny,
+    exportFile, packForComparison,
+    setCustomBack: u => { customBackUrl = u; }
   })`;
 
   const api = vm.runInNewContext(
@@ -213,6 +274,19 @@ export function loadLegacyApp(options: LegacyGenerateOptions): LegacyApp {
     currentCode: api.currentCode,
     currentLayout: api.currentLayout,
     cmdAny: api.cmdAny,
+    setControl(id, value) {
+      const el = getElementById(id) as any;
+      if (typeof value === "boolean") el.checked = value;
+      else el.value = value;
+    },
+    setExporter(exporter) {
+      (sandbox.window as { Exporter: unknown }).Exporter = exporter;
+    },
+    setCustomBack: api.setCustomBack,
+    exportFile: api.exportFile,
+    packForComparison: api.packForComparison,
+    exportStatusHistory: () => [...histories.exportStatus],
+    saves: () => [...saves],
     async run(): Promise<LegacyRun> {
       if (!clickHandler)
         throw new Error("generate.js did not register a click handler");

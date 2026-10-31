@@ -11,6 +11,7 @@ import { useGenerate } from "@/hooks/use-generate";
 import { usePacksStore } from "@/store/packs";
 
 import { DownloadTable } from "./download-table";
+import { EnhanceCompare } from "./enhance-compare";
 import { PackPreview } from "./pack-preview";
 
 export function GeneratePanel() {
@@ -37,6 +38,7 @@ export function GeneratePanel() {
         <>
           <DownloadTable />
           <PackPreview />
+          <EnhanceCompare />
         </>
       )}
     </div>

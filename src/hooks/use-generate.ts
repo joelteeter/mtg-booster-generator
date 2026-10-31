@@ -26,6 +26,7 @@ import {
   type BonusPicker,
   type TokenSeparatorPicker,
 } from "@/lib/generate";
+import { useExportStore } from "@/store/export";
 import { usePacksStore } from "@/store/packs";
 import {
   isCommanderAny,
@@ -64,6 +65,8 @@ export function useGenerate(): GenerateHandle {
     const rng = Math.random;
 
     begin(`⏳ Pulling data for ${setCode}...`);
+    // The old handler cleared `#exportStatus` here too.
+    useExportStore.getState().setStatus("");
     try {
       /*
        * The pools are fetched here rather than read off the panel, so pressing

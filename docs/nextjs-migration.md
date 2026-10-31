@@ -165,7 +165,7 @@ Each phase ends somewhere reviewable. Nothing is thrown away until the last one.
 | 2 | Scryfall client and pools, typed, with the queue and retry behaviour kept | **Done** (31 Oct 2026) |
 | 3 | UI shell: tabs, set picker, options, slot panel, vanilla diff | **Done** (31 Oct 2026) |
 | 4 | Generate, preview (including the flip), CSV, **plus the two simulators** | **Done** (31 Oct 2026). 2,036 tests; the generator is compared card for card |
-| 5 | Export pipeline: PDF, MTGProxyPrinter, AI enhance | **The risky one** — see below |
+| 5 | Export pipeline: PDF, MTGProxyPrinter, AI enhance | **Done** (31 Oct 2026). 2,200 tests; the PDFs and the save file come out byte-identical |
 | 6 | Parity sweep, then cut over and retire the old app | |
 
 ### Phase 5 is where this gets hard
@@ -695,30 +695,139 @@ Fifteen consecutive full runs clean.
 nothing sets the `dark` class, and the old app has no dark mode either. Still a
 decision to make on its own rather than inside a port.
 
-## Phase 5 notes, for whoever picks it up
+## Phase 5, done 31 October 2026
 
-The export pipeline: `js/export.js`, 496 lines, and the parts of
-`js/downloads.js` that drive it. See "Phase 5 is where this gets hard" above for
-the dependency problems; what phase 4 adds to that:
+The export pipeline: `js/export.js` and the half of `js/downloads.js` that
+drives it. `src/lib/export/`:
 
-* **The downloads table has only its CSV column.** The PDF fronts, PDF backs and
-  MTGProxyPrinter columns are absent rather than present and dead, as are the
-  export option controls above them (paper, bleed, quality, double-faced mode,
-  back flip, custom card back, "new page per pack", AI enhance). All of that
-  markup is still in the old `index.html` to port from.
-* **`js/export.js` requires cleanly in Node**, which is how phase 4 got the real
-  `isDfc`. So the layout maths — `layoutPages`, `expandFaces`, `placementsFor`
-  — can be parity-tested the easy way, with `createRequire` and no VM at all.
-  That is most of the file's logic and it is currently untested; do it before
-  touching the canvas work.
-* **`isDfc` is already ported**, as `isDoubleFacedToken` in
-  `lib/booster/tokens.ts` and re-exported as `isDfc` from `lib/generate`. The
-  old app defines the same predicate twice; do not add a third.
-* **The pack shape changed.** `lastPacks` entries were arrays with `godPack` and
-  `tokenSheet` hung on them as properties; a `GeneratedPack` is
-  `{ cards, godPack, tokenSheet }`. Anything ported from `downloads.js` or
-  `export.js` that iterates a pack wants `pack.cards`.
-* The canvas bleed-and-corner work is the part with no safety net. It is also
-  the part nobody can see is broken until they print a page, so it is worth
-  rendering a page to an image and comparing against the old app's output rather
-  than trusting a visual check.
+| File | What it is |
+|---|---|
+| `paper.ts` | The print geometry: 63×88 mm at 300 dpi, 3×3, Letter and A4 |
+| `layout.ts` | `layoutPages`, `expandFaces`, `imageUrl`, `cardBackUrl`, `placementsFor` — all pure |
+| `images.ts` | The canvas work, with the geometry (`cornerPatches`, `bleedDraws`, `averageColour`) split out as arithmetic |
+| `pdf.ts` | `buildPdf`, with pdf-lib and the image loader injectable |
+| `save-file.ts` | `buildSaveFile`, with sql.js injectable |
+| `schema-v7.ts` | MTGProxyPrinter's `document-v7.sql`, verbatim (a test asserts byte equality with the old copy) |
+| `enhance.ts` | The optional GPU upscaler |
+| `load-script.ts` | Loading a `window`-scoped script once |
+| `run.ts` | One download button: which packs, which options, the status line, the filename |
+
+`src/store/export.ts` holds the print settings, `src/hooks/use-export.ts`
+supplies `run.ts` with the three things the old handler read out of the DOM, and
+`export-options.tsx`, the three new columns in `download-table.tsx` and
+`enhance-compare.tsx` are the UI.
+
+### How it was compared
+
+`js/export.js` exports for CommonJS, so `tests/legacy-export.ts` needs no VM:
+a plain `require` gives the real functions. Both implementations then get the
+same pack entries and the same three doubles:
+
+* **`fakeImageLoader`** — deterministic bytes from the url, bleed and scale, so
+  both embed identical images and a wrong url shows up as a different digest.
+* **`recordingPdfLib`** — a stub pdf-lib that records every call. Comparing the
+  recordings pins the geometry exactly, with no PDF timestamps or compression
+  in the way. The old code reads `root.PDFLib` if it is set, which is the seam.
+* **`canvasRecorder`** — stub `document`, `fetch` and `createImageBitmap`, so
+  the corner-filling and bleed passes run in Node and are compared as canvas
+  calls. It can also install a stub TensorFlow.js and UpscalerJS, which is the
+  only way the enhanced path gets tested at all.
+
+`tests/export-parity.test.ts` sweeps 16 option combinations over nine packs
+built to hit every branch; `tests/export-run.test.ts` drives the old
+`exportFile` in the phase 4 VM harness with a recording exporter and compares
+the options object, the full status history, the filename and the MIME type.
+The save file is compared both as rows and as bytes — one `__SQL_FOR_TESTS`
+instance writes both, so the SQLite output is byte-identical.
+
+2,200 tests, up from 2,036. **43 mutations, 43 caught**; five escaped the first
+pass, all because the fixtures were too kind (an "upper-case" Scryfall id made
+only of digits; a settings recorder that counted packs instead of naming their
+cards; a comparison card decided by "not a land" before "not the separator"
+could matter). No mutation here is unobservable, unlike phase 4's `/Basic/`
+guard.
+
+### The check that actually settles it
+
+Rendering a page and eyeballing it was the plan's suggestion. It turned out a
+byte comparison was possible: run both apps in the same browser, build the same
+export from the same fourteen real Duskmourn cards, and hash the result. PDFs
+differ run to run only in their timestamps, so `Date` is frozen on both sides
+first.
+
+| File | Settings | Bytes | SHA-256 |
+|---|---|---|---|
+| Fronts PDF | Letter, 2 mm, PNG, separate | 3,278,706 | `542545b8…` |
+| Backs PDF | the same | 246,598 | `b442ad96…` |
+| `.mtgproxies` | the same | 7,680 | `f66d2c11…` |
+| Fronts PDF | A4, no bleed, fast, front-only, short edge, new page per pack | 2,795,093 | `31b4c499…` |
+| Backs PDF | the same | 200,533 | `af38463f…` |
+| `.mtgproxies` | the same | 7,680 | `f66d2c11…` |
+
+Identical in every case, old app and port: every embedded JPEG, every cut line,
+every crosshair, every clip rectangle. Also checked live: a user-supplied card
+back builds a backs PDF, choosing "my own image" without a file gives the old
+app's exact refusal, and the AI upscaler loads its three scripts from jsDelivr
+and finishes a card in 10.1 s — the old notes measured 10–11 s.
+
+### Dependencies
+
+* **pdf-lib 1.17.1** is now an npm dependency, dynamically imported, so a run
+  that only wants the CSV never downloads it. Same version the CDN served.
+* **sql.js 1.10.3** is an npm dependency but is *not* bundled: it is an
+  Emscripten build that reaches for Node's `fs` when Turbopack looks at it, and
+  it fetches its own `.wasm` at runtime. `scripts/copy-sql-wasm.mjs` copies
+  `sql-wasm.js` and `sql-wasm.wasm` into `public/` on install and before every
+  build, and `getSql()` loads the script from this site. Both files are
+  gitignored build outputs. The gain over the old app is that the one export
+  that is not optional no longer depends on a third-party CDN.
+* **UpscalerJS and TensorFlow.js stay on jsDelivr**, loaded only when the box
+  is ticked. Bundling tens of megabytes for a feature most runs never touch
+  would be the wrong trade; the plan allowed for this.
+
+### Changes made deliberately
+
+* **`cardBackUrl` lost its `card` parameter.** The old signature took a card and
+  ignored it on purpose — the standard back, never a card's own. Keeping a
+  parameter nothing reads invites someone to assume it matters.
+* **The downloads table lost a redundant scroll wrapper**, left over from phase
+  4: shadcn's `Table` already supplies an `overflow-x-auto` container, and
+  nesting two made the inner one behave oddly at phone width.
+* **Object URLs are made on click and revoked**, as in phase 4.
+
+### Things to know
+
+* **Row 0's status line counts token sheets as packs.** The table calls that row
+  "All 3 packs + 2 token sheets", and the status line that follows says "all 5
+  packs". That is the old wording, and a sheet really is another page in the
+  file, so it was left alone. `exportTarget` is where it lives.
+* **One branch in `placementsFor` cannot be reached through `buildPdf`.** The
+  `entry.face !== 1` guard only matters if pages expanded in "separate" mode are
+  placed in "front only" mode, which the app never does — but it is part of the
+  function's contract, so it is compared with the modes deliberately mismatched.
+* **`cardForComparison`'s "not the separator" test is likewise unreachable from
+  a generated pack**, because a pack always has a non-land card before its
+  separator. It is pinned by a direct test instead.
+* **`public/` is now excluded from eslint**, because sql.js's own minified
+  loader lives there.
+
+## Phase 6 notes, for whoever picks it up
+
+Everything the old app does is now ported. What is left:
+
+* **The parity sweep and the cut-over.** This branch's `netlify.toml` already
+  builds the Next app; `dev` still carries the old one that publishes the repo
+  root. The cut-over is getting this branch onto `main`. Remember that only
+  `main` triggers a production deploy and that production deploys cost credits
+  — see "Branch and deploys" — so that is the user's call to make, not a step
+  to take while tidying up.
+* **Then delete** `js/`, `css/`, `index.html`, `build.py` and `dist/`, and with
+  them the legacy harnesses (`tests/legacy*.ts`) and the tests that use
+  them: `parity`, `golden`, `explain`, `scryfall-*`, `generate-*`, `simulators`,
+  `export-parity`, `export-run`. That is most of the suite, and it is meant to
+  go: it exists to prove the port, not to test the app. Decide before deleting
+  which assertions are worth keeping as ordinary tests — the slot-spec golden
+  files and the `lib/booster` invariants are the obvious candidates.
+* **Two decisions are still open**: dark mode (shadcn ships the tokens, nothing
+  sets the class, the old app has none either), and whether to keep the old
+  app's URL working.

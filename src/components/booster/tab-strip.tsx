@@ -2,6 +2,7 @@
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOptionsStore, type Mode } from "@/store/options";
+import { useExportStore } from "@/store/export";
 import { usePacksStore } from "@/store/packs";
 
 const TABS: Array<{ value: Mode; label: string }> = [
@@ -25,6 +26,7 @@ export function TabStrip() {
   const mode = useOptionsStore((s) => s.mode);
   const setMode = useOptionsStore((s) => s.setMode);
   const resetPacks = usePacksStore((s) => s.reset);
+  const setExportStatus = useExportStore((s) => s.setStatus);
   /*
    * Changing tab drops the last run. The old app hid `#downloadContainer`,
    * which held the downloads table and the preview both, so the packs stayed
@@ -34,6 +36,7 @@ export function TabStrip() {
     if (value === mode) return;
     setMode(value as Mode);
     resetPacks();
+    setExportStatus("");
   };
   return (
     <Tabs value={mode} onValueChange={change}>
