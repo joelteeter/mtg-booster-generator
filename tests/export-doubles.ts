@@ -1,34 +1,22 @@
 /*
- * The old app's export pipeline, run in Node.
+ * Stand-ins for the three things the export pipeline needs and Node has not.
  *
- * `js/export.js` exports for CommonJS, so unlike the other parity harnesses
- * this one needs no VM and no concatenation: a plain `require` gives the real
- * functions. That is why the plan said to do the layout maths first — it is
- * most of the file, it decides whether a printed sheet is right, and it had no
- * tests at all.
- *
- * Three doubles make the rest comparable too, and both implementations are
- * given the same ones:
- *
- *   • `fakeImageLoader` — a deterministic stand-in for downloading and
- *     converting a card image, so the PDF is built from identical bytes.
+ *   • `fakeImageLoader` — a deterministic substitute for downloading and
+ *     converting a card image, so a PDF is built from predictable bytes.
  *   • `recordingPdfLib` — a stub pdf-lib that records every drawing call
- *     instead of writing a file. Comparing the recordings pins the geometry
+ *     instead of writing a file. Recording the calls pins the geometry
  *     exactly, with no PDF timestamps or compression in the way.
  *   • `canvasRecorder` — stub `document`, `fetch` and `createImageBitmap`, so
- *     the corner-filling and bleed passes can run outside a browser and be
- *     compared as canvas calls. This is the part the plan called the one with
- *     no safety net.
+ *     the corner-filling and bleed passes run outside a browser and can be
+ *     checked as canvas calls. This is the part the migration plan called the
+ *     one with no safety net; it is also why the golden file exists.
  *
- * Deleted with the old app in phase 6.
+ * These were written to run the old app and the port side by side. The old
+ * app is gone, but the doubles are what made its behaviour recordable, and
+ * they are what makes the recording comparable.
  */
-import { createRequire } from "node:module";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const require_ = createRequire(import.meta.url);
-
-/** The real `js/export.js`, as `index.html` loads it. */
-export const legacyExporter: any = require_("../js/export.js");
 
 /* ------------------------------------------------------------------ *
  * A deterministic image loader
@@ -91,11 +79,11 @@ export interface PdfRecorder {
 /**
  * Separates the plain black lines from everything else.
  *
- * They are the one place the port deliberately differs: the old app ruled cut
- * lines right across the page, and the port draws short crop marks at the four
- * outside corners instead. Everything else — the images, the clips, the
- * crosshairs, the pages — still has to match exactly, so the two are compared
- * apart. Crosshairs carry a blend mode; these do not.
+ * They are the one place the port deliberately left the old app behind: it
+ * ruled cut lines right across the page, and this draws short crop marks at
+ * the four outside corners instead. Everything else — the images, the clips,
+ * the crosshairs, the pages — was recorded and still has to match, so the two
+ * are kept apart. Crosshairs carry a blend mode; these do not.
  */
 export function splitCutGuides(calls: any[]): {
   guides: any[];

@@ -1,0 +1,128 @@
+# The Planechase and Archenemy simulators: the two configurations, the
+# planar die, the card predicates, the shuffle, and scripted runs step by
+# step.
+#
+# Recorded from js/simulators.js at commit d81f583, the last commit before
+# the old app was deleted. Every one of these was asserted equal to the
+# port's at that point, by tests/simulators.test.ts.
+#
+# Not regenerable: the implementation that produced them is gone.
+
+## SIMS
+archenemy.blurb = Shuffle every Scheme on Scryfall into one scheme deck. Each time you set a scheme in motion, the previous non-ongoing scheme goes to the bottom of the deck. Ongoing schemes stay in play until you abandon them.
+archenemy.drawLabel = 😈 Set a scheme in motion
+archenemy.landscape = false
+archenemy.noun = scheme
+archenemy.query = layout:scheme game:paper
+planechase.blurb = Shuffle every Plane on Scryfall — and every Phenomenon, unless you switch them off below — into one planar deck. Planeswalk to reveal the next plane; the plane you leave goes to the bottom of the deck. Roll the planar die on your turn; each extra roll in the same turn costs one more generic mana.
+planechase.drawLabel = 🌀 Planeswalk
+planechase.landscape = true
+planechase.noun = plane
+planechase.query = layout:planar game:paper
+
+## DIE
+[0].face = planeswalk
+[0].icon = 🌀
+[0].label = Planeswalk!
+[0].note = Planeswalk to the next plane.
+[1].face = chaos
+[1].icon = ✺
+[1].label = Chaos!
+[1].note = Trigger the current plane's chaos ability.
+[2].face = blank
+[2].icon = 
+[2].label = Blank
+[2].note = Nothing happens.
+[3].face = blank
+[3].icon = 
+[3].label = Blank
+[3].note = Nothing happens.
+[4].face = blank
+[4].icon = 
+[4].label = Blank
+[4].note = Nothing happens.
+[5].face = blank
+[5].icon = 
+[5].label = Blank
+[5].note = Nothing happens.
+
+## nextCostText
+"Next roll this turn: free"
+"Rolls this turn: 1 · next roll costs {1}"
+"Rolls this turn: 2 · next roll costs {2}"
+"Rolls this turn: 3 · next roll costs {3}"
+"Rolls this turn: 4 · next roll costs {4}"
+"Rolls this turn: 5 · next roll costs {5}"
+
+## predicates
+{"phenomenon":false,"ongoing":false,"small":"https://img/p1-s.jpg","large":"https://img/p1-l.jpg"}
+{"phenomenon":false,"ongoing":false,"small":"https://img/p2-s.jpg","large":"https://img/p2-l.jpg"}
+{"phenomenon":true,"ongoing":false,"small":"https://img/p3-s.jpg","large":"https://img/p3-l.jpg"}
+{"phenomenon":false,"ongoing":false,"small":"https://img/p4-s.jpg","large":"https://img/p4-l.jpg"}
+{"phenomenon":false,"ongoing":false,"small":"https://img/p5-s.jpg","large":"https://img/p5-l.jpg"}
+{"phenomenon":true,"ongoing":false,"small":"https://img/p6-s.jpg","large":"https://img/p6-l.jpg"}
+{"phenomenon":false,"ongoing":false,"small":"https://img/p7-s.jpg","large":"https://img/p7-l.jpg"}
+{"phenomenon":false,"ongoing":false,"small":"https://img/p8-s.jpg","large":"https://img/p8-l.jpg"}
+{"phenomenon":false,"ongoing":false,"small":"https://img/s1-s.jpg","large":"https://img/s1-l.jpg"}
+{"phenomenon":false,"ongoing":true,"small":"https://img/s2-s.jpg","large":"https://img/s2-l.jpg"}
+{"phenomenon":false,"ongoing":false,"small":"https://img/s3-s.jpg","large":"https://img/s3-l.jpg"}
+{"phenomenon":false,"ongoing":true,"small":"https://img/s4-s.jpg","large":"https://img/s4-l.jpg"}
+{"phenomenon":false,"ongoing":false,"small":"https://img/s5-s.jpg","large":"https://img/s5-l.jpg"}
+{"phenomenon":false,"ongoing":false,"small":"https://img/s6-s.jpg","large":"https://img/s6-l.jpg"}
+{"phenomenon":false,"ongoing":false,"small":"","large":""}
+{"phenomenon":false,"ongoing":false,"small":"a","large":"b"}
+{"phenomenon":false,"ongoing":false,"small":"card-s","large":"card-l"}
+
+## shuffle seed 99
+[0] = card-109
+[1] = card-112
+[2] = card-115
+[3] = card-108
+[4] = card-114
+[5] = card-111
+[6] = card-113
+[7] = card-110
+
+## script planeswalk
+{"deck":[],"current":null,"history":[],"ongoing":[],"rolls":0,"status":"8 planes available. Press Shuffle to build the deck."}
+{"deck":["card-112","card-114","card-109","card-110","card-111","card-113","card-115","card-108"],"current":null,"history":[],"ongoing":[],"rolls":0,"status":"🔀 Shuffled 8 planes into a new deck."}
+{"deck":["card-112","card-114","card-109","card-110","card-111","card-113","card-115","card-108"],"current":null,"history":[],"ongoing":[],"rolls":0,"status":"Deck ready: 8 planes. Planeswalk to reveal your starting plane."}
+{"deck":["card-114","card-109","card-110","card-111","card-113","card-115","card-108"],"current":"card-112","history":["card-112"],"ongoing":[],"rolls":0,"status":"7 planes left in the deck · 1 revealed so far"}
+{"deck":["card-109","card-110","card-111","card-113","card-115","card-108","card-112"],"current":"card-114","history":["card-114","card-112"],"ongoing":[],"rolls":0,"status":"7 planes left in the deck · 2 revealed so far"}
+{"deck":["card-109","card-110","card-111","card-113","card-115","card-108","card-112"],"current":"card-114","history":["card-114","card-112"],"ongoing":[],"rolls":0,"status":"New turn: your next planar die roll is free."}
+{"deck":["card-110","card-111","card-113","card-115","card-108","card-112","card-114"],"current":"card-109","history":["card-109","card-114","card-112"],"ongoing":[],"rolls":0,"status":"7 planes left in the deck · 3 revealed so far"}
+{"deck":["card-111","card-113","card-115","card-108","card-112","card-114","card-109"],"current":"card-110","history":["card-110","card-109","card-114","card-112"],"ongoing":[],"rolls":0,"status":"7 planes left in the deck · 4 revealed so far"}
+{"deck":["card-114","card-113","card-110","card-108","card-115","card-112","card-111","card-109"],"current":null,"history":[],"ongoing":[],"rolls":0,"status":"🔀 Shuffled 8 planes into a new deck."}
+{"deck":["card-113","card-110","card-108","card-115","card-112","card-111","card-109"],"current":"card-114","history":["card-114"],"ongoing":[],"rolls":0,"status":"7 planes left in the deck · 1 revealed so far"}
+
+## script phenomena off
+{"deck":[],"current":null,"history":[],"ongoing":[],"rolls":0,"status":"8 planes available. Press Shuffle to build the deck."}
+{"deck":[],"current":null,"history":[],"ongoing":[],"rolls":0,"status":"8 planes available. Press Shuffle to build the deck."}
+{"deck":["card-114","card-109","card-111","card-112","card-115","card-108"],"current":null,"history":[],"ongoing":[],"rolls":0,"status":"🔀 Shuffled 6 planes into a new deck."}
+{"deck":["card-109","card-111","card-112","card-115","card-108"],"current":"card-114","history":["card-114"],"ongoing":[],"rolls":0,"status":"5 planes left in the deck · 1 revealed so far"}
+{"deck":["card-111","card-112","card-115","card-108","card-114"],"current":"card-109","history":["card-109","card-114"],"ongoing":[],"rolls":0,"status":"5 planes left in the deck · 2 revealed so far"}
+{"deck":["card-112","card-115","card-108","card-114","card-109"],"current":"card-111","history":["card-111","card-109","card-114"],"ongoing":[],"rolls":0,"status":"5 planes left in the deck · 3 revealed so far"}
+{"deck":["card-115","card-108","card-114","card-109","card-111"],"current":"card-112","history":["card-112","card-111","card-109","card-114"],"ongoing":[],"rolls":0,"status":"5 planes left in the deck · 4 revealed so far"}
+{"deck":["card-108","card-114","card-109","card-111","card-112"],"current":"card-115","history":["card-115","card-112","card-111","card-109","card-114"],"ongoing":[],"rolls":0,"status":"5 planes left in the deck · 5 revealed so far"}
+{"deck":["card-114","card-109","card-111","card-112","card-115"],"current":"card-108","history":["card-108","card-115","card-112","card-111","card-109","card-114"],"ongoing":[],"rolls":0,"status":"5 planes left in the deck · 6 revealed so far"}
+
+## script ongoing
+{"deck":[],"current":null,"history":[],"ongoing":[],"rolls":0,"status":"6 schemes available. Press Shuffle to build the deck."}
+{"deck":["card-120","card-117","card-118","card-119","card-121","card-116"],"current":null,"history":[],"ongoing":[],"rolls":0,"status":"🔀 Shuffled 6 schemes into a new deck."}
+{"deck":["card-117","card-118","card-119","card-121","card-116"],"current":"card-120","history":["card-120"],"ongoing":[],"rolls":0,"status":"5 schemes left in the deck · 1 revealed so far"}
+{"deck":["card-118","card-119","card-121","card-116","card-120"],"current":"card-117","history":["card-117","card-120"],"ongoing":["card-117"],"rolls":0,"status":"5 schemes left in the deck · 2 revealed so far"}
+{"deck":["card-119","card-121","card-116","card-120"],"current":"card-118","history":["card-118","card-117","card-120"],"ongoing":["card-117"],"rolls":0,"status":"4 schemes left in the deck · 3 revealed so far"}
+{"deck":["card-121","card-116","card-120","card-118"],"current":"card-119","history":["card-119","card-118","card-117","card-120"],"ongoing":["card-117","card-119"],"rolls":0,"status":"4 schemes left in the deck · 4 revealed so far"}
+{"deck":["card-116","card-120","card-118"],"current":"card-121","history":["card-121","card-119","card-118","card-117","card-120"],"ongoing":["card-117","card-119"],"rolls":0,"status":"3 schemes left in the deck · 5 revealed so far"}
+{"deck":["card-120","card-118","card-121"],"current":"card-116","history":["card-116","card-121","card-119","card-118","card-117","card-120"],"ongoing":["card-117","card-119"],"rolls":0,"status":"3 schemes left in the deck · 6 revealed so far"}
+{"deck":["card-120","card-118","card-121","card-117"],"current":"card-116","history":["card-116","card-121","card-119","card-118","card-117","card-120"],"ongoing":["card-119"],"rolls":0,"status":"Abandoned Scheme 2; it goes to the bottom of the scheme deck."}
+{"deck":["card-118","card-121","card-117","card-116"],"current":"card-120","history":["card-120","card-116","card-121","card-119","card-118","card-117","card-120"],"ongoing":["card-119"],"rolls":0,"status":"4 schemes left in the deck · 7 revealed so far"}
+{"deck":["card-118","card-121","card-117","card-116","card-119"],"current":"card-120","history":["card-120","card-116","card-121","card-119","card-118","card-117","card-120"],"ongoing":[],"rolls":0,"status":"Abandoned Scheme 4; it goes to the bottom of the scheme deck."}
+{"deck":["card-121","card-117","card-116","card-119","card-120"],"current":"card-118","history":["card-118","card-120","card-116","card-121","card-119","card-118","card-117","card-120"],"ongoing":[],"rolls":0,"status":"5 schemes left in the deck · 8 revealed so far"}
+
+## all ongoing
+ongoing[0] = card-123
+ongoing[1] = card-124
+onlyOngoingIds[0] = card-123
+onlyOngoingIds[1] = card-124
+status = The deck is empty: every scheme is ongoing. Abandon one to continue.

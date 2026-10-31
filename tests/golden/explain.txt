@@ -1,0 +1,2482 @@
+# The slot-panel wording: percentages, rarity classes, foil text, the
+# special-outcome tags, the vanilla-difference collapsing and the option
+# attribution.
+#
+# Recorded from js/ui.js at commit d81f583, the last commit before the old
+# app was deleted. Every one of these was asserted equal to the port's at
+# that point, by tests/explain.test.ts.
+#
+# Not regenerable: the implementation that produced them is gone.
+
+## pct
+""
+"0.0%"
+"100%"
+"50.0%"
+"100%"
+"99.9%"
+"99.9%"
+"<0.1%"
+"<0.1%"
+"0.1%"
+"1.6%"
+"16.7%"
+"83.3%"
+"14.3%"
+"18.0%"
+"67.0%"
+"1.5%"
+"<0.1%"
+"12.3%"
+
+## rarityClass
+"r-common"
+"r-uncommon"
+"r-rare"
+"r-mythic"
+"r-land"
+"r-land"
+"r-land"
+"r-special"
+"r-special"
+"r-uncommon"
+"r-rare"
+"r-mythic"
+"r-uncommon"
+"r-rare"
+"r-special"
+"r-special"
+
+## foilWord
+"non-foil"
+"always foil"
+"20.0% foil"
+"foil-etched"
+"non-foil"
+
+## foilText play dsk true x1
+## foilText play dsk true x2
+## foilText play dsk true x3
+## foilText play dsk true x4
+## foilText play dsk true x5
+## foilText play commanderBorrowed true x1
+## foilText play commanderBorrowed true x2
+## foilText play commanderBorrowed true x3
+## foilText play commanderBorrowed true x4
+## foilText play commanderBorrowed true x5
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"20.0% traditional foil"
+"Non-foil"
+"11.8% traditional foil"
+
+## specialText play dsk true x1
+## specialText play dsk true x2
+## specialText play dsk true x3
+## specialText play dsk true x4
+## specialText play dsk true x5
+## specialText play lopsided true x1
+## specialText play lopsided true x2
+## specialText play lopsided true x3
+## specialText play lopsided true x4
+## specialText play lopsided true x5
+## specialText play noMythics true x1
+## specialText play noMythics true x2
+## specialText play noMythics true x3
+## specialText play noMythics true x4
+## specialText play noMythics true x5
+## specialText play noRares true x1
+## specialText play noRares true x2
+## specialText play noRares true x3
+## specialText play noRares true x4
+## specialText play noRares true x5
+## specialText play null (still loading) true x1
+## specialText play null (still loading) true x2
+## specialText play null (still loading) true x3
+## specialText play null (still loading) true x4
+## specialText play null (still loading) true x5
+"<span class=\"muted\">—</span>"
+"The List <b>10.9%</b><br>Special Guest <b>1.6%</b>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+
+## foilText cmr dsk true x1
+## foilText clb dsk true x1
+## foilText cmr dsk true x2
+## foilText clb dsk true x2
+## foilText cmr dsk true x3
+## foilText clb dsk true x3
+## foilText cmr dsk true x4
+## foilText clb dsk true x4
+## foilText cmr dsk true x5
+## foilText clb dsk true x5
+## foilText cmr dsk false x1
+## foilText clb dsk false x1
+## foilText cmr dsk false x2
+## foilText clb dsk false x2
+## foilText cmr dsk false x3
+## foilText clb dsk false x3
+## foilText cmr dsk false x4
+## foilText clb dsk false x4
+## foilText cmr dsk false x5
+## foilText clb dsk false x5
+## foilText cmr lopsided true x1
+## foilText clb lopsided true x1
+## foilText cmr lopsided true x2
+## foilText clb lopsided true x2
+## foilText cmr lopsided true x3
+## foilText clb lopsided true x3
+## foilText cmr lopsided true x4
+## foilText clb lopsided true x4
+## foilText cmr lopsided true x5
+## foilText clb lopsided true x5
+## foilText cmr lopsided false x1
+## foilText clb lopsided false x1
+## foilText cmr lopsided false x2
+## foilText clb lopsided false x2
+## foilText cmr lopsided false x3
+## foilText clb lopsided false x3
+## foilText cmr lopsided false x4
+## foilText clb lopsided false x4
+## foilText cmr lopsided false x5
+## foilText clb lopsided false x5
+## foilText cmr noMythics true x1
+## foilText clb noMythics true x1
+## foilText cmr noMythics true x2
+## foilText clb noMythics true x2
+## foilText cmr noMythics true x3
+## foilText clb noMythics true x3
+## foilText cmr noMythics true x4
+## foilText clb noMythics true x4
+## foilText cmr noMythics true x5
+## foilText clb noMythics true x5
+## foilText cmr noMythics false x1
+## foilText clb noMythics false x1
+## foilText cmr noMythics false x2
+## foilText clb noMythics false x2
+## foilText cmr noMythics false x3
+## foilText clb noMythics false x3
+## foilText cmr noMythics false x4
+## foilText clb noMythics false x4
+## foilText cmr noMythics false x5
+## foilText clb noMythics false x5
+## foilText cmr noRares true x1
+## foilText clb noRares true x1
+## foilText cmr noRares true x2
+## foilText clb noRares true x2
+## foilText cmr noRares true x3
+## foilText clb noRares true x3
+## foilText cmr noRares true x4
+## foilText clb noRares true x4
+## foilText cmr noRares true x5
+## foilText clb noRares true x5
+## foilText cmr noRares false x1
+## foilText clb noRares false x1
+## foilText cmr noRares false x2
+## foilText clb noRares false x2
+## foilText cmr noRares false x3
+## foilText clb noRares false x3
+## foilText cmr noRares false x4
+## foilText clb noRares false x4
+## foilText cmr noRares false x5
+## foilText clb noRares false x5
+## foilText cmr sparse true x1
+## foilText clb sparse true x1
+## foilText cmr sparse true x2
+## foilText clb sparse true x2
+## foilText cmr sparse true x3
+## foilText clb sparse true x3
+## foilText cmr sparse true x4
+## foilText clb sparse true x4
+## foilText cmr sparse true x5
+## foilText clb sparse true x5
+## foilText cmr sparse false x1
+## foilText clb sparse false x1
+## foilText cmr sparse false x2
+## foilText clb sparse false x2
+## foilText cmr sparse false x3
+## foilText clb sparse false x3
+## foilText cmr sparse false x4
+## foilText clb sparse false x4
+## foilText cmr sparse false x5
+## foilText clb sparse false x5
+## foilText cmr empty true x1
+## foilText clb empty true x1
+## foilText cmr empty true x2
+## foilText clb empty true x2
+## foilText cmr empty true x3
+## foilText clb empty true x3
+## foilText cmr empty true x4
+## foilText clb empty true x4
+## foilText cmr empty true x5
+## foilText clb empty true x5
+## foilText cmr empty false x1
+## foilText clb empty false x1
+## foilText cmr empty false x2
+## foilText clb empty false x2
+## foilText cmr empty false x3
+## foilText clb empty false x3
+## foilText cmr empty false x4
+## foilText clb empty false x4
+## foilText cmr empty false x5
+## foilText clb empty false x5
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+
+## specialText cmr dsk true x1
+## specialText clb dsk true x1
+## specialText cmr dsk true x2
+## specialText clb dsk true x2
+## specialText cmr dsk true x3
+## specialText clb dsk true x3
+## specialText cmr dsk true x4
+## specialText clb dsk true x4
+## specialText cmr dsk true x5
+## specialText clb dsk true x5
+## specialText cmr dsk false x1
+## specialText clb dsk false x1
+## specialText cmr dsk false x2
+## specialText clb dsk false x2
+## specialText cmr dsk false x3
+## specialText clb dsk false x3
+## specialText cmr dsk false x4
+## specialText clb dsk false x4
+## specialText cmr dsk false x5
+## specialText clb dsk false x5
+## specialText cmr lopsided true x1
+## specialText clb lopsided true x1
+## specialText cmr lopsided true x2
+## specialText clb lopsided true x2
+## specialText cmr lopsided true x3
+## specialText clb lopsided true x3
+## specialText cmr lopsided true x4
+## specialText clb lopsided true x4
+## specialText cmr lopsided true x5
+## specialText clb lopsided true x5
+## specialText cmr lopsided false x1
+## specialText clb lopsided false x1
+## specialText cmr lopsided false x2
+## specialText clb lopsided false x2
+## specialText cmr lopsided false x3
+## specialText clb lopsided false x3
+## specialText cmr lopsided false x4
+## specialText clb lopsided false x4
+## specialText cmr lopsided false x5
+## specialText clb lopsided false x5
+## specialText cmr noMythics true x1
+## specialText clb noMythics true x1
+## specialText cmr noMythics true x2
+## specialText clb noMythics true x2
+## specialText cmr noMythics true x3
+## specialText clb noMythics true x3
+## specialText cmr noMythics true x4
+## specialText clb noMythics true x4
+## specialText cmr noMythics true x5
+## specialText clb noMythics true x5
+## specialText cmr noMythics false x1
+## specialText clb noMythics false x1
+## specialText cmr noMythics false x2
+## specialText clb noMythics false x2
+## specialText cmr noMythics false x3
+## specialText clb noMythics false x3
+## specialText cmr noMythics false x4
+## specialText clb noMythics false x4
+## specialText cmr noMythics false x5
+## specialText clb noMythics false x5
+## specialText cmr noRares true x1
+## specialText clb noRares true x1
+## specialText cmr noRares true x2
+## specialText clb noRares true x2
+## specialText cmr noRares true x3
+## specialText clb noRares true x3
+## specialText cmr noRares true x4
+## specialText clb noRares true x4
+## specialText cmr noRares true x5
+## specialText clb noRares true x5
+## specialText cmr noRares false x1
+## specialText clb noRares false x1
+## specialText cmr noRares false x2
+## specialText clb noRares false x2
+## specialText cmr noRares false x3
+## specialText clb noRares false x3
+## specialText cmr noRares false x4
+## specialText clb noRares false x4
+## specialText cmr noRares false x5
+## specialText clb noRares false x5
+## specialText cmr sparse true x1
+## specialText clb sparse true x1
+## specialText cmr sparse true x2
+## specialText clb sparse true x2
+## specialText cmr sparse true x3
+## specialText clb sparse true x3
+## specialText cmr sparse true x4
+## specialText clb sparse true x4
+## specialText cmr sparse true x5
+## specialText clb sparse true x5
+## specialText cmr sparse false x1
+## specialText clb sparse false x1
+## specialText cmr sparse false x2
+## specialText clb sparse false x2
+## specialText cmr sparse false x3
+## specialText clb sparse false x3
+## specialText cmr sparse false x4
+## specialText clb sparse false x4
+## specialText cmr sparse false x5
+## specialText clb sparse false x5
+## specialText cmr empty true x1
+## specialText clb empty true x1
+## specialText cmr empty true x2
+## specialText clb empty true x2
+## specialText cmr empty true x3
+## specialText clb empty true x3
+## specialText cmr empty true x4
+## specialText clb empty true x4
+## specialText cmr empty true x5
+## specialText clb empty true x5
+## specialText cmr empty false x1
+## specialText clb empty false x1
+## specialText cmr empty false x2
+## specialText clb empty false x2
+## specialText cmr empty false x3
+## specialText clb empty false x3
+## specialText cmr empty false x4
+## specialText clb empty false x4
+## specialText cmr empty false x5
+## specialText clb empty false x5
+## specialText clb commanderFull true x1
+## specialText clb commanderFull true x2
+## specialText clb commanderFull true x3
+## specialText clb commanderFull true x4
+## specialText clb commanderFull true x5
+## specialText clb commanderFull false x1
+## specialText clb commanderFull false x2
+## specialText clb commanderFull false x3
+## specialText clb commanderFull false x4
+## specialText clb commanderFull false x5
+## specialText cmr commanderBorrowed true x1
+## specialText clb commanderBorrowed true x1
+## specialText cmr commanderBorrowed true x2
+## specialText clb commanderBorrowed true x2
+## specialText cmr commanderBorrowed true x3
+## specialText clb commanderBorrowed true x3
+## specialText cmr commanderBorrowed true x4
+## specialText clb commanderBorrowed true x4
+## specialText cmr commanderBorrowed true x5
+## specialText clb commanderBorrowed true x5
+## specialText cmr commanderBorrowed false x1
+## specialText clb commanderBorrowed false x1
+## specialText cmr commanderBorrowed false x2
+## specialText clb commanderBorrowed false x2
+## specialText cmr commanderBorrowed false x3
+## specialText clb commanderBorrowed false x3
+## specialText cmr commanderBorrowed false x4
+## specialText clb commanderBorrowed false x4
+## specialText cmr commanderBorrowed false x5
+## specialText clb commanderBorrowed false x5
+## specialText clb null (still loading) true x1
+## specialText clb null (still loading) true x2
+## specialText clb null (still loading) true x3
+## specialText clb null (still loading) true x4
+## specialText clb null (still loading) true x5
+## specialText clb null (still loading) false x1
+## specialText clb null (still loading) false x2
+## specialText clb null (still loading) false x3
+## specialText clb null (still loading) false x4
+## specialText clb null (still loading) false x5
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+
+## foilText cmm dsk true x1
+## foilText cmm dsk true x2
+## foilText cmm dsk true x3
+## foilText cmm dsk true x4
+## foilText cmm dsk true x5
+## foilText cmm dsk false x1
+## foilText cmm dsk false x2
+## foilText cmm dsk false x3
+## foilText cmm dsk false x4
+## foilText cmm dsk false x5
+## foilText cmm lopsided true x1
+## foilText cmm lopsided true x2
+## foilText cmm lopsided true x3
+## foilText cmm lopsided true x4
+## foilText cmm lopsided true x5
+## foilText cmm lopsided false x1
+## foilText cmm lopsided false x2
+## foilText cmm lopsided false x3
+## foilText cmm lopsided false x4
+## foilText cmm lopsided false x5
+## foilText cmm noMythics true x1
+## foilText cmm noMythics true x2
+## foilText cmm noMythics true x3
+## foilText cmm noMythics true x4
+## foilText cmm noMythics true x5
+## foilText cmm noMythics false x1
+## foilText cmm noMythics false x2
+## foilText cmm noMythics false x3
+## foilText cmm noMythics false x4
+## foilText cmm noMythics false x5
+## foilText cmm noRares true x1
+## foilText cmm noRares true x2
+## foilText cmm noRares true x3
+## foilText cmm noRares true x4
+## foilText cmm noRares true x5
+## foilText cmm noRares false x1
+## foilText cmm noRares false x2
+## foilText cmm noRares false x3
+## foilText cmm noRares false x4
+## foilText cmm noRares false x5
+## foilText cmm sparse true x1
+## foilText cmm sparse true x2
+## foilText cmm sparse true x3
+## foilText cmm sparse true x4
+## foilText cmm sparse true x5
+## foilText cmm sparse false x1
+## foilText cmm sparse false x2
+## foilText cmm sparse false x3
+## foilText cmm sparse false x4
+## foilText cmm sparse false x5
+## foilText cmm empty true x1
+## foilText cmm empty true x2
+## foilText cmm empty true x3
+## foilText cmm empty true x4
+## foilText cmm empty true x5
+## foilText play empty false x1
+## foilText cmm empty false x1
+## foilText play empty false x2
+## foilText cmm empty false x2
+## foilText play empty false x3
+## foilText cmm empty false x3
+## foilText play empty false x4
+## foilText cmm empty false x4
+## foilText play empty false x5
+## foilText cmm empty false x5
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+
+## specialText cmm dsk true x1
+## specialText cmm dsk true x2
+## specialText cmm dsk true x3
+## specialText cmm dsk true x4
+## specialText cmm dsk true x5
+## specialText cmm dsk false x1
+## specialText cmm dsk false x2
+## specialText cmm dsk false x3
+## specialText cmm dsk false x4
+## specialText cmm dsk false x5
+## specialText cmm lopsided true x1
+## specialText cmm lopsided true x2
+## specialText cmm lopsided true x3
+## specialText cmm lopsided true x4
+## specialText cmm lopsided true x5
+## specialText cmm lopsided false x1
+## specialText cmm lopsided false x2
+## specialText cmm lopsided false x3
+## specialText cmm lopsided false x4
+## specialText cmm lopsided false x5
+## specialText cmm noMythics true x1
+## specialText cmm noMythics true x2
+## specialText cmm noMythics true x3
+## specialText cmm noMythics true x4
+## specialText cmm noMythics true x5
+## specialText cmm noMythics false x1
+## specialText cmm noMythics false x2
+## specialText cmm noMythics false x3
+## specialText cmm noMythics false x4
+## specialText cmm noMythics false x5
+## specialText cmm noRares true x1
+## specialText cmm noRares true x2
+## specialText cmm noRares true x3
+## specialText cmm noRares true x4
+## specialText cmm noRares true x5
+## specialText cmm noRares false x1
+## specialText cmm noRares false x2
+## specialText cmm noRares false x3
+## specialText cmm noRares false x4
+## specialText cmm noRares false x5
+## specialText cmm sparse true x1
+## specialText cmm sparse true x2
+## specialText cmm sparse true x3
+## specialText cmm sparse true x4
+## specialText cmm sparse true x5
+## specialText cmm sparse false x1
+## specialText cmm sparse false x2
+## specialText cmm sparse false x3
+## specialText cmm sparse false x4
+## specialText cmm sparse false x5
+## specialText cmm empty true x1
+## specialText cmm empty true x2
+## specialText cmm empty true x3
+## specialText cmm empty true x4
+## specialText cmm empty true x5
+## specialText cmm empty false x1
+## specialText cmm empty false x2
+## specialText cmm empty false x3
+## specialText cmm empty false x4
+## specialText cmm empty false x5
+## specialText cmm commanderBorrowed true x1
+## specialText cmm commanderBorrowed true x2
+## specialText cmm commanderBorrowed true x3
+## specialText cmm commanderBorrowed true x4
+## specialText cmm commanderBorrowed true x5
+## specialText cmm commanderBorrowed false x1
+## specialText cmm commanderBorrowed false x2
+## specialText cmm commanderBorrowed false x3
+## specialText cmm commanderBorrowed false x4
+## specialText cmm commanderBorrowed false x5
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+
+## foilText play dsk false x1
+## foilText play dsk false x2
+## foilText play dsk false x3
+## foilText play dsk false x4
+## foilText play dsk false x5
+## foilText play lopsided false x1
+## foilText play lopsided false x2
+## foilText play lopsided false x3
+## foilText play lopsided false x4
+## foilText play lopsided false x5
+## foilText play noMythics false x1
+## foilText play noMythics false x2
+## foilText play noMythics false x3
+## foilText play noMythics false x4
+## foilText play noMythics false x5
+## foilText play noRares false x1
+## foilText play noRares false x2
+## foilText play noRares false x3
+## foilText play noRares false x4
+## foilText play noRares false x5
+## foilText play sparse false x1
+## foilText play sparse false x2
+## foilText play sparse false x3
+## foilText play sparse false x4
+## foilText play sparse false x5
+## foilText cmm commanderFull true x1
+## foilText cmm commanderFull true x2
+## foilText cmm commanderFull true x3
+## foilText cmm commanderFull true x4
+## foilText cmm commanderFull true x5
+## foilText play commanderFull false x1
+## foilText cmm commanderFull false x1
+## foilText play commanderFull false x2
+## foilText cmm commanderFull false x2
+## foilText play commanderFull false x3
+## foilText cmm commanderFull false x3
+## foilText play commanderFull false x4
+## foilText cmm commanderFull false x4
+## foilText play commanderFull false x5
+## foilText cmm commanderFull false x5
+## foilText cmm commanderBorrowed true x1
+## foilText cmm commanderBorrowed true x2
+## foilText cmm commanderBorrowed true x3
+## foilText cmm commanderBorrowed true x4
+## foilText cmm commanderBorrowed true x5
+## foilText play commanderBorrowed false x1
+## foilText cmm commanderBorrowed false x1
+## foilText play commanderBorrowed false x2
+## foilText cmm commanderBorrowed false x2
+## foilText play commanderBorrowed false x3
+## foilText cmm commanderBorrowed false x3
+## foilText play commanderBorrowed false x4
+## foilText cmm commanderBorrowed false x4
+## foilText play commanderBorrowed false x5
+## foilText cmm commanderBorrowed false x5
+## foilText cmm null (still loading) true x1
+## foilText cmm null (still loading) true x2
+## foilText cmm null (still loading) true x3
+## foilText cmm null (still loading) true x4
+## foilText cmm null (still loading) true x5
+## foilText play null (still loading) false x1
+## foilText cmm null (still loading) false x1
+## foilText play null (still loading) false x2
+## foilText cmm null (still loading) false x2
+## foilText play null (still loading) false x3
+## foilText cmm null (still loading) false x3
+## foilText play null (still loading) false x4
+## foilText cmm null (still loading) false x4
+## foilText play null (still loading) false x5
+## foilText cmm null (still loading) false x5
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Always (traditional foil)"
+
+## specialText play dsk false x1
+## specialText play lopsided false x1
+## specialText play noMythics false x1
+## specialText play noRares false x1
+## specialText play null (still loading) false x1
+"<span class=\"muted\">—</span>"
+"The List <b>12.5%</b><br>Special Guest <b>1.5%</b>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+
+## specialText play dsk false x2
+## specialText play lopsided false x2
+## specialText play noMythics false x2
+## specialText play noRares false x2
+## specialText play null (still loading) false x2
+"<span class=\"muted\">—</span>"
+"The List <b>25.0%</b><br>Special Guest <b>3.0%</b>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+
+## specialText play dsk false x3
+## specialText play lopsided false x3
+## specialText play noMythics false x3
+## specialText play noRares false x3
+## specialText play null (still loading) false x3
+"<span class=\"muted\">—</span>"
+"The List <b>37.5%</b><br>Special Guest <b>4.5%</b>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+
+## specialText play dsk false x4
+## specialText play lopsided false x4
+## specialText play noMythics false x4
+## specialText play noRares false x4
+## specialText play null (still loading) false x4
+"<span class=\"muted\">—</span>"
+"The List <b>50.0%</b><br>Special Guest <b>6.0%</b>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+
+## specialText play dsk false x5
+## specialText play lopsided false x5
+## specialText play noMythics false x5
+## specialText play noRares false x5
+## specialText play null (still loading) false x5
+"<span class=\"muted\">—</span>"
+"The List <b>62.5%</b><br>Special Guest <b>7.5%</b>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+
+## foilText play lopsided true x1
+## foilText play lopsided true x2
+## foilText play lopsided true x3
+## foilText play lopsided true x4
+## foilText play lopsided true x5
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"20.0% traditional foil"
+"Non-foil"
+"4.3% traditional foil"
+
+## foilText play noMythics true x1
+## foilText play noMythics true x2
+## foilText play noMythics true x3
+## foilText play noMythics true x4
+## foilText play noMythics true x5
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"20.0% traditional foil"
+"Non-foil"
+"6.4% traditional foil"
+
+## foilText play noRares true x1
+## foilText play noRares true x2
+## foilText play noRares true x3
+## foilText play noRares true x4
+## foilText play noRares true x5
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"20.0% traditional foil"
+"Non-foil"
+"2.0% traditional foil"
+
+## foilText play sparse true x1
+## foilText play sparse true x2
+## foilText play sparse true x3
+## foilText play sparse true x4
+## foilText play sparse true x5
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"20.0% traditional foil"
+"Non-foil"
+"7.6% traditional foil"
+
+## specialText play sparse true x1
+## specialText play sparse true x2
+## specialText play sparse true x3
+## specialText play sparse true x4
+## specialText play sparse true x5
+## specialText play commanderFull true x1
+## specialText play commanderFull true x2
+## specialText play commanderFull true x3
+## specialText play commanderFull true x4
+## specialText play commanderFull true x5
+## specialText play commanderBorrowed true x1
+## specialText play commanderBorrowed true x2
+## specialText play commanderBorrowed true x3
+## specialText play commanderBorrowed true x4
+## specialText play commanderBorrowed true x5
+"<span class=\"muted\">—</span>"
+"The List <b>11.1%</b>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+
+## specialText play sparse false x1
+## specialText play commanderFull false x1
+## specialText play commanderBorrowed false x1
+"<span class=\"muted\">—</span>"
+"The List <b>12.7%</b>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+
+## specialText play sparse false x2
+## specialText play commanderFull false x2
+## specialText play commanderBorrowed false x2
+"<span class=\"muted\">—</span>"
+"The List <b>25.8%</b>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+
+## specialText play sparse false x3
+## specialText play commanderFull false x3
+## specialText play commanderBorrowed false x3
+"<span class=\"muted\">—</span>"
+"The List <b>39.3%</b>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+
+## specialText play sparse false x4
+## specialText play commanderFull false x4
+## specialText play commanderBorrowed false x4
+"<span class=\"muted\">—</span>"
+"The List <b>53.2%</b>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+
+## specialText play sparse false x5
+## specialText play commanderFull false x5
+## specialText play commanderBorrowed false x5
+"<span class=\"muted\">—</span>"
+"The List <b>67.6%</b>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+
+## foilText play empty true x1
+## foilText play empty true x2
+## foilText play empty true x3
+## foilText play empty true x4
+## foilText play empty true x5
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+
+## specialText play empty true x1
+## specialText play empty true x2
+## specialText play empty true x3
+## specialText play empty true x4
+## specialText play empty true x5
+"<span class=\"muted\">—</span>"
+"The List <b>100%</b>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+
+## specialText play empty false x1
+## specialText play empty false x2
+## specialText play empty false x3
+## specialText play empty false x4
+## specialText play empty false x5
+"<span class=\"muted\">—</span>"
+"The List <b>100%</b>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+
+## foilText play commanderFull true x1
+## foilText play commanderFull true x2
+## foilText play commanderFull true x3
+## foilText play commanderFull true x4
+## foilText play commanderFull true x5
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"20.0% traditional foil"
+"Non-foil"
+"8.1% traditional foil"
+
+## foilText cmr commanderFull true x1
+## foilText cmr commanderFull true x2
+## foilText cmr commanderFull true x3
+## foilText cmr commanderFull true x4
+## foilText cmr commanderFull true x5
+## foilText cmr commanderFull false x1
+## foilText cmr commanderBorrowed true x1
+## foilText cmr commanderBorrowed true x2
+## foilText cmr commanderBorrowed true x3
+## foilText cmr commanderBorrowed true x4
+## foilText cmr commanderBorrowed true x5
+## foilText cmr commanderBorrowed false x1
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"6.7% foil-etched · 93.3% traditional foil"
+
+## specialText cmr commanderFull true x1
+## specialText cmr commanderFull true x2
+## specialText cmr commanderFull true x3
+## specialText cmr commanderFull true x4
+## specialText cmr commanderFull true x5
+## specialText cmr commanderFull false x1
+## specialText cmr commanderFull false x2
+## specialText cmr commanderFull false x3
+## specialText cmr commanderFull false x4
+## specialText cmr commanderFull false x5
+## specialText cmr null (still loading) true x1
+## specialText cmr null (still loading) true x2
+## specialText cmr null (still loading) true x3
+## specialText cmr null (still loading) true x4
+## specialText cmr null (still loading) true x5
+## specialText cmr null (still loading) false x1
+## specialText cmr null (still loading) false x2
+## specialText cmr null (still loading) false x3
+## specialText cmr null (still loading) false x4
+## specialText cmr null (still loading) false x5
+"<span class=\"muted\">—</span>"
+"Prismatic Piper <b>16.7%</b>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+
+## foilText clb commanderFull true x1
+## foilText clb commanderFull true x2
+## foilText clb commanderFull true x3
+## foilText clb commanderFull true x4
+## foilText clb commanderFull true x5
+## foilText clb commanderFull false x1
+## foilText clb commanderFull false x2
+## foilText clb commanderFull false x3
+## foilText clb commanderFull false x4
+## foilText clb commanderFull false x5
+## foilText clb commanderBorrowed true x1
+## foilText clb commanderBorrowed true x2
+## foilText clb commanderBorrowed true x3
+## foilText clb commanderBorrowed true x4
+## foilText clb commanderBorrowed true x5
+## foilText clb commanderBorrowed false x1
+## foilText clb commanderBorrowed false x2
+## foilText clb commanderBorrowed false x3
+## foilText clb commanderBorrowed false x4
+## foilText clb commanderBorrowed false x5
+## foilText clb null (still loading) true x1
+## foilText clb null (still loading) true x2
+## foilText clb null (still loading) true x3
+## foilText clb null (still loading) true x4
+## foilText clb null (still loading) true x5
+## foilText clb null (still loading) false x1
+## foilText clb null (still loading) false x2
+## foilText clb null (still loading) false x3
+## foilText clb null (still loading) false x4
+## foilText clb null (still loading) false x5
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Always (traditional foil)"
+
+## specialText cmm commanderFull true x1
+## specialText cmm commanderFull true x2
+## specialText cmm commanderFull true x3
+## specialText cmm commanderFull true x4
+## specialText cmm commanderFull true x5
+## specialText cmm commanderFull false x1
+## specialText cmm commanderFull false x2
+## specialText cmm commanderFull false x3
+## specialText cmm commanderFull false x4
+## specialText cmm commanderFull false x5
+## specialText cmm null (still loading) true x1
+## specialText cmm null (still loading) true x2
+## specialText cmm null (still loading) true x3
+## specialText cmm null (still loading) true x4
+## specialText cmm null (still loading) true x5
+## specialText cmm null (still loading) false x1
+## specialText cmm null (still loading) false x2
+## specialText cmm null (still loading) false x3
+## specialText cmm null (still loading) false x4
+## specialText cmm null (still loading) false x5
+"<span class=\"muted\">—</span>"
+"Prismatic Piper <b>16.7%</b>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+"<span class=\"muted\">—</span>"
+
+## foilText cmr commanderFull false x2
+## foilText cmr commanderBorrowed false x2
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"13.3% foil-etched · 86.7% traditional foil"
+
+## foilText cmr commanderFull false x3
+## foilText cmr commanderBorrowed false x3
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"20.0% foil-etched · 80.0% traditional foil"
+
+## foilText cmr commanderFull false x4
+## foilText cmr commanderBorrowed false x4
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"26.7% foil-etched · 73.3% traditional foil"
+
+## foilText cmr commanderFull false x5
+## foilText cmr commanderBorrowed false x5
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"33.3% foil-etched · 66.7% traditional foil"
+
+## foilText play null (still loading) true x1
+## foilText play null (still loading) true x2
+## foilText play null (still loading) true x3
+## foilText play null (still loading) true x4
+## foilText play null (still loading) true x5
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"20.0% traditional foil"
+"Non-foil"
+"Sometimes"
+
+## foilText cmr null (still loading) true x1
+## foilText cmr null (still loading) true x2
+## foilText cmr null (still loading) true x3
+## foilText cmr null (still loading) true x4
+## foilText cmr null (still loading) true x5
+## foilText cmr null (still loading) false x1
+## foilText cmr null (still loading) false x2
+## foilText cmr null (still loading) false x3
+## foilText cmr null (still loading) false x4
+## foilText cmr null (still loading) false x5
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Non-foil"
+"Sometimes"
+
+## foilText edge cases
+"100% foil-etched"
+"6.7% foil-etched · 93.3% traditional foil"
+"Always (traditional foil)"
+"Non-foil"
+"Always (traditional foil)"
+"Non-foil"
+"Sometimes"
+"20.0% traditional foil"
+"Non-foil"
+
+## collapseChanges dsk true x1 foil=false
+## collapseChanges dsk true x1 foil=true
+## collapseChanges dsk true x2 foil=false
+## collapseChanges dsk true x2 foil=true
+## collapseChanges dsk true x3 foil=false
+## collapseChanges dsk true x3 foil=true
+## collapseChanges dsk true x4 foil=false
+## collapseChanges dsk true x4 foil=true
+## collapseChanges dsk true x5 foil=false
+## collapseChanges dsk true x5 foil=true
+## collapseChanges lopsided true x1 foil=false
+## collapseChanges lopsided true x1 foil=true
+## collapseChanges lopsided true x2 foil=false
+## collapseChanges lopsided true x2 foil=true
+## collapseChanges lopsided true x3 foil=false
+## collapseChanges lopsided true x3 foil=true
+## collapseChanges lopsided true x4 foil=false
+## collapseChanges lopsided true x4 foil=true
+## collapseChanges lopsided true x5 foil=false
+## collapseChanges lopsided true x5 foil=true
+## collapseChanges noMythics true x1 foil=false
+## collapseChanges noMythics true x1 foil=true
+## collapseChanges noMythics true x2 foil=false
+## collapseChanges noMythics true x2 foil=true
+## collapseChanges noMythics true x3 foil=false
+## collapseChanges noMythics true x3 foil=true
+## collapseChanges noMythics true x4 foil=false
+## collapseChanges noMythics true x4 foil=true
+## collapseChanges noMythics true x5 foil=false
+## collapseChanges noMythics true x5 foil=true
+## collapseChanges noRares true x1 foil=false
+## collapseChanges noRares true x1 foil=true
+## collapseChanges noRares true x2 foil=false
+## collapseChanges noRares true x2 foil=true
+## collapseChanges noRares true x3 foil=false
+## collapseChanges noRares true x3 foil=true
+## collapseChanges noRares true x4 foil=false
+## collapseChanges noRares true x4 foil=true
+## collapseChanges noRares true x5 foil=false
+## collapseChanges noRares true x5 foil=true
+## collapseChanges sparse true x1 foil=false
+## collapseChanges sparse true x1 foil=true
+## collapseChanges sparse true x2 foil=false
+## collapseChanges sparse true x2 foil=true
+## collapseChanges sparse true x3 foil=false
+## collapseChanges sparse true x3 foil=true
+## collapseChanges sparse true x4 foil=false
+## collapseChanges sparse true x4 foil=true
+## collapseChanges sparse true x5 foil=false
+## collapseChanges sparse true x5 foil=true
+## collapseChanges empty true x1 foil=false
+## collapseChanges empty true x1 foil=true
+## collapseChanges empty true x2 foil=false
+## collapseChanges empty true x2 foil=true
+## collapseChanges empty true x3 foil=false
+## collapseChanges empty true x3 foil=true
+## collapseChanges empty true x4 foil=false
+## collapseChanges empty true x4 foil=true
+## collapseChanges empty true x5 foil=false
+## collapseChanges empty true x5 foil=true
+## collapseChanges commanderFull true x1 foil=false
+## collapseChanges commanderFull true x1 foil=true
+## collapseChanges commanderFull true x2 foil=false
+## collapseChanges commanderFull true x2 foil=true
+## collapseChanges commanderFull true x3 foil=false
+## collapseChanges commanderFull true x3 foil=true
+## collapseChanges commanderFull true x4 foil=false
+## collapseChanges commanderFull true x4 foil=true
+## collapseChanges commanderFull true x5 foil=false
+## collapseChanges commanderFull true x5 foil=true
+## collapseChanges commanderBorrowed true x1 foil=false
+## collapseChanges commanderBorrowed true x1 foil=true
+## collapseChanges commanderBorrowed true x2 foil=false
+## collapseChanges commanderBorrowed true x2 foil=true
+## collapseChanges commanderBorrowed true x3 foil=false
+## collapseChanges commanderBorrowed true x3 foil=true
+## collapseChanges commanderBorrowed true x4 foil=false
+## collapseChanges commanderBorrowed true x4 foil=true
+## collapseChanges commanderBorrowed true x5 foil=false
+## collapseChanges commanderBorrowed true x5 foil=true
+## collapseChanges null (still loading) true x1 foil=false
+## collapseChanges null (still loading) true x1 foil=true
+## collapseChanges null (still loading) true x2 foil=false
+## collapseChanges null (still loading) true x2 foil=true
+## collapseChanges null (still loading) true x3 foil=false
+## collapseChanges null (still loading) true x3 foil=true
+## collapseChanges null (still loading) true x4 foil=false
+## collapseChanges null (still loading) true x4 foil=true
+## collapseChanges null (still loading) true x5 foil=false
+## collapseChanges null (still loading) true x5 foil=true
+## slotOptionNames dsk true x1 foil=false list=false
+## slotOptionNames dsk true x1 foil=false list=true
+## slotOptionNames dsk true x1 foil=true list=false
+## slotOptionNames dsk true x1 foil=true list=true
+## slotOptionNames dsk true x2 foil=false list=false
+## slotOptionNames dsk true x2 foil=false list=true
+## slotOptionNames dsk true x2 foil=true list=false
+## slotOptionNames dsk true x2 foil=true list=true
+## slotOptionNames dsk true x3 foil=false list=false
+## slotOptionNames dsk true x3 foil=false list=true
+## slotOptionNames dsk true x3 foil=true list=false
+## slotOptionNames dsk true x3 foil=true list=true
+## slotOptionNames dsk true x4 foil=false list=false
+## slotOptionNames dsk true x4 foil=false list=true
+## slotOptionNames dsk true x4 foil=true list=false
+## slotOptionNames dsk true x4 foil=true list=true
+## slotOptionNames dsk true x5 foil=false list=false
+## slotOptionNames dsk true x5 foil=false list=true
+## slotOptionNames dsk true x5 foil=true list=false
+## slotOptionNames dsk true x5 foil=true list=true
+## slotOptionNames lopsided true x1 foil=false list=false
+## slotOptionNames lopsided true x1 foil=false list=true
+## slotOptionNames lopsided true x1 foil=true list=false
+## slotOptionNames lopsided true x1 foil=true list=true
+## slotOptionNames lopsided true x2 foil=false list=false
+## slotOptionNames lopsided true x2 foil=false list=true
+## slotOptionNames lopsided true x2 foil=true list=false
+## slotOptionNames lopsided true x2 foil=true list=true
+## slotOptionNames lopsided true x3 foil=false list=false
+## slotOptionNames lopsided true x3 foil=false list=true
+## slotOptionNames lopsided true x3 foil=true list=false
+## slotOptionNames lopsided true x3 foil=true list=true
+## slotOptionNames lopsided true x4 foil=false list=false
+## slotOptionNames lopsided true x4 foil=false list=true
+## slotOptionNames lopsided true x4 foil=true list=false
+## slotOptionNames lopsided true x4 foil=true list=true
+## slotOptionNames lopsided true x5 foil=false list=false
+## slotOptionNames lopsided true x5 foil=false list=true
+## slotOptionNames lopsided true x5 foil=true list=false
+## slotOptionNames lopsided true x5 foil=true list=true
+## slotOptionNames noMythics true x1 foil=false list=false
+## slotOptionNames noMythics true x1 foil=false list=true
+## slotOptionNames noMythics true x1 foil=true list=false
+## slotOptionNames noMythics true x1 foil=true list=true
+## slotOptionNames noMythics true x2 foil=false list=false
+## slotOptionNames noMythics true x2 foil=false list=true
+## slotOptionNames noMythics true x2 foil=true list=false
+## slotOptionNames noMythics true x2 foil=true list=true
+## slotOptionNames noMythics true x3 foil=false list=false
+## slotOptionNames noMythics true x3 foil=false list=true
+## slotOptionNames noMythics true x3 foil=true list=false
+## slotOptionNames noMythics true x3 foil=true list=true
+## slotOptionNames noMythics true x4 foil=false list=false
+## slotOptionNames noMythics true x4 foil=false list=true
+## slotOptionNames noMythics true x4 foil=true list=false
+## slotOptionNames noMythics true x4 foil=true list=true
+## slotOptionNames noMythics true x5 foil=false list=false
+## slotOptionNames noMythics true x5 foil=false list=true
+## slotOptionNames noMythics true x5 foil=true list=false
+## slotOptionNames noMythics true x5 foil=true list=true
+## slotOptionNames noRares true x1 foil=false list=false
+## slotOptionNames noRares true x1 foil=false list=true
+## slotOptionNames noRares true x1 foil=true list=false
+## slotOptionNames noRares true x1 foil=true list=true
+## slotOptionNames noRares true x2 foil=false list=false
+## slotOptionNames noRares true x2 foil=false list=true
+## slotOptionNames noRares true x2 foil=true list=false
+## slotOptionNames noRares true x2 foil=true list=true
+## slotOptionNames noRares true x3 foil=false list=false
+## slotOptionNames noRares true x3 foil=false list=true
+## slotOptionNames noRares true x3 foil=true list=false
+## slotOptionNames noRares true x3 foil=true list=true
+## slotOptionNames noRares true x4 foil=false list=false
+## slotOptionNames noRares true x4 foil=false list=true
+## slotOptionNames noRares true x4 foil=true list=false
+## slotOptionNames noRares true x4 foil=true list=true
+## slotOptionNames noRares true x5 foil=false list=false
+## slotOptionNames noRares true x5 foil=false list=true
+## slotOptionNames noRares true x5 foil=true list=false
+## slotOptionNames noRares true x5 foil=true list=true
+## slotOptionNames sparse true x1 foil=false list=false
+## slotOptionNames sparse true x1 foil=false list=true
+## slotOptionNames sparse true x1 foil=true list=false
+## slotOptionNames sparse true x1 foil=true list=true
+## slotOptionNames sparse true x2 foil=false list=false
+## slotOptionNames sparse true x2 foil=false list=true
+## slotOptionNames sparse true x2 foil=true list=false
+## slotOptionNames sparse true x2 foil=true list=true
+## slotOptionNames sparse true x3 foil=false list=false
+## slotOptionNames sparse true x3 foil=false list=true
+## slotOptionNames sparse true x3 foil=true list=false
+## slotOptionNames sparse true x3 foil=true list=true
+## slotOptionNames sparse true x4 foil=false list=false
+## slotOptionNames sparse true x4 foil=false list=true
+## slotOptionNames sparse true x4 foil=true list=false
+## slotOptionNames sparse true x4 foil=true list=true
+## slotOptionNames sparse true x5 foil=false list=false
+## slotOptionNames sparse true x5 foil=false list=true
+## slotOptionNames sparse true x5 foil=true list=false
+## slotOptionNames sparse true x5 foil=true list=true
+## slotOptionNames empty true x1 foil=false list=false
+## slotOptionNames empty true x1 foil=false list=true
+## slotOptionNames empty true x1 foil=true list=false
+## slotOptionNames empty true x1 foil=true list=true
+## slotOptionNames empty true x2 foil=false list=false
+## slotOptionNames empty true x2 foil=false list=true
+## slotOptionNames empty true x2 foil=true list=false
+## slotOptionNames empty true x2 foil=true list=true
+## slotOptionNames empty true x3 foil=false list=false
+## slotOptionNames empty true x3 foil=false list=true
+## slotOptionNames empty true x3 foil=true list=false
+## slotOptionNames empty true x3 foil=true list=true
+## slotOptionNames empty true x4 foil=false list=false
+## slotOptionNames empty true x4 foil=false list=true
+## slotOptionNames empty true x4 foil=true list=false
+## slotOptionNames empty true x4 foil=true list=true
+## slotOptionNames empty true x5 foil=false list=false
+## slotOptionNames empty true x5 foil=false list=true
+## slotOptionNames empty true x5 foil=true list=false
+## slotOptionNames empty true x5 foil=true list=true
+## slotOptionNames commanderFull true x1 foil=false list=false
+## slotOptionNames commanderFull true x1 foil=false list=true
+## slotOptionNames commanderFull true x1 foil=true list=false
+## slotOptionNames commanderFull true x1 foil=true list=true
+## slotOptionNames commanderFull true x2 foil=false list=false
+## slotOptionNames commanderFull true x2 foil=false list=true
+## slotOptionNames commanderFull true x2 foil=true list=false
+## slotOptionNames commanderFull true x2 foil=true list=true
+## slotOptionNames commanderFull true x3 foil=false list=false
+## slotOptionNames commanderFull true x3 foil=false list=true
+## slotOptionNames commanderFull true x3 foil=true list=false
+## slotOptionNames commanderFull true x3 foil=true list=true
+## slotOptionNames commanderFull true x4 foil=false list=false
+## slotOptionNames commanderFull true x4 foil=false list=true
+## slotOptionNames commanderFull true x4 foil=true list=false
+## slotOptionNames commanderFull true x4 foil=true list=true
+## slotOptionNames commanderFull true x5 foil=false list=false
+## slotOptionNames commanderFull true x5 foil=false list=true
+## slotOptionNames commanderFull true x5 foil=true list=false
+## slotOptionNames commanderFull true x5 foil=true list=true
+## slotOptionNames commanderBorrowed true x1 foil=false list=false
+## slotOptionNames commanderBorrowed true x1 foil=false list=true
+## slotOptionNames commanderBorrowed true x1 foil=true list=false
+## slotOptionNames commanderBorrowed true x1 foil=true list=true
+## slotOptionNames commanderBorrowed true x2 foil=false list=false
+## slotOptionNames commanderBorrowed true x2 foil=false list=true
+## slotOptionNames commanderBorrowed true x2 foil=true list=false
+## slotOptionNames commanderBorrowed true x2 foil=true list=true
+## slotOptionNames commanderBorrowed true x3 foil=false list=false
+## slotOptionNames commanderBorrowed true x3 foil=false list=true
+## slotOptionNames commanderBorrowed true x3 foil=true list=false
+## slotOptionNames commanderBorrowed true x3 foil=true list=true
+## slotOptionNames commanderBorrowed true x4 foil=false list=false
+## slotOptionNames commanderBorrowed true x4 foil=false list=true
+## slotOptionNames commanderBorrowed true x4 foil=true list=false
+## slotOptionNames commanderBorrowed true x4 foil=true list=true
+## slotOptionNames commanderBorrowed true x5 foil=false list=false
+## slotOptionNames commanderBorrowed true x5 foil=false list=true
+## slotOptionNames commanderBorrowed true x5 foil=true list=false
+## slotOptionNames commanderBorrowed true x5 foil=true list=true
+## slotOptionNames null (still loading) true x1 foil=false list=false
+## slotOptionNames null (still loading) true x1 foil=false list=true
+## slotOptionNames null (still loading) true x1 foil=true list=false
+## slotOptionNames null (still loading) true x1 foil=true list=true
+## slotOptionNames null (still loading) true x2 foil=false list=false
+## slotOptionNames null (still loading) true x2 foil=false list=true
+## slotOptionNames null (still loading) true x2 foil=true list=false
+## slotOptionNames null (still loading) true x2 foil=true list=true
+## slotOptionNames null (still loading) true x3 foil=false list=false
+## slotOptionNames null (still loading) true x3 foil=false list=true
+## slotOptionNames null (still loading) true x3 foil=true list=false
+## slotOptionNames null (still loading) true x3 foil=true list=true
+## slotOptionNames null (still loading) true x4 foil=false list=false
+## slotOptionNames null (still loading) true x4 foil=false list=true
+## slotOptionNames null (still loading) true x4 foil=true list=false
+## slotOptionNames null (still loading) true x4 foil=true list=true
+## slotOptionNames null (still loading) true x5 foil=false list=false
+## slotOptionNames null (still loading) true x5 foil=false list=true
+## slotOptionNames null (still loading) true x5 foil=true list=false
+## slotOptionNames null (still loading) true x5 foil=true list=true
+[]
+[]
+[]
+[]
+[]
+[]
+[]
+
+## collapseChanges dsk false x1 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.86},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.125},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.3103448275862069},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.3831417624521073},{"kind":"p","label":"Rare","fromP":0.1285714285714286,"toP":0.22988505747126436},{"kind":"p","label":"Mythic","fromP":0.021428571428571425,"toP":0.07662835249042145}]
+[{"kind":"p","label":"Common","fromP":0.5454545454545454,"toP":0.3103448275862069},{"kind":"p","label":"Uncommon","fromP":0.3367003367003367,"toP":0.3831417624521073},{"kind":"p","label":"Rare","fromP":0.10101010101010101,"toP":0.22988505747126436},{"kind":"p","label":"Mythic","fromP":0.016835016835016835,"toP":0.07662835249042145}]
+
+## collapseChanges dsk false x1 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.86},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.125},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.3103448275862069},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.3831417624521073},{"kind":"p","label":"Rare","fromP":0.1285714285714286,"toP":0.22988505747126436},{"kind":"p","label":"Mythic","fromP":0.021428571428571425,"toP":0.07662835249042145}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.5454545454545454,"toP":0.3103448275862069},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.3367003367003367,"toP":0.3831417624521073},{"kind":"p","label":"Rare","fromP":0.10101010101010101,"toP":0.22988505747126436},{"kind":"p","label":"Mythic","fromP":0.016835016835016835,"toP":0.07662835249042145}]
+
+## collapseChanges dsk false x2 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.72},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.25},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.03},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8571428571428572,"toP":0.7142857142857143},{"kind":"p","label":"Mythic","fromP":0.14285714285714285,"toP":0.2857142857142857}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.13477537437603995},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.3327787021630616},{"kind":"p","label":"Rare","fromP":0.1285714285714286,"toP":0.3993344425956739},{"kind":"p","label":"Mythic","fromP":0.021428571428571425,"toP":0.13311148086522465}]
+[{"kind":"p","label":"Common","fromP":0.5454545454545454,"toP":0.13477537437603995},{"kind":"p","label":"Rare","fromP":0.10101010101010101,"toP":0.3993344425956739},{"kind":"p","label":"Mythic","fromP":0.016835016835016835,"toP":0.13311148086522465}]
+
+## collapseChanges dsk false x2 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.72},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.25},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.03},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8571428571428572,"toP":0.7142857142857143},{"kind":"p","label":"Mythic","fromP":0.14285714285714285,"toP":0.2857142857142857}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.13477537437603995},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.3327787021630616},{"kind":"p","label":"Rare","fromP":0.1285714285714286,"toP":0.3993344425956739},{"kind":"p","label":"Mythic","fromP":0.021428571428571425,"toP":0.13311148086522465}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.5454545454545454,"toP":0.13477537437603995},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Rare","fromP":0.10101010101010101,"toP":0.3993344425956739},{"kind":"p","label":"Mythic","fromP":0.016835016835016835,"toP":0.13311148086522465}]
+
+## collapseChanges dsk false x3 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.58},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.375},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.045},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8571428571428572,"toP":0.5714285714285714},{"kind":"p","label":"Mythic","fromP":0.14285714285714285,"toP":0.42857142857142855}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.07356948228882834},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.2724795640326976},{"kind":"p","label":"Rare","fromP":0.1285714285714286,"toP":0.4904632152588556},{"kind":"p","label":"Mythic","fromP":0.021428571428571425,"toP":0.16348773841961853}]
+[{"kind":"p","label":"Common","fromP":0.5454545454545454,"toP":0.07356948228882834},{"kind":"p","label":"Uncommon","fromP":0.3367003367003367,"toP":0.2724795640326976},{"kind":"p","label":"Rare","fromP":0.10101010101010101,"toP":0.4904632152588556},{"kind":"p","label":"Mythic","fromP":0.016835016835016835,"toP":0.16348773841961853}]
+
+## collapseChanges dsk false x3 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.58},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.375},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.045},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8571428571428572,"toP":0.5714285714285714},{"kind":"p","label":"Mythic","fromP":0.14285714285714285,"toP":0.42857142857142855}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.07356948228882834},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.2724795640326976},{"kind":"p","label":"Rare","fromP":0.1285714285714286,"toP":0.4904632152588556},{"kind":"p","label":"Mythic","fromP":0.021428571428571425,"toP":0.16348773841961853}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.5454545454545454,"toP":0.07356948228882834},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.3367003367003367,"toP":0.2724795640326976},{"kind":"p","label":"Rare","fromP":0.10101010101010101,"toP":0.4904632152588556},{"kind":"p","label":"Mythic","fromP":0.016835016835016835,"toP":0.16348773841961853}]
+
+## collapseChanges dsk false x4 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.43999999999999995},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.5},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.06},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8571428571428572,"toP":0.4285714285714286},{"kind":"p","label":"Mythic","fromP":0.14285714285714285,"toP":0.5714285714285714}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.04599659284497445},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.2271436683702442},{"kind":"p","label":"Rare","fromP":0.1285714285714286,"toP":0.545144804088586},{"kind":"p","label":"Mythic","fromP":0.021428571428571425,"toP":0.18171493469619535}]
+[{"kind":"p","label":"Common","fromP":0.5454545454545454,"toP":0.04599659284497445},{"kind":"p","label":"Uncommon","fromP":0.3367003367003367,"toP":0.2271436683702442},{"kind":"p","label":"Rare","fromP":0.10101010101010101,"toP":0.545144804088586},{"kind":"p","label":"Mythic","fromP":0.016835016835016835,"toP":0.18171493469619535}]
+
+## collapseChanges dsk false x4 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.43999999999999995},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.5},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.06},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8571428571428572,"toP":0.4285714285714286},{"kind":"p","label":"Mythic","fromP":0.14285714285714285,"toP":0.5714285714285714}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.04599659284497445},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.2271436683702442},{"kind":"p","label":"Rare","fromP":0.1285714285714286,"toP":0.545144804088586},{"kind":"p","label":"Mythic","fromP":0.021428571428571425,"toP":0.18171493469619535}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.5454545454545454,"toP":0.04599659284497445},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.3367003367003367,"toP":0.2271436683702442},{"kind":"p","label":"Rare","fromP":0.10101010101010101,"toP":0.545144804088586},{"kind":"p","label":"Mythic","fromP":0.016835016835016835,"toP":0.18171493469619535}]
+
+## collapseChanges dsk false x5 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.30000000000000004},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.625},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.075},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8571428571428572,"toP":0.2857142857142858},{"kind":"p","label":"Mythic","fromP":0.14285714285714285,"toP":0.7142857142857142}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.03138318481208834},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.19372336303758234},{"kind":"p","label":"Rare","fromP":0.1285714285714286,"toP":0.581170089112747},{"kind":"p","label":"Mythic","fromP":0.021428571428571425,"toP":0.19372336303758234}]
+[{"kind":"p","label":"Common","fromP":0.5454545454545454,"toP":0.03138318481208834},{"kind":"p","label":"Uncommon","fromP":0.3367003367003367,"toP":0.19372336303758234},{"kind":"p","label":"Rare","fromP":0.10101010101010101,"toP":0.581170089112747},{"kind":"p","label":"Mythic","fromP":0.016835016835016835,"toP":0.19372336303758234}]
+
+## collapseChanges dsk false x5 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.30000000000000004},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.625},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.075},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8571428571428572,"toP":0.2857142857142858},{"kind":"p","label":"Mythic","fromP":0.14285714285714285,"toP":0.7142857142857142}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.03138318481208834},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.19372336303758234},{"kind":"p","label":"Rare","fromP":0.1285714285714286,"toP":0.581170089112747},{"kind":"p","label":"Mythic","fromP":0.021428571428571425,"toP":0.19372336303758234}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.5454545454545454,"toP":0.03138318481208834},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.3367003367003367,"toP":0.19372336303758234},{"kind":"p","label":"Rare","fromP":0.10101010101010101,"toP":0.581170089112747},{"kind":"p","label":"Mythic","fromP":0.016835016835016835,"toP":0.19372336303758234}]
+
+## collapseChanges lopsided false x1 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.86},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.125},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.17999999999999997,"toP":0.4545454545454546},{"kind":"p","label":"Uncommon","fromP":0.6699999999999999,"toP":0.3636363636363637},{"kind":"p","label":"Rare","fromP":0.059999999999999984,"toP":0.04545454545454546},{"kind":"p","label":"Mythic","fromP":0.08999999999999998,"toP":0.13636363636363638}]
+[{"kind":"p","label":"Common","fromP":0.6837606837606838,"toP":0.4545454545454546},{"kind":"p","label":"Uncommon","fromP":0.27350427350427353,"toP":0.3636363636363637},{"kind":"p","label":"Rare","fromP":0.017094017094017096,"toP":0.04545454545454546},{"kind":"p","label":"Mythic","fromP":0.02564102564102564,"toP":0.13636363636363638}]
+
+## collapseChanges lopsided false x1 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.86},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.125},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.17999999999999997,"toP":0.4545454545454546},{"kind":"p","label":"Uncommon","fromP":0.6699999999999999,"toP":0.3636363636363637},{"kind":"p","label":"Rare","fromP":0.059999999999999984,"toP":0.04545454545454546},{"kind":"p","label":"Mythic","fromP":0.08999999999999998,"toP":0.13636363636363638}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.6837606837606838,"toP":0.4545454545454546},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.27350427350427353,"toP":0.3636363636363637},{"kind":"p","label":"Rare","fromP":0.017094017094017096,"toP":0.04545454545454546},{"kind":"p","label":"Mythic","fromP":0.02564102564102564,"toP":0.13636363636363638}]
+
+## collapseChanges lopsided false x2 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.72},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.25},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.03},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Mythic","fromP":0.6,"toP":1},{"kind":"removed","label":"Rare","fromP":0.4}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.17999999999999997,"toP":0.23809523809523808},{"kind":"p","label":"Uncommon","fromP":0.6699999999999999,"toP":0.38095238095238093},{"kind":"p","label":"Rare","fromP":0.059999999999999984,"toP":0.09523809523809523},{"kind":"p","label":"Mythic","fromP":0.08999999999999998,"toP":0.2857142857142857}]
+[{"kind":"p","label":"Common","fromP":0.6837606837606838,"toP":0.23809523809523808},{"kind":"p","label":"Uncommon","fromP":0.27350427350427353,"toP":0.38095238095238093},{"kind":"p","label":"Rare","fromP":0.017094017094017096,"toP":0.09523809523809523},{"kind":"p","label":"Mythic","fromP":0.02564102564102564,"toP":0.2857142857142857}]
+
+## collapseChanges lopsided false x2 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.72},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.25},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.03},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Mythic","fromP":0.6,"toP":1},{"kind":"removed","label":"Rare","fromP":0.4}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.17999999999999997,"toP":0.23809523809523808},{"kind":"p","label":"Uncommon","fromP":0.6699999999999999,"toP":0.38095238095238093},{"kind":"p","label":"Rare","fromP":0.059999999999999984,"toP":0.09523809523809523},{"kind":"p","label":"Mythic","fromP":0.08999999999999998,"toP":0.2857142857142857}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.6837606837606838,"toP":0.23809523809523808},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.27350427350427353,"toP":0.38095238095238093},{"kind":"p","label":"Rare","fromP":0.017094017094017096,"toP":0.09523809523809523},{"kind":"p","label":"Mythic","fromP":0.02564102564102564,"toP":0.2857142857142857}]
+
+## collapseChanges lopsided false x3 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.58},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.375},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.045},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Mythic","fromP":0.6,"toP":1},{"kind":"removed","label":"Rare","fromP":0.4}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.17999999999999997,"toP":0.14285714285714285},{"kind":"p","label":"Uncommon","fromP":0.6699999999999999,"toP":0.34285714285714286},{"kind":"p","label":"Rare","fromP":0.059999999999999984,"toP":0.1285714285714286},{"kind":"p","label":"Mythic","fromP":0.08999999999999998,"toP":0.38571428571428573}]
+[{"kind":"p","label":"Common","fromP":0.6837606837606838,"toP":0.14285714285714285},{"kind":"p","label":"Uncommon","fromP":0.27350427350427353,"toP":0.34285714285714286},{"kind":"p","label":"Rare","fromP":0.017094017094017096,"toP":0.1285714285714286},{"kind":"p","label":"Mythic","fromP":0.02564102564102564,"toP":0.38571428571428573}]
+
+## collapseChanges lopsided false x3 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.58},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.375},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.045},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Mythic","fromP":0.6,"toP":1},{"kind":"removed","label":"Rare","fromP":0.4}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.17999999999999997,"toP":0.14285714285714285},{"kind":"p","label":"Uncommon","fromP":0.6699999999999999,"toP":0.34285714285714286},{"kind":"p","label":"Rare","fromP":0.059999999999999984,"toP":0.1285714285714286},{"kind":"p","label":"Mythic","fromP":0.08999999999999998,"toP":0.38571428571428573}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.6837606837606838,"toP":0.14285714285714285},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.27350427350427353,"toP":0.34285714285714286},{"kind":"p","label":"Rare","fromP":0.017094017094017096,"toP":0.1285714285714286},{"kind":"p","label":"Mythic","fromP":0.02564102564102564,"toP":0.38571428571428573}]
+
+## collapseChanges lopsided false x4 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.43999999999999995},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.5},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.06},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Mythic","fromP":0.6,"toP":1},{"kind":"removed","label":"Rare","fromP":0.4}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.17999999999999997,"toP":0.09433962264150944},{"kind":"p","label":"Uncommon","fromP":0.6699999999999999,"toP":0.3018867924528302},{"kind":"p","label":"Rare","fromP":0.059999999999999984,"toP":0.1509433962264151},{"kind":"p","label":"Mythic","fromP":0.08999999999999998,"toP":0.4528301886792453}]
+[{"kind":"p","label":"Common","fromP":0.6837606837606838,"toP":0.09433962264150944},{"kind":"p","label":"Uncommon","fromP":0.27350427350427353,"toP":0.3018867924528302},{"kind":"p","label":"Rare","fromP":0.017094017094017096,"toP":0.1509433962264151},{"kind":"p","label":"Mythic","fromP":0.02564102564102564,"toP":0.4528301886792453}]
+
+## collapseChanges lopsided false x4 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.43999999999999995},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.5},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.06},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Mythic","fromP":0.6,"toP":1},{"kind":"removed","label":"Rare","fromP":0.4}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.17999999999999997,"toP":0.09433962264150944},{"kind":"p","label":"Uncommon","fromP":0.6699999999999999,"toP":0.3018867924528302},{"kind":"p","label":"Rare","fromP":0.059999999999999984,"toP":0.1509433962264151},{"kind":"p","label":"Mythic","fromP":0.08999999999999998,"toP":0.4528301886792453}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.6837606837606838,"toP":0.09433962264150944},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.27350427350427353,"toP":0.3018867924528302},{"kind":"p","label":"Rare","fromP":0.017094017094017096,"toP":0.1509433962264151},{"kind":"p","label":"Mythic","fromP":0.02564102564102564,"toP":0.4528301886792453}]
+
+## collapseChanges lopsided false x5 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.30000000000000004},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.625},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.075},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Mythic","fromP":0.6,"toP":1},{"kind":"removed","label":"Rare","fromP":0.4}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.17999999999999997,"toP":0.06666666666666667},{"kind":"p","label":"Uncommon","fromP":0.6699999999999999,"toP":0.26666666666666666},{"kind":"p","label":"Rare","fromP":0.059999999999999984,"toP":0.16666666666666666},{"kind":"p","label":"Mythic","fromP":0.08999999999999998,"toP":0.5}]
+[{"kind":"p","label":"Common","fromP":0.6837606837606838,"toP":0.06666666666666667},{"kind":"p","label":"Uncommon","fromP":0.27350427350427353,"toP":0.26666666666666666},{"kind":"p","label":"Rare","fromP":0.017094017094017096,"toP":0.16666666666666666},{"kind":"p","label":"Mythic","fromP":0.02564102564102564,"toP":0.5}]
+
+## collapseChanges lopsided false x5 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.30000000000000004},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.625},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.075},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Mythic","fromP":0.6,"toP":1},{"kind":"removed","label":"Rare","fromP":0.4}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.17999999999999997,"toP":0.06666666666666667},{"kind":"p","label":"Uncommon","fromP":0.6699999999999999,"toP":0.26666666666666666},{"kind":"p","label":"Rare","fromP":0.059999999999999984,"toP":0.16666666666666666},{"kind":"p","label":"Mythic","fromP":0.08999999999999998,"toP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.6837606837606838,"toP":0.06666666666666667},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.27350427350427353,"toP":0.26666666666666666},{"kind":"p","label":"Rare","fromP":0.017094017094017096,"toP":0.16666666666666666},{"kind":"p","label":"Mythic","fromP":0.02564102564102564,"toP":0.5}]
+
+## collapseChanges noMythics false x1 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.86},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.125},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.47058823529411764},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.35294117647058826},{"kind":"p","label":"Rare","fromP":0.15,"toP":0.17647058823529413}]
+[{"kind":"p","label":"Common","fromP":0.6808510638297872,"toP":0.47058823529411764},{"kind":"p","label":"Uncommon","fromP":0.2553191489361702,"toP":0.35294117647058826},{"kind":"p","label":"Rare","fromP":0.06382978723404255,"toP":0.17647058823529413}]
+
+## collapseChanges noMythics false x1 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.86},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.125},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.47058823529411764},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.35294117647058826},{"kind":"p","label":"Rare","fromP":0.15,"toP":0.17647058823529413}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.6808510638297872,"toP":0.47058823529411764},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.2553191489361702,"toP":0.35294117647058826},{"kind":"p","label":"Rare","fromP":0.06382978723404255,"toP":0.17647058823529413}]
+
+## collapseChanges noMythics false x2 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.72},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.25},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.03},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.25},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.375},{"kind":"p","label":"Rare","fromP":0.15,"toP":0.375}]
+[{"kind":"p","label":"Common","fromP":0.6808510638297872,"toP":0.25},{"kind":"p","label":"Uncommon","fromP":0.2553191489361702,"toP":0.375},{"kind":"p","label":"Rare","fromP":0.06382978723404255,"toP":0.375}]
+
+## collapseChanges noMythics false x2 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.72},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.25},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.03},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.25},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.375},{"kind":"p","label":"Rare","fromP":0.15,"toP":0.375}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.6808510638297872,"toP":0.25},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.2553191489361702,"toP":0.375},{"kind":"p","label":"Rare","fromP":0.06382978723404255,"toP":0.375}]
+
+## collapseChanges noMythics false x3 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.58},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.375},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.045},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.1509433962264151},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.339622641509434},{"kind":"p","label":"Rare","fromP":0.15,"toP":0.5094339622641509}]
+[{"kind":"p","label":"Common","fromP":0.6808510638297872,"toP":0.1509433962264151},{"kind":"p","label":"Uncommon","fromP":0.2553191489361702,"toP":0.339622641509434},{"kind":"p","label":"Rare","fromP":0.06382978723404255,"toP":0.5094339622641509}]
+
+## collapseChanges noMythics false x3 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.58},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.375},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.045},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.1509433962264151},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.339622641509434},{"kind":"p","label":"Rare","fromP":0.15,"toP":0.5094339622641509}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.6808510638297872,"toP":0.1509433962264151},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.2553191489361702,"toP":0.339622641509434},{"kind":"p","label":"Rare","fromP":0.06382978723404255,"toP":0.5094339622641509}]
+
+## collapseChanges noMythics false x4 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.43999999999999995},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.5},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.06},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.1},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.3},{"kind":"p","label":"Rare","fromP":0.15,"toP":0.6}]
+[{"kind":"p","label":"Common","fromP":0.6808510638297872,"toP":0.1},{"kind":"p","label":"Uncommon","fromP":0.2553191489361702,"toP":0.3},{"kind":"p","label":"Rare","fromP":0.06382978723404255,"toP":0.6}]
+
+## collapseChanges noMythics false x4 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.43999999999999995},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.5},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.06},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.1},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.3},{"kind":"p","label":"Rare","fromP":0.15,"toP":0.6}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.6808510638297872,"toP":0.1},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.2553191489361702,"toP":0.3},{"kind":"p","label":"Rare","fromP":0.06382978723404255,"toP":0.6}]
+
+## collapseChanges noMythics false x5 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.30000000000000004},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.625},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.075},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.07079646017699115},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.26548672566371684},{"kind":"p","label":"Rare","fromP":0.15,"toP":0.6637168141592921}]
+[{"kind":"p","label":"Common","fromP":0.6808510638297872,"toP":0.07079646017699115},{"kind":"p","label":"Uncommon","fromP":0.2553191489361702,"toP":0.26548672566371684},{"kind":"p","label":"Rare","fromP":0.06382978723404255,"toP":0.6637168141592921}]
+
+## collapseChanges noMythics false x5 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.30000000000000004},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.625},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.075},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.07079646017699115},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.26548672566371684},{"kind":"p","label":"Rare","fromP":0.15,"toP":0.6637168141592921}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.6808510638297872,"toP":0.07079646017699115},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.2553191489361702,"toP":0.26548672566371684},{"kind":"p","label":"Rare","fromP":0.06382978723404255,"toP":0.6637168141592921}]
+
+## collapseChanges noRares false x1 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.86},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.125},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.5063291139240507},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.379746835443038},{"kind":"p","label":"Mythic","fromP":0.15,"toP":0.11392405063291139}]
+[{"kind":"p","label":"Common","fromP":0.7126948775055679,"toP":0.5063291139240507},{"kind":"p","label":"Uncommon","fromP":0.267260579064588,"toP":0.379746835443038},{"kind":"p","label":"Mythic","fromP":0.0200445434298441,"toP":0.11392405063291139}]
+
+## collapseChanges noRares false x1 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.86},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.125},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.5063291139240507},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.379746835443038},{"kind":"p","label":"Mythic","fromP":0.15,"toP":0.11392405063291139}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.7126948775055679,"toP":0.5063291139240507},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.267260579064588,"toP":0.379746835443038},{"kind":"p","label":"Mythic","fromP":0.0200445434298441,"toP":0.11392405063291139}]
+
+## collapseChanges noRares false x2 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.72},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.25},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.03},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.29411764705882354},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.4411764705882353},{"kind":"p","label":"Mythic","fromP":0.15,"toP":0.2647058823529412}]
+[{"kind":"p","label":"Common","fromP":0.7126948775055679,"toP":0.29411764705882354},{"kind":"p","label":"Uncommon","fromP":0.267260579064588,"toP":0.4411764705882353},{"kind":"p","label":"Mythic","fromP":0.0200445434298441,"toP":0.2647058823529412}]
+
+## collapseChanges noRares false x2 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.72},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.25},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.03},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.29411764705882354},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.4411764705882353},{"kind":"p","label":"Mythic","fromP":0.15,"toP":0.2647058823529412}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.7126948775055679,"toP":0.29411764705882354},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.267260579064588,"toP":0.4411764705882353},{"kind":"p","label":"Mythic","fromP":0.0200445434298441,"toP":0.2647058823529412}]
+
+## collapseChanges noRares false x3 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.58},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.375},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.045},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.1895734597156398},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.4265402843601896},{"kind":"p","label":"Mythic","fromP":0.15,"toP":0.38388625592417064}]
+[{"kind":"p","label":"Common","fromP":0.7126948775055679,"toP":0.1895734597156398},{"kind":"p","label":"Uncommon","fromP":0.267260579064588,"toP":0.4265402843601896},{"kind":"p","label":"Mythic","fromP":0.0200445434298441,"toP":0.38388625592417064}]
+
+## collapseChanges noRares false x3 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.58},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.375},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.045},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.1895734597156398},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.4265402843601896},{"kind":"p","label":"Mythic","fromP":0.15,"toP":0.38388625592417064}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.7126948775055679,"toP":0.1895734597156398},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.267260579064588,"toP":0.4265402843601896},{"kind":"p","label":"Mythic","fromP":0.0200445434298441,"toP":0.38388625592417064}]
+
+## collapseChanges noRares false x4 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.43999999999999995},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.5},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.06},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.13157894736842105},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.39473684210526316},{"kind":"p","label":"Mythic","fromP":0.15,"toP":0.47368421052631576}]
+[{"kind":"p","label":"Common","fromP":0.7126948775055679,"toP":0.13157894736842105},{"kind":"p","label":"Uncommon","fromP":0.267260579064588,"toP":0.39473684210526316},{"kind":"p","label":"Mythic","fromP":0.0200445434298441,"toP":0.47368421052631576}]
+
+## collapseChanges noRares false x4 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.43999999999999995},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.5},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.06},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.13157894736842105},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.39473684210526316},{"kind":"p","label":"Mythic","fromP":0.15,"toP":0.47368421052631576}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.7126948775055679,"toP":0.13157894736842105},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.267260579064588,"toP":0.39473684210526316},{"kind":"p","label":"Mythic","fromP":0.0200445434298441,"toP":0.47368421052631576}]
+
+## collapseChanges noRares false x5 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.30000000000000004},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.625},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.075},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.0963855421686747},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.3614457831325301},{"kind":"p","label":"Mythic","fromP":0.15,"toP":0.5421686746987951}]
+[{"kind":"p","label":"Common","fromP":0.7126948775055679,"toP":0.0963855421686747},{"kind":"p","label":"Uncommon","fromP":0.267260579064588,"toP":0.3614457831325301},{"kind":"p","label":"Mythic","fromP":0.0200445434298441,"toP":0.5421686746987951}]
+
+## collapseChanges noRares false x5 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.30000000000000004},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.625},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.075},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.0963855421686747},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.3614457831325301},{"kind":"p","label":"Mythic","fromP":0.15,"toP":0.5421686746987951}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.7126948775055679,"toP":0.0963855421686747},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.267260579064588,"toP":0.3614457831325301},{"kind":"p","label":"Mythic","fromP":0.0200445434298441,"toP":0.5421686746987951}]
+
+## collapseChanges sparse false x1 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.8730964467005076},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.12690355329949238},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.4444444444444445},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.33333333333333337},{"kind":"p","label":"Rare","fromP":0.13333333333333333,"toP":0.1777777777777778},{"kind":"p","label":"Mythic","fromP":0.016666666666666666,"toP":0.04444444444444445}]
+[{"kind":"p","label":"Common","fromP":0.6722689075630253,"toP":0.4444444444444445},{"kind":"p","label":"Uncommon","fromP":0.25210084033613445,"toP":0.33333333333333337},{"kind":"p","label":"Rare","fromP":0.06722689075630252,"toP":0.1777777777777778},{"kind":"p","label":"Mythic","fromP":0.008403361344537815,"toP":0.04444444444444445}]
+
+## collapseChanges sparse false x1 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.8730964467005076},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.12690355329949238},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.4444444444444445},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.33333333333333337},{"kind":"p","label":"Rare","fromP":0.13333333333333333,"toP":0.1777777777777778},{"kind":"p","label":"Mythic","fromP":0.016666666666666666,"toP":0.04444444444444445}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.6722689075630253,"toP":0.4444444444444445},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.25210084033613445,"toP":0.33333333333333337},{"kind":"p","label":"Rare","fromP":0.06722689075630252,"toP":0.1777777777777778},{"kind":"p","label":"Mythic","fromP":0.008403361344537815,"toP":0.04444444444444445}]
+
+## collapseChanges sparse false x2 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.7422680412371134},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.2577319587628866},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8888888888888888,"toP":0.7777777777777778},{"kind":"p","label":"Mythic","fromP":0.1111111111111111,"toP":0.2222222222222222}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.2222222222222222},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.3333333333333333},{"kind":"p","label":"Rare","fromP":0.13333333333333333,"toP":0.35555555555555557},{"kind":"p","label":"Mythic","fromP":0.016666666666666666,"toP":0.08888888888888889}]
+[{"kind":"p","label":"Common","fromP":0.6722689075630253,"toP":0.2222222222222222},{"kind":"p","label":"Uncommon","fromP":0.25210084033613445,"toP":0.3333333333333333},{"kind":"p","label":"Rare","fromP":0.06722689075630252,"toP":0.35555555555555557},{"kind":"p","label":"Mythic","fromP":0.008403361344537815,"toP":0.08888888888888889}]
+
+## collapseChanges sparse false x2 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.7422680412371134},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.2577319587628866},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8888888888888888,"toP":0.7777777777777778},{"kind":"p","label":"Mythic","fromP":0.1111111111111111,"toP":0.2222222222222222}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.2222222222222222},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.3333333333333333},{"kind":"p","label":"Rare","fromP":0.13333333333333333,"toP":0.35555555555555557},{"kind":"p","label":"Mythic","fromP":0.016666666666666666,"toP":0.08888888888888889}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.6722689075630253,"toP":0.2222222222222222},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.25210084033613445,"toP":0.3333333333333333},{"kind":"p","label":"Rare","fromP":0.06722689075630252,"toP":0.35555555555555557},{"kind":"p","label":"Mythic","fromP":0.008403361344537815,"toP":0.08888888888888889}]
+
+## collapseChanges sparse false x3 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.6073298429319371},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.39267015706806285},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8888888888888888,"toP":0.6666666666666667},{"kind":"p","label":"Mythic","fromP":0.1111111111111111,"toP":0.3333333333333333}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.12903225806451613},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.2903225806451613},{"kind":"p","label":"Rare","fromP":0.13333333333333333,"toP":0.4645161290322581},{"kind":"p","label":"Mythic","fromP":0.016666666666666666,"toP":0.11612903225806452}]
+[{"kind":"p","label":"Common","fromP":0.6722689075630253,"toP":0.12903225806451613},{"kind":"p","label":"Uncommon","fromP":0.25210084033613445,"toP":0.2903225806451613},{"kind":"p","label":"Rare","fromP":0.06722689075630252,"toP":0.4645161290322581},{"kind":"p","label":"Mythic","fromP":0.008403361344537815,"toP":0.11612903225806452}]
+
+## collapseChanges sparse false x3 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.6073298429319371},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.39267015706806285},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8888888888888888,"toP":0.6666666666666667},{"kind":"p","label":"Mythic","fromP":0.1111111111111111,"toP":0.3333333333333333}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.12903225806451613},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.2903225806451613},{"kind":"p","label":"Rare","fromP":0.13333333333333333,"toP":0.4645161290322581},{"kind":"p","label":"Mythic","fromP":0.016666666666666666,"toP":0.11612903225806452}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.6722689075630253,"toP":0.12903225806451613},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.25210084033613445,"toP":0.2903225806451613},{"kind":"p","label":"Rare","fromP":0.06722689075630252,"toP":0.4645161290322581},{"kind":"p","label":"Mythic","fromP":0.008403361344537815,"toP":0.11612903225806452}]
+
+## collapseChanges sparse false x4 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.4680851063829787},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.5319148936170213},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8888888888888888,"toP":0.5555555555555556},{"kind":"p","label":"Mythic","fromP":0.1111111111111111,"toP":0.4444444444444444}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.08333333333333333},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.25},{"kind":"p","label":"Rare","fromP":0.13333333333333333,"toP":0.5333333333333333},{"kind":"p","label":"Mythic","fromP":0.016666666666666666,"toP":0.13333333333333333}]
+[{"kind":"p","label":"Common","fromP":0.6722689075630253,"toP":0.08333333333333333},{"kind":"p","label":"Rare","fromP":0.06722689075630252,"toP":0.5333333333333333},{"kind":"p","label":"Mythic","fromP":0.008403361344537815,"toP":0.13333333333333333}]
+
+## collapseChanges sparse false x4 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.4680851063829787},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.5319148936170213},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8888888888888888,"toP":0.5555555555555556},{"kind":"p","label":"Mythic","fromP":0.1111111111111111,"toP":0.4444444444444444}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.08333333333333333},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.25},{"kind":"p","label":"Rare","fromP":0.13333333333333333,"toP":0.5333333333333333},{"kind":"p","label":"Mythic","fromP":0.016666666666666666,"toP":0.13333333333333333}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.6722689075630253,"toP":0.08333333333333333},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Rare","fromP":0.06722689075630252,"toP":0.5333333333333333},{"kind":"p","label":"Mythic","fromP":0.008403361344537815,"toP":0.13333333333333333}]
+
+## collapseChanges sparse false x5 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.32432432432432434},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.6756756756756757},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8888888888888888,"toP":0.4444444444444444},{"kind":"p","label":"Mythic","fromP":0.1111111111111111,"toP":0.5555555555555556}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.057971014492753624},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.21739130434782608},{"kind":"p","label":"Rare","fromP":0.13333333333333333,"toP":0.5797101449275363},{"kind":"p","label":"Mythic","fromP":0.016666666666666666,"toP":0.14492753623188406}]
+[{"kind":"p","label":"Common","fromP":0.6722689075630253,"toP":0.057971014492753624},{"kind":"p","label":"Uncommon","fromP":0.25210084033613445,"toP":0.21739130434782608},{"kind":"p","label":"Rare","fromP":0.06722689075630252,"toP":0.5797101449275363},{"kind":"p","label":"Mythic","fromP":0.008403361344537815,"toP":0.14492753623188406}]
+
+## collapseChanges sparse false x5 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.32432432432432434},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.6756756756756757},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8888888888888888,"toP":0.4444444444444444},{"kind":"p","label":"Mythic","fromP":0.1111111111111111,"toP":0.5555555555555556}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.057971014492753624},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.21739130434782608},{"kind":"p","label":"Rare","fromP":0.13333333333333333,"toP":0.5797101449275363},{"kind":"p","label":"Mythic","fromP":0.016666666666666666,"toP":0.14492753623188406}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.6722689075630253,"toP":0.057971014492753624},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.25210084033613445,"toP":0.21739130434782608},{"kind":"p","label":"Rare","fromP":0.06722689075630252,"toP":0.5797101449275363},{"kind":"p","label":"Mythic","fromP":0.008403361344537815,"toP":0.14492753623188406}]
+
+## collapseChanges empty false x1 foil=false
+## collapseChanges empty false x2 foil=false
+## collapseChanges empty false x3 foil=false
+## collapseChanges empty false x4 foil=false
+## collapseChanges empty false x5 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"}]
+[]
+
+## collapseChanges empty false x1 foil=true
+## collapseChanges empty false x2 foil=true
+## collapseChanges empty false x3 foil=true
+## collapseChanges empty false x4 foil=true
+## collapseChanges empty false x5 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"}]
+
+## collapseChanges commanderFull false x1 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.8730964467005076},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.12690355329949238},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.47417840375586856},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.28169014084507044},{"kind":"p","label":"Rare","fromP":0.13043478260869565,"toP":0.18779342723004694},{"kind":"p","label":"Mythic","fromP":0.019565217391304346,"toP":0.056338028169014086}]
+[{"kind":"p","label":"Common","fromP":0.7087719298245614,"toP":0.47417840375586856},{"kind":"p","label":"Uncommon","fromP":0.21052631578947367,"toP":0.28169014084507044},{"kind":"p","label":"Rare","fromP":0.07017543859649122,"toP":0.18779342723004694},{"kind":"p","label":"Mythic","fromP":0.010526315789473684,"toP":0.056338028169014086}]
+
+## collapseChanges commanderFull false x1 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.8730964467005076},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.12690355329949238},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.47417840375586856},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.28169014084507044},{"kind":"p","label":"Rare","fromP":0.13043478260869565,"toP":0.18779342723004694},{"kind":"p","label":"Mythic","fromP":0.019565217391304346,"toP":0.056338028169014086}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.7087719298245614,"toP":0.47417840375586856},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.21052631578947367,"toP":0.28169014084507044},{"kind":"p","label":"Rare","fromP":0.07017543859649122,"toP":0.18779342723004694},{"kind":"p","label":"Mythic","fromP":0.010526315789473684,"toP":0.056338028169014086}]
+
+## collapseChanges commanderFull false x2 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.7422680412371134},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.2577319587628866},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8695652173913043,"toP":0.7391304347826086},{"kind":"p","label":"Mythic","fromP":0.13043478260869565,"toP":0.2608695652173913}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.23543123543123542},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.27972027972027974},{"kind":"p","label":"Rare","fromP":0.13043478260869565,"toP":0.372960372960373},{"kind":"p","label":"Mythic","fromP":0.019565217391304346,"toP":0.11188811188811189}]
+[{"kind":"p","label":"Common","fromP":0.7087719298245614,"toP":0.23543123543123542},{"kind":"p","label":"Uncommon","fromP":0.21052631578947367,"toP":0.27972027972027974},{"kind":"p","label":"Rare","fromP":0.07017543859649122,"toP":0.372960372960373},{"kind":"p","label":"Mythic","fromP":0.010526315789473684,"toP":0.11188811188811189}]
+
+## collapseChanges commanderFull false x2 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.7422680412371134},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.2577319587628866},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8695652173913043,"toP":0.7391304347826086},{"kind":"p","label":"Mythic","fromP":0.13043478260869565,"toP":0.2608695652173913}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.23543123543123542},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.27972027972027974},{"kind":"p","label":"Rare","fromP":0.13043478260869565,"toP":0.372960372960373},{"kind":"p","label":"Mythic","fromP":0.019565217391304346,"toP":0.11188811188811189}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.7087719298245614,"toP":0.23543123543123542},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.21052631578947367,"toP":0.27972027972027974},{"kind":"p","label":"Rare","fromP":0.07017543859649122,"toP":0.372960372960373},{"kind":"p","label":"Mythic","fromP":0.010526315789473684,"toP":0.11188811188811189}]
+
+## collapseChanges commanderFull false x3 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.6073298429319371},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.39267015706806285},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8695652173913043,"toP":0.6086956521739131},{"kind":"p","label":"Mythic","fromP":0.13043478260869565,"toP":0.3913043478260869}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.1348464619492657},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.2403204272363151},{"kind":"p","label":"Rare","fromP":0.13043478260869565,"toP":0.4806408544726302},{"kind":"p","label":"Mythic","fromP":0.019565217391304346,"toP":0.14419225634178906}]
+[{"kind":"p","label":"Common","fromP":0.7087719298245614,"toP":0.1348464619492657},{"kind":"p","label":"Uncommon","fromP":0.21052631578947367,"toP":0.2403204272363151},{"kind":"p","label":"Rare","fromP":0.07017543859649122,"toP":0.4806408544726302},{"kind":"p","label":"Mythic","fromP":0.010526315789473684,"toP":0.14419225634178906}]
+
+## collapseChanges commanderFull false x3 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.6073298429319371},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.39267015706806285},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8695652173913043,"toP":0.6086956521739131},{"kind":"p","label":"Mythic","fromP":0.13043478260869565,"toP":0.3913043478260869}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.1348464619492657},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.2403204272363151},{"kind":"p","label":"Rare","fromP":0.13043478260869565,"toP":0.4806408544726302},{"kind":"p","label":"Mythic","fromP":0.019565217391304346,"toP":0.14419225634178906}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.7087719298245614,"toP":0.1348464619492657},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.21052631578947367,"toP":0.2403204272363151},{"kind":"p","label":"Rare","fromP":0.07017543859649122,"toP":0.4806408544726302},{"kind":"p","label":"Mythic","fromP":0.010526315789473684,"toP":0.14419225634178906}]
+
+## collapseChanges commanderFull false x4 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.4680851063829787},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.5319148936170213},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8695652173913043,"toP":0.4782608695652174},{"kind":"p","label":"Mythic","fromP":0.13043478260869565,"toP":0.5217391304347826}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.08610400682011936},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.20460358056265984},{"kind":"p","label":"Rare","fromP":0.13043478260869565,"toP":0.545609548167093},{"kind":"p","label":"Mythic","fromP":0.019565217391304346,"toP":0.1636828644501279}]
+[{"kind":"p","label":"Common","fromP":0.7087719298245614,"toP":0.08610400682011936},{"kind":"p","label":"Uncommon","fromP":0.21052631578947367,"toP":0.20460358056265984},{"kind":"p","label":"Rare","fromP":0.07017543859649122,"toP":0.545609548167093},{"kind":"p","label":"Mythic","fromP":0.010526315789473684,"toP":0.1636828644501279}]
+
+## collapseChanges commanderFull false x4 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.4680851063829787},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.5319148936170213},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8695652173913043,"toP":0.4782608695652174},{"kind":"p","label":"Mythic","fromP":0.13043478260869565,"toP":0.5217391304347826}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.08610400682011936},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.20460358056265984},{"kind":"p","label":"Rare","fromP":0.13043478260869565,"toP":0.545609548167093},{"kind":"p","label":"Mythic","fromP":0.019565217391304346,"toP":0.1636828644501279}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.7087719298245614,"toP":0.08610400682011936},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.21052631578947367,"toP":0.20460358056265984},{"kind":"p","label":"Rare","fromP":0.07017543859649122,"toP":0.545609548167093},{"kind":"p","label":"Mythic","fromP":0.010526315789473684,"toP":0.1636828644501279}]
+
+## collapseChanges commanderFull false x5 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.32432432432432434},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.6756756756756757},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8695652173913043,"toP":0.34782608695652173},{"kind":"p","label":"Mythic","fromP":0.13043478260869565,"toP":0.6521739130434783}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.05937683715461494},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.17636684303350972},{"kind":"p","label":"Rare","fromP":0.13043478260869565,"toP":0.5878894767783657},{"kind":"p","label":"Mythic","fromP":0.019565217391304346,"toP":0.17636684303350972}]
+[{"kind":"p","label":"Common","fromP":0.7087719298245614,"toP":0.05937683715461494},{"kind":"p","label":"Uncommon","fromP":0.21052631578947367,"toP":0.17636684303350972},{"kind":"p","label":"Rare","fromP":0.07017543859649122,"toP":0.5878894767783657},{"kind":"p","label":"Mythic","fromP":0.010526315789473684,"toP":0.17636684303350972}]
+
+## collapseChanges commanderFull false x5 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.32432432432432434},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.6756756756756757},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8695652173913043,"toP":0.34782608695652173},{"kind":"p","label":"Mythic","fromP":0.13043478260869565,"toP":0.6521739130434783}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.05937683715461494},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.17636684303350972},{"kind":"p","label":"Rare","fromP":0.13043478260869565,"toP":0.5878894767783657},{"kind":"p","label":"Mythic","fromP":0.019565217391304346,"toP":0.17636684303350972}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.7087719298245614,"toP":0.05937683715461494},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.21052631578947367,"toP":0.17636684303350972},{"kind":"p","label":"Rare","fromP":0.07017543859649122,"toP":0.5878894767783657},{"kind":"p","label":"Mythic","fromP":0.010526315789473684,"toP":0.17636684303350972}]
+
+## collapseChanges commanderBorrowed false x1 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.8730964467005076},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.12690355329949238},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.3103448275862069},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.3831417624521073},{"kind":"p","label":"Rare","fromP":0.1285714285714286,"toP":0.22988505747126436},{"kind":"p","label":"Mythic","fromP":0.021428571428571425,"toP":0.07662835249042145}]
+[{"kind":"p","label":"Common","fromP":0.5454545454545454,"toP":0.3103448275862069},{"kind":"p","label":"Uncommon","fromP":0.3367003367003367,"toP":0.3831417624521073},{"kind":"p","label":"Rare","fromP":0.10101010101010101,"toP":0.22988505747126436},{"kind":"p","label":"Mythic","fromP":0.016835016835016835,"toP":0.07662835249042145}]
+
+## collapseChanges commanderBorrowed false x1 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.8730964467005076},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.12690355329949238},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.3103448275862069},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.3831417624521073},{"kind":"p","label":"Rare","fromP":0.1285714285714286,"toP":0.22988505747126436},{"kind":"p","label":"Mythic","fromP":0.021428571428571425,"toP":0.07662835249042145}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.5454545454545454,"toP":0.3103448275862069},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.3367003367003367,"toP":0.3831417624521073},{"kind":"p","label":"Rare","fromP":0.10101010101010101,"toP":0.22988505747126436},{"kind":"p","label":"Mythic","fromP":0.016835016835016835,"toP":0.07662835249042145}]
+
+## collapseChanges commanderBorrowed false x2 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.7422680412371134},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.2577319587628866},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8571428571428572,"toP":0.7142857142857143},{"kind":"p","label":"Mythic","fromP":0.14285714285714285,"toP":0.2857142857142857}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.13477537437603995},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.3327787021630616},{"kind":"p","label":"Rare","fromP":0.1285714285714286,"toP":0.3993344425956739},{"kind":"p","label":"Mythic","fromP":0.021428571428571425,"toP":0.13311148086522465}]
+[{"kind":"p","label":"Common","fromP":0.5454545454545454,"toP":0.13477537437603995},{"kind":"p","label":"Rare","fromP":0.10101010101010101,"toP":0.3993344425956739},{"kind":"p","label":"Mythic","fromP":0.016835016835016835,"toP":0.13311148086522465}]
+
+## collapseChanges commanderBorrowed false x2 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.7422680412371134},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.2577319587628866},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8571428571428572,"toP":0.7142857142857143},{"kind":"p","label":"Mythic","fromP":0.14285714285714285,"toP":0.2857142857142857}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.13477537437603995},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.3327787021630616},{"kind":"p","label":"Rare","fromP":0.1285714285714286,"toP":0.3993344425956739},{"kind":"p","label":"Mythic","fromP":0.021428571428571425,"toP":0.13311148086522465}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.5454545454545454,"toP":0.13477537437603995},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Rare","fromP":0.10101010101010101,"toP":0.3993344425956739},{"kind":"p","label":"Mythic","fromP":0.016835016835016835,"toP":0.13311148086522465}]
+
+## collapseChanges commanderBorrowed false x3 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.6073298429319371},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.39267015706806285},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8571428571428572,"toP":0.5714285714285714},{"kind":"p","label":"Mythic","fromP":0.14285714285714285,"toP":0.42857142857142855}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.07356948228882834},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.2724795640326976},{"kind":"p","label":"Rare","fromP":0.1285714285714286,"toP":0.4904632152588556},{"kind":"p","label":"Mythic","fromP":0.021428571428571425,"toP":0.16348773841961853}]
+[{"kind":"p","label":"Common","fromP":0.5454545454545454,"toP":0.07356948228882834},{"kind":"p","label":"Uncommon","fromP":0.3367003367003367,"toP":0.2724795640326976},{"kind":"p","label":"Rare","fromP":0.10101010101010101,"toP":0.4904632152588556},{"kind":"p","label":"Mythic","fromP":0.016835016835016835,"toP":0.16348773841961853}]
+
+## collapseChanges commanderBorrowed false x3 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.6073298429319371},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.39267015706806285},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8571428571428572,"toP":0.5714285714285714},{"kind":"p","label":"Mythic","fromP":0.14285714285714285,"toP":0.42857142857142855}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.07356948228882834},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.2724795640326976},{"kind":"p","label":"Rare","fromP":0.1285714285714286,"toP":0.4904632152588556},{"kind":"p","label":"Mythic","fromP":0.021428571428571425,"toP":0.16348773841961853}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.5454545454545454,"toP":0.07356948228882834},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.3367003367003367,"toP":0.2724795640326976},{"kind":"p","label":"Rare","fromP":0.10101010101010101,"toP":0.4904632152588556},{"kind":"p","label":"Mythic","fromP":0.016835016835016835,"toP":0.16348773841961853}]
+
+## collapseChanges commanderBorrowed false x4 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.4680851063829787},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.5319148936170213},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8571428571428572,"toP":0.4285714285714286},{"kind":"p","label":"Mythic","fromP":0.14285714285714285,"toP":0.5714285714285714}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.04599659284497445},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.2271436683702442},{"kind":"p","label":"Rare","fromP":0.1285714285714286,"toP":0.545144804088586},{"kind":"p","label":"Mythic","fromP":0.021428571428571425,"toP":0.18171493469619535}]
+[{"kind":"p","label":"Common","fromP":0.5454545454545454,"toP":0.04599659284497445},{"kind":"p","label":"Uncommon","fromP":0.3367003367003367,"toP":0.2271436683702442},{"kind":"p","label":"Rare","fromP":0.10101010101010101,"toP":0.545144804088586},{"kind":"p","label":"Mythic","fromP":0.016835016835016835,"toP":0.18171493469619535}]
+
+## collapseChanges commanderBorrowed false x4 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.4680851063829787},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.5319148936170213},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8571428571428572,"toP":0.4285714285714286},{"kind":"p","label":"Mythic","fromP":0.14285714285714285,"toP":0.5714285714285714}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.04599659284497445},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.2271436683702442},{"kind":"p","label":"Rare","fromP":0.1285714285714286,"toP":0.545144804088586},{"kind":"p","label":"Mythic","fromP":0.021428571428571425,"toP":0.18171493469619535}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.5454545454545454,"toP":0.04599659284497445},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.3367003367003367,"toP":0.2271436683702442},{"kind":"p","label":"Rare","fromP":0.10101010101010101,"toP":0.545144804088586},{"kind":"p","label":"Mythic","fromP":0.016835016835016835,"toP":0.18171493469619535}]
+
+## collapseChanges commanderBorrowed false x5 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.32432432432432434},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.6756756756756757},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8571428571428572,"toP":0.2857142857142858},{"kind":"p","label":"Mythic","fromP":0.14285714285714285,"toP":0.7142857142857142}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.03138318481208834},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.19372336303758234},{"kind":"p","label":"Rare","fromP":0.1285714285714286,"toP":0.581170089112747},{"kind":"p","label":"Mythic","fromP":0.021428571428571425,"toP":0.19372336303758234}]
+[{"kind":"p","label":"Common","fromP":0.5454545454545454,"toP":0.03138318481208834},{"kind":"p","label":"Uncommon","fromP":0.3367003367003367,"toP":0.19372336303758234},{"kind":"p","label":"Rare","fromP":0.10101010101010101,"toP":0.581170089112747},{"kind":"p","label":"Mythic","fromP":0.016835016835016835,"toP":0.19372336303758234}]
+
+## collapseChanges commanderBorrowed false x5 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.32432432432432434},{"kind":"p","label":"The List","fromP":0.1111111111111111,"toP":0.6756756756756757},{"kind":"removed","label":"Common","fromP":0.8888888888888888}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[{"kind":"p","label":"Rare","fromP":0.8571428571428572,"toP":0.2857142857142858},{"kind":"p","label":"Mythic","fromP":0.14285714285714285,"toP":0.7142857142857142}]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":1}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"},{"kind":"p","label":"Common","fromP":0.18,"toP":0.03138318481208834},{"kind":"p","label":"Uncommon","fromP":0.67,"toP":0.19372336303758234},{"kind":"p","label":"Rare","fromP":0.1285714285714286,"toP":0.581170089112747},{"kind":"p","label":"Mythic","fromP":0.021428571428571425,"toP":0.19372336303758234}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"p","label":"Common","fromP":0.5454545454545454,"toP":0.03138318481208834},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]},{"kind":"p","label":"Uncommon","fromP":0.3367003367003367,"toP":0.19372336303758234},{"kind":"p","label":"Rare","fromP":0.10101010101010101,"toP":0.581170089112747},{"kind":"p","label":"Mythic","fromP":0.016835016835016835,"toP":0.19372336303758234}]
+
+## collapseChanges null (still loading) false x1 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.86},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.125},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"}]
+[]
+
+## collapseChanges null (still loading) false x1 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.86},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.125},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]}]
+
+## collapseChanges null (still loading) false x2 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.72},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.25},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.03},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"}]
+[]
+
+## collapseChanges null (still loading) false x2 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.72},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.25},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.03},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]}]
+
+## collapseChanges null (still loading) false x3 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.58},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.375},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.045},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"}]
+[]
+
+## collapseChanges null (still loading) false x3 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.58},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.375},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.045},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]}]
+
+## collapseChanges null (still loading) false x4 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.43999999999999995},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.5},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.06},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"}]
+[]
+
+## collapseChanges null (still loading) false x4 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.43999999999999995},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.5},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.06},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]}]
+
+## collapseChanges null (still loading) false x5 foil=false
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.30000000000000004},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.625},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.075},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"}]
+[]
+
+## collapseChanges null (still loading) false x5 foil=true
+[]
+[{"kind":"title","fromTitle":"Common / The List / Special Guest","toTitle":"Uncommon / The List / Special Guest"},{"kind":"added","label":"Uncommon","toP":0.30000000000000004},{"kind":"p","label":"The List","fromP":0.109375,"toP":0.625},{"kind":"p","label":"Special Guest","fromP":0.015625,"toP":0.075},{"kind":"removed","label":"Common","fromP":0.875}]
+[]
+[{"kind":"title","fromTitle":"Uncommon","toTitle":"Rare"},{"kind":"added","label":"Rare","toP":1},{"kind":"removed","label":"Uncommon","fromP":1}]
+[]
+[{"kind":"title","fromTitle":"Land","toTitle":"Land (upgraded)"},{"kind":"added","label":"Non-basic land","toP":1},{"kind":"removed","label":"Basic land","fromP":0.5},{"kind":"removed","label":"Common dual land","fromP":0.5}]
+[{"kind":"title","fromTitle":"Wildcard (non-foil)","toTitle":"Wildcard"}]
+[{"kind":"title","fromTitle":"Wildcard (foil if rare or mythic)","toTitle":"Wildcard (foil)"},{"kind":"foil","label":"Common","fromFoil":0,"toFoil":1,"labels":["Common","Uncommon"]}]
+
+## changeText
+"now <b>Uncommon</b> <span class=\"was\">(vanilla: Common)</span>"
+"<b>The List</b> added at 12.5%"
+"<b>The List</b> added"
+"<b>Common</b> removed <span class=\"was\">(vanilla 98.0%)</span>"
+"<b>Common</b> removed <span class=\"was\">(vanilla possible)</span>"
+"<b>Mythic</b> 14.0% → 42.0% <span class=\"up\">▲</span>"
+"<b>Rare</b> 85.0% → 57.0% <span class=\"down\">▼</span>"
+"<b>Rare</b> non-foil → always foil"
+
+## slotOptionNames dsk false x1 foil=false list=false
+## slotOptionNames dsk false x2 foil=false list=false
+## slotOptionNames dsk false x3 foil=false list=false
+## slotOptionNames dsk false x4 foil=false list=false
+## slotOptionNames dsk false x5 foil=false list=false
+## slotOptionNames lopsided false x1 foil=false list=false
+## slotOptionNames lopsided false x2 foil=false list=false
+## slotOptionNames lopsided false x3 foil=false list=false
+## slotOptionNames lopsided false x4 foil=false list=false
+## slotOptionNames lopsided false x5 foil=false list=false
+## slotOptionNames noMythics false x1 foil=false list=false
+## slotOptionNames noMythics false x2 foil=false list=false
+## slotOptionNames noMythics false x3 foil=false list=false
+## slotOptionNames noMythics false x4 foil=false list=false
+## slotOptionNames noMythics false x5 foil=false list=false
+## slotOptionNames noRares false x1 foil=false list=false
+## slotOptionNames noRares false x2 foil=false list=false
+## slotOptionNames noRares false x3 foil=false list=false
+## slotOptionNames noRares false x4 foil=false list=false
+## slotOptionNames noRares false x5 foil=false list=false
+## slotOptionNames sparse false x1 foil=false list=false
+## slotOptionNames sparse false x2 foil=false list=false
+## slotOptionNames sparse false x3 foil=false list=false
+## slotOptionNames sparse false x4 foil=false list=false
+## slotOptionNames sparse false x5 foil=false list=false
+## slotOptionNames empty false x1 foil=false list=false
+## slotOptionNames empty false x2 foil=false list=false
+## slotOptionNames empty false x3 foil=false list=false
+## slotOptionNames empty false x4 foil=false list=false
+## slotOptionNames empty false x5 foil=false list=false
+## slotOptionNames commanderFull false x1 foil=false list=false
+## slotOptionNames commanderFull false x2 foil=false list=false
+## slotOptionNames commanderFull false x3 foil=false list=false
+## slotOptionNames commanderFull false x4 foil=false list=false
+## slotOptionNames commanderFull false x5 foil=false list=false
+## slotOptionNames commanderBorrowed false x1 foil=false list=false
+## slotOptionNames commanderBorrowed false x2 foil=false list=false
+## slotOptionNames commanderBorrowed false x3 foil=false list=false
+## slotOptionNames commanderBorrowed false x4 foil=false list=false
+## slotOptionNames commanderBorrowed false x5 foil=false list=false
+## slotOptionNames null (still loading) false x1 foil=false list=false
+## slotOptionNames null (still loading) false x2 foil=false list=false
+## slotOptionNames null (still loading) false x3 foil=false list=false
+## slotOptionNames null (still loading) false x4 foil=false list=false
+## slotOptionNames null (still loading) false x5 foil=false list=false
+[]
+["multiplier","slot upgrades"]
+[]
+["slot upgrades"]
+["multiplier"]
+["land upgrade"]
+["multiplier"]
+["multiplier"]
+
+## slotOptionNames dsk false x1 foil=false list=true
+## slotOptionNames dsk false x2 foil=false list=true
+## slotOptionNames dsk false x3 foil=false list=true
+## slotOptionNames dsk false x4 foil=false list=true
+## slotOptionNames dsk false x5 foil=false list=true
+## slotOptionNames lopsided false x1 foil=false list=true
+## slotOptionNames lopsided false x2 foil=false list=true
+## slotOptionNames lopsided false x3 foil=false list=true
+## slotOptionNames lopsided false x4 foil=false list=true
+## slotOptionNames lopsided false x5 foil=false list=true
+## slotOptionNames noMythics false x1 foil=false list=true
+## slotOptionNames noMythics false x2 foil=false list=true
+## slotOptionNames noMythics false x3 foil=false list=true
+## slotOptionNames noMythics false x4 foil=false list=true
+## slotOptionNames noMythics false x5 foil=false list=true
+## slotOptionNames noRares false x1 foil=false list=true
+## slotOptionNames noRares false x2 foil=false list=true
+## slotOptionNames noRares false x3 foil=false list=true
+## slotOptionNames noRares false x4 foil=false list=true
+## slotOptionNames noRares false x5 foil=false list=true
+## slotOptionNames sparse false x1 foil=false list=true
+## slotOptionNames sparse false x2 foil=false list=true
+## slotOptionNames sparse false x3 foil=false list=true
+## slotOptionNames sparse false x4 foil=false list=true
+## slotOptionNames sparse false x5 foil=false list=true
+## slotOptionNames empty false x1 foil=false list=true
+## slotOptionNames empty false x2 foil=false list=true
+## slotOptionNames empty false x3 foil=false list=true
+## slotOptionNames empty false x4 foil=false list=true
+## slotOptionNames empty false x5 foil=false list=true
+## slotOptionNames commanderFull false x1 foil=false list=true
+## slotOptionNames commanderFull false x2 foil=false list=true
+## slotOptionNames commanderFull false x3 foil=false list=true
+## slotOptionNames commanderFull false x4 foil=false list=true
+## slotOptionNames commanderFull false x5 foil=false list=true
+## slotOptionNames commanderBorrowed false x1 foil=false list=true
+## slotOptionNames commanderBorrowed false x2 foil=false list=true
+## slotOptionNames commanderBorrowed false x3 foil=false list=true
+## slotOptionNames commanderBorrowed false x4 foil=false list=true
+## slotOptionNames commanderBorrowed false x5 foil=false list=true
+## slotOptionNames null (still loading) false x1 foil=false list=true
+## slotOptionNames null (still loading) false x2 foil=false list=true
+## slotOptionNames null (still loading) false x3 foil=false list=true
+## slotOptionNames null (still loading) false x4 foil=false list=true
+## slotOptionNames null (still loading) false x5 foil=false list=true
+[]
+["multiplier","List toggle","slot upgrades"]
+[]
+["slot upgrades"]
+["multiplier"]
+["land upgrade"]
+["multiplier"]
+["multiplier"]
+
+## slotOptionNames dsk false x1 foil=true list=false
+## slotOptionNames dsk false x2 foil=true list=false
+## slotOptionNames dsk false x3 foil=true list=false
+## slotOptionNames dsk false x4 foil=true list=false
+## slotOptionNames dsk false x5 foil=true list=false
+## slotOptionNames lopsided false x1 foil=true list=false
+## slotOptionNames lopsided false x2 foil=true list=false
+## slotOptionNames lopsided false x3 foil=true list=false
+## slotOptionNames lopsided false x4 foil=true list=false
+## slotOptionNames lopsided false x5 foil=true list=false
+## slotOptionNames noMythics false x1 foil=true list=false
+## slotOptionNames noMythics false x2 foil=true list=false
+## slotOptionNames noMythics false x3 foil=true list=false
+## slotOptionNames noMythics false x4 foil=true list=false
+## slotOptionNames noMythics false x5 foil=true list=false
+## slotOptionNames noRares false x1 foil=true list=false
+## slotOptionNames noRares false x2 foil=true list=false
+## slotOptionNames noRares false x3 foil=true list=false
+## slotOptionNames noRares false x4 foil=true list=false
+## slotOptionNames noRares false x5 foil=true list=false
+## slotOptionNames sparse false x1 foil=true list=false
+## slotOptionNames sparse false x2 foil=true list=false
+## slotOptionNames sparse false x3 foil=true list=false
+## slotOptionNames sparse false x4 foil=true list=false
+## slotOptionNames sparse false x5 foil=true list=false
+## slotOptionNames empty false x1 foil=true list=false
+## slotOptionNames empty false x2 foil=true list=false
+## slotOptionNames empty false x3 foil=true list=false
+## slotOptionNames empty false x4 foil=true list=false
+## slotOptionNames empty false x5 foil=true list=false
+## slotOptionNames commanderFull false x1 foil=true list=false
+## slotOptionNames commanderFull false x2 foil=true list=false
+## slotOptionNames commanderFull false x3 foil=true list=false
+## slotOptionNames commanderFull false x4 foil=true list=false
+## slotOptionNames commanderFull false x5 foil=true list=false
+## slotOptionNames commanderBorrowed false x1 foil=true list=false
+## slotOptionNames commanderBorrowed false x2 foil=true list=false
+## slotOptionNames commanderBorrowed false x3 foil=true list=false
+## slotOptionNames commanderBorrowed false x4 foil=true list=false
+## slotOptionNames commanderBorrowed false x5 foil=true list=false
+## slotOptionNames null (still loading) false x1 foil=true list=false
+## slotOptionNames null (still loading) false x2 foil=true list=false
+## slotOptionNames null (still loading) false x3 foil=true list=false
+## slotOptionNames null (still loading) false x4 foil=true list=false
+## slotOptionNames null (still loading) false x5 foil=true list=false
+[]
+["multiplier","slot upgrades"]
+[]
+["slot upgrades"]
+["multiplier"]
+["land upgrade"]
+["multiplier"]
+["multiplier","foil toggle"]
+
+## slotOptionNames dsk false x1 foil=true list=true
+## slotOptionNames dsk false x2 foil=true list=true
+## slotOptionNames dsk false x3 foil=true list=true
+## slotOptionNames dsk false x4 foil=true list=true
+## slotOptionNames dsk false x5 foil=true list=true
+## slotOptionNames lopsided false x1 foil=true list=true
+## slotOptionNames lopsided false x2 foil=true list=true
+## slotOptionNames lopsided false x3 foil=true list=true
+## slotOptionNames lopsided false x4 foil=true list=true
+## slotOptionNames lopsided false x5 foil=true list=true
+## slotOptionNames noMythics false x1 foil=true list=true
+## slotOptionNames noMythics false x2 foil=true list=true
+## slotOptionNames noMythics false x3 foil=true list=true
+## slotOptionNames noMythics false x4 foil=true list=true
+## slotOptionNames noMythics false x5 foil=true list=true
+## slotOptionNames noRares false x1 foil=true list=true
+## slotOptionNames noRares false x2 foil=true list=true
+## slotOptionNames noRares false x3 foil=true list=true
+## slotOptionNames noRares false x4 foil=true list=true
+## slotOptionNames noRares false x5 foil=true list=true
+## slotOptionNames sparse false x1 foil=true list=true
+## slotOptionNames sparse false x2 foil=true list=true
+## slotOptionNames sparse false x3 foil=true list=true
+## slotOptionNames sparse false x4 foil=true list=true
+## slotOptionNames sparse false x5 foil=true list=true
+## slotOptionNames empty false x1 foil=true list=true
+## slotOptionNames empty false x2 foil=true list=true
+## slotOptionNames empty false x3 foil=true list=true
+## slotOptionNames empty false x4 foil=true list=true
+## slotOptionNames empty false x5 foil=true list=true
+## slotOptionNames commanderFull false x1 foil=true list=true
+## slotOptionNames commanderFull false x2 foil=true list=true
+## slotOptionNames commanderFull false x3 foil=true list=true
+## slotOptionNames commanderFull false x4 foil=true list=true
+## slotOptionNames commanderFull false x5 foil=true list=true
+## slotOptionNames commanderBorrowed false x1 foil=true list=true
+## slotOptionNames commanderBorrowed false x2 foil=true list=true
+## slotOptionNames commanderBorrowed false x3 foil=true list=true
+## slotOptionNames commanderBorrowed false x4 foil=true list=true
+## slotOptionNames commanderBorrowed false x5 foil=true list=true
+## slotOptionNames null (still loading) false x1 foil=true list=true
+## slotOptionNames null (still loading) false x2 foil=true list=true
+## slotOptionNames null (still loading) false x3 foil=true list=true
+## slotOptionNames null (still loading) false x4 foil=true list=true
+## slotOptionNames null (still loading) false x5 foil=true list=true
+[]
+["multiplier","List toggle","slot upgrades"]
+[]
+["slot upgrades"]
+["multiplier"]
+["land upgrade"]
+["multiplier"]
+["multiplier","foil toggle"]
+
+## vanillaOpts
+foilToggle = false
+guest = false
+includeBonus = true
+listEra = true
+listToggle = false
+mult = 1
+separatorType = token
+vanilla = true
+
+## names
+FUN_NAMES.foilToggle = foil toggle
+FUN_NAMES.landUpgrade = land upgrade
+FUN_NAMES.listToggle = List toggle
+FUN_NAMES.mult = multiplier
+FUN_NAMES.slotUpgrade = slot upgrades
+POOL_NAMES.commons = commons
+POOL_NAMES.etched = foil-etched legends
+POOL_NAMES.landBasics = basic lands
+POOL_NAMES.landDuals = common dual lands
+POOL_NAMES.legAll = any legendary creature/planeswalker
+POOL_NAMES.legC = legendary commons
+POOL_NAMES.legM = legendary mythics
+POOL_NAMES.legR = legendary rares
+POOL_NAMES.legU = legendary uncommons
+POOL_NAMES.nonBasicLands = non-basic lands
+POOL_NAMES.rares = nonlegendary rares
+POOL_NAMES.uncommons = nonlegendary uncommons
+
+## rarityMix commons
+mix = 
+share = 0.6666666666666666
+
+## rarityMix nonBasicLands
+mix = 1 common, 1 uncommon, 1 rare
+share = 1
+
+## rarityMix rares
+## rarityMix mythics
+## rarityMix uncommons
+## rarityMix landDuals
+## rarityMix spg
+mix = 
+share = 0
+
+## rarityMix landBasics
+mix = 
+share = 1
+
+## expectedLands true x1
+## expectedLands true x2
+## expectedLands true x3
+## expectedLands true x4
+## expectedLands true x5
+(root) = 6.228721624850657
+
+## expectedLands false x1
+(root) = 5.666666666666666
+
+## expectedLands false x2
+(root) = 5.307692307692308
+
+## expectedLands false x3
+(root) = 5.166666666666666
+
+## expectedLands false x4
+(root) = 5.102564102564102
+
+## expectedLands false x5
+(root) = 5.068965517241379

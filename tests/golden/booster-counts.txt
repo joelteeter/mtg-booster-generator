@@ -1,0 +1,3085 @@
+# expectedCounts for every spec in the sweep.
+#
+# Recorded from js/booster-logic.js at commit d81f583, the last commit
+# before the old app was deleted. At that point every one of these values was
+# asserted equal to the port's, case by case, by tests/parity.test.ts.
+#
+# These are not regenerable: the implementation that produced them is gone.
+# A change here is a change in behaviour, and wants reading before it is
+# accepted.
+
+## play dsk vanilla x1 listEra=false foil=false list=false
+## play dsk vanilla x2 listEra=false foil=false list=false
+## play dsk vanilla x3 listEra=false foil=false list=false
+## play dsk vanilla x4 listEra=false foil=false list=false
+## play dsk vanilla x5 listEra=false foil=false list=false
+## play dsk vanilla x1 listEra=false foil=false list=true
+## play dsk vanilla x2 listEra=false foil=false list=true
+## play dsk vanilla x3 listEra=false foil=false list=true
+## play dsk vanilla x4 listEra=false foil=false list=true
+## play dsk vanilla x5 listEra=false foil=false list=true
+## play dsk vanilla x1 listEra=false foil=true list=false
+## play dsk vanilla x2 listEra=false foil=true list=false
+## play dsk vanilla x3 listEra=false foil=true list=false
+## play dsk vanilla x4 listEra=false foil=true list=false
+## play dsk vanilla x5 listEra=false foil=true list=false
+## play dsk vanilla x1 listEra=false foil=true list=true
+## play dsk vanilla x2 listEra=false foil=true list=true
+## play dsk vanilla x3 listEra=false foil=true list=true
+## play dsk vanilla x4 listEra=false foil=true list=true
+## play dsk vanilla x5 listEra=false foil=true list=true
+Basic land = 0.5
+Common = 7.709829545454545
+Common dual land = 0.5
+Mythic = 0.18112073112073113
+Rare = 1.0867243867243868
+Special Guest = 0.015625
+Uncommon = 4.006700336700336
+__foil = 0.3178451178451178
+
+## play dsk fun x1 listEra=false foil=false list=false
+## play dsk fun x1 listEra=true foil=false list=false
+Common = 6.620689655172415
+Mythic = 0.2961138478379857
+Non-basic land = 1
+Rare = 2.3169129720853863
+Special Guest = 0.015
+Uncommon = 3.7512835249042147
+__foil = 0.3065134099616858
+
+## play dsk fun x2 listEra=false foil=false list=false
+## play dsk fun x2 listEra=true foil=false list=false
+Common = 6.26955074875208
+Mythic = 0.5519372474447349
+Non-basic land = 1
+Rare = 2.5129545994770623
+Special Guest = 0.03
+Uncommon = 3.635557404326123
+__foil = 0.5324459234608986
+
+## play dsk fun x3 listEra=false foil=false list=false
+## play dsk fun x3 listEra=true foil=false list=false
+Common = 6.147138964577657
+Mythic = 0.7555469054106656
+Non-basic land = 1
+Rare = 2.5523550019462826
+Special Guest = 0.045
+Uncommon = 3.499959128065395
+__foil = 0.6539509536784741
+
+## play dsk fun x4 listEra=false foil=false list=false
+## play dsk fun x4 listEra=true foil=false list=false
+Common = 6.091993185689949
+Mythic = 0.9348584408209621
+Non-basic land = 1
+Rare = 2.518861036748601
+Special Guest = 0.06
+Uncommon = 3.3942873367404887
+__foil = 0.7268597387847814
+
+## play dsk fun x5 listEra=false foil=false list=false
+## play dsk fun x5 listEra=true foil=false list=false
+Common = 6.0627663696241765
+Mythic = 1.1017324403608788
+Non-basic land = 1
+Rare = 2.44805446393978
+Special Guest = 0.075
+Uncommon = 3.312446726075165
+__foil = 0.7748934521503293
+
+## play dsk fun x1 listEra=false foil=false list=true
+## play dsk fun x1 listEra=true foil=false list=true
+Common = 6.620689655172415
+Mythic = 0.2961138478379857
+Non-basic land = 1
+Rare = 2.3169129720853863
+Special Guest = 0.015
+The List = 0.125
+Uncommon = 3.6262835249042147
+__foil = 0.3065134099616858
+
+## play dsk fun x2 listEra=false foil=false list=true
+## play dsk fun x2 listEra=true foil=false list=true
+Common = 6.26955074875208
+Mythic = 0.5519372474447349
+Non-basic land = 1
+Rare = 2.5129545994770623
+Special Guest = 0.03
+The List = 0.25
+Uncommon = 3.385557404326123
+__foil = 0.5324459234608986
+
+## play dsk fun x3 listEra=false foil=false list=true
+## play dsk fun x3 listEra=true foil=false list=true
+Common = 6.147138964577657
+Mythic = 0.7555469054106656
+Non-basic land = 1
+Rare = 2.5523550019462826
+Special Guest = 0.045
+The List = 0.375
+Uncommon = 3.124959128065395
+__foil = 0.6539509536784741
+
+## play dsk fun x4 listEra=false foil=false list=true
+## play dsk fun x4 listEra=true foil=false list=true
+Common = 6.091993185689949
+Mythic = 0.9348584408209621
+Non-basic land = 1
+Rare = 2.518861036748601
+Special Guest = 0.06
+The List = 0.5
+Uncommon = 2.8942873367404887
+__foil = 0.7268597387847814
+
+## play dsk fun x5 listEra=false foil=false list=true
+## play dsk fun x5 listEra=true foil=false list=true
+Common = 6.0627663696241765
+Mythic = 1.1017324403608788
+Non-basic land = 1
+Rare = 2.44805446393978
+Special Guest = 0.075
+The List = 0.625
+Uncommon = 2.687446726075165
+__foil = 0.7748934521503293
+
+## play dsk fun x1 listEra=false foil=true list=false
+## play dsk fun x1 listEra=true foil=true list=false
+Common = 6.620689655172415
+Mythic = 0.2961138478379857
+Non-basic land = 1
+Rare = 2.3169129720853863
+Special Guest = 0.015
+Uncommon = 3.7512835249042147
+__foil = 1
+
+## play dsk fun x2 listEra=false foil=true list=false
+## play dsk fun x2 listEra=true foil=true list=false
+Common = 6.26955074875208
+Mythic = 0.5519372474447349
+Non-basic land = 1
+Rare = 2.5129545994770623
+Special Guest = 0.03
+Uncommon = 3.635557404326123
+__foil = 1.0000000000000002
+
+## play dsk fun x3 listEra=false foil=true list=false
+## play dsk fun x3 listEra=true foil=true list=false
+Common = 6.147138964577657
+Mythic = 0.7555469054106656
+Non-basic land = 1
+Rare = 2.5523550019462826
+Special Guest = 0.045
+Uncommon = 3.499959128065395
+__foil = 1
+
+## play dsk fun x4 listEra=false foil=true list=false
+## play dsk fun x4 listEra=true foil=true list=false
+Common = 6.091993185689949
+Mythic = 0.9348584408209621
+Non-basic land = 1
+Rare = 2.518861036748601
+Special Guest = 0.06
+Uncommon = 3.3942873367404887
+__foil = 1
+
+## play dsk fun x5 listEra=false foil=true list=false
+## play dsk fun x5 listEra=true foil=true list=false
+Common = 6.0627663696241765
+Mythic = 1.1017324403608788
+Non-basic land = 1
+Rare = 2.44805446393978
+Special Guest = 0.075
+Uncommon = 3.312446726075165
+__foil = 1
+
+## play dsk fun x1 listEra=false foil=true list=true
+## play dsk fun x1 listEra=true foil=true list=true
+Common = 6.620689655172415
+Mythic = 0.2961138478379857
+Non-basic land = 1
+Rare = 2.3169129720853863
+Special Guest = 0.015
+The List = 0.125
+Uncommon = 3.6262835249042147
+__foil = 1
+
+## play dsk fun x2 listEra=false foil=true list=true
+## play dsk fun x2 listEra=true foil=true list=true
+Common = 6.26955074875208
+Mythic = 0.5519372474447349
+Non-basic land = 1
+Rare = 2.5129545994770623
+Special Guest = 0.03
+The List = 0.25
+Uncommon = 3.385557404326123
+__foil = 1.0000000000000002
+
+## play dsk fun x3 listEra=false foil=true list=true
+## play dsk fun x3 listEra=true foil=true list=true
+Common = 6.147138964577657
+Mythic = 0.7555469054106656
+Non-basic land = 1
+Rare = 2.5523550019462826
+Special Guest = 0.045
+The List = 0.375
+Uncommon = 3.124959128065395
+__foil = 1
+
+## play dsk fun x4 listEra=false foil=true list=true
+## play dsk fun x4 listEra=true foil=true list=true
+Common = 6.091993185689949
+Mythic = 0.9348584408209621
+Non-basic land = 1
+Rare = 2.518861036748601
+Special Guest = 0.06
+The List = 0.5
+Uncommon = 2.8942873367404887
+__foil = 1
+
+## play dsk fun x5 listEra=false foil=true list=true
+## play dsk fun x5 listEra=true foil=true list=true
+Common = 6.0627663696241765
+Mythic = 1.1017324403608788
+Non-basic land = 1
+Rare = 2.44805446393978
+Special Guest = 0.075
+The List = 0.625
+Uncommon = 2.687446726075165
+__foil = 1
+
+## play dsk vanilla x1 listEra=true foil=false list=false
+## play dsk vanilla x2 listEra=true foil=false list=false
+## play dsk vanilla x3 listEra=true foil=false list=false
+## play dsk vanilla x4 listEra=true foil=false list=false
+## play dsk vanilla x5 listEra=true foil=false list=false
+## play dsk vanilla x1 listEra=true foil=false list=true
+## play dsk vanilla x2 listEra=true foil=false list=true
+## play dsk vanilla x3 listEra=true foil=false list=true
+## play dsk vanilla x4 listEra=true foil=false list=true
+## play dsk vanilla x5 listEra=true foil=false list=true
+## play dsk vanilla x1 listEra=true foil=true list=false
+## play dsk vanilla x2 listEra=true foil=true list=false
+## play dsk vanilla x3 listEra=true foil=true list=false
+## play dsk vanilla x4 listEra=true foil=true list=false
+## play dsk vanilla x5 listEra=true foil=true list=false
+## play dsk vanilla x1 listEra=true foil=true list=true
+## play dsk vanilla x2 listEra=true foil=true list=true
+## play dsk vanilla x3 listEra=true foil=true list=true
+## play dsk vanilla x4 listEra=true foil=true list=true
+## play dsk vanilla x5 listEra=true foil=true list=true
+Basic land = 0.5
+Common = 7.600454545454545
+Common dual land = 0.5
+Mythic = 0.18112073112073113
+Rare = 1.0867243867243868
+Special Guest = 0.015625
+The List = 0.109375
+Uncommon = 4.006700336700336
+__foil = 0.3178451178451178
+
+## cmd dsk cmr vanilla x1
+## cmd dsk cmr vanilla x2
+## cmd dsk cmr vanilla x3
+## cmd dsk cmr vanilla x4
+## cmd dsk cmr vanilla x5
+## cmd dsk cmr fun x1
+Common = 13
+Legendary rare = 0.46153846153846156
+Legendary uncommon = 1.5384615384615385
+Mythic = 0.14285714285714285
+Rare = 0.8571428571428572
+Uncommon = 3
+
+## cmd dsk cmr fun x2
+Common = 13
+Legendary rare = 0.75
+Legendary uncommon = 1.25
+Mythic = 0.2857142857142857
+Rare = 0.7142857142857143
+Uncommon = 3
+
+## cmd dsk cmr fun x3
+Common = 13
+Legendary rare = 0.9473684210526315
+Legendary uncommon = 1.0526315789473684
+Mythic = 0.42857142857142855
+Rare = 0.5714285714285714
+Uncommon = 3
+
+## cmd dsk cmr fun x4
+Common = 13
+Legendary rare = 1.0909090909090908
+Legendary uncommon = 0.9090909090909091
+Mythic = 0.5714285714285714
+Rare = 0.4285714285714286
+Uncommon = 3
+
+## cmd dsk cmr fun x5
+Common = 13
+Legendary rare = 1.2
+Legendary uncommon = 0.8
+Mythic = 0.7142857142857142
+Rare = 0.2857142857142858
+Uncommon = 3
+
+## cmd dsk clb vanilla x1
+## cmd dsk clb vanilla x2
+## cmd dsk clb vanilla x3
+## cmd dsk clb vanilla x4
+## cmd dsk clb vanilla x5
+## cmd dsk clb fun x1
+Common = 13
+Legendary rare = 0.3933333333333333
+Legendary uncommon = 1.6066666666666665
+Mythic = 0.14285714285714285
+Rare = 0.8571428571428572
+Uncommon = 3
+
+## cmd dsk clb fun x2
+Common = 13
+Legendary rare = 0.7866666666666666
+Legendary uncommon = 1.2133333333333334
+Mythic = 0.2857142857142857
+Rare = 0.7142857142857143
+Uncommon = 3
+
+## cmd dsk clb fun x3
+Common = 13
+Legendary rare = 1.18
+Legendary uncommon = 0.8200000000000001
+Mythic = 0.42857142857142855
+Rare = 0.5714285714285714
+Uncommon = 3
+
+## cmd dsk clb fun x4
+Common = 13
+Legendary rare = 1.3333333333333333
+Legendary uncommon = 0.6666666666666667
+Mythic = 0.5714285714285714
+Rare = 0.4285714285714286
+Uncommon = 3
+
+## cmd dsk clb fun x5
+Common = 13
+Legendary rare = 1.4166666666666665
+Legendary uncommon = 0.5833333333333334
+Mythic = 0.7142857142857142
+Rare = 0.2857142857142858
+Uncommon = 3
+
+## cmd dsk cmm vanilla x1
+## cmd dsk cmm vanilla x2
+## cmd dsk cmm vanilla x3
+## cmd dsk cmm vanilla x4
+## cmd dsk cmm vanilla x5
+## cmd dsk cmm fun x1
+Common = 11
+Legendary rare = 1
+Legendary uncommon = 2
+Mythic = 0.19047619047619047
+Rare = 1.1428571428571428
+Uncommon = 3.666666666666667
+
+## cmd dsk cmm fun x2
+Common = 11
+Legendary rare = 1
+Legendary uncommon = 2
+Mythic = 0.47619047619047616
+Rare = 1.1904761904761905
+Uncommon = 3.3333333333333335
+
+## cmd dsk cmm fun x3
+Common = 11
+Legendary rare = 1
+Legendary uncommon = 2
+Mythic = 0.8571428571428571
+Rare = 1.1428571428571428
+Uncommon = 3
+
+## cmd dsk cmm fun x4
+Common = 11
+Legendary rare = 1
+Legendary uncommon = 2
+Mythic = 1.1428571428571428
+Rare = 0.8571428571428572
+Uncommon = 3
+
+## cmd dsk cmm fun x5
+Common = 11
+Legendary rare = 1
+Legendary uncommon = 2
+Mythic = 1.4285714285714284
+Rare = 0.5714285714285716
+Uncommon = 3
+
+## god dsk
+## god commanderBorrowed
+Mythic = 1.9999999999999996
+Rare = 12.000000000000004
+__foil = 2
+
+## play lopsided vanilla x1 listEra=false foil=false list=false
+## play lopsided vanilla x2 listEra=false foil=false list=false
+## play lopsided vanilla x3 listEra=false foil=false list=false
+## play lopsided vanilla x4 listEra=false foil=false list=false
+## play lopsided vanilla x5 listEra=false foil=false list=false
+## play lopsided vanilla x1 listEra=false foil=false list=true
+## play lopsided vanilla x2 listEra=false foil=false list=true
+## play lopsided vanilla x3 listEra=false foil=false list=true
+## play lopsided vanilla x4 listEra=false foil=false list=true
+## play lopsided vanilla x5 listEra=false foil=false list=true
+## play lopsided vanilla x1 listEra=false foil=true list=false
+## play lopsided vanilla x2 listEra=false foil=true list=false
+## play lopsided vanilla x3 listEra=false foil=true list=false
+## play lopsided vanilla x4 listEra=false foil=true list=false
+## play lopsided vanilla x5 listEra=false foil=true list=false
+## play lopsided vanilla x1 listEra=false foil=true list=true
+## play lopsided vanilla x2 listEra=false foil=true list=true
+## play lopsided vanilla x3 listEra=false foil=true list=true
+## play lopsided vanilla x4 listEra=false foil=true list=true
+## play lopsided vanilla x5 listEra=false foil=true list=true
+Basic land = 1
+Common = 7.848135683760684
+Mythic = 0.7156410256410256
+Rare = 0.4770940170940171
+Special Guest = 0.015625
+Uncommon = 3.9435042735042733
+__foil = 0.24273504273504273
+
+## play lopsided fun x1 listEra=false foil=false list=false
+## play lopsided fun x1 listEra=true foil=false list=false
+Common = 6.90909090909091
+Mythic = 0.8727272727272727
+Non-basic land = 1
+Rare = 1.4909090909090907
+Special Guest = 0.015
+Uncommon = 3.7122727272727274
+__foil = 0.18181818181818185
+
+## play lopsided fun x2 listEra=false foil=false list=false
+## play lopsided fun x2 listEra=true foil=false list=false
+Common = 6.476190476190476
+Mythic = 1.5714285714285712
+Non-basic land = 1
+Rare = 1.1904761904761907
+Special Guest = 0.03
+Uncommon = 3.7319047619047616
+__foil = 0.38095238095238093
+
+## play lopsided fun x3 listEra=false foil=false list=false
+## play lopsided fun x3 listEra=true foil=false list=false
+Common = 6.2857142857142865
+Mythic = 1.7714285714285714
+Non-basic land = 1
+Rare = 1.2571428571428571
+Special Guest = 0.045
+Uncommon = 3.640714285714286
+__foil = 0.5142857142857143
+
+## play lopsided fun x4 listEra=false foil=false list=false
+## play lopsided fun x4 listEra=true foil=false list=false
+Common = 6.188679245283019
+Mythic = 1.9056603773584904
+Non-basic land = 1
+Rare = 1.3018867924528301
+Special Guest = 0.06
+Uncommon = 3.54377358490566
+__foil = 0.6037735849056604
+
+## play lopsided fun x5 listEra=false foil=false list=false
+## play lopsided fun x5 listEra=true foil=false list=false
+Common = 6.133333333333333
+Mythic = 2
+Non-basic land = 1
+Rare = 1.3333333333333335
+Special Guest = 0.075
+Uncommon = 3.458333333333333
+__foil = 0.6666666666666666
+
+## play lopsided fun x1 listEra=false foil=false list=true
+## play lopsided fun x1 listEra=true foil=false list=true
+Common = 6.90909090909091
+Mythic = 0.8727272727272727
+Non-basic land = 1
+Rare = 1.4909090909090907
+Special Guest = 0.015
+The List = 0.125
+Uncommon = 3.5872727272727274
+__foil = 0.18181818181818185
+
+## play lopsided fun x2 listEra=false foil=false list=true
+## play lopsided fun x2 listEra=true foil=false list=true
+Common = 6.476190476190476
+Mythic = 1.5714285714285712
+Non-basic land = 1
+Rare = 1.1904761904761907
+Special Guest = 0.03
+The List = 0.25
+Uncommon = 3.4819047619047616
+__foil = 0.38095238095238093
+
+## play lopsided fun x3 listEra=false foil=false list=true
+## play lopsided fun x3 listEra=true foil=false list=true
+Common = 6.2857142857142865
+Mythic = 1.7714285714285714
+Non-basic land = 1
+Rare = 1.2571428571428571
+Special Guest = 0.045
+The List = 0.375
+Uncommon = 3.265714285714286
+__foil = 0.5142857142857143
+
+## play lopsided fun x4 listEra=false foil=false list=true
+## play lopsided fun x4 listEra=true foil=false list=true
+Common = 6.188679245283019
+Mythic = 1.9056603773584904
+Non-basic land = 1
+Rare = 1.3018867924528301
+Special Guest = 0.06
+The List = 0.5
+Uncommon = 3.04377358490566
+__foil = 0.6037735849056604
+
+## play lopsided fun x5 listEra=false foil=false list=true
+## play lopsided fun x5 listEra=true foil=false list=true
+Common = 6.133333333333333
+Mythic = 2
+Non-basic land = 1
+Rare = 1.3333333333333335
+Special Guest = 0.075
+The List = 0.625
+Uncommon = 2.833333333333333
+__foil = 0.6666666666666666
+
+## play lopsided fun x1 listEra=false foil=true list=false
+## play lopsided fun x1 listEra=true foil=true list=false
+Common = 6.90909090909091
+Mythic = 0.8727272727272727
+Non-basic land = 1
+Rare = 1.4909090909090907
+Special Guest = 0.015
+Uncommon = 3.7122727272727274
+__foil = 1.0000000000000002
+
+## play lopsided fun x2 listEra=false foil=true list=false
+## play lopsided fun x2 listEra=true foil=true list=false
+Common = 6.476190476190476
+Mythic = 1.5714285714285712
+Non-basic land = 1
+Rare = 1.1904761904761907
+Special Guest = 0.03
+Uncommon = 3.7319047619047616
+__foil = 1
+
+## play lopsided fun x3 listEra=false foil=true list=false
+## play lopsided fun x3 listEra=true foil=true list=false
+Common = 6.2857142857142865
+Mythic = 1.7714285714285714
+Non-basic land = 1
+Rare = 1.2571428571428571
+Special Guest = 0.045
+Uncommon = 3.640714285714286
+__foil = 1
+
+## play lopsided fun x4 listEra=false foil=true list=false
+## play lopsided fun x4 listEra=true foil=true list=false
+Common = 6.188679245283019
+Mythic = 1.9056603773584904
+Non-basic land = 1
+Rare = 1.3018867924528301
+Special Guest = 0.06
+Uncommon = 3.54377358490566
+__foil = 1
+
+## play lopsided fun x5 listEra=false foil=true list=false
+## play lopsided fun x5 listEra=true foil=true list=false
+Common = 6.133333333333333
+Mythic = 2
+Non-basic land = 1
+Rare = 1.3333333333333335
+Special Guest = 0.075
+Uncommon = 3.458333333333333
+__foil = 1
+
+## play lopsided fun x1 listEra=false foil=true list=true
+## play lopsided fun x1 listEra=true foil=true list=true
+Common = 6.90909090909091
+Mythic = 0.8727272727272727
+Non-basic land = 1
+Rare = 1.4909090909090907
+Special Guest = 0.015
+The List = 0.125
+Uncommon = 3.5872727272727274
+__foil = 1.0000000000000002
+
+## play lopsided fun x2 listEra=false foil=true list=true
+## play lopsided fun x2 listEra=true foil=true list=true
+Common = 6.476190476190476
+Mythic = 1.5714285714285712
+Non-basic land = 1
+Rare = 1.1904761904761907
+Special Guest = 0.03
+The List = 0.25
+Uncommon = 3.4819047619047616
+__foil = 1
+
+## play lopsided fun x3 listEra=false foil=true list=true
+## play lopsided fun x3 listEra=true foil=true list=true
+Common = 6.2857142857142865
+Mythic = 1.7714285714285714
+Non-basic land = 1
+Rare = 1.2571428571428571
+Special Guest = 0.045
+The List = 0.375
+Uncommon = 3.265714285714286
+__foil = 1
+
+## play lopsided fun x4 listEra=false foil=true list=true
+## play lopsided fun x4 listEra=true foil=true list=true
+Common = 6.188679245283019
+Mythic = 1.9056603773584904
+Non-basic land = 1
+Rare = 1.3018867924528301
+Special Guest = 0.06
+The List = 0.5
+Uncommon = 3.04377358490566
+__foil = 1
+
+## play lopsided fun x5 listEra=false foil=true list=true
+## play lopsided fun x5 listEra=true foil=true list=true
+Common = 6.133333333333333
+Mythic = 2
+Non-basic land = 1
+Rare = 1.3333333333333335
+Special Guest = 0.075
+The List = 0.625
+Uncommon = 2.833333333333333
+__foil = 1
+
+## play lopsided vanilla x1 listEra=true foil=false list=false
+## play lopsided vanilla x2 listEra=true foil=false list=false
+## play lopsided vanilla x3 listEra=true foil=false list=false
+## play lopsided vanilla x4 listEra=true foil=false list=false
+## play lopsided vanilla x5 listEra=true foil=false list=false
+## play lopsided vanilla x1 listEra=true foil=false list=true
+## play lopsided vanilla x2 listEra=true foil=false list=true
+## play lopsided vanilla x3 listEra=true foil=false list=true
+## play lopsided vanilla x4 listEra=true foil=false list=true
+## play lopsided vanilla x5 listEra=true foil=false list=true
+## play lopsided vanilla x1 listEra=true foil=true list=false
+## play lopsided vanilla x2 listEra=true foil=true list=false
+## play lopsided vanilla x3 listEra=true foil=true list=false
+## play lopsided vanilla x4 listEra=true foil=true list=false
+## play lopsided vanilla x5 listEra=true foil=true list=false
+## play lopsided vanilla x1 listEra=true foil=true list=true
+## play lopsided vanilla x2 listEra=true foil=true list=true
+## play lopsided vanilla x3 listEra=true foil=true list=true
+## play lopsided vanilla x4 listEra=true foil=true list=true
+## play lopsided vanilla x5 listEra=true foil=true list=true
+Basic land = 1
+Common = 7.738760683760684
+Mythic = 0.7156410256410256
+Rare = 0.4770940170940171
+Special Guest = 0.015625
+The List = 0.109375
+Uncommon = 3.9435042735042733
+__foil = 0.24273504273504273
+
+## cmd lopsided cmr vanilla x1
+## cmd lopsided cmr vanilla x2
+## cmd lopsided cmr vanilla x3
+## cmd lopsided cmr vanilla x4
+## cmd lopsided cmr vanilla x5
+## cmd lopsided cmr fun x1
+Common = 13
+Legendary rare = 0.11764705882352941
+Legendary uncommon = 1.8823529411764706
+Mythic = 0.6
+Rare = 0.4
+Uncommon = 3
+
+## cmd lopsided cmr fun x2
+Common = 13
+Legendary rare = 0.2222222222222222
+Legendary uncommon = 1.7777777777777777
+Mythic = 1
+Uncommon = 3
+
+## cmd lopsided cmr fun x3
+Common = 13
+Legendary rare = 0.3157894736842105
+Legendary uncommon = 1.6842105263157894
+Mythic = 1
+Uncommon = 3
+
+## cmd lopsided cmr fun x4
+Common = 13
+Legendary rare = 0.4
+Legendary uncommon = 1.6
+Mythic = 1
+Uncommon = 3
+
+## cmd lopsided cmr fun x5
+Common = 13
+Legendary rare = 0.47619047619047616
+Legendary uncommon = 1.5238095238095237
+Mythic = 1
+Uncommon = 3
+
+## cmd lopsided clb vanilla x1
+## cmd lopsided clb vanilla x2
+## cmd lopsided clb vanilla x3
+## cmd lopsided clb vanilla x4
+## cmd lopsided clb vanilla x5
+## cmd lopsided clb fun x1
+Common = 13
+Legendary rare = 0.3933333333333333
+Legendary uncommon = 1.6066666666666665
+Mythic = 0.6
+Rare = 0.4
+Uncommon = 3
+
+## cmd lopsided clb fun x2
+Common = 13
+Legendary rare = 0.7866666666666666
+Legendary uncommon = 1.2133333333333334
+Mythic = 1
+Uncommon = 3
+
+## cmd lopsided clb fun x3
+Common = 13
+Legendary rare = 1.18
+Legendary uncommon = 0.8200000000000001
+Mythic = 1
+Uncommon = 3
+
+## cmd lopsided clb fun x4
+Common = 13
+Legendary rare = 1.3333333333333333
+Legendary uncommon = 0.6666666666666667
+Mythic = 1
+Uncommon = 3
+
+## cmd lopsided clb fun x5
+Common = 13
+Legendary rare = 1.4166666666666665
+Legendary uncommon = 0.5833333333333334
+Mythic = 1
+Uncommon = 3
+
+## cmd lopsided cmm vanilla x1
+## cmd lopsided cmm vanilla x2
+## cmd lopsided cmm vanilla x3
+## cmd lopsided cmm vanilla x4
+## cmd lopsided cmm vanilla x5
+## cmd lopsided cmm fun x1
+Common = 11
+Legendary rare = 1
+Legendary uncommon = 2
+Mythic = 0.7999999999999999
+Rare = 0.5333333333333333
+Uncommon = 3.666666666666667
+
+## cmd lopsided cmm fun x2
+Common = 11
+Legendary rare = 1
+Legendary uncommon = 2
+Mythic = 1.6666666666666665
+Uncommon = 3.3333333333333335
+
+## cmd lopsided cmm fun x3
+## cmd lopsided cmm fun x4
+## cmd lopsided cmm fun x5
+Common = 11
+Legendary rare = 1
+Legendary uncommon = 2
+Mythic = 2
+Uncommon = 3
+
+## god lopsided
+Mythic = 8.4
+Rare = 5.6
+__foil = 2
+
+## play noMythics vanilla x1 listEra=false foil=false list=false
+## play noMythics vanilla x2 listEra=false foil=false list=false
+## play noMythics vanilla x3 listEra=false foil=false list=false
+## play noMythics vanilla x4 listEra=false foil=false list=false
+## play noMythics vanilla x5 listEra=false foil=false list=false
+## play noMythics vanilla x1 listEra=false foil=false list=true
+## play noMythics vanilla x2 listEra=false foil=false list=true
+## play noMythics vanilla x3 listEra=false foil=false list=true
+## play noMythics vanilla x4 listEra=false foil=false list=true
+## play noMythics vanilla x5 listEra=false foil=false list=true
+## play noMythics vanilla x1 listEra=false foil=true list=false
+## play noMythics vanilla x2 listEra=false foil=true list=false
+## play noMythics vanilla x3 listEra=false foil=true list=false
+## play noMythics vanilla x4 listEra=false foil=true list=false
+## play noMythics vanilla x5 listEra=false foil=true list=false
+## play noMythics vanilla x1 listEra=false foil=true list=true
+## play noMythics vanilla x2 listEra=false foil=true list=true
+## play noMythics vanilla x3 listEra=false foil=true list=true
+## play noMythics vanilla x4 listEra=false foil=true list=true
+## play noMythics vanilla x5 listEra=false foil=true list=true
+Basic land = 0.5
+Common = 7.845226063829787
+Common dual land = 0.5
+Rare = 1.2138297872340424
+Special Guest = 0.015625
+Uncommon = 3.92531914893617
+__foil = 0.26382978723404255
+
+## play noMythics fun x1 listEra=false foil=false list=false
+## play noMythics fun x1 listEra=true foil=false list=false
+Common = 6.9411764705882355
+Non-basic land = 1
+Rare = 2.352941176470588
+Special Guest = 0.015
+Uncommon = 3.6908823529411765
+__foil = 0.17647058823529413
+
+## play noMythics fun x2 listEra=false foil=false list=false
+## play noMythics fun x2 listEra=true foil=false list=false
+Common = 6.5
+Non-basic land = 1
+Rare = 2.75
+Special Guest = 0.03
+Uncommon = 3.7199999999999998
+__foil = 0.375
+
+## play noMythics fun x3 listEra=false foil=false list=false
+## play noMythics fun x3 listEra=true foil=false list=false
+Common = 6.30188679245283
+Non-basic land = 1
+Rare = 3.018867924528302
+Special Guest = 0.045
+Uncommon = 3.634245283018868
+__foil = 0.5094339622641509
+
+## play noMythics fun x4 listEra=false foil=false list=false
+## play noMythics fun x4 listEra=true foil=false list=false
+Common = 6.199999999999999
+Non-basic land = 1
+Rare = 3.2
+Special Guest = 0.06
+Uncommon = 3.5399999999999996
+__foil = 0.6
+
+## play noMythics fun x5 listEra=false foil=false list=false
+## play noMythics fun x5 listEra=true foil=false list=false
+Common = 6.1415929203539825
+Non-basic land = 1
+Rare = 3.327433628318584
+Special Guest = 0.075
+Uncommon = 3.4559734513274334
+__foil = 0.6637168141592921
+
+## play noMythics fun x1 listEra=false foil=false list=true
+## play noMythics fun x1 listEra=true foil=false list=true
+Common = 6.9411764705882355
+Non-basic land = 1
+Rare = 2.352941176470588
+Special Guest = 0.015
+The List = 0.125
+Uncommon = 3.5658823529411765
+__foil = 0.17647058823529413
+
+## play noMythics fun x2 listEra=false foil=false list=true
+## play noMythics fun x2 listEra=true foil=false list=true
+Common = 6.5
+Non-basic land = 1
+Rare = 2.75
+Special Guest = 0.03
+The List = 0.25
+Uncommon = 3.4699999999999998
+__foil = 0.375
+
+## play noMythics fun x3 listEra=false foil=false list=true
+## play noMythics fun x3 listEra=true foil=false list=true
+Common = 6.30188679245283
+Non-basic land = 1
+Rare = 3.018867924528302
+Special Guest = 0.045
+The List = 0.375
+Uncommon = 3.259245283018868
+__foil = 0.5094339622641509
+
+## play noMythics fun x4 listEra=false foil=false list=true
+## play noMythics fun x4 listEra=true foil=false list=true
+Common = 6.199999999999999
+Non-basic land = 1
+Rare = 3.2
+Special Guest = 0.06
+The List = 0.5
+Uncommon = 3.0399999999999996
+__foil = 0.6
+
+## play noMythics fun x5 listEra=false foil=false list=true
+## play noMythics fun x5 listEra=true foil=false list=true
+Common = 6.1415929203539825
+Non-basic land = 1
+Rare = 3.327433628318584
+Special Guest = 0.075
+The List = 0.625
+Uncommon = 2.8309734513274334
+__foil = 0.6637168141592921
+
+## play noMythics fun x1 listEra=false foil=true list=false
+## play noMythics fun x1 listEra=true foil=true list=false
+Common = 6.9411764705882355
+Non-basic land = 1
+Rare = 2.352941176470588
+Special Guest = 0.015
+Uncommon = 3.6908823529411765
+__foil = 1
+
+## play noMythics fun x2 listEra=false foil=true list=false
+## play noMythics fun x2 listEra=true foil=true list=false
+Common = 6.5
+Non-basic land = 1
+Rare = 2.75
+Special Guest = 0.03
+Uncommon = 3.7199999999999998
+__foil = 1
+
+## play noMythics fun x3 listEra=false foil=true list=false
+## play noMythics fun x3 listEra=true foil=true list=false
+Common = 6.30188679245283
+Non-basic land = 1
+Rare = 3.018867924528302
+Special Guest = 0.045
+Uncommon = 3.634245283018868
+__foil = 1
+
+## play noMythics fun x4 listEra=false foil=true list=false
+## play noMythics fun x4 listEra=true foil=true list=false
+Common = 6.199999999999999
+Non-basic land = 1
+Rare = 3.2
+Special Guest = 0.06
+Uncommon = 3.5399999999999996
+__foil = 1
+
+## play noMythics fun x5 listEra=false foil=true list=false
+## play noMythics fun x5 listEra=true foil=true list=false
+Common = 6.1415929203539825
+Non-basic land = 1
+Rare = 3.327433628318584
+Special Guest = 0.075
+Uncommon = 3.4559734513274334
+__foil = 1
+
+## play noMythics fun x1 listEra=false foil=true list=true
+## play noMythics fun x1 listEra=true foil=true list=true
+Common = 6.9411764705882355
+Non-basic land = 1
+Rare = 2.352941176470588
+Special Guest = 0.015
+The List = 0.125
+Uncommon = 3.5658823529411765
+__foil = 1
+
+## play noMythics fun x2 listEra=false foil=true list=true
+## play noMythics fun x2 listEra=true foil=true list=true
+Common = 6.5
+Non-basic land = 1
+Rare = 2.75
+Special Guest = 0.03
+The List = 0.25
+Uncommon = 3.4699999999999998
+__foil = 1
+
+## play noMythics fun x3 listEra=false foil=true list=true
+## play noMythics fun x3 listEra=true foil=true list=true
+Common = 6.30188679245283
+Non-basic land = 1
+Rare = 3.018867924528302
+Special Guest = 0.045
+The List = 0.375
+Uncommon = 3.259245283018868
+__foil = 1
+
+## play noMythics fun x4 listEra=false foil=true list=true
+## play noMythics fun x4 listEra=true foil=true list=true
+Common = 6.199999999999999
+Non-basic land = 1
+Rare = 3.2
+Special Guest = 0.06
+The List = 0.5
+Uncommon = 3.0399999999999996
+__foil = 1
+
+## play noMythics fun x5 listEra=false foil=true list=true
+## play noMythics fun x5 listEra=true foil=true list=true
+Common = 6.1415929203539825
+Non-basic land = 1
+Rare = 3.327433628318584
+Special Guest = 0.075
+The List = 0.625
+Uncommon = 2.8309734513274334
+__foil = 1
+
+## play noMythics vanilla x1 listEra=true foil=false list=false
+## play noMythics vanilla x2 listEra=true foil=false list=false
+## play noMythics vanilla x3 listEra=true foil=false list=false
+## play noMythics vanilla x4 listEra=true foil=false list=false
+## play noMythics vanilla x5 listEra=true foil=false list=false
+## play noMythics vanilla x1 listEra=true foil=false list=true
+## play noMythics vanilla x2 listEra=true foil=false list=true
+## play noMythics vanilla x3 listEra=true foil=false list=true
+## play noMythics vanilla x4 listEra=true foil=false list=true
+## play noMythics vanilla x5 listEra=true foil=false list=true
+## play noMythics vanilla x1 listEra=true foil=true list=false
+## play noMythics vanilla x2 listEra=true foil=true list=false
+## play noMythics vanilla x3 listEra=true foil=true list=false
+## play noMythics vanilla x4 listEra=true foil=true list=false
+## play noMythics vanilla x5 listEra=true foil=true list=false
+## play noMythics vanilla x1 listEra=true foil=true list=true
+## play noMythics vanilla x2 listEra=true foil=true list=true
+## play noMythics vanilla x3 listEra=true foil=true list=true
+## play noMythics vanilla x4 listEra=true foil=true list=true
+## play noMythics vanilla x5 listEra=true foil=true list=true
+Basic land = 0.5
+Common = 7.735851063829787
+Common dual land = 0.5
+Rare = 1.2138297872340424
+Special Guest = 0.015625
+The List = 0.109375
+Uncommon = 3.92531914893617
+__foil = 0.26382978723404255
+
+## cmd noMythics cmr vanilla x1
+## cmd noMythics cmr vanilla x2
+## cmd noMythics cmr vanilla x3
+## cmd noMythics cmr vanilla x4
+## cmd noMythics cmr vanilla x5
+## cmd noMythics cmr fun x1
+Common = 13
+Legendary rare = 0.4
+Legendary uncommon = 1.6
+Rare = 1
+Uncommon = 3
+
+## cmd noMythics cmr fun x2
+Common = 13
+Legendary rare = 0.6666666666666666
+Legendary uncommon = 1.3333333333333333
+Rare = 1
+Uncommon = 3
+
+## cmd noMythics cmr fun x3
+Common = 13
+Legendary rare = 0.8571428571428571
+Legendary uncommon = 1.1428571428571428
+Rare = 1
+Uncommon = 3
+
+## cmd noMythics cmr fun x4
+Common = 13
+Legendary rare = 1
+Legendary uncommon = 1
+Rare = 1
+Uncommon = 3
+
+## cmd noMythics cmr fun x5
+Common = 13
+Legendary rare = 1.1111111111111112
+Legendary uncommon = 0.8888888888888888
+Rare = 1
+Uncommon = 3
+
+## cmd noMythics clb vanilla x1
+## cmd noMythics clb vanilla x2
+## cmd noMythics clb vanilla x3
+## cmd noMythics clb vanilla x4
+## cmd noMythics clb vanilla x5
+## cmd noMythics clb fun x1
+Common = 13
+Legendary rare = 0.3933333333333333
+Legendary uncommon = 1.6066666666666665
+Rare = 1
+Uncommon = 3
+
+## cmd noMythics clb fun x2
+Common = 13
+Legendary rare = 0.7866666666666666
+Legendary uncommon = 1.2133333333333334
+Rare = 1
+Uncommon = 3
+
+## cmd noMythics clb fun x3
+Common = 13
+Legendary rare = 1.18
+Legendary uncommon = 0.8200000000000001
+Rare = 1
+Uncommon = 3
+
+## cmd noMythics clb fun x4
+Common = 13
+Legendary rare = 1.3333333333333333
+Legendary uncommon = 0.6666666666666667
+Rare = 1
+Uncommon = 3
+
+## cmd noMythics clb fun x5
+Common = 13
+Legendary rare = 1.4166666666666665
+Legendary uncommon = 0.5833333333333334
+Rare = 1
+Uncommon = 3
+
+## cmd noMythics cmm vanilla x1
+## cmd noMythics cmm vanilla x2
+## cmd noMythics cmm vanilla x3
+## cmd noMythics cmm vanilla x4
+## cmd noMythics cmm vanilla x5
+## cmd noMythics cmm fun x1
+Common = 11
+Legendary rare = 1
+Legendary uncommon = 2
+Rare = 1.3333333333333333
+Uncommon = 3.666666666666667
+
+## cmd noMythics cmm fun x2
+Common = 11
+Legendary rare = 1
+Legendary uncommon = 2
+Rare = 1.6666666666666665
+Uncommon = 3.3333333333333335
+
+## cmd noMythics cmm fun x3
+## cmd noMythics cmm fun x4
+## cmd noMythics cmm fun x5
+Common = 11
+Legendary rare = 1
+Legendary uncommon = 2
+Rare = 2
+Uncommon = 3
+
+## god noMythics
+Rare = 14
+__foil = 2
+
+## play noRares vanilla x1 listEra=false foil=false list=false
+## play noRares vanilla x2 listEra=false foil=false list=false
+## play noRares vanilla x3 listEra=false foil=false list=false
+## play noRares vanilla x4 listEra=false foil=false list=false
+## play noRares vanilla x5 listEra=false foil=false list=false
+## play noRares vanilla x1 listEra=false foil=false list=true
+## play noRares vanilla x2 listEra=false foil=false list=true
+## play noRares vanilla x3 listEra=false foil=false list=true
+## play noRares vanilla x4 listEra=false foil=false list=true
+## play noRares vanilla x5 listEra=false foil=false list=true
+## play noRares vanilla x1 listEra=false foil=true list=false
+## play noRares vanilla x2 listEra=false foil=true list=false
+## play noRares vanilla x3 listEra=false foil=true list=false
+## play noRares vanilla x4 listEra=false foil=true list=false
+## play noRares vanilla x5 listEra=false foil=true list=false
+## play noRares vanilla x1 listEra=false foil=true list=true
+## play noRares vanilla x2 listEra=false foil=true list=true
+## play noRares vanilla x3 listEra=false foil=true list=true
+## play noRares vanilla x4 listEra=false foil=true list=true
+## play noRares vanilla x5 listEra=false foil=true list=true
+Basic land = 0.5
+Common = 7.877069877505567
+Common dual land = 0.5
+Mythic = 1.170044543429844
+Special Guest = 0.015625
+Uncommon = 3.937260579064588
+__foil = 0.2200445434298441
+
+## play noRares fun x1 listEra=false foil=false list=false
+## play noRares fun x1 listEra=true foil=false list=false
+Common = 7.012658227848101
+Mythic = 1.2278481012658227
+Non-basic land = 1
+Special Guest = 0.015
+Uncommon = 3.744493670886076
+__foil = 0.11392405063291139
+
+## play noRares fun x2 listEra=false foil=false list=false
+## play noRares fun x2 listEra=true foil=false list=false
+Common = 6.588235294117647
+Mythic = 1.5294117647058822
+Non-basic land = 1
+Special Guest = 0.03
+Uncommon = 3.8523529411764708
+__foil = 0.2647058823529412
+
+## play noRares fun x3 listEra=false foil=false list=false
+## play noRares fun x3 listEra=true foil=false list=false
+Common = 6.37914691943128
+Mythic = 1.7677725118483414
+Non-basic land = 1
+Special Guest = 0.045
+Uncommon = 3.8080805687203796
+__foil = 0.38388625592417064
+
+## play noRares fun x4 listEra=false foil=false list=false
+## play noRares fun x4 listEra=true foil=false list=false
+Common = 6.2631578947368425
+Mythic = 1.9473684210526314
+Non-basic land = 1
+Special Guest = 0.06
+Uncommon = 3.7294736842105265
+__foil = 0.47368421052631576
+
+## play noRares fun x5 listEra=false foil=false list=false
+## play noRares fun x5 listEra=true foil=false list=false
+Common = 6.19277108433735
+Mythic = 2.0843373493975905
+Non-basic land = 1
+Special Guest = 0.075
+Uncommon = 3.64789156626506
+__foil = 0.5421686746987951
+
+## play noRares fun x1 listEra=false foil=false list=true
+## play noRares fun x1 listEra=true foil=false list=true
+Common = 7.012658227848101
+Mythic = 1.2278481012658227
+Non-basic land = 1
+Special Guest = 0.015
+The List = 0.125
+Uncommon = 3.619493670886076
+__foil = 0.11392405063291139
+
+## play noRares fun x2 listEra=false foil=false list=true
+## play noRares fun x2 listEra=true foil=false list=true
+Common = 6.588235294117647
+Mythic = 1.5294117647058822
+Non-basic land = 1
+Special Guest = 0.03
+The List = 0.25
+Uncommon = 3.6023529411764708
+__foil = 0.2647058823529412
+
+## play noRares fun x3 listEra=false foil=false list=true
+## play noRares fun x3 listEra=true foil=false list=true
+Common = 6.37914691943128
+Mythic = 1.7677725118483414
+Non-basic land = 1
+Special Guest = 0.045
+The List = 0.375
+Uncommon = 3.4330805687203796
+__foil = 0.38388625592417064
+
+## play noRares fun x4 listEra=false foil=false list=true
+## play noRares fun x4 listEra=true foil=false list=true
+Common = 6.2631578947368425
+Mythic = 1.9473684210526314
+Non-basic land = 1
+Special Guest = 0.06
+The List = 0.5
+Uncommon = 3.2294736842105265
+__foil = 0.47368421052631576
+
+## play noRares fun x5 listEra=false foil=false list=true
+## play noRares fun x5 listEra=true foil=false list=true
+Common = 6.19277108433735
+Mythic = 2.0843373493975905
+Non-basic land = 1
+Special Guest = 0.075
+The List = 0.625
+Uncommon = 3.02289156626506
+__foil = 0.5421686746987951
+
+## play noRares fun x1 listEra=false foil=true list=false
+## play noRares fun x1 listEra=true foil=true list=false
+Common = 7.012658227848101
+Mythic = 1.2278481012658227
+Non-basic land = 1
+Special Guest = 0.015
+Uncommon = 3.744493670886076
+__foil = 1
+
+## play noRares fun x2 listEra=false foil=true list=false
+## play noRares fun x2 listEra=true foil=true list=false
+Common = 6.588235294117647
+Mythic = 1.5294117647058822
+Non-basic land = 1
+Special Guest = 0.03
+Uncommon = 3.8523529411764708
+__foil = 1
+
+## play noRares fun x3 listEra=false foil=true list=false
+## play noRares fun x3 listEra=true foil=true list=false
+Common = 6.37914691943128
+Mythic = 1.7677725118483414
+Non-basic land = 1
+Special Guest = 0.045
+Uncommon = 3.8080805687203796
+__foil = 1
+
+## play noRares fun x4 listEra=false foil=true list=false
+## play noRares fun x4 listEra=true foil=true list=false
+Common = 6.2631578947368425
+Mythic = 1.9473684210526314
+Non-basic land = 1
+Special Guest = 0.06
+Uncommon = 3.7294736842105265
+__foil = 1
+
+## play noRares fun x5 listEra=false foil=true list=false
+## play noRares fun x5 listEra=true foil=true list=false
+Common = 6.19277108433735
+Mythic = 2.0843373493975905
+Non-basic land = 1
+Special Guest = 0.075
+Uncommon = 3.64789156626506
+__foil = 1
+
+## play noRares fun x1 listEra=false foil=true list=true
+## play noRares fun x1 listEra=true foil=true list=true
+Common = 7.012658227848101
+Mythic = 1.2278481012658227
+Non-basic land = 1
+Special Guest = 0.015
+The List = 0.125
+Uncommon = 3.619493670886076
+__foil = 1
+
+## play noRares fun x2 listEra=false foil=true list=true
+## play noRares fun x2 listEra=true foil=true list=true
+Common = 6.588235294117647
+Mythic = 1.5294117647058822
+Non-basic land = 1
+Special Guest = 0.03
+The List = 0.25
+Uncommon = 3.6023529411764708
+__foil = 1
+
+## play noRares fun x3 listEra=false foil=true list=true
+## play noRares fun x3 listEra=true foil=true list=true
+Common = 6.37914691943128
+Mythic = 1.7677725118483414
+Non-basic land = 1
+Special Guest = 0.045
+The List = 0.375
+Uncommon = 3.4330805687203796
+__foil = 1
+
+## play noRares fun x4 listEra=false foil=true list=true
+## play noRares fun x4 listEra=true foil=true list=true
+Common = 6.2631578947368425
+Mythic = 1.9473684210526314
+Non-basic land = 1
+Special Guest = 0.06
+The List = 0.5
+Uncommon = 3.2294736842105265
+__foil = 1
+
+## play noRares fun x5 listEra=false foil=true list=true
+## play noRares fun x5 listEra=true foil=true list=true
+Common = 6.19277108433735
+Mythic = 2.0843373493975905
+Non-basic land = 1
+Special Guest = 0.075
+The List = 0.625
+Uncommon = 3.02289156626506
+__foil = 1
+
+## play noRares vanilla x1 listEra=true foil=false list=false
+## play noRares vanilla x2 listEra=true foil=false list=false
+## play noRares vanilla x3 listEra=true foil=false list=false
+## play noRares vanilla x4 listEra=true foil=false list=false
+## play noRares vanilla x5 listEra=true foil=false list=false
+## play noRares vanilla x1 listEra=true foil=false list=true
+## play noRares vanilla x2 listEra=true foil=false list=true
+## play noRares vanilla x3 listEra=true foil=false list=true
+## play noRares vanilla x4 listEra=true foil=false list=true
+## play noRares vanilla x5 listEra=true foil=false list=true
+## play noRares vanilla x1 listEra=true foil=true list=false
+## play noRares vanilla x2 listEra=true foil=true list=false
+## play noRares vanilla x3 listEra=true foil=true list=false
+## play noRares vanilla x4 listEra=true foil=true list=false
+## play noRares vanilla x5 listEra=true foil=true list=false
+## play noRares vanilla x1 listEra=true foil=true list=true
+## play noRares vanilla x2 listEra=true foil=true list=true
+## play noRares vanilla x3 listEra=true foil=true list=true
+## play noRares vanilla x4 listEra=true foil=true list=true
+## play noRares vanilla x5 listEra=true foil=true list=true
+Basic land = 0.5
+Common = 7.767694877505567
+Common dual land = 0.5
+Mythic = 1.170044543429844
+Special Guest = 0.015625
+The List = 0.109375
+Uncommon = 3.937260579064588
+__foil = 0.2200445434298441
+
+## cmd noRares cmr vanilla x1
+## cmd noRares cmr vanilla x2
+## cmd noRares cmr vanilla x3
+## cmd noRares cmr vanilla x4
+## cmd noRares cmr vanilla x5
+## cmd noRares cmr fun x1
+## cmd noRares cmr fun x2
+## cmd noRares cmr fun x3
+## cmd noRares cmr fun x4
+## cmd noRares cmr fun x5
+## cmd noRares clb vanilla x1
+## cmd noRares clb vanilla x2
+## cmd noRares clb vanilla x3
+## cmd noRares clb vanilla x4
+## cmd noRares clb vanilla x5
+## cmd noRares clb fun x1
+## cmd noRares clb fun x2
+## cmd noRares clb fun x3
+Common = 13
+Legendary uncommon = 2
+Mythic = 1
+Uncommon = 3
+
+## cmd noRares clb fun x4
+## cmd noRares clb fun x5
+Common = 13
+Legendary uncommon = 1
+Mythic = 1
+Uncommon = 3
+
+## cmd noRares cmm vanilla x1
+## cmd noRares cmm vanilla x2
+## cmd noRares cmm vanilla x3
+## cmd noRares cmm vanilla x4
+## cmd noRares cmm vanilla x5
+## cmd noRares cmm fun x1
+Common = 11
+Legendary uncommon = 2
+Mythic = 1.3333333333333333
+Uncommon = 3.666666666666667
+
+## cmd noRares cmm fun x2
+Common = 11
+Legendary uncommon = 2
+Mythic = 1.6666666666666665
+Uncommon = 3.3333333333333335
+
+## cmd noRares cmm fun x3
+## cmd noRares cmm fun x4
+## cmd noRares cmm fun x5
+Common = 11
+Legendary uncommon = 2
+Mythic = 2
+Uncommon = 3
+
+## god noRares
+Mythic = 14
+__foil = 2
+
+## play sparse vanilla x1 listEra=false foil=false list=false
+## play sparse vanilla x2 listEra=false foil=false list=false
+## play sparse vanilla x3 listEra=false foil=false list=false
+## play sparse vanilla x4 listEra=false foil=false list=false
+## play sparse vanilla x5 listEra=false foil=false list=false
+## play sparse vanilla x1 listEra=false foil=false list=true
+## play sparse vanilla x2 listEra=false foil=false list=true
+## play sparse vanilla x3 listEra=false foil=false list=true
+## play sparse vanilla x4 listEra=false foil=false list=true
+## play sparse vanilla x5 listEra=false foil=false list=true
+## play sparse vanilla x1 listEra=false foil=true list=false
+## play sparse vanilla x2 listEra=false foil=true list=false
+## play sparse vanilla x3 listEra=false foil=true list=false
+## play sparse vanilla x4 listEra=false foil=true list=false
+## play sparse vanilla x5 listEra=false foil=true list=false
+## play sparse vanilla x1 listEra=false foil=true list=true
+## play sparse vanilla x2 listEra=false foil=true list=true
+## play sparse vanilla x3 listEra=false foil=true list=true
+## play sparse vanilla x4 listEra=false foil=true list=true
+## play sparse vanilla x5 listEra=false foil=true list=true
+Basic land = 1
+Common = 7.852268907563025
+Mythic = 0.13618113912231558
+Rare = 1.0894491129785246
+Uncommon = 3.9221008403361344
+__foil = 0.27563025210084036
+
+## play sparse fun x1 listEra=false foil=false list=false
+## play sparse fun x1 listEra=true foil=false list=false
+Common = 6.888888888888889
+Mythic = 0.2
+Non-basic land = 1
+Rare = 2.2444444444444445
+Uncommon = 3.666666666666667
+__foil = 0.22222222222222227
+
+## play sparse fun x2 listEra=false foil=false list=false
+## play sparse fun x2 listEra=true foil=false list=false
+Common = 6.444444444444445
+Mythic = 0.4
+Non-basic land = 1
+Rare = 2.488888888888889
+Uncommon = 3.666666666666667
+__foil = 0.4444444444444445
+
+## play sparse fun x3 listEra=false foil=false list=false
+## play sparse fun x3 listEra=true foil=false list=false
+Common = 6.258064516129032
+Mythic = 0.5655913978494623
+Non-basic land = 1
+Rare = 2.595698924731183
+Uncommon = 3.580645161290323
+__foil = 0.5806451612903226
+
+## play sparse fun x4 listEra=false foil=false list=false
+## play sparse fun x4 listEra=true foil=false list=false
+Common = 6.166666666666666
+Mythic = 0.711111111111111
+Non-basic land = 1
+Rare = 2.6222222222222222
+Uncommon = 3.5
+__foil = 0.6666666666666666
+
+## play sparse fun x5 listEra=false foil=false list=false
+## play sparse fun x5 listEra=true foil=false list=false
+Common = 6.115942028985508
+Mythic = 0.8454106280193237
+Non-basic land = 1
+Rare = 2.603864734299517
+Uncommon = 3.4347826086956523
+__foil = 0.7246376811594203
+
+## play sparse fun x1 listEra=false foil=false list=true
+## play sparse fun x1 listEra=true foil=false list=true
+Common = 6.888888888888889
+Mythic = 0.2
+Non-basic land = 1
+Rare = 2.2444444444444445
+The List = 0.12690355329949238
+Uncommon = 3.5397631133671745
+__foil = 0.22222222222222227
+
+## play sparse fun x2 listEra=false foil=false list=true
+## play sparse fun x2 listEra=true foil=false list=true
+Common = 6.444444444444445
+Mythic = 0.4
+Non-basic land = 1
+Rare = 2.488888888888889
+The List = 0.2577319587628866
+Uncommon = 3.4089347079037804
+__foil = 0.4444444444444445
+
+## play sparse fun x3 listEra=false foil=false list=true
+## play sparse fun x3 listEra=true foil=false list=true
+Common = 6.258064516129032
+Mythic = 0.5655913978494623
+Non-basic land = 1
+Rare = 2.595698924731183
+The List = 0.39267015706806285
+Uncommon = 3.18797500422226
+__foil = 0.5806451612903226
+
+## play sparse fun x4 listEra=false foil=false list=true
+## play sparse fun x4 listEra=true foil=false list=true
+Common = 6.166666666666666
+Mythic = 0.711111111111111
+Non-basic land = 1
+Rare = 2.6222222222222222
+The List = 0.5319148936170213
+Uncommon = 2.9680851063829787
+__foil = 0.6666666666666666
+
+## play sparse fun x5 listEra=false foil=false list=true
+## play sparse fun x5 listEra=true foil=false list=true
+Common = 6.115942028985508
+Mythic = 0.8454106280193237
+Non-basic land = 1
+Rare = 2.603864734299517
+The List = 0.6756756756756757
+Uncommon = 2.759106933019977
+__foil = 0.7246376811594203
+
+## play sparse fun x1 listEra=false foil=true list=false
+## play sparse fun x1 listEra=true foil=true list=false
+Common = 6.888888888888889
+Mythic = 0.2
+Non-basic land = 1
+Rare = 2.2444444444444445
+Uncommon = 3.666666666666667
+__foil = 1.0000000000000002
+
+## play sparse fun x2 listEra=false foil=true list=false
+## play sparse fun x2 listEra=true foil=true list=false
+Common = 6.444444444444445
+Mythic = 0.4
+Non-basic land = 1
+Rare = 2.488888888888889
+Uncommon = 3.666666666666667
+__foil = 1
+
+## play sparse fun x3 listEra=false foil=true list=false
+## play sparse fun x3 listEra=true foil=true list=false
+Common = 6.258064516129032
+Mythic = 0.5655913978494623
+Non-basic land = 1
+Rare = 2.595698924731183
+Uncommon = 3.580645161290323
+__foil = 1
+
+## play sparse fun x4 listEra=false foil=true list=false
+## play sparse fun x4 listEra=true foil=true list=false
+Common = 6.166666666666666
+Mythic = 0.711111111111111
+Non-basic land = 1
+Rare = 2.6222222222222222
+Uncommon = 3.5
+__foil = 1
+
+## play sparse fun x5 listEra=false foil=true list=false
+## play sparse fun x5 listEra=true foil=true list=false
+Common = 6.115942028985508
+Mythic = 0.8454106280193237
+Non-basic land = 1
+Rare = 2.603864734299517
+Uncommon = 3.4347826086956523
+__foil = 1
+
+## play sparse fun x1 listEra=false foil=true list=true
+## play sparse fun x1 listEra=true foil=true list=true
+Common = 6.888888888888889
+Mythic = 0.2
+Non-basic land = 1
+Rare = 2.2444444444444445
+The List = 0.12690355329949238
+Uncommon = 3.5397631133671745
+__foil = 1.0000000000000002
+
+## play sparse fun x2 listEra=false foil=true list=true
+## play sparse fun x2 listEra=true foil=true list=true
+Common = 6.444444444444445
+Mythic = 0.4
+Non-basic land = 1
+Rare = 2.488888888888889
+The List = 0.2577319587628866
+Uncommon = 3.4089347079037804
+__foil = 1
+
+## play sparse fun x3 listEra=false foil=true list=true
+## play sparse fun x3 listEra=true foil=true list=true
+Common = 6.258064516129032
+Mythic = 0.5655913978494623
+Non-basic land = 1
+Rare = 2.595698924731183
+The List = 0.39267015706806285
+Uncommon = 3.18797500422226
+__foil = 1
+
+## play sparse fun x4 listEra=false foil=true list=true
+## play sparse fun x4 listEra=true foil=true list=true
+Common = 6.166666666666666
+Mythic = 0.711111111111111
+Non-basic land = 1
+Rare = 2.6222222222222222
+The List = 0.5319148936170213
+Uncommon = 2.9680851063829787
+__foil = 1
+
+## play sparse fun x5 listEra=false foil=true list=true
+## play sparse fun x5 listEra=true foil=true list=true
+Common = 6.115942028985508
+Mythic = 0.8454106280193237
+Non-basic land = 1
+Rare = 2.603864734299517
+The List = 0.6756756756756757
+Uncommon = 2.759106933019977
+__foil = 1
+
+## play sparse vanilla x1 listEra=true foil=false list=false
+## play sparse vanilla x2 listEra=true foil=false list=false
+## play sparse vanilla x3 listEra=true foil=false list=false
+## play sparse vanilla x4 listEra=true foil=false list=false
+## play sparse vanilla x5 listEra=true foil=false list=false
+## play sparse vanilla x1 listEra=true foil=false list=true
+## play sparse vanilla x2 listEra=true foil=false list=true
+## play sparse vanilla x3 listEra=true foil=false list=true
+## play sparse vanilla x4 listEra=true foil=false list=true
+## play sparse vanilla x5 listEra=true foil=false list=true
+## play sparse vanilla x1 listEra=true foil=true list=false
+## play sparse vanilla x2 listEra=true foil=true list=false
+## play sparse vanilla x3 listEra=true foil=true list=false
+## play sparse vanilla x4 listEra=true foil=true list=false
+## play sparse vanilla x5 listEra=true foil=true list=false
+## play sparse vanilla x1 listEra=true foil=true list=true
+## play sparse vanilla x2 listEra=true foil=true list=true
+## play sparse vanilla x3 listEra=true foil=true list=true
+## play sparse vanilla x4 listEra=true foil=true list=true
+## play sparse vanilla x5 listEra=true foil=true list=true
+Basic land = 1
+Common = 7.7411577964519145
+Mythic = 0.13618113912231558
+Rare = 1.0894491129785246
+The List = 0.1111111111111111
+Uncommon = 3.9221008403361344
+__foil = 0.27563025210084036
+
+## cmd sparse cmr vanilla x1
+## cmd sparse cmr vanilla x2
+## cmd sparse cmr vanilla x3
+## cmd sparse cmr vanilla x4
+## cmd sparse cmr vanilla x5
+## cmd sparse cmr fun x1
+Common = 13
+Legendary rare = 0.42105263157894735
+Legendary uncommon = 1.5789473684210527
+Mythic = 0.1111111111111111
+Rare = 0.8888888888888888
+Uncommon = 3
+
+## cmd sparse cmr fun x2
+Common = 13
+Legendary rare = 0.6956521739130435
+Legendary uncommon = 1.3043478260869565
+Mythic = 0.2222222222222222
+Rare = 0.7777777777777778
+Uncommon = 3
+
+## cmd sparse cmr fun x3
+Common = 13
+Legendary rare = 0.8888888888888888
+Legendary uncommon = 1.1111111111111112
+Mythic = 0.3333333333333333
+Rare = 0.6666666666666667
+Uncommon = 3
+
+## cmd sparse cmr fun x4
+Common = 13
+Legendary rare = 1.032258064516129
+Legendary uncommon = 0.967741935483871
+Mythic = 0.4444444444444444
+Rare = 0.5555555555555556
+Uncommon = 3
+
+## cmd sparse cmr fun x5
+Common = 13
+Legendary rare = 1.1428571428571428
+Legendary uncommon = 0.8571428571428571
+Mythic = 0.5555555555555556
+Rare = 0.4444444444444444
+Uncommon = 3
+
+## cmd sparse clb vanilla x1
+## cmd sparse clb vanilla x2
+## cmd sparse clb vanilla x3
+## cmd sparse clb vanilla x4
+## cmd sparse clb vanilla x5
+## cmd sparse clb fun x1
+Common = 13
+Legendary rare = 0.3933333333333333
+Legendary uncommon = 1.6066666666666665
+Mythic = 0.1111111111111111
+Rare = 0.8888888888888888
+Uncommon = 3
+
+## cmd sparse clb fun x2
+Common = 13
+Legendary rare = 0.7866666666666666
+Legendary uncommon = 1.2133333333333334
+Mythic = 0.2222222222222222
+Rare = 0.7777777777777778
+Uncommon = 3
+
+## cmd sparse clb fun x3
+Common = 13
+Legendary rare = 1.18
+Legendary uncommon = 0.8200000000000001
+Mythic = 0.3333333333333333
+Rare = 0.6666666666666667
+Uncommon = 3
+
+## cmd sparse clb fun x4
+Common = 13
+Legendary rare = 1.3333333333333333
+Legendary uncommon = 0.6666666666666667
+Mythic = 0.4444444444444444
+Rare = 0.5555555555555556
+Uncommon = 3
+
+## cmd sparse clb fun x5
+Common = 13
+Legendary rare = 1.4166666666666665
+Legendary uncommon = 0.5833333333333334
+Mythic = 0.5555555555555556
+Rare = 0.4444444444444444
+Uncommon = 3
+
+## cmd sparse cmm vanilla x1
+## cmd sparse cmm vanilla x2
+## cmd sparse cmm vanilla x3
+## cmd sparse cmm vanilla x4
+## cmd sparse cmm vanilla x5
+## cmd sparse cmm fun x1
+Common = 11
+Legendary rare = 1
+Legendary uncommon = 2
+Mythic = 0.14814814814814814
+Rare = 1.1851851851851851
+Uncommon = 3.666666666666667
+
+## cmd sparse cmm fun x2
+Common = 11
+Legendary rare = 1
+Legendary uncommon = 2
+Mythic = 0.37037037037037035
+Rare = 1.2962962962962963
+Uncommon = 3.3333333333333335
+
+## cmd sparse cmm fun x3
+Common = 11
+Legendary rare = 1
+Legendary uncommon = 2
+Mythic = 0.6666666666666666
+Rare = 1.3333333333333335
+Uncommon = 3
+
+## cmd sparse cmm fun x4
+Common = 11
+Legendary rare = 1
+Legendary uncommon = 2
+Mythic = 0.8888888888888888
+Rare = 1.1111111111111112
+Uncommon = 3
+
+## cmd sparse cmm fun x5
+Common = 11
+Legendary rare = 1
+Legendary uncommon = 2
+Mythic = 1.1111111111111112
+Rare = 0.8888888888888888
+Uncommon = 3
+
+## god sparse
+Mythic = 1.5555555555555558
+Rare = 12.444444444444446
+__foil = 2
+
+## play empty vanilla x1 listEra=false foil=false list=false
+## play empty vanilla x2 listEra=false foil=false list=false
+## play empty vanilla x3 listEra=false foil=false list=false
+## play empty vanilla x4 listEra=false foil=false list=false
+## play empty vanilla x5 listEra=false foil=false list=false
+## play empty fun x1 listEra=false foil=false list=false
+## play empty fun x2 listEra=false foil=false list=false
+## play empty fun x3 listEra=false foil=false list=false
+## play empty fun x4 listEra=false foil=false list=false
+## play empty fun x5 listEra=false foil=false list=false
+## play empty vanilla x1 listEra=false foil=false list=true
+## play empty vanilla x2 listEra=false foil=false list=true
+## play empty vanilla x3 listEra=false foil=false list=true
+## play empty vanilla x4 listEra=false foil=false list=true
+## play empty vanilla x5 listEra=false foil=false list=true
+## play empty vanilla x1 listEra=false foil=true list=false
+## play empty vanilla x2 listEra=false foil=true list=false
+## play empty vanilla x3 listEra=false foil=true list=false
+## play empty vanilla x4 listEra=false foil=true list=false
+## play empty vanilla x5 listEra=false foil=true list=false
+## play empty fun x1 listEra=false foil=true list=false
+## play empty fun x2 listEra=false foil=true list=false
+## play empty fun x3 listEra=false foil=true list=false
+## play empty fun x4 listEra=false foil=true list=false
+## play empty fun x5 listEra=false foil=true list=false
+## play empty vanilla x1 listEra=false foil=true list=true
+## play empty vanilla x2 listEra=false foil=true list=true
+## play empty vanilla x3 listEra=false foil=true list=true
+## play empty vanilla x4 listEra=false foil=true list=true
+## play empty vanilla x5 listEra=false foil=true list=true
+## play empty fun x1 listEra=true foil=false list=false
+## play empty fun x2 listEra=true foil=false list=false
+## play empty fun x3 listEra=true foil=false list=false
+## play empty fun x4 listEra=true foil=false list=false
+## play empty fun x5 listEra=true foil=false list=false
+## play empty fun x1 listEra=true foil=true list=false
+## play empty fun x2 listEra=true foil=true list=false
+## play empty fun x3 listEra=true foil=true list=false
+## play empty fun x4 listEra=true foil=true list=false
+## play empty fun x5 listEra=true foil=true list=false
+## cmd empty cmr vanilla x1
+## cmd empty cmr vanilla x2
+## cmd empty cmr vanilla x3
+## cmd empty cmr vanilla x4
+## cmd empty cmr vanilla x5
+## cmd empty cmr fun x1
+## cmd empty cmr fun x2
+## cmd empty cmr fun x3
+## cmd empty cmr fun x4
+## cmd empty cmr fun x5
+## cmd empty clb vanilla x1
+## cmd empty clb vanilla x2
+## cmd empty clb vanilla x3
+## cmd empty clb vanilla x4
+## cmd empty clb vanilla x5
+## cmd empty clb fun x1
+## cmd empty clb fun x2
+## cmd empty clb fun x3
+## cmd empty clb fun x4
+## cmd empty clb fun x5
+## cmd empty cmm vanilla x1
+## cmd empty cmm vanilla x2
+## cmd empty cmm vanilla x3
+## cmd empty cmm vanilla x4
+## cmd empty cmm vanilla x5
+## cmd empty cmm fun x1
+## cmd empty cmm fun x2
+## cmd empty cmm fun x3
+## cmd empty cmm fun x4
+## cmd empty cmm fun x5
+## god empty
+## god null (still loading)
+ = {}
+
+## play empty fun x1 listEra=false foil=false list=true
+## play empty fun x2 listEra=false foil=false list=true
+## play empty fun x3 listEra=false foil=false list=true
+## play empty fun x4 listEra=false foil=false list=true
+## play empty fun x5 listEra=false foil=false list=true
+## play empty fun x1 listEra=false foil=true list=true
+## play empty fun x2 listEra=false foil=true list=true
+## play empty fun x3 listEra=false foil=true list=true
+## play empty fun x4 listEra=false foil=true list=true
+## play empty fun x5 listEra=false foil=true list=true
+## play empty vanilla x1 listEra=true foil=false list=false
+## play empty vanilla x2 listEra=true foil=false list=false
+## play empty vanilla x3 listEra=true foil=false list=false
+## play empty vanilla x4 listEra=true foil=false list=false
+## play empty vanilla x5 listEra=true foil=false list=false
+## play empty vanilla x1 listEra=true foil=false list=true
+## play empty vanilla x2 listEra=true foil=false list=true
+## play empty vanilla x3 listEra=true foil=false list=true
+## play empty vanilla x4 listEra=true foil=false list=true
+## play empty vanilla x5 listEra=true foil=false list=true
+## play empty fun x1 listEra=true foil=false list=true
+## play empty fun x2 listEra=true foil=false list=true
+## play empty fun x3 listEra=true foil=false list=true
+## play empty fun x4 listEra=true foil=false list=true
+## play empty fun x5 listEra=true foil=false list=true
+## play empty vanilla x1 listEra=true foil=true list=false
+## play empty vanilla x2 listEra=true foil=true list=false
+## play empty vanilla x3 listEra=true foil=true list=false
+## play empty vanilla x4 listEra=true foil=true list=false
+## play empty vanilla x5 listEra=true foil=true list=false
+## play empty vanilla x1 listEra=true foil=true list=true
+## play empty vanilla x2 listEra=true foil=true list=true
+## play empty vanilla x3 listEra=true foil=true list=true
+## play empty vanilla x4 listEra=true foil=true list=true
+## play empty vanilla x5 listEra=true foil=true list=true
+## play empty fun x1 listEra=true foil=true list=true
+## play empty fun x2 listEra=true foil=true list=true
+## play empty fun x3 listEra=true foil=true list=true
+## play empty fun x4 listEra=true foil=true list=true
+## play empty fun x5 listEra=true foil=true list=true
+The List = 1
+
+## play commanderFull vanilla x1 listEra=false foil=false list=false
+## play commanderFull vanilla x2 listEra=false foil=false list=false
+## play commanderFull vanilla x3 listEra=false foil=false list=false
+## play commanderFull vanilla x4 listEra=false foil=false list=false
+## play commanderFull vanilla x5 listEra=false foil=false list=false
+## play commanderFull vanilla x1 listEra=false foil=false list=true
+## play commanderFull vanilla x2 listEra=false foil=false list=true
+## play commanderFull vanilla x3 listEra=false foil=false list=true
+## play commanderFull vanilla x4 listEra=false foil=false list=true
+## play commanderFull vanilla x5 listEra=false foil=false list=true
+## play commanderFull vanilla x1 listEra=false foil=true list=false
+## play commanderFull vanilla x2 listEra=false foil=true list=false
+## play commanderFull vanilla x3 listEra=false foil=true list=false
+## play commanderFull vanilla x4 listEra=false foil=true list=false
+## play commanderFull vanilla x5 listEra=false foil=true list=false
+## play commanderFull vanilla x1 listEra=false foil=true list=true
+## play commanderFull vanilla x2 listEra=false foil=true list=true
+## play commanderFull vanilla x3 listEra=false foil=true list=true
+## play commanderFull vanilla x4 listEra=false foil=true list=true
+## play commanderFull vanilla x5 listEra=false foil=true list=true
+Basic land = 1
+Common = 7.888771929824561
+Mythic = 0.16052631578947368
+Rare = 1.0701754385964912
+Uncommon = 3.8805263157894734
+__foil = 0.2807017543859649
+
+## play commanderFull fun x1 listEra=false foil=false list=false
+## play commanderFull fun x1 listEra=true foil=false list=false
+Common = 6.948356807511738
+Mythic = 0.24311083894672383
+Non-basic land = 1
+Rare = 2.245152071851398
+Uncommon = 3.563380281690141
+__foil = 0.24413145539906103
+
+## play commanderFull fun x2 listEra=false foil=false list=false
+## play commanderFull fun x2 listEra=true foil=false list=false
+Common = 6.470862470862471
+Mythic = 0.48464578899361505
+Non-basic land = 1
+Rare = 2.485051180703355
+Uncommon = 3.559440559440559
+__foil = 0.48484848484848486
+
+## play commanderFull fun x3 listEra=false foil=false list=false
+## play commanderFull fun x3 listEra=true foil=false list=false
+Common = 6.269692923898532
+Mythic = 0.6796888605096649
+Non-basic land = 1
+Rare = 2.5699773611191734
+Uncommon = 3.4806408544726306
+__foil = 0.6248331108144193
+
+## play commanderFull fun x4 listEra=false foil=false list=false
+## play commanderFull fun x4 listEra=true foil=false list=false
+Common = 6.172208013640239
+Mythic = 0.8491048593350384
+Non-basic land = 1
+Rare = 2.569479965899403
+Uncommon = 3.4092071611253196
+__foil = 0.7092924126172209
+
+## play commanderFull fun x5 listEra=false foil=false list=false
+## play commanderFull fun x5 listEra=true foil=false list=false
+Common = 6.118753674309231
+Mythic = 1.0049075991104977
+Non-basic land = 1
+Rare = 2.523605040513253
+Uncommon = 3.35273368606702
+__foil = 0.7642563198118754
+
+## play commanderFull fun x1 listEra=false foil=false list=true
+## play commanderFull fun x1 listEra=true foil=false list=true
+Common = 6.948356807511738
+Mythic = 0.24311083894672383
+Non-basic land = 1
+Rare = 2.245152071851398
+The List = 0.12690355329949238
+Uncommon = 3.4364767283906485
+__foil = 0.24413145539906103
+
+## play commanderFull fun x2 listEra=false foil=false list=true
+## play commanderFull fun x2 listEra=true foil=false list=true
+Common = 6.470862470862471
+Mythic = 0.48464578899361505
+Non-basic land = 1
+Rare = 2.485051180703355
+The List = 0.2577319587628866
+Uncommon = 3.3017086006776726
+__foil = 0.48484848484848486
+
+## play commanderFull fun x3 listEra=false foil=false list=true
+## play commanderFull fun x3 listEra=true foil=false list=true
+Common = 6.269692923898532
+Mythic = 0.6796888605096649
+Non-basic land = 1
+Rare = 2.5699773611191734
+The List = 0.39267015706806285
+Uncommon = 3.0879706974045678
+__foil = 0.6248331108144193
+
+## play commanderFull fun x4 listEra=false foil=false list=true
+## play commanderFull fun x4 listEra=true foil=false list=true
+Common = 6.172208013640239
+Mythic = 0.8491048593350384
+Non-basic land = 1
+Rare = 2.569479965899403
+The List = 0.5319148936170213
+Uncommon = 2.8772922675082984
+__foil = 0.7092924126172209
+
+## play commanderFull fun x5 listEra=false foil=false list=true
+## play commanderFull fun x5 listEra=true foil=false list=true
+Common = 6.118753674309231
+Mythic = 1.0049075991104977
+Non-basic land = 1
+Rare = 2.523605040513253
+The List = 0.6756756756756757
+Uncommon = 2.6770580103913444
+__foil = 0.7642563198118754
+
+## play commanderFull fun x1 listEra=false foil=true list=false
+## play commanderFull fun x1 listEra=true foil=true list=false
+Common = 6.948356807511738
+Mythic = 0.24311083894672383
+Non-basic land = 1
+Rare = 2.245152071851398
+Uncommon = 3.563380281690141
+__foil = 1
+
+## play commanderFull fun x2 listEra=false foil=true list=false
+## play commanderFull fun x2 listEra=true foil=true list=false
+Common = 6.470862470862471
+Mythic = 0.48464578899361505
+Non-basic land = 1
+Rare = 2.485051180703355
+Uncommon = 3.559440559440559
+__foil = 1
+
+## play commanderFull fun x3 listEra=false foil=true list=false
+## play commanderFull fun x3 listEra=true foil=true list=false
+Common = 6.269692923898532
+Mythic = 0.6796888605096649
+Non-basic land = 1
+Rare = 2.5699773611191734
+Uncommon = 3.4806408544726306
+__foil = 1
+
+## play commanderFull fun x4 listEra=false foil=true list=false
+## play commanderFull fun x4 listEra=true foil=true list=false
+Common = 6.172208013640239
+Mythic = 0.8491048593350384
+Non-basic land = 1
+Rare = 2.569479965899403
+Uncommon = 3.4092071611253196
+__foil = 1
+
+## play commanderFull fun x5 listEra=false foil=true list=false
+## play commanderFull fun x5 listEra=true foil=true list=false
+Common = 6.118753674309231
+Mythic = 1.0049075991104977
+Non-basic land = 1
+Rare = 2.523605040513253
+Uncommon = 3.35273368606702
+__foil = 1
+
+## play commanderFull fun x1 listEra=false foil=true list=true
+## play commanderFull fun x1 listEra=true foil=true list=true
+Common = 6.948356807511738
+Mythic = 0.24311083894672383
+Non-basic land = 1
+Rare = 2.245152071851398
+The List = 0.12690355329949238
+Uncommon = 3.4364767283906485
+__foil = 1
+
+## play commanderFull fun x2 listEra=false foil=true list=true
+## play commanderFull fun x2 listEra=true foil=true list=true
+Common = 6.470862470862471
+Mythic = 0.48464578899361505
+Non-basic land = 1
+Rare = 2.485051180703355
+The List = 0.2577319587628866
+Uncommon = 3.3017086006776726
+__foil = 1
+
+## play commanderFull fun x3 listEra=false foil=true list=true
+## play commanderFull fun x3 listEra=true foil=true list=true
+Common = 6.269692923898532
+Mythic = 0.6796888605096649
+Non-basic land = 1
+Rare = 2.5699773611191734
+The List = 0.39267015706806285
+Uncommon = 3.0879706974045678
+__foil = 1
+
+## play commanderFull fun x4 listEra=false foil=true list=true
+## play commanderFull fun x4 listEra=true foil=true list=true
+Common = 6.172208013640239
+Mythic = 0.8491048593350384
+Non-basic land = 1
+Rare = 2.569479965899403
+The List = 0.5319148936170213
+Uncommon = 2.8772922675082984
+__foil = 1
+
+## play commanderFull fun x5 listEra=false foil=true list=true
+## play commanderFull fun x5 listEra=true foil=true list=true
+Common = 6.118753674309231
+Mythic = 1.0049075991104977
+Non-basic land = 1
+Rare = 2.523605040513253
+The List = 0.6756756756756757
+Uncommon = 2.6770580103913444
+__foil = 1
+
+## play commanderFull vanilla x1 listEra=true foil=false list=false
+## play commanderFull vanilla x2 listEra=true foil=false list=false
+## play commanderFull vanilla x3 listEra=true foil=false list=false
+## play commanderFull vanilla x4 listEra=true foil=false list=false
+## play commanderFull vanilla x5 listEra=true foil=false list=false
+## play commanderFull vanilla x1 listEra=true foil=false list=true
+## play commanderFull vanilla x2 listEra=true foil=false list=true
+## play commanderFull vanilla x3 listEra=true foil=false list=true
+## play commanderFull vanilla x4 listEra=true foil=false list=true
+## play commanderFull vanilla x5 listEra=true foil=false list=true
+## play commanderFull vanilla x1 listEra=true foil=true list=false
+## play commanderFull vanilla x2 listEra=true foil=true list=false
+## play commanderFull vanilla x3 listEra=true foil=true list=false
+## play commanderFull vanilla x4 listEra=true foil=true list=false
+## play commanderFull vanilla x5 listEra=true foil=true list=false
+## play commanderFull vanilla x1 listEra=true foil=true list=true
+## play commanderFull vanilla x2 listEra=true foil=true list=true
+## play commanderFull vanilla x3 listEra=true foil=true list=true
+## play commanderFull vanilla x4 listEra=true foil=true list=true
+## play commanderFull vanilla x5 listEra=true foil=true list=true
+Basic land = 1
+Common = 7.77766081871345
+Mythic = 0.16052631578947368
+Rare = 1.0701754385964912
+The List = 0.1111111111111111
+Uncommon = 3.8805263157894734
+__foil = 0.2807017543859649
+
+## cmd commanderFull cmr vanilla x1
+## cmd commanderFull cmr vanilla x2
+## cmd commanderFull cmr vanilla x3
+## cmd commanderFull cmr vanilla x4
+## cmd commanderFull cmr vanilla x5
+## cmd commanderFull cmr fun x1
+Common = 13.389017341040462
+Foil-etched legend = 0.06666666666666667
+Legendary mythic = 0.0898876404494382
+Legendary rare = 0.5617977528089888
+Legendary uncommon = 1.348314606741573
+Mythic = 0.14392225852391724
+Rare = 0.9639775487978554
+The Prismatic Piper = 0.16666666666666666
+Uncommon = 3.2697495183044314
+__foil = 1
+
+## cmd commanderFull cmr fun x2
+Common = 12.833333333333334
+Foil-etched legend = 0.13333333333333333
+Legendary mythic = 0.13559322033898305
+Legendary rare = 0.847457627118644
+Legendary uncommon = 1.0169491525423728
+Mythic = 0.30901771336553946
+Rare = 1.0761674718196457
+The Prismatic Piper = 0.16666666666666666
+Uncommon = 3.4814814814814814
+__foil = 1
+
+## cmd commanderFull cmr fun x3
+Common = 12.833333333333334
+Foil-etched legend = 0.2
+Legendary mythic = 0.16326530612244897
+Legendary rare = 1.0204081632653061
+Legendary uncommon = 0.8163265306122449
+Mythic = 0.4458498023715415
+Rare = 0.9905138339920949
+The Prismatic Piper = 0.16666666666666666
+Uncommon = 3.3636363636363638
+__foil = 1
+
+## cmd commanderFull cmr fun x4
+Common = 12.833333333333334
+Foil-etched legend = 0.26666666666666666
+Legendary mythic = 0.18181818181818182
+Legendary rare = 1.1363636363636365
+Legendary uncommon = 0.6818181818181818
+Mythic = 0.578149386845039
+Rare = 0.8731326644370123
+The Prismatic Piper = 0.16666666666666666
+Uncommon = 3.282051282051282
+__foil = 1
+
+## cmd commanderFull cmr fun x5
+Common = 12.833333333333334
+Foil-etched legend = 0.3333333333333333
+Legendary mythic = 0.19512195121951223
+Legendary rare = 1.2195121951219514
+Legendary uncommon = 0.5853658536585367
+Mythic = 0.7077294685990339
+Rare = 0.7367149758454107
+The Prismatic Piper = 0.16666666666666666
+Uncommon = 3.2222222222222223
+__foil = 1
+
+## cmd commanderFull clb vanilla x1
+## cmd commanderFull clb vanilla x2
+## cmd commanderFull clb vanilla x3
+## cmd commanderFull clb vanilla x4
+## cmd commanderFull clb vanilla x5
+## cmd commanderFull clb fun x1
+Common = 13.595375722543352
+Common/uncommon Background = 0.9166666666666666
+Legendary mythic = 0.04275862068965518
+Legendary rare = 0.26724137931034486
+Legendary uncommon = 0.6900000000000001
+Mythic = 0.14488564966071876
+Rare = 0.9707212867554662
+Rare Background = 0.08333333333333333
+Uncommon = 3.2890173410404624
+__foil = 1
+
+## cmd commanderFull clb fun x2
+Common = 13
+Common/uncommon Background = 0.8333333333333334
+Legendary mythic = 0.1710344827586207
+Legendary rare = 0.44896551724137934
+Legendary uncommon = 0.38000000000000006
+Mythic = 0.3164251207729468
+Rare = 1.1280193236714975
+Rare Background = 0.16666666666666666
+Uncommon = 3.5555555555555554
+__foil = 1
+
+## cmd commanderFull clb fun x3
+Common = 13
+Common/uncommon Background = 0.75
+Legendary mythic = 0.3848275862068965
+Legendary rare = 0.5451724137931034
+Legendary uncommon = 0.07000000000000006
+Mythic = 0.4594861660079051
+Rare = 1.0859683794466404
+Rare Background = 0.25
+Uncommon = 3.4545454545454546
+__foil = 1
+
+## cmd commanderFull clb fun x4
+Common = 13
+Common/uncommon Background = 0.6666666666666667
+Legendary mythic = 0.5517241379310345
+Legendary rare = 0.4482758620689655
+Mythic = 0.5986622073578596
+Rare = 1.0167224080267558
+Rare Background = 0.3333333333333333
+Uncommon = 3.3846153846153846
+__foil = 1
+
+## cmd commanderFull clb fun x5
+Common = 13
+Common/uncommon Background = 0.5833333333333334
+Legendary mythic = 0.6896551724137931
+Legendary rare = 0.31034482758620685
+Mythic = 0.7355072463768116
+Rare = 0.9311594202898551
+Rare Background = 0.41666666666666663
+Uncommon = 3.3333333333333335
+__foil = 1
+
+## cmd commanderFull cmm vanilla x1
+## cmd commanderFull cmm vanilla x2
+## cmd commanderFull cmm vanilla x3
+## cmd commanderFull cmm vanilla x4
+## cmd commanderFull cmm vanilla x5
+## cmd commanderFull cmm fun x1
+Common = 11.428709055876686
+Legendary mythic = 0.13793103448275862
+Legendary rare = 0.8620689655172413
+Legendary uncommon = 2
+Mythic = 0.18836391053028398
+Rare = 1.260576359219234
+The Prismatic Piper = 0.16666666666666666
+Uncommon = 3.9556840077071294
+__foil = 1
+
+## cmd commanderFull cmm fun x2
+Common = 10.833333333333334
+Legendary mythic = 0.27586206896551724
+Legendary rare = 0.7241379310344828
+Legendary uncommon = 2
+Mythic = 0.4903381642512077
+Rare = 1.6207729468599033
+The Prismatic Piper = 0.16666666666666666
+Uncommon = 3.8888888888888893
+__foil = 1
+
+## cmd commanderFull cmm fun x3
+Common = 10.833333333333334
+Legendary mythic = 0.41379310344827586
+Legendary rare = 0.5862068965517242
+Legendary uncommon = 2
+Mythic = 0.850790513833992
+Rare = 1.6946640316205535
+The Prismatic Piper = 0.16666666666666666
+Uncommon = 3.4545454545454546
+__foil = 1
+
+## cmd commanderFull cmm fun x4
+Common = 10.833333333333334
+Legendary mythic = 0.5517241379310345
+Legendary rare = 0.4482758620689655
+Legendary uncommon = 2
+Mythic = 1.120401337792642
+Rare = 1.4949832775919734
+The Prismatic Piper = 0.16666666666666666
+Uncommon = 3.3846153846153846
+__foil = 1
+
+## cmd commanderFull cmm fun x5
+Common = 10.833333333333334
+Legendary mythic = 0.6896551724137931
+Legendary rare = 0.31034482758620685
+Legendary uncommon = 2
+Mythic = 1.3876811594202898
+Rare = 1.278985507246377
+The Prismatic Piper = 0.16666666666666666
+Uncommon = 3.3333333333333335
+__foil = 1
+
+## god commanderFull
+Mythic = 1.8260869565217392
+Rare = 12.173913043478262
+__foil = 2
+
+## play commanderBorrowed vanilla x1 listEra=false foil=false list=false
+## play commanderBorrowed vanilla x2 listEra=false foil=false list=false
+## play commanderBorrowed vanilla x3 listEra=false foil=false list=false
+## play commanderBorrowed vanilla x4 listEra=false foil=false list=false
+## play commanderBorrowed vanilla x5 listEra=false foil=false list=false
+## play commanderBorrowed vanilla x1 listEra=false foil=false list=true
+## play commanderBorrowed vanilla x2 listEra=false foil=false list=true
+## play commanderBorrowed vanilla x3 listEra=false foil=false list=true
+## play commanderBorrowed vanilla x4 listEra=false foil=false list=true
+## play commanderBorrowed vanilla x5 listEra=false foil=false list=true
+## play commanderBorrowed vanilla x1 listEra=false foil=true list=false
+## play commanderBorrowed vanilla x2 listEra=false foil=true list=false
+## play commanderBorrowed vanilla x3 listEra=false foil=true list=false
+## play commanderBorrowed vanilla x4 listEra=false foil=true list=false
+## play commanderBorrowed vanilla x5 listEra=false foil=true list=false
+## play commanderBorrowed vanilla x1 listEra=false foil=true list=true
+## play commanderBorrowed vanilla x2 listEra=false foil=true list=true
+## play commanderBorrowed vanilla x3 listEra=false foil=true list=true
+## play commanderBorrowed vanilla x4 listEra=false foil=true list=true
+## play commanderBorrowed vanilla x5 listEra=false foil=true list=true
+Basic land = 1
+Common = 7.725454545454545
+Mythic = 0.18112073112073113
+Rare = 1.0867243867243868
+Uncommon = 4.006700336700336
+__foil = 0.3178451178451178
+
+## play commanderBorrowed fun x1 listEra=false foil=false list=false
+## play commanderBorrowed fun x1 listEra=true foil=false list=false
+Common = 6.620689655172415
+Mythic = 0.2961138478379857
+Non-basic land = 1
+Rare = 2.3169129720853863
+Uncommon = 3.766283524904215
+__foil = 0.3065134099616858
+
+## play commanderBorrowed fun x2 listEra=false foil=false list=false
+## play commanderBorrowed fun x2 listEra=true foil=false list=false
+Common = 6.26955074875208
+Mythic = 0.5519372474447349
+Non-basic land = 1
+Rare = 2.5129545994770623
+Uncommon = 3.6655574043261234
+__foil = 0.5324459234608986
+
+## play commanderBorrowed fun x3 listEra=false foil=false list=false
+## play commanderBorrowed fun x3 listEra=true foil=false list=false
+Common = 6.147138964577657
+Mythic = 0.7555469054106656
+Non-basic land = 1
+Rare = 2.5523550019462826
+Uncommon = 3.544959128065395
+__foil = 0.6539509536784741
+
+## play commanderBorrowed fun x4 listEra=false foil=false list=false
+## play commanderBorrowed fun x4 listEra=true foil=false list=false
+Common = 6.091993185689949
+Mythic = 0.9348584408209621
+Non-basic land = 1
+Rare = 2.518861036748601
+Uncommon = 3.4542873367404887
+__foil = 0.7268597387847814
+
+## play commanderBorrowed fun x5 listEra=false foil=false list=false
+## play commanderBorrowed fun x5 listEra=true foil=false list=false
+Common = 6.0627663696241765
+Mythic = 1.1017324403608788
+Non-basic land = 1
+Rare = 2.44805446393978
+Uncommon = 3.387446726075165
+__foil = 0.7748934521503293
+
+## play commanderBorrowed fun x1 listEra=false foil=false list=true
+## play commanderBorrowed fun x1 listEra=true foil=false list=true
+Common = 6.620689655172415
+Mythic = 0.2961138478379857
+Non-basic land = 1
+Rare = 2.3169129720853863
+The List = 0.12690355329949238
+Uncommon = 3.6393799716047224
+__foil = 0.3065134099616858
+
+## play commanderBorrowed fun x2 listEra=false foil=false list=true
+## play commanderBorrowed fun x2 listEra=true foil=false list=true
+Common = 6.26955074875208
+Mythic = 0.5519372474447349
+Non-basic land = 1
+Rare = 2.5129545994770623
+The List = 0.2577319587628866
+Uncommon = 3.407825445563237
+__foil = 0.5324459234608986
+
+## play commanderBorrowed fun x3 listEra=false foil=false list=true
+## play commanderBorrowed fun x3 listEra=true foil=false list=true
+Common = 6.147138964577657
+Mythic = 0.7555469054106656
+Non-basic land = 1
+Rare = 2.5523550019462826
+The List = 0.39267015706806285
+Uncommon = 3.1522889709973323
+__foil = 0.6539509536784741
+
+## play commanderBorrowed fun x4 listEra=false foil=false list=true
+## play commanderBorrowed fun x4 listEra=true foil=false list=true
+Common = 6.091993185689949
+Mythic = 0.9348584408209621
+Non-basic land = 1
+Rare = 2.518861036748601
+The List = 0.5319148936170213
+Uncommon = 2.9223724431234674
+__foil = 0.7268597387847814
+
+## play commanderBorrowed fun x5 listEra=false foil=false list=true
+## play commanderBorrowed fun x5 listEra=true foil=false list=true
+Common = 6.0627663696241765
+Mythic = 1.1017324403608788
+Non-basic land = 1
+Rare = 2.44805446393978
+The List = 0.6756756756756757
+Uncommon = 2.7117710503994896
+__foil = 0.7748934521503293
+
+## play commanderBorrowed fun x1 listEra=false foil=true list=false
+## play commanderBorrowed fun x1 listEra=true foil=true list=false
+Common = 6.620689655172415
+Mythic = 0.2961138478379857
+Non-basic land = 1
+Rare = 2.3169129720853863
+Uncommon = 3.766283524904215
+__foil = 1
+
+## play commanderBorrowed fun x2 listEra=false foil=true list=false
+## play commanderBorrowed fun x2 listEra=true foil=true list=false
+Common = 6.26955074875208
+Mythic = 0.5519372474447349
+Non-basic land = 1
+Rare = 2.5129545994770623
+Uncommon = 3.6655574043261234
+__foil = 1.0000000000000002
+
+## play commanderBorrowed fun x3 listEra=false foil=true list=false
+## play commanderBorrowed fun x3 listEra=true foil=true list=false
+Common = 6.147138964577657
+Mythic = 0.7555469054106656
+Non-basic land = 1
+Rare = 2.5523550019462826
+Uncommon = 3.544959128065395
+__foil = 1
+
+## play commanderBorrowed fun x4 listEra=false foil=true list=false
+## play commanderBorrowed fun x4 listEra=true foil=true list=false
+Common = 6.091993185689949
+Mythic = 0.9348584408209621
+Non-basic land = 1
+Rare = 2.518861036748601
+Uncommon = 3.4542873367404887
+__foil = 1
+
+## play commanderBorrowed fun x5 listEra=false foil=true list=false
+## play commanderBorrowed fun x5 listEra=true foil=true list=false
+Common = 6.0627663696241765
+Mythic = 1.1017324403608788
+Non-basic land = 1
+Rare = 2.44805446393978
+Uncommon = 3.387446726075165
+__foil = 1
+
+## play commanderBorrowed fun x1 listEra=false foil=true list=true
+## play commanderBorrowed fun x1 listEra=true foil=true list=true
+Common = 6.620689655172415
+Mythic = 0.2961138478379857
+Non-basic land = 1
+Rare = 2.3169129720853863
+The List = 0.12690355329949238
+Uncommon = 3.6393799716047224
+__foil = 1
+
+## play commanderBorrowed fun x2 listEra=false foil=true list=true
+## play commanderBorrowed fun x2 listEra=true foil=true list=true
+Common = 6.26955074875208
+Mythic = 0.5519372474447349
+Non-basic land = 1
+Rare = 2.5129545994770623
+The List = 0.2577319587628866
+Uncommon = 3.407825445563237
+__foil = 1.0000000000000002
+
+## play commanderBorrowed fun x3 listEra=false foil=true list=true
+## play commanderBorrowed fun x3 listEra=true foil=true list=true
+Common = 6.147138964577657
+Mythic = 0.7555469054106656
+Non-basic land = 1
+Rare = 2.5523550019462826
+The List = 0.39267015706806285
+Uncommon = 3.1522889709973323
+__foil = 1
+
+## play commanderBorrowed fun x4 listEra=false foil=true list=true
+## play commanderBorrowed fun x4 listEra=true foil=true list=true
+Common = 6.091993185689949
+Mythic = 0.9348584408209621
+Non-basic land = 1
+Rare = 2.518861036748601
+The List = 0.5319148936170213
+Uncommon = 2.9223724431234674
+__foil = 1
+
+## play commanderBorrowed fun x5 listEra=false foil=true list=true
+## play commanderBorrowed fun x5 listEra=true foil=true list=true
+Common = 6.0627663696241765
+Mythic = 1.1017324403608788
+Non-basic land = 1
+Rare = 2.44805446393978
+The List = 0.6756756756756757
+Uncommon = 2.7117710503994896
+__foil = 1
+
+## play commanderBorrowed vanilla x1 listEra=true foil=false list=false
+## play commanderBorrowed vanilla x2 listEra=true foil=false list=false
+## play commanderBorrowed vanilla x3 listEra=true foil=false list=false
+## play commanderBorrowed vanilla x4 listEra=true foil=false list=false
+## play commanderBorrowed vanilla x5 listEra=true foil=false list=false
+## play commanderBorrowed vanilla x1 listEra=true foil=false list=true
+## play commanderBorrowed vanilla x2 listEra=true foil=false list=true
+## play commanderBorrowed vanilla x3 listEra=true foil=false list=true
+## play commanderBorrowed vanilla x4 listEra=true foil=false list=true
+## play commanderBorrowed vanilla x5 listEra=true foil=false list=true
+## play commanderBorrowed vanilla x1 listEra=true foil=true list=false
+## play commanderBorrowed vanilla x2 listEra=true foil=true list=false
+## play commanderBorrowed vanilla x3 listEra=true foil=true list=false
+## play commanderBorrowed vanilla x4 listEra=true foil=true list=false
+## play commanderBorrowed vanilla x5 listEra=true foil=true list=false
+## play commanderBorrowed vanilla x1 listEra=true foil=true list=true
+## play commanderBorrowed vanilla x2 listEra=true foil=true list=true
+## play commanderBorrowed vanilla x3 listEra=true foil=true list=true
+## play commanderBorrowed vanilla x4 listEra=true foil=true list=true
+## play commanderBorrowed vanilla x5 listEra=true foil=true list=true
+Basic land = 1
+Common = 7.614343434343434
+Mythic = 0.18112073112073113
+Rare = 1.0867243867243868
+The List = 0.1111111111111111
+Uncommon = 4.006700336700336
+__foil = 0.3178451178451178
+
+## cmd commanderBorrowed cmr vanilla x1
+## cmd commanderBorrowed cmr vanilla x2
+## cmd commanderBorrowed cmr vanilla x3
+## cmd commanderBorrowed cmr vanilla x4
+## cmd commanderBorrowed cmr vanilla x5
+## cmd commanderBorrowed cmr fun x1
+Common = 13.50909090909091
+Foil-etched legend = 0.06666666666666667
+Legendary mythic = 0.11764705882352941
+Legendary rare = 0.47058823529411764
+Legendary uncommon = 1.411764705882353
+Mythic = 0.1585698252364919
+Rare = 0.9514189514189515
+Uncommon = 3.314253647586981
+__foil = 1
+
+## cmd commanderBorrowed cmr fun x2
+Common = 13
+Foil-etched legend = 0.13333333333333333
+Legendary mythic = 0.18181818181818182
+Legendary rare = 0.7272727272727273
+Legendary uncommon = 1.0909090909090908
+Mythic = 0.33669467787114843
+Rare = 1.0201680672268907
+Uncommon = 3.5098039215686274
+__foil = 1
+
+## cmd commanderBorrowed cmr fun x3
+Common = 13
+Foil-etched legend = 0.19999999999999996
+Legendary mythic = 0.2222222222222222
+Legendary rare = 0.8888888888888888
+Legendary uncommon = 0.8888888888888888
+Mythic = 0.4871080139372822
+Rare = 0.9226480836236933
+Uncommon = 3.3902439024390243
+__foil = 0.9999999999999998
+
+## cmd commanderBorrowed cmr fun x4
+Common = 13
+Foil-etched legend = 0.26666666666666666
+Legendary mythic = 0.25
+Legendary rare = 1
+Legendary uncommon = 0.75
+Mythic = 0.6325396825396825
+Rare = 0.7952380952380953
+Uncommon = 3.3055555555555554
+__foil = 1
+
+## cmd commanderBorrowed cmr fun x5
+Common = 13
+Foil-etched legend = 0.3333333333333333
+Legendary mythic = 0.2702702702702703
+Legendary rare = 1.0810810810810811
+Legendary uncommon = 0.6486486486486487
+Mythic = 0.7748917748917749
+Rare = 0.6493506493506495
+Uncommon = 3.2424242424242427
+__foil = 1
+
+## cmd commanderBorrowed clb vanilla x1
+## cmd commanderBorrowed clb vanilla x2
+## cmd commanderBorrowed clb vanilla x3
+## cmd commanderBorrowed clb vanilla x4
+## cmd commanderBorrowed clb vanilla x5
+## cmd commanderBorrowed clb fun x1
+Common = 13.545454545454545
+Legendary mythic = 0.062
+Legendary rare = 0.3313333333333333
+Legendary uncommon = 1.6066666666666665
+Mythic = 0.1596921596921597
+Rare = 0.9581529581529582
+Uncommon = 3.3367003367003365
+__foil = 1
+
+## cmd commanderBorrowed clb fun x2
+Common = 13
+Legendary mythic = 0.248
+Legendary rare = 0.5386666666666666
+Legendary uncommon = 1.2133333333333334
+Mythic = 0.3445378151260504
+Rare = 1.0672268907563025
+Uncommon = 3.588235294117647
+__foil = 1
+
+## cmd commanderBorrowed clb fun x3
+Common = 13
+Legendary mythic = 0.558
+Legendary rare = 0.6219999999999999
+Legendary uncommon = 0.8200000000000001
+Mythic = 0.5017421602787456
+Rare = 1.010452961672474
+Uncommon = 3.4878048780487805
+__foil = 1.0000000000000002
+
+## cmd commanderBorrowed clb fun x4
+Common = 13
+Legendary mythic = 0.8
+Legendary rare = 0.5333333333333332
+Legendary uncommon = 0.6666666666666667
+Mythic = 0.6547619047619048
+Rare = 0.9285714285714286
+Uncommon = 3.4166666666666665
+__foil = 1
+
+## cmd commanderBorrowed clb fun x5
+Common = 13
+Legendary mythic = 1
+Legendary rare = 0.41666666666666663
+Legendary uncommon = 0.5833333333333334
+Mythic = 0.8051948051948051
+Rare = 0.8311688311688312
+Uncommon = 3.3636363636363638
+__foil = 1
+
+## cmd commanderBorrowed cmm vanilla x1
+## cmd commanderBorrowed cmm vanilla x2
+## cmd commanderBorrowed cmm vanilla x3
+## cmd commanderBorrowed cmm vanilla x4
+## cmd commanderBorrowed cmm vanilla x5
+## cmd commanderBorrowed cmm fun x1
+Common = 11.545454545454545
+Legendary mythic = 0.2
+Legendary rare = 0.8
+Legendary uncommon = 2
+Mythic = 0.2073112073112073
+Rare = 1.2438672438672438
+Uncommon = 4.0033670033670035
+__foil = 1
+
+## cmd commanderBorrowed cmm fun x2
+Common = 11
+Legendary mythic = 0.4
+Legendary rare = 0.6
+Legendary uncommon = 2
+Mythic = 0.5350140056022409
+Rare = 1.5434173669467788
+Uncommon = 3.9215686274509807
+__foil = 1
+
+## cmd commanderBorrowed cmm fun x3
+Common = 11
+Legendary mythic = 0.6000000000000001
+Legendary rare = 0.3999999999999999
+Legendary uncommon = 2
+Mythic = 0.9303135888501741
+Rare = 1.5818815331010452
+Uncommon = 3.4878048780487805
+__foil = 1.0000000000000002
+
+## cmd commanderBorrowed cmm fun x4
+Common = 11
+Legendary mythic = 0.8
+Legendary rare = 0.19999999999999996
+Legendary uncommon = 2
+Mythic = 1.226190476190476
+Rare = 1.3571428571428572
+Uncommon = 3.4166666666666665
+__foil = 1
+
+## cmd commanderBorrowed cmm fun x5
+Common = 11
+Legendary mythic = 1
+Legendary uncommon = 2
+Mythic = 1.5194805194805192
+Rare = 1.116883116883117
+Uncommon = 3.3636363636363638
+__foil = 1
+
+## play null (still loading) vanilla x1 listEra=false foil=false list=false
+## play null (still loading) vanilla x2 listEra=false foil=false list=false
+## play null (still loading) vanilla x3 listEra=false foil=false list=false
+## play null (still loading) vanilla x4 listEra=false foil=false list=false
+## play null (still loading) vanilla x5 listEra=false foil=false list=false
+## play null (still loading) vanilla x1 listEra=false foil=false list=true
+## play null (still loading) vanilla x2 listEra=false foil=false list=true
+## play null (still loading) vanilla x3 listEra=false foil=false list=true
+## play null (still loading) vanilla x4 listEra=false foil=false list=true
+## play null (still loading) vanilla x5 listEra=false foil=false list=true
+## play null (still loading) vanilla x1 listEra=false foil=true list=false
+## play null (still loading) vanilla x2 listEra=false foil=true list=false
+## play null (still loading) vanilla x3 listEra=false foil=true list=false
+## play null (still loading) vanilla x4 listEra=false foil=true list=false
+## play null (still loading) vanilla x5 listEra=false foil=true list=false
+## play null (still loading) vanilla x1 listEra=false foil=true list=true
+## play null (still loading) vanilla x2 listEra=false foil=true list=true
+## play null (still loading) vanilla x3 listEra=false foil=true list=true
+## play null (still loading) vanilla x4 listEra=false foil=true list=true
+## play null (still loading) vanilla x5 listEra=false foil=true list=true
+Basic land = 0.5
+Common = 7.164375
+Common dual land = 0.5
+Special Guest = 0.015625
+Uncommon = 3.67
+__foil = 0.2
+
+## play null (still loading) fun x1 listEra=false foil=false list=false
+## play null (still loading) fun x1 listEra=false foil=true list=false
+## play null (still loading) fun x1 listEra=true foil=false list=false
+## play null (still loading) fun x1 listEra=true foil=true list=false
+Common = 6
+Non-basic land = 1
+Rare = 1
+Special Guest = 0.015
+Uncommon = 2.985
+
+## play null (still loading) fun x2 listEra=false foil=false list=false
+## play null (still loading) fun x2 listEra=false foil=true list=false
+## play null (still loading) fun x2 listEra=true foil=false list=false
+## play null (still loading) fun x2 listEra=true foil=true list=false
+Common = 6
+Non-basic land = 1
+Rare = 1
+Special Guest = 0.03
+Uncommon = 2.9699999999999998
+
+## play null (still loading) fun x3 listEra=false foil=false list=false
+## play null (still loading) fun x3 listEra=false foil=true list=false
+## play null (still loading) fun x3 listEra=true foil=false list=false
+## play null (still loading) fun x3 listEra=true foil=true list=false
+Common = 6
+Non-basic land = 1
+Rare = 1
+Special Guest = 0.045
+Uncommon = 2.955
+
+## play null (still loading) fun x4 listEra=false foil=false list=false
+## play null (still loading) fun x4 listEra=false foil=true list=false
+## play null (still loading) fun x4 listEra=true foil=false list=false
+## play null (still loading) fun x4 listEra=true foil=true list=false
+Common = 6
+Non-basic land = 1
+Rare = 1
+Special Guest = 0.06
+Uncommon = 2.94
+
+## play null (still loading) fun x5 listEra=false foil=false list=false
+## play null (still loading) fun x5 listEra=false foil=true list=false
+## play null (still loading) fun x5 listEra=true foil=false list=false
+## play null (still loading) fun x5 listEra=true foil=true list=false
+Common = 6
+Non-basic land = 1
+Rare = 1
+Special Guest = 0.075
+Uncommon = 2.925
+
+## play null (still loading) fun x1 listEra=false foil=false list=true
+## play null (still loading) fun x1 listEra=false foil=true list=true
+## play null (still loading) fun x1 listEra=true foil=false list=true
+## play null (still loading) fun x1 listEra=true foil=true list=true
+Common = 6
+Non-basic land = 1
+Rare = 1
+Special Guest = 0.015
+The List = 0.125
+Uncommon = 2.86
+
+## play null (still loading) fun x2 listEra=false foil=false list=true
+## play null (still loading) fun x2 listEra=false foil=true list=true
+## play null (still loading) fun x2 listEra=true foil=false list=true
+## play null (still loading) fun x2 listEra=true foil=true list=true
+Common = 6
+Non-basic land = 1
+Rare = 1
+Special Guest = 0.03
+The List = 0.25
+Uncommon = 2.7199999999999998
+
+## play null (still loading) fun x3 listEra=false foil=false list=true
+## play null (still loading) fun x3 listEra=false foil=true list=true
+## play null (still loading) fun x3 listEra=true foil=false list=true
+## play null (still loading) fun x3 listEra=true foil=true list=true
+Common = 6
+Non-basic land = 1
+Rare = 1
+Special Guest = 0.045
+The List = 0.375
+Uncommon = 2.58
+
+## play null (still loading) fun x4 listEra=false foil=false list=true
+## play null (still loading) fun x4 listEra=false foil=true list=true
+## play null (still loading) fun x4 listEra=true foil=false list=true
+## play null (still loading) fun x4 listEra=true foil=true list=true
+Common = 6
+Non-basic land = 1
+Rare = 1
+Special Guest = 0.06
+The List = 0.5
+Uncommon = 2.44
+
+## play null (still loading) fun x5 listEra=false foil=false list=true
+## play null (still loading) fun x5 listEra=false foil=true list=true
+## play null (still loading) fun x5 listEra=true foil=false list=true
+## play null (still loading) fun x5 listEra=true foil=true list=true
+Common = 6
+Non-basic land = 1
+Rare = 1
+Special Guest = 0.075
+The List = 0.625
+Uncommon = 2.3
+
+## play null (still loading) vanilla x1 listEra=true foil=false list=false
+## play null (still loading) vanilla x2 listEra=true foil=false list=false
+## play null (still loading) vanilla x3 listEra=true foil=false list=false
+## play null (still loading) vanilla x4 listEra=true foil=false list=false
+## play null (still loading) vanilla x5 listEra=true foil=false list=false
+## play null (still loading) vanilla x1 listEra=true foil=false list=true
+## play null (still loading) vanilla x2 listEra=true foil=false list=true
+## play null (still loading) vanilla x3 listEra=true foil=false list=true
+## play null (still loading) vanilla x4 listEra=true foil=false list=true
+## play null (still loading) vanilla x5 listEra=true foil=false list=true
+## play null (still loading) vanilla x1 listEra=true foil=true list=false
+## play null (still loading) vanilla x2 listEra=true foil=true list=false
+## play null (still loading) vanilla x3 listEra=true foil=true list=false
+## play null (still loading) vanilla x4 listEra=true foil=true list=false
+## play null (still loading) vanilla x5 listEra=true foil=true list=false
+## play null (still loading) vanilla x1 listEra=true foil=true list=true
+## play null (still loading) vanilla x2 listEra=true foil=true list=true
+## play null (still loading) vanilla x3 listEra=true foil=true list=true
+## play null (still loading) vanilla x4 listEra=true foil=true list=true
+## play null (still loading) vanilla x5 listEra=true foil=true list=true
+Basic land = 0.5
+Common = 7.055
+Common dual land = 0.5
+Special Guest = 0.015625
+The List = 0.109375
+Uncommon = 3.67
+__foil = 0.2
+
+## cmd null (still loading) cmr vanilla x1
+## cmd null (still loading) cmr vanilla x2
+## cmd null (still loading) cmr vanilla x3
+## cmd null (still loading) cmr vanilla x4
+## cmd null (still loading) cmr vanilla x5
+## cmd null (still loading) cmr fun x1
+Common = 12.833333333333334
+Foil-etched legend = 0.06666666666666667
+The Prismatic Piper = 0.16666666666666666
+Uncommon = 3
+__foil = 0.06666666666666667
+
+## cmd null (still loading) cmr fun x2
+Common = 12.833333333333334
+Foil-etched legend = 0.13333333333333333
+The Prismatic Piper = 0.16666666666666666
+Uncommon = 3
+__foil = 0.13333333333333333
+
+## cmd null (still loading) cmr fun x3
+Common = 12.833333333333334
+Foil-etched legend = 0.2
+The Prismatic Piper = 0.16666666666666666
+Uncommon = 3
+__foil = 0.2
+
+## cmd null (still loading) cmr fun x4
+Common = 12.833333333333334
+Foil-etched legend = 0.26666666666666666
+The Prismatic Piper = 0.16666666666666666
+Uncommon = 3
+__foil = 0.26666666666666666
+
+## cmd null (still loading) cmr fun x5
+Common = 12.833333333333334
+Foil-etched legend = 0.3333333333333333
+The Prismatic Piper = 0.16666666666666666
+Uncommon = 3
+__foil = 0.3333333333333333
+
+## cmd null (still loading) clb vanilla x1
+## cmd null (still loading) clb vanilla x2
+## cmd null (still loading) clb vanilla x3
+## cmd null (still loading) clb vanilla x4
+## cmd null (still loading) clb vanilla x5
+## cmd null (still loading) clb fun x1
+Common = 13
+Common/uncommon Background = 0.9166666666666666
+Legendary uncommon = 0.69
+Rare Background = 0.08333333333333333
+Uncommon = 3
+
+## cmd null (still loading) clb fun x2
+Common = 13
+Common/uncommon Background = 0.8333333333333334
+Legendary uncommon = 0.38
+Rare Background = 0.16666666666666666
+Uncommon = 3
+
+## cmd null (still loading) clb fun x3
+Common = 13
+Common/uncommon Background = 0.75
+Legendary uncommon = 0.07000000000000006
+Rare Background = 0.25
+Uncommon = 3
+
+## cmd null (still loading) clb fun x4
+Common = 13
+Common/uncommon Background = 0.6666666666666667
+Legendary uncommon = 0
+Rare Background = 0.3333333333333333
+Uncommon = 3
+
+## cmd null (still loading) clb fun x5
+Common = 13
+Common/uncommon Background = 0.5833333333333334
+Legendary uncommon = 0
+Rare Background = 0.41666666666666663
+Uncommon = 3
+
+## cmd null (still loading) cmm vanilla x1
+## cmd null (still loading) cmm vanilla x2
+## cmd null (still loading) cmm vanilla x3
+## cmd null (still loading) cmm vanilla x4
+## cmd null (still loading) cmm vanilla x5
+## cmd null (still loading) cmm fun x1
+Common = 10.833333333333334
+Legendary uncommon = 2
+The Prismatic Piper = 0.16666666666666666
+Uncommon = 3.666666666666667
+
+## cmd null (still loading) cmm fun x2
+Common = 10.833333333333334
+Legendary uncommon = 2
+The Prismatic Piper = 0.16666666666666666
+Uncommon = 3.3333333333333335
+
+## cmd null (still loading) cmm fun x3
+## cmd null (still loading) cmm fun x4
+## cmd null (still loading) cmm fun x5
+Common = 10.833333333333334
+Legendary uncommon = 2
+The Prismatic Piper = 0.16666666666666666
+Uncommon = 3

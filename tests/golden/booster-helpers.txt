@@ -1,0 +1,2359 @@
+# The pure helpers: pools, cards, sampling and tokens.
+#
+# Recorded from js/booster-logic.js at commit d81f583, the last commit
+# before the old app was deleted. At that point every one of these values was
+# asserted equal to the port's, case by case, by tests/parity.test.ts.
+#
+# These are not regenerable: the implementation that produced them is gone.
+# A change here is a change in behaviour, and wants reading before it is
+# accepted.
+
+## poolCount dsk "commons"
+## poolCount commanderBorrowed "commons"
+## poolCount commanderBorrowed ["landBasics","nonBasicLands","commons"]
+(root) = 81
+
+## usedPool dsk "commons"
+## usedPool lopsided "commons"
+## usedPool noMythics "commons"
+## usedPool noRares "commons"
+## usedPool sparse "commons"
+## usedPool sparse ["landBasics","nonBasicLands","commons"]
+## usedPool empty "commons"
+## usedPool commanderFull "commons"
+## usedPool commanderFull ["landBasics","nonBasicLands","commons"]
+## usedPool commanderBorrowed "commons"
+## usedPool commanderBorrowed ["landBasics","nonBasicLands","commons"]
+## usedPool null (still loading) "commons"
+(root) = commons
+
+## poolCount dsk "mythics"
+## poolCount sparse "commons"
+## poolCount sparse ["landBasics","nonBasicLands","commons"]
+## poolCount commanderBorrowed "mythics"
+(root) = 20
+
+## usedPool dsk "mythics"
+## usedPool lopsided "mythics"
+## usedPool noMythics "mythics"
+## usedPool noRares "mythics"
+## usedPool sparse "mythics"
+## usedPool empty "mythics"
+## usedPool commanderFull "mythics"
+## usedPool commanderBorrowed "mythics"
+## usedPool null (still loading) "mythics"
+(root) = mythics
+
+## poolCount dsk "landDuals"
+## poolCount lopsided "commons"
+(root) = 10
+
+## usedPool dsk "landDuals"
+## usedPool lopsided "landDuals"
+## usedPool noMythics "landDuals"
+## usedPool noRares "landDuals"
+## usedPool sparse "landDuals"
+## usedPool empty "landDuals"
+## usedPool commanderFull "landDuals"
+## usedPool commanderBorrowed "landDuals"
+## usedPool null (still loading) "landDuals"
+(root) = landDuals
+
+## poolCount dsk "LIST"
+## poolCount lopsided "LIST"
+## poolCount noMythics "LIST"
+## poolCount noRares "LIST"
+## poolCount sparse "LIST"
+## poolCount empty "LIST"
+## poolCount commanderFull "LIST"
+## poolCount commanderBorrowed "LIST"
+(root) = Infinity
+
+## usedPool dsk "LIST"
+## usedPool lopsided "LIST"
+## usedPool noMythics "LIST"
+## usedPool noRares "LIST"
+## usedPool sparse "LIST"
+## usedPool empty "LIST"
+## usedPool commanderFull "LIST"
+## usedPool commanderBorrowed "LIST"
+## usedPool null (still loading) "LIST"
+(root) = LIST
+
+## poolCount dsk "nope"
+## poolCount dsk ["nope","alsoNope"]
+## poolCount dsk []
+## poolCount lopsided "landDuals"
+## poolCount lopsided "nope"
+## poolCount lopsided ["nope","alsoNope"]
+## poolCount lopsided []
+## poolCount noMythics "mythics"
+## poolCount noMythics "nope"
+## poolCount noMythics ["nope","alsoNope"]
+## poolCount noMythics []
+## poolCount noRares "nope"
+## poolCount noRares ["nope","alsoNope"]
+## poolCount noRares []
+## poolCount sparse "landDuals"
+## poolCount sparse "nope"
+## poolCount sparse ["nope","alsoNope"]
+## poolCount sparse []
+## poolCount empty "commons"
+## poolCount empty "mythics"
+## poolCount empty "landDuals"
+## poolCount empty "nope"
+## poolCount empty ["landBasics","nonBasicLands","commons"]
+## poolCount empty ["legU","legC","legAll","uncommons"]
+## poolCount empty ["nope","alsoNope"]
+## poolCount empty []
+## poolCount commanderFull "landDuals"
+## poolCount commanderFull "nope"
+## poolCount commanderFull ["nope","alsoNope"]
+## poolCount commanderFull []
+## poolCount commanderBorrowed "landDuals"
+## poolCount commanderBorrowed "nope"
+## poolCount commanderBorrowed ["nope","alsoNope"]
+## poolCount commanderBorrowed []
+(root) = 0
+
+## usedPool dsk "nope"
+## usedPool dsk ["nope","alsoNope"]
+## usedPool lopsided "nope"
+## usedPool lopsided ["nope","alsoNope"]
+## usedPool noMythics "nope"
+## usedPool noMythics ["nope","alsoNope"]
+## usedPool noRares "nope"
+## usedPool noRares ["nope","alsoNope"]
+## usedPool sparse "nope"
+## usedPool sparse ["nope","alsoNope"]
+## usedPool empty "nope"
+## usedPool empty ["nope","alsoNope"]
+## usedPool commanderFull "nope"
+## usedPool commanderFull ["nope","alsoNope"]
+## usedPool commanderBorrowed "nope"
+## usedPool commanderBorrowed ["nope","alsoNope"]
+## usedPool null (still loading) "nope"
+## usedPool null (still loading) ["nope","alsoNope"]
+(root) = nope
+
+## poolCount dsk ["landBasics","nonBasicLands","commons"]
+## poolCount lopsided ["landBasics","nonBasicLands","commons"]
+## poolCount noMythics ["landBasics","nonBasicLands","commons"]
+## poolCount noRares ["landBasics","nonBasicLands","commons"]
+(root) = 5
+
+## usedPool dsk ["landBasics","nonBasicLands","commons"]
+## usedPool lopsided ["landBasics","nonBasicLands","commons"]
+## usedPool noMythics ["landBasics","nonBasicLands","commons"]
+## usedPool noRares ["landBasics","nonBasicLands","commons"]
+## usedPool empty ["landBasics","nonBasicLands","commons"]
+## usedPool null (still loading) ["landBasics","nonBasicLands","commons"]
+(root) = landBasics
+
+## poolCount dsk ["legU","legC","legAll","uncommons"]
+(root) = 100
+
+## usedPool dsk ["legU","legC","legAll","uncommons"]
+## usedPool lopsided ["legU","legC","legAll","uncommons"]
+## usedPool noMythics ["legU","legC","legAll","uncommons"]
+## usedPool noRares ["legU","legC","legAll","uncommons"]
+## usedPool sparse ["legU","legC","legAll","uncommons"]
+(root) = uncommons
+
+## usedPool dsk []
+## usedPool lopsided []
+## usedPool noMythics []
+## usedPool noRares []
+## usedPool sparse []
+## usedPool empty []
+## usedPool commanderFull []
+## usedPool commanderBorrowed []
+## poolCount null (still loading) "commons"
+## poolCount null (still loading) "mythics"
+## poolCount null (still loading) "landDuals"
+## poolCount null (still loading) "LIST"
+## poolCount null (still loading) "nope"
+## poolCount null (still loading) ["landBasics","nonBasicLands","commons"]
+## poolCount null (still loading) ["legU","legC","legAll","uncommons"]
+## poolCount null (still loading) ["nope","alsoNope"]
+## poolCount null (still loading) []
+## usedPool null (still loading) []
+## resolvePool "rares"
+## resolvePool "nope"
+## resolvePool ["rares","nope"]
+(root) = ~
+
+## finalize dsk set 0
+## finalize noMythics set 0
+## finalize noRares set 0
+## finalize null (still loading) set 0
+[0].foil = 0
+[0].label = Common
+[0].p = 0.5
+[0].pool = commons
+[1].foil = 0.2
+[1].label = Common dual land
+[1].p = 0.5
+[1].pool = landDuals
+
+## finalize dsk set 1
+## finalize dsk set 4
+## finalize lopsided set 1
+## finalize lopsided set 4
+## finalize noMythics set 1
+## finalize noMythics set 4
+## finalize noRares set 1
+## finalize noRares set 2
+## finalize noRares set 4
+## finalize sparse set 1
+## finalize sparse set 4
+## finalize empty set 0
+## finalize empty set 1
+## finalize empty set 2
+## finalize empty set 4
+## finalize commanderFull set 1
+## finalize commanderFull set 4
+## finalize commanderBorrowed set 1
+## finalize commanderBorrowed set 4
+## finalize null (still loading) set 4
+ = []
+
+## finalize dsk set 2
+## finalize lopsided set 2
+## finalize noMythics set 2
+## finalize sparse set 2
+## finalize commanderFull set 2
+## finalize commanderBorrowed set 2
+[0].foil = 1
+[0].label = Rare
+[0].p = 1
+[0].pool = rares
+
+## finalize dsk set 3
+## finalize lopsided set 3
+## finalize noMythics set 3
+## finalize noRares set 3
+## finalize sparse set 3
+## finalize empty set 3
+## finalize commanderFull set 3
+## finalize commanderBorrowed set 3
+## finalize null (still loading) set 3
+[0].foil = 0
+[0].label = Loading
+[0].p = ~
+[0].pool = commons
+
+## poolCount lopsided "mythics"
+(root) = 3
+
+## poolCount lopsided ["legU","legC","legAll","uncommons"]
+(root) = 8
+
+## finalize lopsided set 0
+## finalize sparse set 0
+## finalize commanderFull set 0
+## finalize commanderBorrowed set 0
+[0].foil = 0
+[0].label = Common
+[0].p = 1
+[0].pool = commons
+
+## poolCount noMythics "commons"
+## poolCount noRares "commons"
+(root) = 40
+
+## poolCount noMythics "landDuals"
+## poolCount noRares "landDuals"
+(root) = 4
+
+## poolCount noMythics ["legU","legC","legAll","uncommons"]
+## poolCount noRares ["legU","legC","legAll","uncommons"]
+## poolCount commanderFull ["legU","legC","legAll","uncommons"]
+(root) = 30
+
+## poolCount noRares "mythics"
+## poolCount commanderBorrowed ["legU","legC","legAll","uncommons"]
+(root) = 9
+
+## poolCount sparse "mythics"
+(root) = 2
+
+## poolCount sparse ["legU","legC","legAll","uncommons"]
+(root) = 15
+
+## usedPool empty ["legU","legC","legAll","uncommons"]
+## usedPool commanderFull ["legU","legC","legAll","uncommons"]
+## usedPool null (still loading) ["legU","legC","legAll","uncommons"]
+(root) = legU
+
+## poolCount commanderFull "commons"
+## poolCount commanderFull ["landBasics","nonBasicLands","commons"]
+(root) = 101
+
+## poolCount commanderFull "mythics"
+(root) = 12
+
+## usedPool commanderBorrowed ["legU","legC","legAll","uncommons"]
+(root) = legAll
+
+## finalize null (still loading) set 1
+[0].foil = 0
+[0].label = Gone
+[0].p = 0.4
+[0].pool = nope
+[1].foil = 0
+[1].label = Also gone
+[1].p = 0.6
+[1].pool = nope2
+
+## finalize null (still loading) set 2
+[0].foil = 0
+[0].label = Common
+[0].p = 0
+[0].pool = commons
+[1].foil = 1
+[1].label = Rare
+[1].p = 1
+[1].pool = rares
+
+## card 0
+## card 5
+isBackground = false
+isBoosterFun = false
+isLegendCreatureOrPW = false
+isPiper = false
+nameKey = Grizzly Bears
+typeLine = Creature — Bear
+
+## card 1
+isBackground = false
+isBoosterFun = false
+isLegendCreatureOrPW = true
+isPiper = false
+nameKey = Sivitri, Dragon Master
+typeLine = Legendary Planeswalker — Sivitri
+
+## card 2
+isBackground = false
+isBoosterFun = false
+isLegendCreatureOrPW = true
+isPiper = false
+nameKey = Faceless One
+typeLine = Legendary Creature — Shapeshifter
+
+## card 3
+isBackground = true
+isBoosterFun = false
+isLegendCreatureOrPW = false
+isPiper = false
+nameKey = Guild Artisan
+typeLine = Legendary Enchantment — Background
+
+## card 4
+isBackground = false
+isBoosterFun = false
+isLegendCreatureOrPW = true
+isPiper = true
+nameKey = The Prismatic Piper
+typeLine = Legendary Creature — Shapeshifter
+
+## card 6
+isBackground = false
+isBoosterFun = false
+isLegendCreatureOrPW = false
+isPiper = false
+nameKey = Hengegate Pathway // Mistgate Pathway
+typeLine = Land // Land
+
+## card 7
+isBackground = false
+isBoosterFun = true
+isLegendCreatureOrPW = false
+isPiper = false
+nameKey = Showcase Bear
+typeLine = Creature — Bear
+
+## card 8
+isBackground = false
+isBoosterFun = true
+isLegendCreatureOrPW = false
+isPiper = false
+nameKey = Borderless Bear
+typeLine = Creature — Bear
+
+## card 9
+isBackground = false
+isBoosterFun = true
+isLegendCreatureOrPW = false
+isPiper = false
+nameKey = Extended Bear
+typeLine = Creature — Bear
+
+## card 10
+isBackground = false
+isBoosterFun = true
+isLegendCreatureOrPW = false
+isPiper = false
+nameKey = Inverted Bear
+typeLine = Creature — Bear
+
+## card 11
+isBackground = false
+isBoosterFun = true
+isLegendCreatureOrPW = false
+isPiper = false
+nameKey = Full Art Bear
+typeLine = Creature — Bear
+
+## card 12
+isBackground = false
+isBoosterFun = false
+isLegendCreatureOrPW = false
+isPiper = false
+nameKey = Plain Bear
+typeLine = Creature — Bear
+
+## isBoosterFun empty
+## isDoubleFacedToken empty
+[0] = false
+[1] = false
+
+## groupByName cards
+## resolvePool "commons"
+## resolvePool ["rares","commons"]
+Borderless Bear[0].border_color = borderless
+Borderless Bear[0].name = Borderless Bear
+Borderless Bear[0].type_line = Creature — Bear
+Extended Bear[0].frame_effects[0] = extendedart
+Extended Bear[0].name = Extended Bear
+Extended Bear[0].type_line = Creature — Bear
+Faceless One[0].name = Faceless One
+Faceless One[0].type_line = Legendary Creature — Shapeshifter
+Full Art Bear[0].full_art = true
+Full Art Bear[0].name = Full Art Bear
+Full Art Bear[0].type_line = Creature — Bear
+Grizzly Bears[0].name = Grizzly Bears
+Grizzly Bears[0].type_line = Creature — Bear
+Grizzly Bears[1].name = Grizzly Bears // Grizzly Bears
+Grizzly Bears[1].type_line = Creature — Bear
+Guild Artisan[0].name = Guild Artisan
+Guild Artisan[0].type_line = Legendary Enchantment — Background
+Hengegate Pathway // Mistgate Pathway[0].card_faces[0].type_line = Land
+Hengegate Pathway // Mistgate Pathway[0].card_faces[1].type_line = Land
+Hengegate Pathway // Mistgate Pathway[0].name = Hengegate Pathway // Mistgate Pathway
+Inverted Bear[0].frame_effects[0] = inverted
+Inverted Bear[0].name = Inverted Bear
+Inverted Bear[0].type_line = Creature — Bear
+Plain Bear[0].frame_effects = []
+Plain Bear[0].name = Plain Bear
+Plain Bear[0].type_line = Creature — Bear
+Showcase Bear[0].frame_effects[0] = showcase
+Showcase Bear[0].name = Showcase Bear
+Showcase Bear[0].type_line = Creature — Bear
+Sivitri, Dragon Master[0].name = Sivitri, Dragon Master
+Sivitri, Dragon Master[0].type_line = Legendary Planeswalker — Sivitri
+The Prismatic Piper[0].name = The Prismatic Piper
+The Prismatic Piper[0].type_line = Legendary Creature — Shapeshifter
+
+## groupByName empty
+ = {}
+
+## statsFromPools
+commons = 12
+meta = 0
+rares = 0
+
+## sampling slot 0
+Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil
+
+## sampling slot 1
+Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Special Guest/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Special Guest/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Special Guest/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Special Guest/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Special Guest/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Special Guest/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Special Guest/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Special Guest/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Special Guest/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,The List/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Special Guest/nonfoil
+
+## sampling slot 2
+Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil
+
+## sampling slot 3
+Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Mythic/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Mythic/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Mythic/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Mythic/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Rare/nonfoil,Mythic/nonfoil
+
+## sampling slot 4
+Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/foil,Basic land/nonfoil,Basic land/foil,Basic land/nonfoil,Basic land/foil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/foil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/foil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/foil,Common dual land/foil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/foil,Common dual land/foil,Common dual land/nonfoil,Common dual land/foil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/foil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/foil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/foil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/foil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/foil,Common dual land/nonfoil,Basic land/foil,Common dual land/foil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/foil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/foil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/foil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/foil,Common dual land/foil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/foil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/foil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/foil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/foil,Basic land/foil,Common dual land/foil,Common dual land/foil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/foil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/foil,Common dual land/nonfoil,Basic land/foil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/foil,Basic land/nonfoil,Basic land/nonfoil,Basic land/foil,Common dual land/nonfoil,Basic land/foil,Common dual land/foil,Common dual land/nonfoil,Common dual land/foil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/foil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/foil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/foil,Common dual land/foil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/foil,Common dual land/foil,Common dual land/nonfoil,Common dual land/foil,Basic land/foil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/foil,Basic land/foil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/foil,Common dual land/nonfoil,Common dual land/foil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/foil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/foil,Common dual land/foil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/foil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/foil,Basic land/foil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/foil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/foil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/foil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/foil,Common dual land/nonfoil,Basic land/foil,Basic land/foil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/foil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/foil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/foil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/foil,Basic land/foil,Common dual land/foil,Common dual land/foil,Basic land/nonfoil,Common dual land/foil,Basic land/foil,Basic land/foil,Basic land/foil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/foil,Common dual land/foil,Common dual land/nonfoil,Basic land/foil,Common dual land/nonfoil,Basic land/foil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/foil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/foil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/foil,Basic land/foil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/foil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/foil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/foil,Common dual land/nonfoil,Basic land/foil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/foil,Common dual land/foil,Common dual land/foil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/foil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/foil,Basic land/foil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/foil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/foil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/foil,Basic land/nonfoil,Basic land/foil,Basic land/foil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/foil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/foil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/foil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/foil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/foil,Common dual land/foil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/foil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/foil,Basic land/nonfoil,Common dual land/foil,Common dual land/foil,Common dual land/nonfoil,Common dual land/nonfoil,Common dual land/foil,Basic land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Basic land/foil,Common dual land/nonfoil,Basic land/nonfoil,Basic land/nonfoil,Common dual land/foil,Basic land/foil,Basic land/nonfoil,Common dual land/nonfoil,Common dual land/nonfoil
+
+## sampling slot 5
+Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Mythic/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Mythic/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Mythic/nonfoil,Uncommon/nonfoil,Mythic/nonfoil,Mythic/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Rare/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Mythic/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Mythic/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Rare/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Common/nonfoil,Mythic/nonfoil,Common/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Common/nonfoil,Rare/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Mythic/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Mythic/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Mythic/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Mythic/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Rare/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Rare/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Mythic/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Mythic/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Mythic/nonfoil
+
+## sampling slot 6
+Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Rare/foil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Rare/foil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Mythic/foil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Mythic/foil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/foil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/foil,Rare/foil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Rare/foil,Common/nonfoil,Mythic/foil,Mythic/foil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Rare/foil,Common/nonfoil,Rare/foil,Uncommon/nonfoil,Uncommon/nonfoil,Mythic/foil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Mythic/foil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Rare/foil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Rare/foil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Rare/foil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Rare/foil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Rare/foil,Common/nonfoil,Uncommon/nonfoil,Rare/foil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Rare/foil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Rare/foil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/foil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Rare/foil,Common/nonfoil,Mythic/foil,Common/nonfoil,Common/nonfoil,Rare/foil,Common/nonfoil,Uncommon/nonfoil,Rare/foil,Common/nonfoil,Rare/foil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Rare/foil,Uncommon/nonfoil,Rare/foil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Rare/foil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Rare/foil,Mythic/foil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Rare/foil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Mythic/foil,Rare/foil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Rare/foil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Mythic/foil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/foil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Rare/foil,Rare/foil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Rare/foil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Rare/foil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Rare/foil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Rare/foil,Rare/foil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Rare/foil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Mythic/foil,Uncommon/nonfoil,Rare/foil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Rare/foil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Rare/foil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Common/nonfoil,Common/nonfoil,Uncommon/nonfoil,Mythic/foil
+
+## sampling pickFromMap
+~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~
+
+## finishFor etched
+(root) = etched
+
+## tokenSetCode "dsk"
+## tokenSetCode "DSK"
+(root) = tdsk
+
+## tokenSetCode ""
+## tokenSetCode null
+## tokenSetCode null
+(root) = t
+
+## isDoubleFacedToken 0
+## isDoubleFacedToken 1
+## isDoubleFacedToken 2
+## isDoubleFacedToken 3
+## isDoubleFacedToken 4
+## isDoubleFacedToken 5
+## isDoubleFacedToken 6
+## isDoubleFacedToken 7
+## isDoubleFacedToken 9
+## isReleased 1
+## isReleased 4
+## isReleased 5
+## isReleased 6
+(root) = false
+
+## isDoubleFacedToken 8
+## isReleased 0
+## isReleased 2
+## isReleased 3
+(root) = true
+
+## sortTokens
+[0].card_faces[0].image_uris.normal = https://example.invalid/x.jpg
+[0].card_faces[0].type_line = Token
+[0].card_faces[1].image_uris.normal = https://example.invalid/x.jpg
+[0].card_faces[1].type_line = Token
+[0].collector_number = 1
+[0].name = Day // Night
+[1].collector_number = 2
+[1].image_uris.normal = https://example.invalid/x.jpg
+[1].name = Glistener Elf
+[1].type_line = Token Creature
+[2].collector_number = T4
+[2].image_uris.normal = https://example.invalid/x.jpg
+[2].name = Clue
+[2].type_line = Token Artifact — Clue
+[3].collector_number = 5
+[3].image_uris.normal = https://example.invalid/x.jpg
+[3].name = Insect
+[3].type_line = Token Creature — Insect
+[4].collector_number = 6
+[4].image_uris.normal = https://example.invalid/x.jpg
+[4].name = Spirit
+[4].type_line = Token Creature — Spirit
+[5].collector_number = 8
+[5].image_uris.normal = https://example.invalid/x.jpg
+[5].name = Spirit
+[5].type_line = Token Creature — Spirit
+[6].collector_number = 9
+[6].image_uris.normal = https://example.invalid/x.jpg
+[6].name = Wicked Role
+[6].type_line = Token Enchantment — Aura Role
+[7].collector_number = 11
+[7].image_uris.normal = https://example.invalid/x.jpg
+[7].name = Treasure
+[7].type_line = Token Artifact — Treasure
+[8].collector_number = 13
+[8].image_uris.normal = https://example.invalid/x.jpg
+[8].name = Insect
+[8].type_line = Token Creature — Insect
+[9].collector_number = 19
+[9].image_uris.normal = https://example.invalid/x.jpg
+[9].name = Emblem Chandra
+[9].type_line = Emblem — Chandra
+
+## tokenPair
+backCard.collector_number = 8
+backCard.image_uris.normal = https://example.invalid/x.jpg
+backCard.name = Spirit
+backCard.type_line = Token Creature — Spirit
+card.collector_number = 6
+card.image_uris.normal = https://example.invalid/x.jpg
+card.name = Spirit
+card.type_line = Token Creature — Spirit
+tokenSlot = true
+
+## tokenSheets perPage=1 seed=1
+## tokenSheets perPage=1 seed=5
+## tokenSheets perPage=1 seed=16
+## tokenSheets perPage=1 seed=17
+## tokenSheets perPage=1 seed=22
+0.0|Day // Night|~|true|~
+1.0|Glistener Elf|Clue|true|~
+2.0|Insect|Spirit|true|~
+3.0|Spirit|Wicked Role|true|~
+4.0|Treasure|Insect|true|~
+5.0|Emblem Chandra|Wicked Role|true|~
+
+## tokenSheets perPage=1 seed=2
+## tokenSheets perPage=1 seed=3
+## tokenSheets perPage=1 seed=20
+0.0|Day // Night|~|true|~
+1.0|Glistener Elf|Clue|true|~
+2.0|Insect|Spirit|true|~
+3.0|Spirit|Wicked Role|true|~
+4.0|Treasure|Insect|true|~
+5.0|Emblem Chandra|Treasure|true|~
+
+## tokenSheets perPage=1 seed=4
+0.0|Day // Night|~|true|~
+1.0|Glistener Elf|Clue|true|~
+2.0|Insect|Spirit|true|~
+3.0|Spirit|Wicked Role|true|~
+4.0|Treasure|Insect|true|~
+5.0|Emblem Chandra|Emblem Chandra|true|~
+
+## tokenSheets perPage=1 seed=6
+## tokenSheets perPage=1 seed=10
+## tokenSheets perPage=1 seed=11
+## tokenSheets perPage=1 seed=13
+## tokenSheets perPage=1 seed=14
+## tokenSheets perPage=1 seed=21
+## tokenSheets perPage=1 seed=25
+0.0|Day // Night|~|true|~
+1.0|Glistener Elf|Clue|true|~
+2.0|Insect|Spirit|true|~
+3.0|Spirit|Wicked Role|true|~
+4.0|Treasure|Insect|true|~
+5.0|Emblem Chandra|Spirit|true|~
+
+## tokenSheets perPage=1 seed=7
+## tokenSheets perPage=1 seed=19
+## tokenSheets perPage=1 seed=23
+0.0|Day // Night|~|true|~
+1.0|Glistener Elf|Clue|true|~
+2.0|Insect|Spirit|true|~
+3.0|Spirit|Wicked Role|true|~
+4.0|Treasure|Insect|true|~
+5.0|Emblem Chandra|Day // Night|true|~
+
+## tokenSheets perPage=1 seed=8
+## tokenSheets perPage=1 seed=9
+0.0|Day // Night|~|true|~
+1.0|Glistener Elf|Clue|true|~
+2.0|Insect|Spirit|true|~
+3.0|Spirit|Wicked Role|true|~
+4.0|Treasure|Insect|true|~
+5.0|Emblem Chandra|Glistener Elf|true|~
+
+## tokenSheets perPage=1 seed=12
+## tokenSheets perPage=1 seed=15
+0.0|Day // Night|~|true|~
+1.0|Glistener Elf|Clue|true|~
+2.0|Insect|Spirit|true|~
+3.0|Spirit|Wicked Role|true|~
+4.0|Treasure|Insect|true|~
+5.0|Emblem Chandra|Clue|true|~
+
+## tokenSheets perPage=1 seed=18
+## tokenSheets perPage=1 seed=24
+0.0|Day // Night|~|true|~
+1.0|Glistener Elf|Clue|true|~
+2.0|Insect|Spirit|true|~
+3.0|Spirit|Wicked Role|true|~
+4.0|Treasure|Insect|true|~
+5.0|Emblem Chandra|Insect|true|~
+
+## tokenSheets empty perPage=1
+## tokenSheets empty perPage=2
+## tokenSheets empty perPage=4
+## tokenSheets empty perPage=8
+## tokenSheets empty perPage=9
+## tokenSheets empty perPage=18
+(none)
+
+## tokenSheets perPage=2 seed=1
+## tokenSheets perPage=2 seed=5
+## tokenSheets perPage=2 seed=16
+## tokenSheets perPage=2 seed=17
+## tokenSheets perPage=2 seed=22
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+1.0|Insect|Spirit|true|~
+1.1|Spirit|Wicked Role|true|~
+2.0|Treasure|Insect|true|~
+2.1|Emblem Chandra|Wicked Role|true|~
+
+## tokenSheets perPage=2 seed=2
+## tokenSheets perPage=2 seed=3
+## tokenSheets perPage=2 seed=20
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+1.0|Insect|Spirit|true|~
+1.1|Spirit|Wicked Role|true|~
+2.0|Treasure|Insect|true|~
+2.1|Emblem Chandra|Treasure|true|~
+
+## tokenSheets perPage=2 seed=4
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+1.0|Insect|Spirit|true|~
+1.1|Spirit|Wicked Role|true|~
+2.0|Treasure|Insect|true|~
+2.1|Emblem Chandra|Emblem Chandra|true|~
+
+## tokenSheets perPage=2 seed=6
+## tokenSheets perPage=2 seed=10
+## tokenSheets perPage=2 seed=11
+## tokenSheets perPage=2 seed=13
+## tokenSheets perPage=2 seed=14
+## tokenSheets perPage=2 seed=21
+## tokenSheets perPage=2 seed=25
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+1.0|Insect|Spirit|true|~
+1.1|Spirit|Wicked Role|true|~
+2.0|Treasure|Insect|true|~
+2.1|Emblem Chandra|Spirit|true|~
+
+## tokenSheets perPage=2 seed=7
+## tokenSheets perPage=2 seed=19
+## tokenSheets perPage=2 seed=23
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+1.0|Insect|Spirit|true|~
+1.1|Spirit|Wicked Role|true|~
+2.0|Treasure|Insect|true|~
+2.1|Emblem Chandra|Day // Night|true|~
+
+## tokenSheets perPage=2 seed=8
+## tokenSheets perPage=2 seed=9
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+1.0|Insect|Spirit|true|~
+1.1|Spirit|Wicked Role|true|~
+2.0|Treasure|Insect|true|~
+2.1|Emblem Chandra|Glistener Elf|true|~
+
+## tokenSheets perPage=2 seed=12
+## tokenSheets perPage=2 seed=15
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+1.0|Insect|Spirit|true|~
+1.1|Spirit|Wicked Role|true|~
+2.0|Treasure|Insect|true|~
+2.1|Emblem Chandra|Clue|true|~
+
+## tokenSheets perPage=2 seed=18
+## tokenSheets perPage=2 seed=24
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+1.0|Insect|Spirit|true|~
+1.1|Spirit|Wicked Role|true|~
+2.0|Treasure|Insect|true|~
+2.1|Emblem Chandra|Insect|true|~
+
+## tokenSheets perPage=4 seed=1
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Emblem Chandra|true|~
+1.2|Wicked Role|Day // Night|true|true
+1.3|Spirit|Emblem Chandra|true|true
+
+## tokenSheets perPage=4 seed=2
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Insect|true|~
+1.2|Treasure|Insect|true|true
+1.3|Clue|Spirit|true|true
+
+## tokenSheets perPage=4 seed=3
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Treasure|true|~
+1.2|Treasure|Day // Night|true|true
+1.3|Spirit|Day // Night|true|true
+
+## tokenSheets perPage=4 seed=4
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Clue|true|~
+1.2|Emblem Chandra|Insect|true|true
+1.3|Clue|Day // Night|true|true
+
+## tokenSheets perPage=4 seed=5
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Day // Night|true|~
+1.2|Wicked Role|Treasure|true|true
+1.3|Clue|Wicked Role|true|true
+
+## tokenSheets perPage=4 seed=6
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Spirit|true|~
+1.2|Spirit|Day // Night|true|true
+1.3|Wicked Role|Clue|true|true
+
+## tokenSheets perPage=4 seed=7
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Spirit|true|~
+1.2|Day // Night|~|true|true
+1.3|Emblem Chandra|Wicked Role|true|true
+
+## tokenSheets perPage=4 seed=8
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Spirit|true|~
+1.2|Glistener Elf|Wicked Role|true|true
+1.3|Insect|Wicked Role|true|true
+
+## tokenSheets perPage=4 seed=9
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Treasure|true|~
+1.2|Glistener Elf|Insect|true|true
+1.3|Glistener Elf|Insect|true|true
+
+## tokenSheets perPage=4 seed=10
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Spirit|true|~
+1.2|Spirit|Emblem Chandra|true|true
+1.3|Wicked Role|Insect|true|true
+
+## tokenSheets perPage=4 seed=11
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Insect|true|~
+1.2|Spirit|Spirit|true|true
+1.3|Wicked Role|Spirit|true|true
+
+## tokenSheets perPage=4 seed=12
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Glistener Elf|true|~
+1.2|Clue|Day // Night|true|true
+1.3|Spirit|Emblem Chandra|true|true
+
+## tokenSheets perPage=4 seed=13
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Day // Night|true|~
+1.2|Spirit|Insect|true|true
+1.3|Day // Night|~|true|true
+
+## tokenSheets perPage=4 seed=14
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Glistener Elf|true|~
+1.2|Spirit|Spirit|true|true
+1.3|Spirit|Insect|true|true
+
+## tokenSheets perPage=4 seed=15
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Clue|true|~
+1.2|Clue|Spirit|true|true
+1.3|Spirit|Spirit|true|true
+
+## tokenSheets perPage=4 seed=16
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Insect|true|~
+1.2|Wicked Role|Glistener Elf|true|true
+1.3|Treasure|Insect|true|true
+
+## tokenSheets perPage=4 seed=17
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Day // Night|true|~
+1.2|Wicked Role|Glistener Elf|true|true
+1.3|Spirit|Glistener Elf|true|true
+
+## tokenSheets perPage=4 seed=18
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Insect|true|~
+1.2|Insect|Wicked Role|true|true
+1.3|Spirit|Glistener Elf|true|true
+
+## tokenSheets perPage=4 seed=19
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Emblem Chandra|true|~
+1.2|Day // Night|~|true|true
+1.3|Spirit|Treasure|true|true
+
+## tokenSheets perPage=4 seed=20
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Spirit|true|~
+1.2|Treasure|Insect|true|true
+1.3|Spirit|Clue|true|true
+
+## tokenSheets perPage=4 seed=21
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Spirit|true|~
+1.2|Spirit|Spirit|true|true
+1.3|Clue|Insect|true|true
+
+## tokenSheets perPage=4 seed=22
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Insect|true|~
+1.2|Wicked Role|Clue|true|true
+1.3|Clue|Clue|true|true
+
+## tokenSheets perPage=4 seed=23
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Insect|true|~
+1.2|Day // Night|~|true|true
+1.3|Wicked Role|Insect|true|true
+
+## tokenSheets perPage=4 seed=24
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Spirit|true|~
+1.2|Insect|Emblem Chandra|true|true
+1.3|Clue|Day // Night|true|true
+
+## tokenSheets perPage=4 seed=25
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+1.0|Treasure|Insect|true|~
+1.1|Emblem Chandra|Clue|true|~
+1.2|Spirit|Insect|true|true
+1.3|Spirit|Treasure|true|true
+
+## tokenSheets perPage=8 seed=1
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Emblem Chandra|true|~
+0.6|Wicked Role|Day // Night|true|true
+0.7|Spirit|Emblem Chandra|true|true
+
+## tokenSheets perPage=8 seed=2
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Insect|true|~
+0.6|Treasure|Insect|true|true
+0.7|Clue|Spirit|true|true
+
+## tokenSheets perPage=8 seed=3
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Treasure|true|~
+0.6|Treasure|Day // Night|true|true
+0.7|Spirit|Day // Night|true|true
+
+## tokenSheets perPage=8 seed=4
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Clue|true|~
+0.6|Emblem Chandra|Insect|true|true
+0.7|Clue|Day // Night|true|true
+
+## tokenSheets perPage=8 seed=5
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Day // Night|true|~
+0.6|Wicked Role|Treasure|true|true
+0.7|Clue|Wicked Role|true|true
+
+## tokenSheets perPage=8 seed=6
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Spirit|true|~
+0.6|Spirit|Day // Night|true|true
+0.7|Wicked Role|Clue|true|true
+
+## tokenSheets perPage=8 seed=7
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Spirit|true|~
+0.6|Day // Night|~|true|true
+0.7|Emblem Chandra|Wicked Role|true|true
+
+## tokenSheets perPage=8 seed=8
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Spirit|true|~
+0.6|Glistener Elf|Wicked Role|true|true
+0.7|Insect|Wicked Role|true|true
+
+## tokenSheets perPage=8 seed=9
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Treasure|true|~
+0.6|Glistener Elf|Insect|true|true
+0.7|Glistener Elf|Insect|true|true
+
+## tokenSheets perPage=8 seed=10
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Spirit|true|~
+0.6|Spirit|Emblem Chandra|true|true
+0.7|Wicked Role|Insect|true|true
+
+## tokenSheets perPage=8 seed=11
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Insect|true|~
+0.6|Spirit|Spirit|true|true
+0.7|Wicked Role|Spirit|true|true
+
+## tokenSheets perPage=8 seed=12
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Glistener Elf|true|~
+0.6|Clue|Day // Night|true|true
+0.7|Spirit|Emblem Chandra|true|true
+
+## tokenSheets perPage=8 seed=13
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Day // Night|true|~
+0.6|Spirit|Insect|true|true
+0.7|Day // Night|~|true|true
+
+## tokenSheets perPage=8 seed=14
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Glistener Elf|true|~
+0.6|Spirit|Spirit|true|true
+0.7|Spirit|Insect|true|true
+
+## tokenSheets perPage=8 seed=15
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Clue|true|~
+0.6|Clue|Spirit|true|true
+0.7|Spirit|Spirit|true|true
+
+## tokenSheets perPage=8 seed=16
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Insect|true|~
+0.6|Wicked Role|Glistener Elf|true|true
+0.7|Treasure|Insect|true|true
+
+## tokenSheets perPage=8 seed=17
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Day // Night|true|~
+0.6|Wicked Role|Glistener Elf|true|true
+0.7|Spirit|Glistener Elf|true|true
+
+## tokenSheets perPage=8 seed=18
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Insect|true|~
+0.6|Insect|Wicked Role|true|true
+0.7|Spirit|Glistener Elf|true|true
+
+## tokenSheets perPage=8 seed=19
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Emblem Chandra|true|~
+0.6|Day // Night|~|true|true
+0.7|Spirit|Treasure|true|true
+
+## tokenSheets perPage=8 seed=20
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Spirit|true|~
+0.6|Treasure|Insect|true|true
+0.7|Spirit|Clue|true|true
+
+## tokenSheets perPage=8 seed=21
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Spirit|true|~
+0.6|Spirit|Spirit|true|true
+0.7|Clue|Insect|true|true
+
+## tokenSheets perPage=8 seed=22
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Insect|true|~
+0.6|Wicked Role|Clue|true|true
+0.7|Clue|Clue|true|true
+
+## tokenSheets perPage=8 seed=23
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Insect|true|~
+0.6|Day // Night|~|true|true
+0.7|Wicked Role|Insect|true|true
+
+## tokenSheets perPage=8 seed=24
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Spirit|true|~
+0.6|Insect|Emblem Chandra|true|true
+0.7|Clue|Day // Night|true|true
+
+## tokenSheets perPage=8 seed=25
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Clue|true|~
+0.6|Spirit|Insect|true|true
+0.7|Spirit|Treasure|true|true
+
+## tokenSheets perPage=9 seed=1
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Wicked Role|true|~
+0.6|Wicked Role|Day // Night|true|true
+0.7|Spirit|Emblem Chandra|true|true
+0.8|Emblem Chandra|Clue|true|true
+
+## tokenSheets perPage=9 seed=2
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Spirit|true|~
+0.6|Treasure|Insect|true|true
+0.7|Clue|Spirit|true|true
+0.8|Insect|Wicked Role|true|true
+
+## tokenSheets perPage=9 seed=3
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Spirit|true|~
+0.6|Treasure|Day // Night|true|true
+0.7|Spirit|Day // Night|true|true
+0.8|Treasure|Spirit|true|true
+
+## tokenSheets perPage=9 seed=4
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Day // Night|true|~
+0.6|Emblem Chandra|Insect|true|true
+0.7|Clue|Day // Night|true|true
+0.8|Clue|Spirit|true|true
+
+## tokenSheets perPage=9 seed=5
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Treasure|true|~
+0.6|Wicked Role|Treasure|true|true
+0.7|Clue|Wicked Role|true|true
+0.8|Day // Night|~|true|true
+
+## tokenSheets perPage=9 seed=6
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Day // Night|true|~
+0.6|Spirit|Day // Night|true|true
+0.7|Wicked Role|Clue|true|true
+0.8|Spirit|Day // Night|true|true
+
+## tokenSheets perPage=9 seed=7
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Spirit|true|~
+0.6|Day // Night|~|true|true
+0.7|Emblem Chandra|Wicked Role|true|true
+0.8|Spirit|Spirit|true|true
+
+## tokenSheets perPage=9 seed=8
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Insect|true|~
+0.6|Glistener Elf|Wicked Role|true|true
+0.7|Insect|Wicked Role|true|true
+0.8|Spirit|Spirit|true|true
+
+## tokenSheets perPage=9 seed=9
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Clue|true|~
+0.6|Glistener Elf|Insect|true|true
+0.7|Glistener Elf|Insect|true|true
+0.8|Treasure|Wicked Role|true|true
+
+## tokenSheets perPage=9 seed=10
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Clue|true|~
+0.6|Spirit|Emblem Chandra|true|true
+0.7|Wicked Role|Insect|true|true
+0.8|Spirit|Spirit|true|true
+
+## tokenSheets perPage=9 seed=11
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Day // Night|true|~
+0.6|Spirit|Spirit|true|true
+0.7|Wicked Role|Spirit|true|true
+0.8|Insect|Spirit|true|true
+
+## tokenSheets perPage=9 seed=12
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Wicked Role|true|~
+0.6|Clue|Day // Night|true|true
+0.7|Spirit|Emblem Chandra|true|true
+0.8|Glistener Elf|Day // Night|true|true
+
+## tokenSheets perPage=9 seed=13
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Day // Night|true|~
+0.6|Spirit|Insect|true|true
+0.7|Day // Night|~|true|true
+0.8|Day // Night|~|true|true
+
+## tokenSheets perPage=9 seed=14
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Wicked Role|true|~
+0.6|Spirit|Spirit|true|true
+0.7|Spirit|Insect|true|true
+0.8|Glistener Elf|Spirit|true|true
+
+## tokenSheets perPage=9 seed=15
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Emblem Chandra|true|~
+0.6|Clue|Spirit|true|true
+0.7|Spirit|Spirit|true|true
+0.8|Clue|Wicked Role|true|true
+
+## tokenSheets perPage=9 seed=16
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Emblem Chandra|true|~
+0.6|Wicked Role|Glistener Elf|true|true
+0.7|Treasure|Insect|true|true
+0.8|Insect|Day // Night|true|true
+
+## tokenSheets perPage=9 seed=17
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Clue|true|~
+0.6|Wicked Role|Glistener Elf|true|true
+0.7|Spirit|Glistener Elf|true|true
+0.8|Day // Night|~|true|true
+
+## tokenSheets perPage=9 seed=18
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Treasure|true|~
+0.6|Insect|Wicked Role|true|true
+0.7|Spirit|Glistener Elf|true|true
+0.8|Insect|Spirit|true|true
+
+## tokenSheets perPage=9 seed=19
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Wicked Role|true|~
+0.6|Day // Night|~|true|true
+0.7|Spirit|Treasure|true|true
+0.8|Emblem Chandra|Insect|true|true
+
+## tokenSheets perPage=9 seed=20
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Treasure|true|~
+0.6|Treasure|Insect|true|true
+0.7|Spirit|Clue|true|true
+0.8|Spirit|Glistener Elf|true|true
+
+## tokenSheets perPage=9 seed=21
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Insect|true|~
+0.6|Spirit|Spirit|true|true
+0.7|Clue|Insect|true|true
+0.8|Spirit|Insect|true|true
+
+## tokenSheets perPage=9 seed=22
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Spirit|true|~
+0.6|Wicked Role|Clue|true|true
+0.7|Clue|Clue|true|true
+0.8|Insect|Insect|true|true
+
+## tokenSheets perPage=9 seed=23
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Spirit|true|~
+0.6|Day // Night|~|true|true
+0.7|Wicked Role|Insect|true|true
+0.8|Insect|Clue|true|true
+
+## tokenSheets perPage=9 seed=24
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Clue|true|~
+0.6|Insect|Emblem Chandra|true|true
+0.7|Clue|Day // Night|true|true
+0.8|Spirit|Glistener Elf|true|true
+
+## tokenSheets perPage=9 seed=25
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Spirit|true|~
+0.6|Spirit|Insect|true|true
+0.7|Spirit|Treasure|true|true
+0.8|Clue|Glistener Elf|true|true
+
+## tokenSheets perPage=18 seed=1
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Spirit|true|~
+0.6|Wicked Role|Day // Night|true|true
+0.7|Spirit|Emblem Chandra|true|true
+0.8|Emblem Chandra|Clue|true|true
+0.9|Wicked Role|Treasure|true|true
+0.10|Spirit|Emblem Chandra|true|true
+0.11|Spirit|Spirit|true|true
+0.12|Glistener Elf|Spirit|true|true
+0.13|Clue|Glistener Elf|true|true
+0.14|Spirit|Day // Night|true|true
+0.15|Insect|Treasure|true|true
+0.16|Clue|Glistener Elf|true|true
+0.17|Day // Night|~|true|true
+
+## tokenSheets perPage=18 seed=2
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Day // Night|true|~
+0.6|Treasure|Insect|true|true
+0.7|Clue|Spirit|true|true
+0.8|Insect|Wicked Role|true|true
+0.9|Spirit|Insect|true|true
+0.10|Treasure|Glistener Elf|true|true
+0.11|Treasure|Clue|true|true
+0.12|Spirit|Insect|true|true
+0.13|Spirit|Glistener Elf|true|true
+0.14|Wicked Role|Insect|true|true
+0.15|Emblem Chandra|Day // Night|true|true
+0.16|Emblem Chandra|Day // Night|true|true
+0.17|Glistener Elf|Glistener Elf|true|true
+
+## tokenSheets perPage=18 seed=3
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Insect|true|~
+0.6|Treasure|Day // Night|true|true
+0.7|Spirit|Day // Night|true|true
+0.8|Treasure|Spirit|true|true
+0.9|Spirit|Glistener Elf|true|true
+0.10|Clue|Spirit|true|true
+0.11|Glistener Elf|Day // Night|true|true
+0.12|Treasure|Spirit|true|true
+0.13|Treasure|Insect|true|true
+0.14|Insect|Wicked Role|true|true
+0.15|Clue|Wicked Role|true|true
+0.16|Spirit|Insect|true|true
+0.17|Spirit|Day // Night|true|true
+
+## tokenSheets perPage=18 seed=4
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Clue|true|~
+0.6|Emblem Chandra|Insect|true|true
+0.7|Clue|Day // Night|true|true
+0.8|Clue|Spirit|true|true
+0.9|Day // Night|~|true|true
+0.10|Wicked Role|Wicked Role|true|true
+0.11|Treasure|Insect|true|true
+0.12|Treasure|Insect|true|true
+0.13|Spirit|Treasure|true|true
+0.14|Spirit|Spirit|true|true
+0.15|Treasure|Emblem Chandra|true|true
+0.16|Emblem Chandra|Spirit|true|true
+0.17|Insect|Treasure|true|true
+
+## tokenSheets perPage=18 seed=5
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Clue|true|~
+0.6|Wicked Role|Treasure|true|true
+0.7|Clue|Wicked Role|true|true
+0.8|Day // Night|~|true|true
+0.9|Treasure|Spirit|true|true
+0.10|Emblem Chandra|Clue|true|true
+0.11|Treasure|Treasure|true|true
+0.12|Wicked Role|Day // Night|true|true
+0.13|Spirit|Insect|true|true
+0.14|Insect|Clue|true|true
+0.15|Treasure|Treasure|true|true
+0.16|Clue|Day // Night|true|true
+0.17|Treasure|Clue|true|true
+
+## tokenSheets perPage=18 seed=6
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Insect|true|~
+0.6|Spirit|Day // Night|true|true
+0.7|Wicked Role|Clue|true|true
+0.8|Spirit|Day // Night|true|true
+0.9|Day // Night|~|true|true
+0.10|Emblem Chandra|Clue|true|true
+0.11|Emblem Chandra|Insect|true|true
+0.12|Day // Night|~|true|true
+0.13|Spirit|Treasure|true|true
+0.14|Wicked Role|Spirit|true|true
+0.15|Spirit|Glistener Elf|true|true
+0.16|Emblem Chandra|Emblem Chandra|true|true
+0.17|Clue|Emblem Chandra|true|true
+
+## tokenSheets perPage=18 seed=7
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Glistener Elf|true|~
+0.6|Day // Night|~|true|true
+0.7|Emblem Chandra|Wicked Role|true|true
+0.8|Spirit|Spirit|true|true
+0.9|Spirit|Clue|true|true
+0.10|Spirit|Treasure|true|true
+0.11|Clue|Glistener Elf|true|true
+0.12|Treasure|Spirit|true|true
+0.13|Glistener Elf|Insect|true|true
+0.14|Clue|Spirit|true|true
+0.15|Clue|Emblem Chandra|true|true
+0.16|Clue|Insect|true|true
+0.17|Glistener Elf|Glistener Elf|true|true
+
+## tokenSheets perPage=18 seed=8
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Day // Night|true|~
+0.6|Glistener Elf|Wicked Role|true|true
+0.7|Insect|Wicked Role|true|true
+0.8|Spirit|Spirit|true|true
+0.9|Insect|Clue|true|true
+0.10|Spirit|Day // Night|true|true
+0.11|Spirit|Day // Night|true|true
+0.12|Spirit|Clue|true|true
+0.13|Glistener Elf|Emblem Chandra|true|true
+0.14|Wicked Role|Day // Night|true|true
+0.15|Glistener Elf|Day // Night|true|true
+0.16|Spirit|Spirit|true|true
+0.17|Treasure|Treasure|true|true
+
+## tokenSheets perPage=18 seed=9
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Wicked Role|true|~
+0.6|Glistener Elf|Insect|true|true
+0.7|Glistener Elf|Insect|true|true
+0.8|Treasure|Wicked Role|true|true
+0.9|Clue|Emblem Chandra|true|true
+0.10|Glistener Elf|Wicked Role|true|true
+0.11|Wicked Role|Spirit|true|true
+0.12|Clue|Emblem Chandra|true|true
+0.13|Clue|Treasure|true|true
+0.14|Wicked Role|Insect|true|true
+0.15|Spirit|Insect|true|true
+0.16|Insect|Spirit|true|true
+0.17|Insect|Glistener Elf|true|true
+
+## tokenSheets perPage=18 seed=10
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Clue|true|~
+0.6|Spirit|Emblem Chandra|true|true
+0.7|Wicked Role|Insect|true|true
+0.8|Spirit|Spirit|true|true
+0.9|Clue|Day // Night|true|true
+0.10|Day // Night|~|true|true
+0.11|Emblem Chandra|Glistener Elf|true|true
+0.12|Insect|Insect|true|true
+0.13|Spirit|Emblem Chandra|true|true
+0.14|Clue|Insect|true|true
+0.15|Emblem Chandra|Glistener Elf|true|true
+0.16|Insect|Wicked Role|true|true
+0.17|Spirit|Spirit|true|true
+
+## tokenSheets perPage=18 seed=11
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Spirit|true|~
+0.6|Spirit|Spirit|true|true
+0.7|Wicked Role|Spirit|true|true
+0.8|Insect|Spirit|true|true
+0.9|Day // Night|~|true|true
+0.10|Wicked Role|Spirit|true|true
+0.11|Spirit|Insect|true|true
+0.12|Spirit|Wicked Role|true|true
+0.13|Wicked Role|Glistener Elf|true|true
+0.14|Glistener Elf|Clue|true|true
+0.15|Insect|Insect|true|true
+0.16|Spirit|Glistener Elf|true|true
+0.17|Spirit|Spirit|true|true
+
+## tokenSheets perPage=18 seed=12
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Clue|true|~
+0.6|Clue|Day // Night|true|true
+0.7|Spirit|Emblem Chandra|true|true
+0.8|Glistener Elf|Day // Night|true|true
+0.9|Wicked Role|Wicked Role|true|true
+0.10|Spirit|Treasure|true|true
+0.11|Day // Night|~|true|true
+0.12|Insect|Spirit|true|true
+0.13|Treasure|Wicked Role|true|true
+0.14|Spirit|Treasure|true|true
+0.15|Emblem Chandra|Clue|true|true
+0.16|Insect|Insect|true|true
+0.17|Insect|Spirit|true|true
+
+## tokenSheets perPage=18 seed=13
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Treasure|true|~
+0.6|Spirit|Insect|true|true
+0.7|Day // Night|~|true|true
+0.8|Day // Night|~|true|true
+0.9|Day // Night|~|true|true
+0.10|Spirit|Insect|true|true
+0.11|Wicked Role|Treasure|true|true
+0.12|Clue|Glistener Elf|true|true
+0.13|Spirit|Insect|true|true
+0.14|Spirit|Wicked Role|true|true
+0.15|Glistener Elf|Wicked Role|true|true
+0.16|Spirit|Wicked Role|true|true
+0.17|Insect|Glistener Elf|true|true
+
+## tokenSheets perPage=18 seed=14
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Wicked Role|true|~
+0.6|Spirit|Spirit|true|true
+0.7|Spirit|Insect|true|true
+0.8|Glistener Elf|Spirit|true|true
+0.9|Wicked Role|Day // Night|true|true
+0.10|Emblem Chandra|Insect|true|true
+0.11|Insect|Day // Night|true|true
+0.12|Treasure|Day // Night|true|true
+0.13|Glistener Elf|Insect|true|true
+0.14|Spirit|Emblem Chandra|true|true
+0.15|Day // Night|~|true|true
+0.16|Clue|Treasure|true|true
+0.17|Insect|Emblem Chandra|true|true
+
+## tokenSheets perPage=18 seed=15
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Spirit|true|~
+0.6|Clue|Spirit|true|true
+0.7|Spirit|Spirit|true|true
+0.8|Clue|Wicked Role|true|true
+0.9|Emblem Chandra|Insect|true|true
+0.10|Day // Night|~|true|true
+0.11|Insect|Insect|true|true
+0.12|Day // Night|~|true|true
+0.13|Clue|Clue|true|true
+0.14|Day // Night|~|true|true
+0.15|Emblem Chandra|Insect|true|true
+0.16|Insect|Day // Night|true|true
+0.17|Spirit|Day // Night|true|true
+
+## tokenSheets perPage=18 seed=16
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Spirit|true|~
+0.6|Wicked Role|Glistener Elf|true|true
+0.7|Treasure|Insect|true|true
+0.8|Insect|Day // Night|true|true
+0.9|Emblem Chandra|Spirit|true|true
+0.10|Glistener Elf|Emblem Chandra|true|true
+0.11|Spirit|Day // Night|true|true
+0.12|Clue|Spirit|true|true
+0.13|Spirit|Insect|true|true
+0.14|Insect|Spirit|true|true
+0.15|Insect|Glistener Elf|true|true
+0.16|Treasure|Insect|true|true
+0.17|Wicked Role|Treasure|true|true
+
+## tokenSheets perPage=18 seed=17
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Day // Night|true|~
+0.6|Wicked Role|Glistener Elf|true|true
+0.7|Spirit|Glistener Elf|true|true
+0.8|Day // Night|~|true|true
+0.9|Clue|Spirit|true|true
+0.10|Clue|Wicked Role|true|true
+0.11|Treasure|Insect|true|true
+0.12|Clue|Glistener Elf|true|true
+0.13|Wicked Role|Treasure|true|true
+0.14|Clue|Spirit|true|true
+0.15|Wicked Role|Wicked Role|true|true
+0.16|Spirit|Wicked Role|true|true
+0.17|Spirit|Spirit|true|true
+
+## tokenSheets perPage=18 seed=18
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Glistener Elf|true|~
+0.6|Insect|Wicked Role|true|true
+0.7|Spirit|Glistener Elf|true|true
+0.8|Insect|Spirit|true|true
+0.9|Treasure|Clue|true|true
+0.10|Glistener Elf|Spirit|true|true
+0.11|Insect|Spirit|true|true
+0.12|Clue|Spirit|true|true
+0.13|Wicked Role|Day // Night|true|true
+0.14|Emblem Chandra|Wicked Role|true|true
+0.15|Insect|Spirit|true|true
+0.16|Glistener Elf|Treasure|true|true
+0.17|Clue|Insect|true|true
+
+## tokenSheets perPage=18 seed=19
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Wicked Role|true|~
+0.6|Day // Night|~|true|true
+0.7|Spirit|Treasure|true|true
+0.8|Emblem Chandra|Insect|true|true
+0.9|Wicked Role|Spirit|true|true
+0.10|Spirit|Insect|true|true
+0.11|Glistener Elf|Spirit|true|true
+0.12|Spirit|Insect|true|true
+0.13|Spirit|Day // Night|true|true
+0.14|Day // Night|~|true|true
+0.15|Treasure|Insect|true|true
+0.16|Spirit|Glistener Elf|true|true
+0.17|Day // Night|~|true|true
+
+## tokenSheets perPage=18 seed=20
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Emblem Chandra|true|~
+0.6|Treasure|Insect|true|true
+0.7|Spirit|Clue|true|true
+0.8|Spirit|Glistener Elf|true|true
+0.9|Treasure|Insect|true|true
+0.10|Spirit|Emblem Chandra|true|true
+0.11|Clue|Glistener Elf|true|true
+0.12|Clue|Spirit|true|true
+0.13|Clue|Clue|true|true
+0.14|Emblem Chandra|Insect|true|true
+0.15|Glistener Elf|Insect|true|true
+0.16|Glistener Elf|Insect|true|true
+0.17|Insect|Emblem Chandra|true|true
+
+## tokenSheets perPage=18 seed=21
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Day // Night|true|~
+0.6|Spirit|Spirit|true|true
+0.7|Clue|Insect|true|true
+0.8|Spirit|Insect|true|true
+0.9|Insect|Insect|true|true
+0.10|Spirit|Treasure|true|true
+0.11|Glistener Elf|Insect|true|true
+0.12|Wicked Role|Insect|true|true
+0.13|Day // Night|~|true|true
+0.14|Clue|Spirit|true|true
+0.15|Insect|Day // Night|true|true
+0.16|Spirit|Clue|true|true
+0.17|Spirit|Spirit|true|true
+
+## tokenSheets perPage=18 seed=22
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Day // Night|true|~
+0.6|Wicked Role|Clue|true|true
+0.7|Clue|Clue|true|true
+0.8|Insect|Insect|true|true
+0.9|Spirit|Wicked Role|true|true
+0.10|Treasure|Day // Night|true|true
+0.11|Glistener Elf|Glistener Elf|true|true
+0.12|Glistener Elf|Spirit|true|true
+0.13|Glistener Elf|Spirit|true|true
+0.14|Clue|Spirit|true|true
+0.15|Treasure|Wicked Role|true|true
+0.16|Treasure|Glistener Elf|true|true
+0.17|Wicked Role|Spirit|true|true
+
+## tokenSheets perPage=18 seed=23
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Glistener Elf|true|~
+0.6|Day // Night|~|true|true
+0.7|Wicked Role|Insect|true|true
+0.8|Insect|Clue|true|true
+0.9|Spirit|Emblem Chandra|true|true
+0.10|Insect|Day // Night|true|true
+0.11|Treasure|Clue|true|true
+0.12|Day // Night|~|true|true
+0.13|Insect|Spirit|true|true
+0.14|Treasure|Day // Night|true|true
+0.15|Spirit|Wicked Role|true|true
+0.16|Emblem Chandra|Clue|true|true
+0.17|Insect|Clue|true|true
+
+## tokenSheets perPage=18 seed=24
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Wicked Role|true|~
+0.6|Insect|Emblem Chandra|true|true
+0.7|Clue|Day // Night|true|true
+0.8|Spirit|Glistener Elf|true|true
+0.9|Clue|Spirit|true|true
+0.10|Insect|Treasure|true|true
+0.11|Wicked Role|Insect|true|true
+0.12|Day // Night|~|true|true
+0.13|Wicked Role|Insect|true|true
+0.14|Emblem Chandra|Emblem Chandra|true|true
+0.15|Spirit|Insect|true|true
+0.16|Treasure|Insect|true|true
+0.17|Emblem Chandra|Wicked Role|true|true
+
+## tokenSheets perPage=18 seed=25
+0.0|Day // Night|~|true|~
+0.1|Glistener Elf|Clue|true|~
+0.2|Insect|Spirit|true|~
+0.3|Spirit|Wicked Role|true|~
+0.4|Treasure|Insect|true|~
+0.5|Emblem Chandra|Day // Night|true|~
+0.6|Spirit|Insect|true|true
+0.7|Spirit|Treasure|true|true
+0.8|Clue|Glistener Elf|true|true
+0.9|Spirit|Spirit|true|true
+0.10|Insect|Clue|true|true
+0.11|Clue|Day // Night|true|true
+0.12|Spirit|Glistener Elf|true|true
+0.13|Treasure|Clue|true|true
+0.14|Clue|Insect|true|true
+0.15|Spirit|Emblem Chandra|true|true
+0.16|Insect|Emblem Chandra|true|true
+0.17|Insect|Emblem Chandra|true|true
+
+## landCycleQuery shock
+(root) = (!"Hallowed Fountain" or !"Watery Grave" or !"Blood Crypt" or !"Stomping Ground" or !"Temple Garden" or !"Godless Shrine" or !"Overgrown Tomb" or !"Breeding Pool" or !"Steam Vents" or !"Sacred Foundry") game:paper -is:promo
+
+## landCycleQuery slow
+(root) = (!"Deserted Beach" or !"Shipwreck Marsh" or !"Haunted Ridge" or !"Rockfall Vale" or !"Overgrown Farmland" or !"Shattered Sanctum" or !"Deathcap Glade" or !"Dreamroot Cascade" or !"Stormcarved Coast" or !"Sundown Pass") game:paper -is:promo
+
+## landCycleQuery scry
+(root) = (!"Temple of Enlightenment" or !"Temple of Deceit" or !"Temple of Malice" or !"Temple of Abandon" or !"Temple of Plenty" or !"Temple of Silence" or !"Temple of Malady" or !"Temple of Mystery" or !"Temple of Epiphany" or !"Temple of Triumph") game:paper -is:promo
+
+## landCycleQuery surveil
+(root) = (!"Meticulous Archive" or !"Undercity Sewers" or !"Raucous Theater" or !"Commercial District" or !"Lush Portico" or !"Shadowy Backstreet" or !"Underground Mortuary" or !"Hedge Maze" or !"Thundering Falls" or !"Elegant Parlor") game:paper -is:promo
+
+## landCycleQuery verge
+(root) = (!"Floodfarm Verge" or !"Gloomlake Verge" or !"Blazemire Verge" or !"Thornspire Verge" or !"Hushwood Verge" or !"Bleachbone Verge" or !"Wastewood Verge" or !"Willowrush Verge" or !"Riverpyre Verge" or !"Sunbillow Verge") game:paper -is:promo
+
+## landCycleQuery gain
+(root) = (!"Tranquil Cove" or !"Dismal Backwater" or !"Bloodfell Caves" or !"Rugged Highlands" or !"Blossoming Sands" or !"Scoured Barrens" or !"Jungle Hollow" or !"Thornwood Falls" or !"Swiftwater Cliffs" or !"Wind-Scarred Crag") game:paper -is:promo
+
+## landCycleQuery fast
+(root) = (!"Seachrome Coast" or !"Darkslick Shores" or !"Blackcleave Cliffs" or !"Copperline Gorge" or !"Razorverge Thicket" or !"Concealed Courtyard" or !"Spirebluff Canal" or !"Blooming Marsh" or !"Inspiring Vantage" or !"Botanical Sanctum") game:paper -is:promo
+
+## landCycleQuery guildgate
+(root) = (!"Azorius Guildgate" or !"Dimir Guildgate" or !"Rakdos Guildgate" or !"Gruul Guildgate" or !"Selesnya Guildgate" or !"Orzhov Guildgate" or !"Golgari Guildgate" or !"Simic Guildgate" or !"Izzet Guildgate" or !"Boros Guildgate") game:paper -is:promo
+
+## landCycleQuery desert
+(root) = (!"Lonely Arroyo" or !"Soured Springs" or !"Jagged Barrens" or !"Bristling Backwoods" or !"Creosote Heath" or !"Forlorn Flats" or !"Festering Gulch" or !"Lush Oasis" or !"Eroded Canyon" or !"Abraded Bluffs") game:paper -is:promo
+
+## landCycleQuery creature
+(root) = (!"Restless Anchorage" or !"Restless Reef" or !"Restless Vents" or !"Restless Ridgeline" or !"Restless Prairie" or !"Restless Bivouac" or !"Restless Cottage" or !"Restless Fortress" or !"Restless Spire" or !"Restless Vinestalk") game:paper -is:promo
+
+## landCycleQuery fetch
+(root) = (!"Flooded Strand" or !"Polluted Delta" or !"Bloodstained Mire" or !"Wooded Foothills" or !"Windswept Heath" or !"Marsh Flats" or !"Scalding Tarn" or !"Verdant Catacombs" or !"Arid Mesa" or !"Misty Rainforest") game:paper -is:promo
+
+## landCycleQuery original
+(root) = (!"Tundra" or !"Underground Sea" or !"Badlands" or !"Taiga" or !"Savannah" or !"Scrubland" or !"Volcanic Island" or !"Bayou" or !"Plateau" or !"Tropical Island") game:paper -is:promo
+
+## landCycleQuery check
+(root) = (!"Glacial Fortress" or !"Drowned Catacomb" or !"Dragonskull Summit" or !"Rootbound Crag" or !"Sunpetal Grove" or !"Isolated Chapel" or !"Sulfur Falls" or !"Woodland Cemetery" or !"Clifftop Retreat" or !"Hinterland Harbor") game:paper -is:promo
+
+## landCycleQuery pain
+(root) = (!"Adarkar Wastes" or !"Underground River" or !"Sulfurous Springs" or !"Karplusan Forest" or !"Brushland" or !"Caves of Koilos" or !"Shivan Reef" or !"Llanowar Wastes" or !"Battlefield Forge" or !"Yavimaya Coast") game:paper -is:promo
+
+## landCycleQuery filter
+(root) = (!"Mystic Gate" or !"Sunken Ruins" or !"Graven Cairns" or !"Fire-Lit Thicket" or !"Wooded Bastion" or !"Fetid Heath" or !"Cascade Bluffs" or !"Twilight Mire" or !"Rugged Prairie" or !"Flooded Grove") game:paper -is:promo
+
+## landCycleQuery bounce
+(root) = (!"Azorius Chancery" or !"Dimir Aqueduct" or !"Rakdos Carnarium" or !"Gruul Turf" or !"Selesnya Sanctuary" or !"Orzhov Basilica" or !"Golgari Rot Farm" or !"Simic Growth Chamber" or !"Izzet Boilerworks" or !"Boros Garrison") game:paper -is:promo
+
+## landCycleQuery bond
+(root) = (!"Sea of Clouds" or !"Morphic Pool" or !"Luxury Suite" or !"Spire Garden" or !"Bountiful Promenade" or !"Vault of Champions" or !"Training Center" or !"Undergrowth Stadium" or !"Rejuvenating Springs" or !"Spectator Seating") game:paper -is:promo
+
+## landCycleQuery battle
+(root) = (!"Prairie Stream" or !"Sunken Hollow" or !"Smoldering Marsh" or !"Cinder Glade" or !"Canopy Vista") game:paper -is:promo
+
+## landCycleQuery horizon
+(root) = (!"Horizon Canopy" or !"Silent Clearing" or !"Fiery Islet" or !"Nurturing Peatland" or !"Sunbaked Canyon" or !"Waterlogged Grove") game:paper -is:promo
+
+## landCycleQuery triome
+(root) = (!"Raugrin Triome" or !"Savai Triome" or !"Zagoth Triome" or !"Ketria Triome" or !"Indatha Triome" or !"Spara's Headquarters" or !"Raffine's Tower" or !"Xander's Lounge" or !"Ziatora's Proving Ground" or !"Jetmir's Garden") game:paper -is:promo
+
+## landCycleQuery pathway
+(root) = (name:"Hengegate Pathway" or name:"Clearwater Pathway" or name:"Cragcrown Pathway" or name:"Needleverge Pathway" or name:"Riverglide Pathway" or name:"Brightclimb Pathway" or name:"Darkbore Pathway" or name:"Branchloft Pathway" or name:"Blightstep Pathway" or name:"Barkchannel Pathway") game:paper -is:promo
+
+## todayISO 2026-9-30
+(root) = 2026-10-30
+
+## todayISO 2024-0-1
+(root) = 2024-01-01
+
+## todayISO 2027-11-9
+(root) = 2027-12-09
+
+## constants
+COMMANDER_SETS.clb.code = clb
+COMMANDER_SETS.clb.name = Commander Legends: Battle for Baldur's Gate
+COMMANDER_SETS.clb.released = 2022-06-10
+COMMANDER_SETS.cmm.code = cmm
+COMMANDER_SETS.cmm.name = Commander Masters
+COMMANDER_SETS.cmm.released = 2023-08-04
+COMMANDER_SETS.cmr.code = cmr
+COMMANDER_SETS.cmr.name = Commander Legends
+COMMANDER_SETS.cmr.released = 2020-11-20
+GOD_PACK_CHANCE = 0.001
+LAND_CYCLES[0].builtIn = true
+LAND_CYCLES[0].id = classic
+LAND_CYCLES[0].label = Classic: original duals + fetch lands (built-in printings)
+LAND_CYCLES[1].id = shock
+LAND_CYCLES[1].label = Shock lands
+LAND_CYCLES[1].names[0] = Hallowed Fountain
+LAND_CYCLES[1].names[1] = Watery Grave
+LAND_CYCLES[1].names[2] = Blood Crypt
+LAND_CYCLES[1].names[3] = Stomping Ground
+LAND_CYCLES[1].names[4] = Temple Garden
+LAND_CYCLES[1].names[5] = Godless Shrine
+LAND_CYCLES[1].names[6] = Overgrown Tomb
+LAND_CYCLES[1].names[7] = Breeding Pool
+LAND_CYCLES[1].names[8] = Steam Vents
+LAND_CYCLES[1].names[9] = Sacred Foundry
+LAND_CYCLES[2].id = slow
+LAND_CYCLES[2].label = Slow lands
+LAND_CYCLES[2].names[0] = Deserted Beach
+LAND_CYCLES[2].names[1] = Shipwreck Marsh
+LAND_CYCLES[2].names[2] = Haunted Ridge
+LAND_CYCLES[2].names[3] = Rockfall Vale
+LAND_CYCLES[2].names[4] = Overgrown Farmland
+LAND_CYCLES[2].names[5] = Shattered Sanctum
+LAND_CYCLES[2].names[6] = Deathcap Glade
+LAND_CYCLES[2].names[7] = Dreamroot Cascade
+LAND_CYCLES[2].names[8] = Stormcarved Coast
+LAND_CYCLES[2].names[9] = Sundown Pass
+LAND_CYCLES[3].id = scry
+LAND_CYCLES[3].label = Scry lands (Temples)
+LAND_CYCLES[3].names[0] = Temple of Enlightenment
+LAND_CYCLES[3].names[1] = Temple of Deceit
+LAND_CYCLES[3].names[2] = Temple of Malice
+LAND_CYCLES[3].names[3] = Temple of Abandon
+LAND_CYCLES[3].names[4] = Temple of Plenty
+LAND_CYCLES[3].names[5] = Temple of Silence
+LAND_CYCLES[3].names[6] = Temple of Malady
+LAND_CYCLES[3].names[7] = Temple of Mystery
+LAND_CYCLES[3].names[8] = Temple of Epiphany
+LAND_CYCLES[3].names[9] = Temple of Triumph
+LAND_CYCLES[4].id = surveil
+LAND_CYCLES[4].label = Surveil lands
+LAND_CYCLES[4].names[0] = Meticulous Archive
+LAND_CYCLES[4].names[1] = Undercity Sewers
+LAND_CYCLES[4].names[2] = Raucous Theater
+LAND_CYCLES[4].names[3] = Commercial District
+LAND_CYCLES[4].names[4] = Lush Portico
+LAND_CYCLES[4].names[5] = Shadowy Backstreet
+LAND_CYCLES[4].names[6] = Underground Mortuary
+LAND_CYCLES[4].names[7] = Hedge Maze
+LAND_CYCLES[4].names[8] = Thundering Falls
+LAND_CYCLES[4].names[9] = Elegant Parlor
+LAND_CYCLES[5].id = verge
+LAND_CYCLES[5].label = Verge lands
+LAND_CYCLES[5].names[0] = Floodfarm Verge
+LAND_CYCLES[5].names[1] = Gloomlake Verge
+LAND_CYCLES[5].names[2] = Blazemire Verge
+LAND_CYCLES[5].names[3] = Thornspire Verge
+LAND_CYCLES[5].names[4] = Hushwood Verge
+LAND_CYCLES[5].names[5] = Bleachbone Verge
+LAND_CYCLES[5].names[6] = Wastewood Verge
+LAND_CYCLES[5].names[7] = Willowrush Verge
+LAND_CYCLES[5].names[8] = Riverpyre Verge
+LAND_CYCLES[5].names[9] = Sunbillow Verge
+LAND_CYCLES[6].id = gain
+LAND_CYCLES[6].label = Gain lands
+LAND_CYCLES[6].names[0] = Tranquil Cove
+LAND_CYCLES[6].names[1] = Dismal Backwater
+LAND_CYCLES[6].names[2] = Bloodfell Caves
+LAND_CYCLES[6].names[3] = Rugged Highlands
+LAND_CYCLES[6].names[4] = Blossoming Sands
+LAND_CYCLES[6].names[5] = Scoured Barrens
+LAND_CYCLES[6].names[6] = Jungle Hollow
+LAND_CYCLES[6].names[7] = Thornwood Falls
+LAND_CYCLES[6].names[8] = Swiftwater Cliffs
+LAND_CYCLES[6].names[9] = Wind-Scarred Crag
+LAND_CYCLES[7].id = fast
+LAND_CYCLES[7].label = Fast lands
+LAND_CYCLES[7].names[0] = Seachrome Coast
+LAND_CYCLES[7].names[1] = Darkslick Shores
+LAND_CYCLES[7].names[2] = Blackcleave Cliffs
+LAND_CYCLES[7].names[3] = Copperline Gorge
+LAND_CYCLES[7].names[4] = Razorverge Thicket
+LAND_CYCLES[7].names[5] = Concealed Courtyard
+LAND_CYCLES[7].names[6] = Spirebluff Canal
+LAND_CYCLES[7].names[7] = Blooming Marsh
+LAND_CYCLES[7].names[8] = Inspiring Vantage
+LAND_CYCLES[7].names[9] = Botanical Sanctum
+LAND_CYCLES[8].id = guildgate
+LAND_CYCLES[8].label = Guildgates
+LAND_CYCLES[8].names[0] = Azorius Guildgate
+LAND_CYCLES[8].names[1] = Dimir Guildgate
+LAND_CYCLES[8].names[2] = Rakdos Guildgate
+LAND_CYCLES[8].names[3] = Gruul Guildgate
+LAND_CYCLES[8].names[4] = Selesnya Guildgate
+LAND_CYCLES[8].names[5] = Orzhov Guildgate
+LAND_CYCLES[8].names[6] = Golgari Guildgate
+LAND_CYCLES[8].names[7] = Simic Guildgate
+LAND_CYCLES[8].names[8] = Izzet Guildgate
+LAND_CYCLES[8].names[9] = Boros Guildgate
+LAND_CYCLES[9].id = desert
+LAND_CYCLES[9].label = Desert pingers
+LAND_CYCLES[9].names[0] = Lonely Arroyo
+LAND_CYCLES[9].names[1] = Soured Springs
+LAND_CYCLES[9].names[2] = Jagged Barrens
+LAND_CYCLES[9].names[3] = Bristling Backwoods
+LAND_CYCLES[9].names[4] = Creosote Heath
+LAND_CYCLES[9].names[5] = Forlorn Flats
+LAND_CYCLES[9].names[6] = Festering Gulch
+LAND_CYCLES[9].names[7] = Lush Oasis
+LAND_CYCLES[9].names[8] = Eroded Canyon
+LAND_CYCLES[9].names[9] = Abraded Bluffs
+LAND_CYCLES[10].id = creature
+LAND_CYCLES[10].label = Creature lands (Restless)
+LAND_CYCLES[10].names[0] = Restless Anchorage
+LAND_CYCLES[10].names[1] = Restless Reef
+LAND_CYCLES[10].names[2] = Restless Vents
+LAND_CYCLES[10].names[3] = Restless Ridgeline
+LAND_CYCLES[10].names[4] = Restless Prairie
+LAND_CYCLES[10].names[5] = Restless Bivouac
+LAND_CYCLES[10].names[6] = Restless Cottage
+LAND_CYCLES[10].names[7] = Restless Fortress
+LAND_CYCLES[10].names[8] = Restless Spire
+LAND_CYCLES[10].names[9] = Restless Vinestalk
+LAND_CYCLES[11].id = fetch
+LAND_CYCLES[11].label = Fetch lands
+LAND_CYCLES[11].names[0] = Flooded Strand
+LAND_CYCLES[11].names[1] = Polluted Delta
+LAND_CYCLES[11].names[2] = Bloodstained Mire
+LAND_CYCLES[11].names[3] = Wooded Foothills
+LAND_CYCLES[11].names[4] = Windswept Heath
+LAND_CYCLES[11].names[5] = Marsh Flats
+LAND_CYCLES[11].names[6] = Scalding Tarn
+LAND_CYCLES[11].names[7] = Verdant Catacombs
+LAND_CYCLES[11].names[8] = Arid Mesa
+LAND_CYCLES[11].names[9] = Misty Rainforest
+LAND_CYCLES[12].id = original
+LAND_CYCLES[12].label = Original dual lands
+LAND_CYCLES[12].names[0] = Tundra
+LAND_CYCLES[12].names[1] = Underground Sea
+LAND_CYCLES[12].names[2] = Badlands
+LAND_CYCLES[12].names[3] = Taiga
+LAND_CYCLES[12].names[4] = Savannah
+LAND_CYCLES[12].names[5] = Scrubland
+LAND_CYCLES[12].names[6] = Volcanic Island
+LAND_CYCLES[12].names[7] = Bayou
+LAND_CYCLES[12].names[8] = Plateau
+LAND_CYCLES[12].names[9] = Tropical Island
+LAND_CYCLES[13].id = check
+LAND_CYCLES[13].label = Check lands
+LAND_CYCLES[13].names[0] = Glacial Fortress
+LAND_CYCLES[13].names[1] = Drowned Catacomb
+LAND_CYCLES[13].names[2] = Dragonskull Summit
+LAND_CYCLES[13].names[3] = Rootbound Crag
+LAND_CYCLES[13].names[4] = Sunpetal Grove
+LAND_CYCLES[13].names[5] = Isolated Chapel
+LAND_CYCLES[13].names[6] = Sulfur Falls
+LAND_CYCLES[13].names[7] = Woodland Cemetery
+LAND_CYCLES[13].names[8] = Clifftop Retreat
+LAND_CYCLES[13].names[9] = Hinterland Harbor
+LAND_CYCLES[14].id = pain
+LAND_CYCLES[14].label = Pain lands
+LAND_CYCLES[14].names[0] = Adarkar Wastes
+LAND_CYCLES[14].names[1] = Underground River
+LAND_CYCLES[14].names[2] = Sulfurous Springs
+LAND_CYCLES[14].names[3] = Karplusan Forest
+LAND_CYCLES[14].names[4] = Brushland
+LAND_CYCLES[14].names[5] = Caves of Koilos
+LAND_CYCLES[14].names[6] = Shivan Reef
+LAND_CYCLES[14].names[7] = Llanowar Wastes
+LAND_CYCLES[14].names[8] = Battlefield Forge
+LAND_CYCLES[14].names[9] = Yavimaya Coast
+LAND_CYCLES[15].id = filter
+LAND_CYCLES[15].label = Filter lands
+LAND_CYCLES[15].names[0] = Mystic Gate
+LAND_CYCLES[15].names[1] = Sunken Ruins
+LAND_CYCLES[15].names[2] = Graven Cairns
+LAND_CYCLES[15].names[3] = Fire-Lit Thicket
+LAND_CYCLES[15].names[4] = Wooded Bastion
+LAND_CYCLES[15].names[5] = Fetid Heath
+LAND_CYCLES[15].names[6] = Cascade Bluffs
+LAND_CYCLES[15].names[7] = Twilight Mire
+LAND_CYCLES[15].names[8] = Rugged Prairie
+LAND_CYCLES[15].names[9] = Flooded Grove
+LAND_CYCLES[16].id = bounce
+LAND_CYCLES[16].label = Bounce lands (Karoos)
+LAND_CYCLES[16].names[0] = Azorius Chancery
+LAND_CYCLES[16].names[1] = Dimir Aqueduct
+LAND_CYCLES[16].names[2] = Rakdos Carnarium
+LAND_CYCLES[16].names[3] = Gruul Turf
+LAND_CYCLES[16].names[4] = Selesnya Sanctuary
+LAND_CYCLES[16].names[5] = Orzhov Basilica
+LAND_CYCLES[16].names[6] = Golgari Rot Farm
+LAND_CYCLES[16].names[7] = Simic Growth Chamber
+LAND_CYCLES[16].names[8] = Izzet Boilerworks
+LAND_CYCLES[16].names[9] = Boros Garrison
+LAND_CYCLES[17].id = bond
+LAND_CYCLES[17].label = Bond lands (Battlebond / CMR)
+LAND_CYCLES[17].names[0] = Sea of Clouds
+LAND_CYCLES[17].names[1] = Morphic Pool
+LAND_CYCLES[17].names[2] = Luxury Suite
+LAND_CYCLES[17].names[3] = Spire Garden
+LAND_CYCLES[17].names[4] = Bountiful Promenade
+LAND_CYCLES[17].names[5] = Vault of Champions
+LAND_CYCLES[17].names[6] = Training Center
+LAND_CYCLES[17].names[7] = Undergrowth Stadium
+LAND_CYCLES[17].names[8] = Rejuvenating Springs
+LAND_CYCLES[17].names[9] = Spectator Seating
+LAND_CYCLES[18].id = battle
+LAND_CYCLES[18].label = Battle lands (tango)
+LAND_CYCLES[18].names[0] = Prairie Stream
+LAND_CYCLES[18].names[1] = Sunken Hollow
+LAND_CYCLES[18].names[2] = Smoldering Marsh
+LAND_CYCLES[18].names[3] = Cinder Glade
+LAND_CYCLES[18].names[4] = Canopy Vista
+LAND_CYCLES[19].id = horizon
+LAND_CYCLES[19].label = Horizon lands
+LAND_CYCLES[19].names[0] = Horizon Canopy
+LAND_CYCLES[19].names[1] = Silent Clearing
+LAND_CYCLES[19].names[2] = Fiery Islet
+LAND_CYCLES[19].names[3] = Nurturing Peatland
+LAND_CYCLES[19].names[4] = Sunbaked Canyon
+LAND_CYCLES[19].names[5] = Waterlogged Grove
+LAND_CYCLES[20].id = triome
+LAND_CYCLES[20].label = Triomes
+LAND_CYCLES[20].names[0] = Raugrin Triome
+LAND_CYCLES[20].names[1] = Savai Triome
+LAND_CYCLES[20].names[2] = Zagoth Triome
+LAND_CYCLES[20].names[3] = Ketria Triome
+LAND_CYCLES[20].names[4] = Indatha Triome
+LAND_CYCLES[20].names[5] = Spara's Headquarters
+LAND_CYCLES[20].names[6] = Raffine's Tower
+LAND_CYCLES[20].names[7] = Xander's Lounge
+LAND_CYCLES[20].names[8] = Ziatora's Proving Ground
+LAND_CYCLES[20].names[9] = Jetmir's Garden
+LAND_CYCLES[21].id = pathway
+LAND_CYCLES[21].label = Pathways
+LAND_CYCLES[21].names[0] = Hengegate Pathway
+LAND_CYCLES[21].names[1] = Clearwater Pathway
+LAND_CYCLES[21].names[2] = Cragcrown Pathway
+LAND_CYCLES[21].names[3] = Needleverge Pathway
+LAND_CYCLES[21].names[4] = Riverglide Pathway
+LAND_CYCLES[21].names[5] = Brightclimb Pathway
+LAND_CYCLES[21].names[6] = Darkbore Pathway
+LAND_CYCLES[21].names[7] = Branchloft Pathway
+LAND_CYCLES[21].names[8] = Blightstep Pathway
+LAND_CYCLES[21].names[9] = Barkchannel Pathway
+LAND_CYCLES[21].substring = true
+LAND_CYCLES[22].id = random
+LAND_CYCLES[22].label = Random: a different cycle for each pack
+LAYOUTS.clb = Battle for Baldur's Gate layout
+LAYOUTS.cmm = Commander Masters layout
+LAYOUTS.cmr = Commander Legends layout
+LIST_ERA_END = 2024-09-27
+PLAY_BOOSTER_START = 2024-02-09

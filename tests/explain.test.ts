@@ -40,9 +40,10 @@ import {
 
 import { dsk, lopsided, statsCases } from "./fixtures";
 import { card } from "./fake-scryfall";
-import { loadLegacyUi } from "./legacy-ui";
+import { golden, readGolden } from "./goldens";
+import { renderCalls, renderValue } from "./render";
 
-const legacy = loadLegacyUi();
+const recorded = readGolden("explain");
 
 /** Every spec the panel could be asked to render, across both tabs. */
 function allSpecs(): Array<{ name: string; slots: Slot[] }> {
@@ -75,7 +76,9 @@ describe("pct", () => {
       null, 0, 1, 0.5, 0.9995, 0.99949, 0.999, 0.0001, 0.00099, 0.001,
       1 / 64, 1 / 6, 5 / 6, 0.142857, 0.18, 0.67, 0.015, 1e-9, 0.12345,
     ];
-    for (const v of values) expect(pct(v), String(v)).toBe(legacy.pct(v));
+    expect(renderCalls(values.map((v) => pct(v)))).toBe(
+      golden(recorded, "pct"),
+    );
   });
 
   it("never shows a non-zero chance as 0.0%", () => {
@@ -94,17 +97,19 @@ describe("rarityClass", () => {
       "Common/uncommon Background", "Rare Background", "The Prismatic Piper",
       "Foil-etched legend",
     ];
-    for (const l of labels) expect(rarityClass(l), l).toBe(legacy.rarityClass(l));
+    expect(renderCalls(labels.map((l) => rarityClass(l)))).toBe(
+      golden(recorded, "rarityClass"),
+    );
   });
 });
 
 describe("foilText and foilWord", () => {
   it("matches the old text for every slot of every spec", () => {
     for (const { name, slots } of SPECS)
-      for (const slot of slots)
-        expect(foilText(slot.outcomes), `${name} ${slot.title}`).toBe(
-          legacy.foilText(slot.outcomes),
-        );
+      expect(
+        renderCalls(slots.map((s) => foilText(s.outcomes))),
+        name,
+      ).toBe(golden(recorded, `foilText ${name}`));
   });
 
   it("matches for the etched and all-foil edge cases", () => {
@@ -125,31 +130,35 @@ describe("foilText and foilWord", () => {
       [{ pool: "a", label: "Basic land", p: 1, foil: 0.2 }],
       [],
     ];
-    for (const [i, s] of sets.entries())
-      expect(foilText(s), `set ${i}`).toBe(legacy.foilText(s));
+    expect(renderCalls(sets.map((s) => foilText(s)))).toBe(
+      golden(recorded, "foilText edge cases"),
+    );
   });
 
   it("matches foilWord for every finish", () => {
-    for (const f of [0, 1, 0.2, "etched", undefined] as const)
-      expect(foilWord(f), String(f)).toBe(legacy.foilWord(f));
+    expect(
+      renderCalls([0, 1, 0.2, "etched", undefined].map((f) => foilWord(f as never))),
+    ).toBe(golden(recorded, "foilWord"));
   });
 });
 
 describe("tagged outcomes", () => {
   it("picks out exactly the tags the old HTML showed", () => {
-    for (const { name, slots } of SPECS)
-      for (const slot of slots) {
+    for (const { name, slots } of SPECS) {
+      const html = golden(recorded, `specialText ${name}`).split("\n");
+      slots.forEach((slot, i) => {
         const tags = taggedOutcomes(slot.outcomes);
-        const html = legacy.specialText(slot.outcomes);
+        const where = `${name} ${slot.title}`;
         if (!tags.length) {
-          expect(html, `${name} ${slot.title}`).toContain("—");
-          continue;
+          expect(html[i], where).toContain("—");
+          return;
         }
         for (const t of tags) {
-          expect(html, `${name} ${slot.title}`).toContain(t.tag);
-          if (t.p != null) expect(html).toContain(pct(t.p));
+          expect(html[i], where).toContain(t.tag);
+          if (t.p != null) expect(html[i]).toContain(pct(t.p));
         }
-      }
+      });
+    }
   });
 });
 
@@ -166,13 +175,10 @@ describe("collapseChanges", () => {
               playSpec(vanillaOpts(opts), stats),
             );
             const where = `${statsName} ${vanilla} x${mult} foil=${foilToggle}`;
-            for (const [i, changes] of diffs.entries()) {
-              const mine = collapseChanges(changes);
-              const theirs = legacy.collapseChanges(
-                JSON.parse(JSON.stringify(changes)),
-              );
-              expect(mine, `${where} slot ${i}`).toEqual(theirs);
-            }
+            expect(
+              renderCalls(diffs.map((changes) => collapseChanges(changes))),
+              where,
+            ).toBe(golden(recorded, `collapseChanges ${where}`));
           }
   });
 
@@ -207,14 +213,14 @@ describe("describeChange", () => {
       { kind: "p" as const, label: "Rare", fromP: 0.85, toP: 0.57 },
       { kind: "foil" as const, label: "Rare", fromFoil: 0 as const, toFoil: 1 as const },
     ];
-    for (const c of changes) {
-      const html = legacy.changeText(JSON.parse(JSON.stringify(c)));
+    const html = golden(recorded, "changeText").split("\n");
+    changes.forEach((c, i) => {
       const d = describeChange(c);
       for (const value of Object.values(d)) {
         if (typeof value !== "string" || !value || value === d.kind) continue;
-        expect(html, `${c.kind}: ${value}`).toContain(value);
+        expect(html[i], `${c.kind}: ${value}`).toContain(value);
       }
-    }
+    });
   });
 
   it("marks a rise and a fall the way the old arrows did", () => {
@@ -224,8 +230,10 @@ describe("describeChange", () => {
     expect(describeChange({ kind: "p", label: "R", fromP: 0.2, toP: 0.1 })).toMatchObject({
       direction: "down",
     });
-    expect(legacy.changeText({ kind: "p", label: "M", fromP: 0.1, toP: 0.2 })).toContain("▲");
-    expect(legacy.changeText({ kind: "p", label: "R", fromP: 0.2, toP: 0.1 })).toContain("▼");
+    // The old HTML used arrows for the same two changes.
+    const html = golden(recorded, "changeText").split("\n");
+    expect(html[5]).toContain("▲");
+    expect(html[6]).toContain("▼");
   });
 
   it("collapses several rarities into one subject", () => {
@@ -248,11 +256,19 @@ describe("slotOptionNames and vanillaOpts", () => {
           for (const foilToggle of [false, true])
             for (const listToggle of [false, true]) {
               const opts = { vanilla, mult, foilToggle, listToggle, listEra: true };
-              for (const slot of playSpec(opts, stats))
-                expect(
-                  slotOptionNames(slot, opts),
-                  `${statsName} ${slot.title}`,
-                ).toEqual(legacy.slotOptionNames(slot, opts));
+              expect(
+                renderCalls(
+                  playSpec(opts, stats).map((slot) =>
+                    slotOptionNames(slot, opts),
+                  ),
+                ),
+              ).toBe(
+                golden(
+                  recorded,
+                  `slotOptionNames ${statsName} ${vanilla} x${mult}` +
+                    ` foil=${foilToggle} list=${listToggle}`,
+                ),
+              );
             }
   });
 
@@ -267,14 +283,17 @@ describe("slotOptionNames and vanillaOpts", () => {
       includeBonus: true,
       separatorType: "token",
     };
-    expect(vanillaOpts(opts)).toEqual(legacy.vanillaOpts(opts));
+    expect(renderValue(vanillaOpts(opts))).toBe(
+      golden(recorded, "vanillaOpts"),
+    );
     // Options that are not fun options survive untouched.
     expect(vanillaOpts(opts).separatorType).toBe("token");
   });
 
   it("names the same options the old table did", () => {
-    expect(FUN_NAMES).toEqual(legacy.FUN_NAMES);
-    expect(POOL_NAMES).toEqual(legacy.POOL_NAMES);
+    expect(renderValue({ FUN_NAMES, POOL_NAMES })).toBe(
+      golden(recorded, "names"),
+    );
   });
 });
 
@@ -301,10 +320,11 @@ describe("pool statistics", () => {
   };
 
   it("matches the old rarity mix and land share", () => {
-    for (const [key, map] of Object.entries(pools)) {
-      expect(rarityMix(map), key).toBe(legacy.rarityMix(map));
-      expect(landShare(map), key).toBe(legacy.landShare(map));
-    }
+    for (const [key, map] of Object.entries(pools))
+      expect(
+        renderValue({ mix: rarityMix(map), share: landShare(map) }),
+        key,
+      ).toBe(golden(recorded, `rarityMix ${key}`));
     // A mixed pool spells the mix out; a single-rarity one stays quiet.
     expect(rarityMix(pools.nonBasicLands)).toBe("1 common, 1 uncommon, 1 rare");
     expect(rarityMix(pools.rares)).toBe("");
@@ -317,9 +337,10 @@ describe("pool statistics", () => {
     for (const vanilla of [true, false])
       for (let mult = 1; mult <= 5; mult++) {
         const slots = playSpec({ vanilla, mult, listEra: true }, stats);
-        expect(expectedLands(slots, pools), `${vanilla} x${mult}`).toBe(
-          legacy.expectedLands(slots, pools),
-        );
+        expect(
+          renderValue(expectedLands(slots, pools)),
+          `${vanilla} x${mult}`,
+        ).toBe(golden(recorded, `expectedLands ${vanilla} x${mult}`));
       }
   });
 

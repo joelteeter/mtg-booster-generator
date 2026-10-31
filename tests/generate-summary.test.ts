@@ -14,7 +14,6 @@ import {
   allPacksLabel,
   dfcCount,
   dfcNames,
-  isDfc,
   packName,
   previewOptionLabel,
   prepareTokenSeparator,
@@ -25,35 +24,19 @@ import { createScryfallClient } from "@/lib/scryfall/client";
 import { createScryfallPools } from "@/lib/scryfall/pools";
 
 import { fakeScryfall } from "./fake-scryfall";
+import { golden, readGolden } from "./goldens";
+import { renderCalls, renderValue } from "./render";
 import {
   DEFAULTS,
-  PLAY_SELECTION,
-  controlsFor,
   mulberry32,
   random,
   search,
   sets,
 } from "./generate-fixtures";
-import { loadLegacyApp } from "./legacy-generate";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 /** The visible text of each `<option>`, in order. */
-const optionTexts = (html: string): string[] =>
-  [...html.matchAll(/<option value="\d+">([^<]*)<\/option>/g)].map((m) => m[1]);
-
-/** The first cell of each row, with the double-faced badge flattened. */
-const rowLabels = (html: string): string[] =>
-  [...html.matchAll(/<td>([\s\S]*?)<\/td>/g)]
-    .map((m) => m[1])
-    .filter((_, i, all) => i % 5 === 0 || all.length < 5)
-    .map((cell) =>
-      cell
-        .replace(/<span class="dfc-badge"[^>]*>\s*([^<]*)<\/span>/g, "$1")
-        .replace(/<[^>]+>/g, "")
-        .replace(/\s+/g, " ")
-        .trim(),
-    );
+const recorded = readGolden("generate");
 
 const options = {
   ...DEFAULTS,
@@ -63,16 +46,7 @@ const options = {
   tokenSheets: true,
 };
 
-async function both() {
-  const fake = fakeScryfall({ search, sets, random });
-  const app = loadLegacyApp({
-    fetch: fake.fetch,
-    random: mulberry32(41),
-    mode: "play",
-    controls: controlsFor(PLAY_SELECTION, options),
-  });
-  const run = await app.run();
-
+async function run() {
   const fake2 = fakeScryfall({ search, sets, random });
   const client = createScryfallClient({
     fetch: fake2.fetch,
@@ -109,19 +83,19 @@ async function both() {
     fetchList: () => client.fetchRandom("set:plst"),
     log: () => {},
   });
-  return { run, app, result };
+  return { result };
 }
 
 describe("the names of a finished run", () => {
   it("names the packs and token sheets as the old dropdown did", async () => {
-    const { run, result } = await both();
-    expect(result.packs.map(previewOptionLabel)).toEqual(
-      optionTexts(run.previewSelectHtml),
+    const { result } = await run();
+    expect(renderValue(result.packs.map(previewOptionLabel))).toBe(
+      golden(recorded, "summary previewLabels"),
     );
   });
 
   it("labels the downloads rows the same way", async () => {
-    const { run, result } = await both();
+    const { result } = await run();
     const mine = [
       allPacksLabel(result.packs),
       ...result.packs.map((p, i) => packName(p, i)),
@@ -132,20 +106,17 @@ describe("the names of a finished run", () => {
           : dfcCount(result.packs[i - 1]);
       return dfc ? `${name} ⟲ ${dfc} double-faced` : name;
     });
-    expect(mine).toEqual(rowLabels(run.dlRowsHtml));
+    expect(renderValue(mine)).toBe(golden(recorded, "summary rowLabels"));
   });
 
   it("counts and names double-faced cards as the exporter does", async () => {
-    const { run, app, result } = await both();
-    result.packs.forEach((p, i) => {
-      expect(dfcCount(p)).toBe(app.dfcCount([...run.packs[i]]));
-      expect(dfcNames(p)).toBe(
-        [...run.packs[i]]
-          .filter((e: any) => isDfc(e.card))
-          .map((e: any) => e.card.name)
-          .join(", "),
-      );
-    });
+    const { result } = await run();
+    expect(renderCalls(result.packs.map((p) => dfcNames(p)))).toBe(
+      golden(recorded, "summary dfc names"),
+    );
+    expect(
+      renderValue(result.packs.map((p) => ({ count: dfcCount(p) }))),
+    ).toBe(golden(recorded, "summary dfc counts"));
     // The fixture has a two-sided token, so this is not vacuous.
     expect(result.packs.some((p) => dfcCount(p) > 0)).toBe(true);
   });

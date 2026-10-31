@@ -123,6 +123,18 @@ export function fakeScryfall(options: FakeOptions = {}): FakeScryfall {
 export const poolQuery = (q: string): string => `${q} unique:prints`;
 
 let seq = 0;
+
+/**
+ * Starts card ids again from one.
+ *
+ * Ids are what `normPools` compares printings by, so a golden recorded for one
+ * case only matches if that case builds its cards from the same starting
+ * point. Each recorded case resets first.
+ */
+export function resetCardIds(): void {
+  seq = 0;
+}
+
 /** A card with just enough fields, and a stable id for comparison. */
 export function card(partial: Partial<Card> = {}): Card {
   seq += 1;

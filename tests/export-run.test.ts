@@ -20,22 +20,11 @@ import {
 } from "@/lib/export";
 import type { PackEntry } from "@/lib/generate";
 
-import { fakeScryfall } from "./fake-scryfall";
-import {
-  DEFAULTS,
-  PLAY_SELECTION,
-  controlsFor,
-  mulberry32,
-  random,
-  search,
-  sets,
-} from "./generate-fixtures";
-import {
-  DEFAULT_SETTINGS,
-  exportControlsFor,
-  settingsCases,
-} from "./export-fixtures";
-import { loadLegacyApp, type LegacyApp, type LegacySave } from "./legacy-generate";
+import { DEFAULT_SETTINGS, settingsCases } from "./export-fixtures";
+import { runPorted } from "./generate-run";
+import { SCENARIOS, normPacks } from "./generate-scenarios";
+import { golden, readGolden } from "./goldens";
+import { renderValue } from "./render";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -87,83 +76,47 @@ function recordingExporter(fail?: string) {
   };
 }
 
-/** Two packs plus the token sheets, so there are several rows to export. */
-async function legacyRun(
-  options: Partial<typeof DEFAULTS> = {},
-): Promise<{
-  app: LegacyApp;
-  packs: PackEntry[][];
-  base: string[];
-}> {
-  const fake = fakeScryfall({ sets, search, random });
-  const app = loadLegacyApp({
-    fetch: fake.fetch,
-    random: mulberry32(11),
-    mode: "play",
-    controls: {
-      ...controlsFor(PLAY_SELECTION, {
-        ...DEFAULTS,
-        tokenSheets: true,
-        ...options,
-      }),
-      ...exportControlsFor(DEFAULT_SETTINGS),
-    },
-  });
-  const run = await app.run();
-  if (!run.exportFiles) throw new Error("the legacy run produced no files");
+const recorded = readGolden("generate");
+
+/**
+ * Two packs plus the token sheets, so the downloads table has several rows.
+ *
+ * The packs come from the port's own generator, checked against the ones the
+ * old app drew for the same seed — so the exports below start from the same
+ * cards the recorded exports did.
+ */
+async function packsFor(scenario: string, key: string) {
+  const { result } = await runPorted(SCENARIOS[scenario]);
+  expect(
+    renderValue({
+      packs: normPacks(result.packs),
+      base: result.exportFiles.base,
+    }),
+  ).toBe(golden(recorded, key));
   return {
-    app,
-    // The entries are the same objects either way; only the wrapper differs.
-    packs: run.packs as unknown as PackEntry[][],
-    base: run.exportFiles.base,
+    packs: result.packs.map((p) => p.cards),
+    base: result.exportFiles.base,
   };
 }
 
-const shared = legacyRun();
+const shared = packsFor("export-run", "export-run packs");
 /*
  * A second run whose separator is a token rather than a land, so the card the
  * comparison view picks is decided by "not the separator" and not merely by
  * "not a land".
  */
-const withTokenSeparator = legacyRun({ separatorType: "token" });
+const withTokenSeparator = packsFor(
+  "export-run token",
+  "export-run token packs",
+);
 
 const kinds: ExportKind[] = ["pdf", "back", "mpp"];
 
-/** What one export produced on either side, in comparable form. */
+/** What one export produced, in the shape the old app's was recorded in. */
 interface Outcome {
   calls: Call[];
   status: string[];
   saves: Array<{ filename: string; type: string; length: number }>;
-}
-
-const sameSaves = (saves: LegacySave[]) =>
-  saves.map((s) => ({
-    filename: s.filename,
-    type: s.type,
-    length: (s.bytes as Uint8Array).length,
-  }));
-
-async function legacyExport(
-  app: LegacyApp,
-  kind: ExportKind,
-  idx: number,
-  settings: ExportSettings,
-  fail?: string,
-): Promise<Outcome> {
-  const rec = recordingExporter(fail);
-  app.setExporter({ ...rec.exporter, isDfc: () => false });
-  for (const [id, value] of Object.entries(exportControlsFor(settings))) {
-    app.setControl(id, value);
-  }
-  app.setCustomBack(settings.customBackUrl);
-  const statusBefore = app.exportStatusHistory().length;
-  const savesBefore = app.saves().length;
-  await app.exportFile(kind, idx);
-  return {
-    calls: rec.calls,
-    status: app.exportStatusHistory().slice(statusBefore),
-    saves: sameSaves(app.saves().slice(savesBefore)),
-  };
 }
 
 async function portedExport(
@@ -176,7 +129,8 @@ async function portedExport(
 ): Promise<Outcome> {
   const rec = recordingExporter(fail);
   const status: string[] = [];
-  const saves: LegacySave[] = [];
+  const saves: Array<{ filename: string; type: string; bytes: Uint8Array }> =
+    [];
   await runExport({
     kind,
     idx,
@@ -188,7 +142,15 @@ async function portedExport(
     save: (bytes, filename, type) => saves.push({ filename, type, bytes }),
     log: () => {},
   });
-  return { calls: rec.calls, status, saves: sameSaves(saves) };
+  return {
+    calls: rec.calls,
+    status,
+    saves: saves.map((s) => ({
+      filename: s.filename,
+      type: s.type,
+      length: s.bytes.length,
+    })),
+  };
 }
 
 describe("one download button, old against new", () => {
@@ -196,32 +158,21 @@ describe("one download button, old against new", () => {
     for (const kind of kinds) {
       for (const idx of [0, 1, 3]) {
         it(`${kind}, row ${idx}, ${name}`, async () => {
-          const { app, packs, base } = await shared;
-          const errors = vi.spyOn(console, "error").mockImplementation(() => {});
-          try {
-            const theirs = await legacyExport(app, kind, idx, settings);
-            const mine = await portedExport(packs, base, kind, idx, settings);
-            expect(mine).toEqual(theirs);
-          } finally {
-            errors.mockRestore();
-          }
+          const { packs, base } = await shared;
+          const mine = await portedExport(packs, base, kind, idx, settings);
+          expect(renderValue(mine)).toBe(
+            golden(recorded, `export ${kind} ${idx} ${name}`),
+          );
         });
       }
     }
   }
 
   it("reports a failed export the same way", async () => {
-    const { app, packs, base } = await shared;
+    const { packs, base } = await shared;
     const errors = vi.spyOn(console, "error").mockImplementation(() => {});
     try {
       for (const kind of kinds) {
-        const theirs = await legacyExport(
-          app,
-          kind,
-          0,
-          DEFAULT_SETTINGS,
-          "the network went away",
-        );
         const mine = await portedExport(
           packs,
           base,
@@ -230,7 +181,7 @@ describe("one download button, old against new", () => {
           DEFAULT_SETTINGS,
           "the network went away",
         );
-        expect(mine).toEqual(theirs);
+        expect(renderValue(mine)).toBe(golden(recorded, `export fail ${kind}`));
         expect(mine.status.at(-1)).toBe(
           "❌ Export failed: the network went away",
         );
@@ -242,11 +193,9 @@ describe("one download button, old against new", () => {
   });
 
   it("covers one pack for a pack row and everything for row 0", async () => {
-    const { app, packs, base } = await shared;
-    const theirs = await legacyExport(app, "mpp", 0, DEFAULT_SETTINGS);
+    const { packs, base } = await shared;
     const mine = await portedExport(packs, base, "mpp", 0, DEFAULT_SETTINGS);
     expect(mine.calls[0].packs).toHaveLength(packs.length);
-    expect(theirs.calls[0].packs).toHaveLength(packs.length);
     const one = await portedExport(packs, base, "mpp", 2, DEFAULT_SETTINGS);
     expect(one.calls[0].packs).toEqual([
       packs[1].map((e) => e.card.name),
@@ -258,10 +207,17 @@ describe("one download button, old against new", () => {
     ["a token separator", withTokenSeparator],
   ] as const) {
     it(`picks the same card to compare the AI upscaler on, with ${what}`, async () => {
-      const { app, packs } = await run;
+      const { packs } = await run;
       for (const idx of [0, 1, 2, 3]) {
-        app.setControl("previewPackSelect", String(idx));
-        expect(cardForComparison(packs, idx)).toBe(app.packForComparison());
+        const entry = cardForComparison(packs, idx);
+        expect(renderValue(entry ? entry.card.name : null)).toBe(
+          golden(
+            recorded,
+            what === "a token separator"
+              ? `compare token card ${idx}`
+              : `compare card ${idx}`,
+          ),
+        );
       }
       // The separator must not be a land, or this proves nothing.
       if (what === "a token separator") {
@@ -273,9 +229,11 @@ describe("one download button, old against new", () => {
   }
 
   it("falls back to the first pack when no pack is selected", async () => {
-    const { app, packs } = await shared;
-    app.setControl("previewPackSelect", "");
-    expect(cardForComparison(packs, NaN)).toBe(app.packForComparison());
+    const { packs } = await shared;
+    const entry = cardForComparison(packs, NaN);
+    expect(renderValue(entry ? entry.card.name : null)).toBe(
+      golden(recorded, "compare card none"),
+    );
   });
 
   /*

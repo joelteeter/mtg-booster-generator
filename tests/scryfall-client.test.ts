@@ -18,7 +18,6 @@ import {
 } from "@/lib/scryfall/client";
 
 import { card, fakeScryfall, poolQuery } from "./fake-scryfall";
-import { loadLegacyScryfall } from "./legacy-scryfall";
 
 /** A clock that records how long each sleep was asked for and skips it. */
 function fakeClock() {
@@ -178,13 +177,6 @@ describe("retrying", () => {
     const { client } = clientWith(fake.fetch);
     const message = await client.fetchPool("set:x").catch((e: Error) => e.message);
 
-    const oldFake = fakeScryfall({ search: ok, failures: [...failures] });
-    const legacy = loadLegacyScryfall({ fetch: oldFake.fetch });
-    const oldMessage = await legacy
-      .fetchPool("set:x")
-      .catch((e: Error) => e.message);
-
-    expect(message).toBe(oldMessage);
     expect(message).toBe(
       "Scryfall is rate-limiting requests (429). Wait a minute and try again.",
     );
@@ -220,13 +212,6 @@ describe("retrying", () => {
     const { client } = clientWith(fake.fetch);
     const message = await client.fetchPool("set:x").catch((e: Error) => e.message);
 
-    const oldFake = fakeScryfall({ search: ok, failures: [...failures] });
-    const legacy = loadLegacyScryfall({ fetch: oldFake.fetch });
-    const oldMessage = await legacy
-      .fetchPool("set:x")
-      .catch((e: Error) => e.message);
-
-    expect(message).toBe(oldMessage);
     expect(message).toBe(
       "Couldn't reach Scryfall (network error or rate limit). Wait a minute and try again.",
     );
@@ -312,12 +297,14 @@ describe("sets and random cards", () => {
     );
   });
 
-  it("uses the same API base as the old code", () => {
-    const legacy = loadLegacyScryfall({
-      fetch: (async () => new Response("{}")) as never,
-    });
-    expect(API).toBe(legacy.API);
-    expect(REQUEST_GAP_MS).toBe(legacy.REQUEST_GAP_MS);
-    expect(MAX_RETRIES).toBe(legacy.MAX_RETRIES);
+  /*
+   * The old `js/scryfall.js` used exactly these, and the queue's behaviour is
+   * built on them: 150 ms is about six requests a second, inside Scryfall's
+   * "ten a second on average" guidance.
+   */
+  it("keeps the request settings the old code used", () => {
+    expect(API).toBe("https://api.scryfall.com/");
+    expect(REQUEST_GAP_MS).toBe(150);
+    expect(MAX_RETRIES).toBe(3);
   });
 });

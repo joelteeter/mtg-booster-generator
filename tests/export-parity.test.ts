@@ -1,13 +1,18 @@
 /*
- * The export pipeline, compared against `js/export.js` function for function.
+ * The export pipeline, against values recorded from the old app.
  *
- * Both implementations are handed the same pack entries, the same fake image
- * loader and the same recording pdf-lib, so anything that differs is a
- * difference in this port. The sweep covers the page layout, the double-faced
- * expansion, the image urls, the mirrored back placements, every drawing call
- * on every page, the canvas corner-filling and bleed passes, and the SQLite
- * save file byte for byte.
+ * Until phase 6 this ran `js/export.js` alongside the port over the same pack
+ * entries, the same fake image loader and the same recording pdf-lib. The old
+ * implementation is gone; `tests/golden/export.txt` holds what it produced.
+ *
+ * The sweep is unchanged: the page layout, the double-faced expansion, the
+ * image urls, the mirrored back placements, every drawing call on every page,
+ * the canvas corner-filling and bleed passes, and the SQLite save file byte
+ * for byte. The one deliberate difference, the crop marks, was never recorded
+ * and has its own tests at the bottom.
  */
+import { createHash } from "node:crypto";
+
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import initSqlJs from "sql.js";
 
@@ -31,10 +36,11 @@ import type { PackEntry } from "@/lib/generate";
 import {
   canvasRecorder,
   fakeImageLoader,
-  legacyExporter,
   recordingPdfLib,
   splitCutGuides,
-} from "./legacy-export";
+} from "./export-doubles";
+import { golden, readGolden } from "./goldens";
+import { renderCalls, renderValue } from "./render";
 import {
   dfc,
   exportCases,
@@ -50,9 +56,13 @@ import {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+const recorded = readGolden("export");
 const packs = exportPacks();
 const qualities: Quality[] = ["high", "fast"];
 const dfcModes: DfcMode[] = ["separate", "frontOnly"];
+
+const sha = (v: string | Uint8Array): string =>
+  createHash("sha256").update(v).digest("hex");
 
 /** Pages as names, which is what a layout difference actually looks like. */
 const names = (pages: any[][]): string[][] =>
@@ -60,7 +70,10 @@ const names = (pages: any[][]): string[][] =>
 
 describe("the save-file schema", () => {
   it("is MTGProxyPrinter's document-v7, unchanged", () => {
-    expect(SCHEMA_V7).toBe(legacyExporter.SCHEMA_V7);
+    // Byte for byte what `js/export.js` embedded, which was byte for byte
+    // MTGProxyPrinter's own document-v7.sql. A changed byte is a file it
+    // refuses to open.
+    expect(SCHEMA_V7).toBe(golden(recorded, "schema"));
   });
 });
 
@@ -68,16 +81,16 @@ describe("layoutPages", () => {
   for (const newPagePerPack of [false, true]) {
     for (const perPage of [1, 2, 3, 4, 8, 9, 10]) {
       it(`fills pages ${perPage} at a time${newPagePerPack ? ", a new page per pack" : ""}`, () => {
-        expect(names(layoutPages(packs, newPagePerPack, perPage))).toEqual(
-          names(legacyExporter.layoutPages(packs, newPagePerPack, perPage)),
-        );
+        expect(
+          renderCalls(names(layoutPages(packs, newPagePerPack, perPage))),
+        ).toBe(golden(recorded, `layoutPages ${newPagePerPack} ${perPage}`));
       });
     }
   }
 
   it("defaults to nine to a page", () => {
-    expect(names(layoutPages(packs, false))).toEqual(
-      names(legacyExporter.layoutPages(packs, false)),
+    expect(renderCalls(names(layoutPages(packs, false)))).toBe(
+      golden(recorded, "layoutPages default"),
     );
   });
 
@@ -98,15 +111,15 @@ describe("layoutPages", () => {
 describe("expandFaces", () => {
   for (const mode of dfcModes) {
     it(`gives a double-faced card ${mode === "separate" ? "two slots" : "one"}`, () => {
-      expect(names(expandFaces(packs, mode))).toEqual(
-        names(legacyExporter.expandFaces(packs, mode)),
+      expect(renderCalls(names(expandFaces(packs, mode)))).toBe(
+        golden(recorded, `expandFaces ${mode}`),
       );
     });
 
     it(`keeps every other field on the entry (${mode})`, () => {
-      const mine = expandFaces(packs, mode).flat();
-      const theirs = legacyExporter.expandFaces(packs, mode).flat();
-      expect(mine).toEqual(theirs);
+      expect(renderCalls(expandFaces(packs, mode).flat())).toBe(
+        golden(recorded, `expandFaces fields ${mode}`),
+      );
     });
   }
 });
@@ -125,8 +138,8 @@ describe("imageUrl", () => {
     for (const quality of qualities) {
       for (const face of [0, 1] as const) {
         it(`"${card.name}", ${quality}, face ${face}`, () => {
-          expect(imageUrl(card, quality, face)).toBe(
-            legacyExporter.imageUrl(card, quality, face),
+          expect(renderValue(imageUrl(card, quality, face))).toBe(
+            golden(recorded, `imageUrl ${card.name} ${quality} ${face}`),
           );
         });
       }
@@ -135,7 +148,9 @@ describe("imageUrl", () => {
 
   it("defaults to the front face", () => {
     const card = dfc("defaulting");
-    expect(imageUrl(card, "high")).toBe(legacyExporter.imageUrl(card, "high"));
+    expect(renderValue(imageUrl(card, "high"))).toBe(
+      golden(recorded, "imageUrl default face"),
+    );
   });
 });
 
@@ -143,8 +158,8 @@ describe("cardBackUrl", () => {
   for (const quality of qualities) {
     it(`is the standard Magic back (${quality})`, () => {
       // The old signature took a card and ignored it; this one leaves it out.
-      expect(cardBackUrl(quality)).toBe(
-        legacyExporter.cardBackUrl(plain("whatever"), quality),
+      expect(renderValue(cardBackUrl(quality))).toBe(
+        golden(recorded, `cardBackUrl ${quality}`),
       );
     });
   }
@@ -154,14 +169,12 @@ describe("placementsFor", () => {
   for (const c of exportCases) {
     it(c.name, () => {
       const pages = layoutPages(expandFaces(packs, c.dfcMode), false);
-      const legacyPages = legacyExporter.layoutPages(
-        legacyExporter.expandFaces(packs, c.dfcMode),
-        false,
+      expect(renderValue(pages.length)).toBe(
+        golden(recorded, `placements ${c.name} pageCount`),
       );
-      expect(pages.length).toBe(legacyPages.length);
       pages.forEach((page, i) => {
-        expect(placementsFor(page, c)).toEqual(
-          legacyExporter.placementsFor(legacyPages[i], c),
+        expect(renderCalls(placementsFor(page, c))).toBe(
+          golden(recorded, `placements ${c.name} page${i}`),
         );
       });
     });
@@ -184,13 +197,9 @@ describe("placementsFor, with pages expanded in the other mode", () => {
         flip,
       };
       const pages = layoutPages(expandFaces(packs, "separate"), false);
-      const legacyPages = legacyExporter.layoutPages(
-        legacyExporter.expandFaces(packs, "separate"),
-        false,
-      );
       pages.forEach((page, i) => {
-        expect(placementsFor(page, opts)).toEqual(
-          legacyExporter.placementsFor(legacyPages[i], opts),
+        expect(renderCalls(placementsFor(page, opts))).toBe(
+          golden(recorded, `mismatched placements ${flip} page${i}`),
         );
       });
       // And a face-1 entry really is in there, or this proves nothing.
@@ -203,9 +212,7 @@ describe("buildPdf", () => {
   for (const c of exportCases) {
     it(`draws the same pages: ${c.name}`, async () => {
       const mine = recordingPdfLib();
-      const theirs = recordingPdfLib();
       const myProgress: number[][] = [];
-      const theirProgress: number[][] = [];
 
       await buildPdf(packs, {
         ...c,
@@ -215,28 +222,21 @@ describe("buildPdf", () => {
         onProgress: (done, total) => myProgress.push([done, total]),
       });
 
-      (globalThis as any).PDFLib = theirs.lib;
-      try {
-        await legacyExporter.buildPdf(packs, {
-          ...c,
-          title: "a title",
-          imageLoader: fakeImageLoader,
-          onProgress: (done: number, total: number) =>
-            theirProgress.push([done, total]),
-        });
-      } finally {
-        delete (globalThis as any).PDFLib;
-      }
-
       /*
        * The plain black lines are the one deliberate difference — full-page
-       * rules there, four corner crop marks here — so they are compared
-       * separately. Everything else still has to match call for call.
+       * rules in the old app, four corner crop marks here — so they were left
+       * out of the recording. Everything else still has to match call for
+       * call: a digest for every case, and four of them written out in full.
        */
       const mineGuides = splitCutGuides(mine.calls);
-      const theirGuides = splitCutGuides(theirs.calls);
-      expect(mineGuides.rest).toEqual(theirGuides.rest);
-      expect(myProgress).toEqual(theirProgress);
+      const stream = renderCalls(mineGuides.rest);
+      expect(sha(stream)).toBe(golden(recorded, `pdf digest ${c.name}`));
+      if (recorded.has(`pdf ${c.name}`)) {
+        expect(stream).toBe(golden(recorded, `pdf ${c.name}`));
+      }
+      expect(renderValue(myProgress)).toBe(
+        golden(recorded, `pdf progress ${c.name}`),
+      );
 
       const pageCount = layoutPages(
         expandFaces(packs, c.dfcMode),
@@ -269,15 +269,8 @@ describe("buildPdf", () => {
 
   it("draws nothing for no packs", async () => {
     const mine = recordingPdfLib();
-    const theirs = recordingPdfLib();
     await buildPdf([], { pdfLib: mine.lib as any, imageLoader: fakeImageLoader });
-    (globalThis as any).PDFLib = theirs.lib;
-    try {
-      await legacyExporter.buildPdf([], { imageLoader: fakeImageLoader });
-    } finally {
-      delete (globalThis as any).PDFLib;
-    }
-    expect(mine.calls).toEqual(theirs.calls);
+    expect(renderCalls(mine.calls)).toBe(golden(recorded, "pdf no packs"));
   });
 });
 
@@ -470,20 +463,9 @@ describe("the canvas corner and bleed passes", () => {
         mine.restore();
       }
 
-      const theirs = canvasRecorder();
-      theirs.install();
-      (globalThis as any).PDFLib = recordingPdfLib().lib;
-      try {
-        await legacyExporter.buildPdf(pack, {
-          side: "front",
-          bleedMm: c.bleedMm,
-        });
-      } finally {
-        delete (globalThis as any).PDFLib;
-        theirs.restore();
-      }
-
-      expect(mine.canvases).toEqual(theirs.canvases);
+      expect(renderCalls(mine.canvases)).toBe(
+        golden(recorded, `canvas bleed ${c.bleedMm}`),
+      );
       expect(mine.canvases.length).toBeGreaterThan(0);
     });
   }
@@ -518,24 +500,9 @@ describe("the canvas corner and bleed passes", () => {
       mine.restore();
     }
 
-    const theirPdf = recordingPdfLib();
-    const theirs = canvasRecorder({ upscaler: true });
-    theirs.install();
-    (globalThis as any).PDFLib = theirPdf.lib;
-    try {
-      await legacyExporter.buildPdf(pack, {
-        side: "front",
-        bleedMm: 2,
-        enhance: true,
-      });
-    } finally {
-      delete (globalThis as any).PDFLib;
-      theirs.restore();
-    }
-
-    expect(mine.canvases).toEqual(theirs.canvases);
-    expect(splitCutGuides(minePdf.calls).rest).toEqual(
-      splitCutGuides(theirPdf.calls).rest,
+    expect(renderCalls(mine.canvases)).toBe(golden(recorded, "canvas enhanced"));
+    expect(renderCalls(splitCutGuides(minePdf.calls).rest)).toBe(
+      golden(recorded, "pdf enhanced"),
     );
     // The card, the upscaled copy, and the upscaled copy with its bleed.
     const sizes = mine.canvases.map((c) => [c.width, c.height]);
@@ -616,12 +583,11 @@ describe("buildSaveFile", () => {
         const SQL = await sql;
         const opts = { dfcMode, newPagePerPack, sql: SQL };
         const mine = await buildSaveFile(packs, opts);
-        const theirs = await legacyExporter.buildSaveFile(packs, {
-          dfcMode,
-          newPagePerPack,
-        });
-        expect(rows(mine, SQL)).toEqual(rows(theirs, SQL));
-        expect(Array.from(mine)).toEqual(Array.from(theirs));
+        // Both the rows MTGProxyPrinter reads back and the bytes on disk: the
+        // old app's file and this one were byte for byte the same database.
+        expect(renderValue({ rows: rows(mine, SQL), sha: sha(mine) })).toBe(
+          golden(recorded, `savefile ${dfcMode} ${newPagePerPack}`),
+        );
       });
     }
   }
@@ -629,8 +595,9 @@ describe("buildSaveFile", () => {
   it("honours a page size other than nine", async () => {
     const SQL = await sql;
     const mine = await buildSaveFile(packs, { perPage: 4, sql: SQL });
-    const theirs = await legacyExporter.buildSaveFile(packs, { perPage: 4 });
-    expect(rows(mine, SQL)).toEqual(rows(theirs, SQL));
+    expect(renderValue(rows(mine, SQL))).toBe(
+      golden(recorded, "savefile perPage 4"),
+    );
   });
 
   it("records the card image size MTGProxyPrinter expects", async () => {
@@ -648,14 +615,12 @@ describe("buildSaveFile", () => {
 
   it("refuses a card with no Scryfall id, with the same message", async () => {
     const SQL = await sql;
-    const bad = packWithIdlessCard();
-    const mineError = await buildSaveFile(bad, { sql: SQL }).catch(
-      (e: Error) => e.message,
+    const mineError = await buildSaveFile(packWithIdlessCard(), {
+      sql: SQL,
+    }).catch((e: Error) => e.message);
+    expect(renderValue(mineError)).toBe(
+      golden(recorded, "savefile idless error"),
     );
-    const theirError = await legacyExporter
-      .buildSaveFile(bad)
-      .catch((e: Error) => e.message);
-    expect(mineError).toBe(theirError);
     expect(mineError).toContain("has no Scryfall ID");
   });
 });
