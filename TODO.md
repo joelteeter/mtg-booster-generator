@@ -54,6 +54,17 @@ anything already settled lives in the README instead.
   alternative considered was a CSS-only framework (Bootstrap, Bulma, Pico.css)
   which would have kept it; the reasoning is in the migration document.
 
+- [x] **Simulators are their own pages** — done, 31 October 2026
+  `/planechase` and `/archenemy`, rather than two more values of the `mode`
+  variable. They share nothing with the booster builders — no set, no options,
+  no packs — so everything reading `mode` had to allow for a mode that had
+  none of it. The strip across the top is navigation now; the two builders
+  still share the front page, because they share every control under them.
+
+  One behaviour changed with it: visiting a simulator no longer throws away a
+  finished booster run. Switching between the two builders still does, since
+  the packs belong to the one being left.
+
 - [ ] **Dark mode is new; the old app had none**
   Added after phase 5 and following the system by default. Nothing here needs
   doing — it is noted because it is the one place the rewrite does more than

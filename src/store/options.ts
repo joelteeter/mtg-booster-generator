@@ -9,16 +9,18 @@
  * (`modeState`), so a setting chosen for Booster Packs never leaks into
  * Commander boosters, while the set selection is shared because the old UI had
  * one set of controls for it.
+ *
+ * `Mode` is only the two booster builders. The old app had the Planechase and
+ * Archenemy simulators as two more values of the same variable, so everything
+ * reading it had to allow for a mode with no set, no options and no packs;
+ * they are routes of their own now (`/planechase`, `/archenemy`) and share
+ * nothing with this store.
  */
 import { create } from "zustand";
 
 import type { CommanderLayout } from "@/lib/booster/types";
 
-export type Mode = "play" | "commander" | "planechase" | "archenemy";
-export type BoosterMode = "play" | "commander";
-
-export const isBoosterMode = (m: Mode): m is BoosterMode =>
-  m === "play" || m === "commander";
+export type Mode = "play" | "commander";
 
 /** The options each tab remembers separately — `OPT_IDS` in the old state.js. */
 export interface TabOptions {
@@ -73,10 +75,10 @@ export const DEFAULT_SELECTION: SetSelection = {
 
 interface OptionsStore {
   mode: Mode;
-  byMode: Record<BoosterMode, TabOptions>;
+  byMode: Record<Mode, TabOptions>;
   selection: SetSelection;
   setMode(mode: Mode): void;
-  /** Writes to whichever booster tab is active. */
+  /** Writes to whichever tab is active. */
   setOption<K extends keyof TabOptions>(key: K, value: TabOptions[K]): void;
   setSelection(patch: Partial<SetSelection>): void;
 }
@@ -90,25 +92,21 @@ export const useOptionsStore = create<OptionsStore>((set) => ({
   selection: { ...DEFAULT_SELECTION },
   setMode: (mode) => set({ mode }),
   setOption: (key, value) =>
-    set((s) =>
-      isBoosterMode(s.mode)
-        ? {
-            byMode: {
-              ...s.byMode,
-              [s.mode]: { ...s.byMode[s.mode], [key]: value },
-            },
-          }
-        : s,
-    ),
+    set((s) => ({
+      byMode: {
+        ...s.byMode,
+        [s.mode]: { ...s.byMode[s.mode], [key]: value },
+      },
+    })),
   setSelection: (patch) =>
     set((s) => ({ selection: { ...s.selection, ...patch } })),
 }));
 
-/** The active booster tab's options. Falls back to Play on a simulator tab. */
+/** The active tab's options. */
 export const selectOptions = (s: {
   mode: Mode;
-  byMode: Record<BoosterMode, TabOptions>;
-}): TabOptions => s.byMode[isBoosterMode(s.mode) ? s.mode : "play"];
+  byMode: Record<Mode, TabOptions>;
+}): TabOptions => s.byMode[s.mode];
 
 /** True when the Commander tab is borrowing a layout for a non-Commander set. */
 export const isCommanderAny = (s: {

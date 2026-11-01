@@ -14,7 +14,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MTG Booster Pack Generator",
+  // The template gives the simulator routes "Planechase Simulator — MTG
+  // Booster Pack Generator" from the one word each of them sets.
+  title: {
+    default: "MTG Booster Pack Generator",
+    template: "%s — MTG Booster Pack Generator",
+  },
   description:
     "Simulate opening Magic: The Gathering booster packs and lay the cards out as printable PDF pages.",
 };

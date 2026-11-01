@@ -25,7 +25,11 @@ You need an internet connection for:
 * **Scryfall's image server** (cards.scryfall.io, backs.scryfall.io) – card images for the preview, the PDFs and the simulators. It isn't rate-limited
 * **jsDelivr** – only if you use AI-enhance: TensorFlow.js, UpscalerJS and its ESRGAN model (~3 MB), fetched the first time you tick the box. pdf-lib is bundled, and sql.js is served from this site, so the PDFs and the MTGProxyPrinter file need no third-party CDN
 
-## Tabs
+## Pages
+The two booster builders share the front page and switch between each other;
+the two simulators are pages of their own, at `/planechase` and `/archenemy`.
+The strip across the top moves between all four.
+
 * **Booster Pack** – 14-card Booster Packs (Play Boosters renamed, see below) from any expansion, core, masters or draft-innovation set. Sets Scryfall lists but that are not out yet are grouped under “🔜 Not released yet” with their release date, since Scryfall only holds the cards spoiled so far and odds worked out from a part of a set move as more are revealed — the slot panel says so when one is chosen. The set list opens on the newest released set that is built for Limited (an expansion or core set), rather than the newest release outright, which is often a Commander or supplemental product with too few commons to build a pack from
 * **Commander Draft Booster** – 20-card draft boosters from the official Commander booster sets:
   * Commander Legends (CMR): 13 commons (the Prismatic Piper replaces one in 1 of 6 packs), 3 uncommons, 2 legends (uncommon/rare/mythic weighted 4:2:1 per card), 1 rare/mythic, 1 foil (a foil-etched legend in 1 of 15)
@@ -34,7 +38,7 @@ You need an internet connection for:
   * **Any set, built as a Commander booster** – pick any set (e.g. LTR, The Lord of the Rings) and one of the three layouts above. The set's legendary creatures/planeswalkers fill the legendary slots; slots it can't fill (no Backgrounds, no Prismatic Piper, too few legends) fall back to the next closest pool, and the slot table shows which
 * **Planechase Simulator** – shuffles every Plane and Phenomenon on Scryfall (~200 cards) into a planar deck. Planeswalk draws the next plane and puts the one you left on the bottom; phenomena remind you to planeswalk again. Roll the planar die (1 planeswalk face, 1 chaos face, 4 blank) with a per-turn roll counter showing the extra mana cost; "New turn" resets it. Option to leave phenomena out
 * **Archenemy Simulator** – shuffles every Scheme on Scryfall (~100 cards) into a scheme deck. Setting a scheme in motion reveals the next one; non-ongoing schemes go to the bottom, ongoing schemes stay in play until you abandon them. Click an ongoing scheme (or any previously revealed card in either simulator) to see it full size
-* Each simulator loads its cards with one Scryfall search the first time you open its tab
+* Each simulator loads its cards with one Scryfall search the first time you open its page, and keeps its deck for as long as the tab is open — leaving for the booster page and coming back does not reshuffle it, and does not clear a finished booster run either
 
 ## How packs are built
 * **How each card slot is determined** – a collapsible panel showing every slot's card types, rarity odds, foil chance and List / Special Guest / Piper chance, with exact percentages for the chosen set, plus the expected rares, mythics, foils, lands (and legends, for Commander) per pack. It updates as options change, and the generator uses the same numbers
@@ -63,7 +67,7 @@ Wizards' [Updating Our Boosters in 2027](https://magic.wizards.com/en/news/annou
 * Approximations, flagged in the slot panel: the vanilla non-foil wildcard's rarity split (18% / 67% / 15%) and the last wildcard's rarity weights (4 : 2 : 1 : ½) both come from Duskmourn's published sheets, the latter from when that slot was always foil
 
 ## Options
-Each tab remembers its own options, so settings chosen for Booster Packs never carry over to Commander boosters (and vice versa). The slot panel highlights every slot that differs from vanilla, shows the before → after for each change, names the option responsible, and lists which slots each option affects.
+Each builder remembers its own options, so settings chosen for Booster Packs never carry over to Commander boosters (and vice versa); switching between the two clears the last run, since the packs belong to the one being left. The slot panel highlights every slot that differs from vanilla, shows the before → after for each change, names the option responsible, and lists which slots each option affects.
 
 | Option | Booster Pack | Commander |
 |---|---|---|
@@ -123,8 +127,9 @@ Every format is available for all packs together or for each pack on its own.
 
 ## Files
 ```
-src/app/                 the page, the providers and the global stylesheet
-src/components/booster/  tabs, set picker, options, slot panel, generate, downloads, preview
+src/app/                 the three pages, the providers and the global stylesheet
+src/components/          the page shell and the section strip shared by every page
+src/components/booster/  set picker, options, slot panel, generate, downloads, preview
 src/components/sim/      the Planechase and Archenemy simulators
 src/components/ui/       shadcn/ui components
 src/hooks/               use-spec, use-generate, use-export, use-scryfall
@@ -155,6 +160,9 @@ npm test           # the test suite
 npm run typecheck  # tsc --noEmit
 npm run lint       # eslint
 npm run build      # static export to out/
+npm start          # serve out/ — worth doing before a deploy, since the
+                   # routes are extensionless there (/planechase, not
+                   # /planechase.html) and only a real server shows that
 ```
 `npm test` is worth knowing about. Most of it compares against
 `tests/golden/*.txt`, which hold what the previous implementation produced for

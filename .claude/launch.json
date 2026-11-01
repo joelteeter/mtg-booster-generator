@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 3000
+    },
+    {
+      "name": "next-static",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve@latest", "out", "-l", "4477"],
+      "port": 4477
     }
   ]
 }

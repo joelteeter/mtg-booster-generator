@@ -22,12 +22,11 @@ import { collapseChanges, vanillaOpts, type CollapsedChange } from "@/lib/explai
 import { specOptions, type SpecOptions } from "@/lib/options";
 import type { CommanderPools, PlayPools } from "@/lib/scryfall/pools";
 import {
-  isBoosterMode,
   selectCode,
   selectLayout,
   selectOptions,
   useOptionsStore,
-  type BoosterMode,
+  type Mode,
 } from "@/store/options";
 
 import { useDebounced } from "./use-debounced";
@@ -36,7 +35,7 @@ import { queries, useSetsByCode } from "./use-scryfall";
 export type { SpecOptions };
 
 export interface SpecResult {
-  mode: BoosterMode;
+  mode: Mode;
   code: string;
   layout: CommanderLayout | null;
   opts: SpecOptions;
@@ -66,7 +65,6 @@ export function useSpec(): SpecResult {
   const options = useOptionsStore(selectOptions);
   const setsByCode = useSetsByCode();
 
-  const boosterMode: BoosterMode = isBoosterMode(mode) ? mode : "play";
   const code = selectCode({ mode, selection });
   const layout = selectLayout({ mode, selection });
 
@@ -78,13 +76,13 @@ export function useSpec(): SpecResult {
 
   const playQuery = useQuery({
     ...queries.playPools(settledCode),
-    enabled: boosterMode === "play" && !!settledCode,
+    enabled: mode === "play" && !!settledCode,
   });
   const commanderQuery = useQuery({
     ...queries.commanderPools(settledCode),
-    enabled: boosterMode === "commander" && !!settledCode,
+    enabled: mode === "commander" && !!settledCode,
   });
-  const active = boosterMode === "play" ? playQuery : commanderQuery;
+  const active = mode === "play" ? playQuery : commanderQuery;
 
   // Pools belonging to a different set than the one now chosen are ignored, so
   // the panel never shows one set's counts under another's name.
@@ -93,14 +91,14 @@ export function useSpec(): SpecResult {
   const released = setsByCode.get(code)?.released_at ?? null;
 
   const opts: SpecOptions = useMemo(
-    () => specOptions({ mode: boosterMode, options, released }),
-    [options, released, boosterMode],
+    () => specOptions({ mode, options, released }),
+    [options, released, mode],
   );
 
   return useMemo(() => {
     const stats = pools ? statsFromPools(pools) : null;
     const buildWith = (o: SpecOptions, s: Stats | null) =>
-      boosterMode === "play"
+      mode === "play"
         ? playSpec(o, s)
         : commanderSpec(layout ?? "cmr", o, s);
     const build = (o: SpecOptions) => buildWith(o, stats);
@@ -112,7 +110,7 @@ export function useSpec(): SpecResult {
     const diffs = diffFromVanilla(slots, vanillaSlots).map(collapseChanges);
 
     return {
-      mode: boosterMode,
+      mode,
       code,
       layout,
       opts,
@@ -127,7 +125,7 @@ export function useSpec(): SpecResult {
       error: (active.error as Error) ?? null,
     };
   }, [
-    boosterMode,
+    mode,
     code,
     layout,
     opts,
