@@ -54,6 +54,16 @@ anything already settled lives in the README instead.
   alternative considered was a CSS-only framework (Bootstrap, Bulma, Pico.css)
   which would have kept it; the reasoning is in the migration document.
 
+- [x] **A site header, with a menu below `md`** — done, 31 October 2026
+  Sticky, with the brand, the three pages and the theme toggle; the links
+  collapse behind a button on a phone. The header lists pages, so the choice
+  between the two booster builders went back to being a tab strip on the page
+  it belongs to — nav for where you are, tabs for what the controls mean.
+
+  The menu is a disclosure panel rather than a slide-in drawer: for three
+  links a drawer is a portal, a focus trap and a scroll lock around a list
+  that already fits on the screen.
+
 - [x] **Simulators are their own pages** — done, 31 October 2026
   `/planechase` and `/archenemy`, rather than two more values of the `mode`
   variable. They share nothing with the booster builders — no set, no options,

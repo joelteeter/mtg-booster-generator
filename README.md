@@ -26,9 +26,11 @@ You need an internet connection for:
 * **jsDelivr** – only if you use AI-enhance: TensorFlow.js, UpscalerJS and its ESRGAN model (~3 MB), fetched the first time you tick the box. pdf-lib is bundled, and sql.js is served from this site, so the PDFs and the MTGProxyPrinter file need no third-party CDN
 
 ## Pages
-The two booster builders share the front page and switch between each other;
-the two simulators are pages of their own, at `/planechase` and `/archenemy`.
-The strip across the top moves between all four.
+Three of them, behind a site header that carries the links, the brand and the
+theme toggle: the booster builders on the front page, Planechase at
+`/planechase` and Archenemy at `/archenemy`. Below `md` the links collapse
+behind a menu button. The two booster builders share one page and are chosen
+with the tab strip on it, since they share every control below it.
 
 * **Booster Pack** – 14-card Booster Packs (Play Boosters renamed, see below) from any expansion, core, masters or draft-innovation set. Sets Scryfall lists but that are not out yet are grouped under “🔜 Not released yet” with their release date, since Scryfall only holds the cards spoiled so far and odds worked out from a part of a set move as more are revealed — the slot panel says so when one is chosen. The set list opens on the newest released set that is built for Limited (an expansion or core set), rather than the newest release outright, which is often a Commander or supplemental product with too few commons to build a pack from
 * **Commander Draft Booster** – 20-card draft boosters from the official Commander booster sets:
@@ -128,7 +130,7 @@ Every format is available for all packs together or for each pack on its own.
 ## Files
 ```
 src/app/                 the three pages, the providers and the global stylesheet
-src/components/          the page shell and the section strip shared by every page
+src/components/          the site header (with its mobile menu) and the page shell
 src/components/booster/  set picker, options, slot panel, generate, downloads, preview
 src/components/sim/      the Planechase and Archenemy simulators
 src/components/ui/       shadcn/ui components

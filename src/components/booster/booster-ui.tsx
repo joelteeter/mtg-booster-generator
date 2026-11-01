@@ -7,6 +7,7 @@
 import { useOptionsStore, type Mode } from "@/store/options";
 
 import { GeneratePanel } from "./generate-panel";
+import { ModeTabs } from "./mode-tabs";
 import { PackOptions } from "./pack-options";
 import { SetInfo } from "./set-info";
 import { SetPicker } from "./set-picker";
@@ -27,6 +28,7 @@ export function BoosterUi() {
 
   return (
     <>
+      <ModeTabs />
       <p className="text-sm text-muted-foreground">{BLURB[mode]}</p>
       <SetPicker />
       <SetInfo />
