@@ -187,10 +187,11 @@ deploy, below.
 | `next` | next--mtg-draft-generator.netlify.app | Netlify sign-in only | free |
 | `dev` | dev--mtg-draft-generator.netlify.app | Netlify sign-in only | free |
 
-> **`main` has not been cut over yet.** It still serves the plain-scripts app,
-> and so does `dev`, whose `netlify.toml` publishes the repo root with no build.
-> This branch, `next`, is the rewrite, and the cut-over is merging it into
-> `main` — which costs a production deploy, so it waits for credits.
+> **`main` has not been cut over yet.** It still serves the plain-scripts app.
+> `dev` and `next` are the rewrite and hold the same commits; the cut-over is
+> merging one of them into `main`, which costs a production deploy and so waits
+> for credits. Until then `main` is itself the rollback: the old app is still
+> live on it, and still in this repo's history.
 
 Netlify's credit plans charge [15 credits for every successful production deploy](https://docs.netlify.com/manage/accounts-and-billing/billing/billing-for-credit-based-plans/how-credits-work/) and nothing at all for branch deploys or deploy previews, however long the build takes. The free plan gets 300 credits a month, so **`main` is worth about 20 pushes a month and a branch is unlimited**. Work on a branch:
 

@@ -6,17 +6,19 @@ anything already settled lives in the README instead.
 ## Deployment
 
 - [ ] **Cut `main` over to the Next.js app** — *waiting on credits*
-  `next` holds the rewrite and is fully ported; `main` and `dev` still serve the
-  plain-scripts app. The cut-over is `git checkout main && git merge next`,
-  which costs one production deploy (15 credits). We were at 285/300 in late
-  October, so it waits for the 19 November reset rather than spending the last
-  of the month's credits on it.
-  - `next`'s `netlify.toml` already runs `npm run build` and publishes `out/`;
-    nothing else needs changing for the cut-over
-  - `dev` keeps the old app until then, which is the rollback if anything is
-    wrong after the merge
-  - check the deployed site before deciding the migration is finished: the
-    branch deploy at `next--mtg-draft-generator.netlify.app` is the same build
+  `next` and `dev` both hold the rewrite; `main` still serves the plain-scripts
+  app. The cut-over is `git checkout main && git merge dev`, which costs one
+  production deploy (15 credits) and so waits for the 19 November reset.
+  - `netlify.toml` on both branches already runs `npm run build` and publishes
+    `out/`; nothing else needs changing for the cut-over
+  - `main` is the rollback until it is cut over: the old app is live on it, and
+    stays in this repo's history afterwards
+  - the credit balance is worth re-reading before the merge. The 285/300 above
+    was read off the billing page in late October; the API's
+    `capabilities.credits` reported `used: 0` on 8 November for a period that
+    began 19 October, which cannot both be true. That field sits beside
+    concurrency counters that are also `0`, so it is probably not a period
+    total — but the billing page settles it in a glance
 
 - [ ] **Automate the monthly production deploy** — *after 19 November 2026*
   Credits reset on 19 Nov (`next_billing_period_start`), so set this up on the
