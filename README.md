@@ -209,6 +209,7 @@ git checkout main && git merge next && git push && git checkout next
 
 A few things worth knowing:
 * running out of credits does not just block deploys — Netlify pauses the project and visitors get a "Site not available" page, so leave headroom
+* the balance is on the billing page, and only there. `netlify api getAccount` returns a `capabilities.credits` object, but its `used` read `0` on a day the billing page said 14 were left; it sits among concurrency counters and is not a period total
 * failed deploys, and rolling production back to an earlier deploy, are free
 * the branch URLs are private because the project protects non-production contexts (`sso_login_context: non_production`); sign in to the Netlify account that owns the site to view it
 * `[skip ci]` (or `[skip netlify]`) anywhere in a commit message stops Netlify building that commit, which is how to land a README-only change on `main` for free. Netlify [announced it in 2018](https://www.netlify.com/blog/2018/10/08/get-more-control-over-netlify-continuous-deployment-with-deploy-skipping/) and it is not in the current docs, so check the deploy list afterwards rather than assuming; with several commits pushed together only the last one needs the token, and it does not affect deploy previews

@@ -8,17 +8,19 @@ anything already settled lives in the README instead.
 - [ ] **Cut `main` over to the Next.js app** — *waiting on credits*
   `next` and `dev` both hold the rewrite; `main` still serves the plain-scripts
   app. The cut-over is `git checkout main && git merge dev`, which costs one
-  production deploy (15 credits) and so waits for the 19 November reset.
+  production deploy (15 credits) and so waits for the reset: the billing period
+  runs 19 October to 18 November.
   - `netlify.toml` on both branches already runs `npm run build` and publishes
     `out/`; nothing else needs changing for the cut-over
   - `main` is the rollback until it is cut over: the old app is live on it, and
     stays in this repo's history afterwards
-  - the credit balance is worth re-reading before the merge. The 285/300 above
-    was read off the billing page in late October; the API's
-    `capabilities.credits` reported `used: 0` on 8 November for a period that
-    began 19 October, which cannot both be true. That field sits beside
-    concurrency counters that are also `0`, so it is probably not a period
-    total — but the billing page settles it in a glance
+  - **14 credits left** as of 8 November, confirmed on the billing page. A
+    production deploy costs 15, so this period cannot pay for one at all —
+    there is no judgement left in the wait, only arithmetic
+  - read that number off the billing page, not the API: `getAccount`'s
+    `capabilities.credits` reported `used: 0` on the same day, for the same
+    period. It sits beside concurrency counters that are also `0` and is not a
+    period total
 
 - [ ] **Automate the monthly production deploy** — *after 19 November 2026*
   Credits reset on 19 Nov (`next_billing_period_start`), so set this up on the
