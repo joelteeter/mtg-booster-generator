@@ -15,10 +15,15 @@ import {
   godPackSpec,
   isDoubleFacedToken,
   mythicShare,
+  nonFoilMap,
+  nonFoilPools,
+  nonFoilPrintings,
+  pickFromMap,
   playSpec,
   tokenSheets,
 } from "@/lib/booster";
 import type {
+  Card as PureCard,
   CommanderLayout,
   PlayOptions,
   Slot,
@@ -380,6 +385,73 @@ describe("no foils", () => {
         );
       expect(strip(without), name).toEqual(strip(withFoils));
     }
+  });
+
+  /*
+   * The printings that exist only as a foil. These are not ordinary cards
+   * with a shiny finish but separate printings with their own treatment, so
+   * "print it non-foil" asks for something that was never made — and the
+   * treatment would show up in the PDF.
+   *
+   * The shape here is Overgrown Tomb's real one: 20 printings, 5 of them
+   * foil-only (surge foil, box topper, serialized, galaxy foil, Expedition).
+   */
+  describe("foil-only printings", () => {
+    const printing = (n: string, finishes?: string[]) =>
+      ({ name: "Overgrown Tomb", collector_number: n, finishes }) as PureCard;
+    const normal = printing("96", ["nonfoil", "foil"]);
+    const surge = printing("494", ["foil"]);
+    const etchedOnly = printing("31", ["etched"]);
+    const noField = printing("1");
+
+    it("are dropped, and ordinary and unknown printings are kept", () => {
+      expect(nonFoilPrintings([normal, surge, etchedOnly, noField])).toEqual([
+        normal,
+        noField,
+      ]);
+    });
+
+    it("are kept when a name has nothing else, rather than losing the card", () => {
+      expect(nonFoilPrintings([surge, etchedOnly])).toEqual([
+        surge,
+        etchedOnly,
+      ]);
+    });
+
+    it("go from every pool while every name stays", () => {
+      const pools = {
+        commons: new Map([
+          ["Overgrown Tomb", [normal, surge]],
+          ["Surge Only", [surge]],
+        ]),
+        meta: { boosterFiltered: true, ownSpg: 0, landSlotOnly: 0 },
+      };
+      const out = nonFoilPools(pools);
+      const commons = out.commons as Map<string, PureCard[]>;
+      expect([...commons.keys()]).toEqual(["Overgrown Tomb", "Surge Only"]);
+      expect(commons.get("Overgrown Tomb")).toEqual([normal]);
+      // Nothing else to print, so the name keeps what it has.
+      expect(commons.get("Surge Only")).toEqual([surge]);
+      // `meta` is not a pool and must come through untouched.
+      expect(out.meta).toBe(pools.meta);
+    });
+
+    it("never come out of a pool once it has been narrowed", () => {
+      const many = [
+        ...Array.from({ length: 15 }, (_, i) =>
+          printing(String(i), ["nonfoil", "foil"]),
+        ),
+        ...Array.from({ length: 5 }, (_, i) =>
+          printing(`f${i}`, ["foil"]),
+        ),
+      ];
+      const narrowed = nonFoilMap(new Map([["Overgrown Tomb", many]]));
+      const rng = seededRng(7);
+      for (let i = 0; i < 400; i++) {
+        const drawn = pickFromMap(narrowed, rng);
+        expect(drawn?.finishes).toContain("nonfoil");
+      }
+    });
   });
 
   it("is not switched off by vanilla mode, the way fun options are", () => {

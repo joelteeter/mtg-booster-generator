@@ -36,6 +36,8 @@ export interface Card {
   border_color?: string;
   full_art?: boolean;
   frame_effects?: string[];
+  /** Scryfall's finishes for this printing: "nonfoil", "foil", "etched". */
+  finishes?: string[];
   [key: string]: unknown;
 }
 

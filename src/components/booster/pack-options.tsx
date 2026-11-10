@@ -151,8 +151,8 @@ export function PackOptions() {
         </CheckRow>
         <p className="text-sm text-muted-foreground">
           {noFoils
-            ? "No slot comes out foil, so nothing in the CSV or the preview is marked FOIL or ETCHED. Commander Legends' foil-etched legends are dropped too — those are a separate printing with their own frame, not just a finish, so they would otherwise reach the PDF. Every other slot keeps its odds and still gives you a card; only the finish changes."
-            : "Slots come out foil at their real rates, marked FOIL or ETCHED in the preview and the CSV. A traditional foil is the same printing as its non-foil, so it looks the same in the PDF; a foil-etched legend does not."}
+            ? "No slot comes out foil, so nothing in the CSV or the preview is marked FOIL or ETCHED, and no card is drawn in a printing that was only ever made as a foil — surge foil, galaxy foil, foil-etched, box toppers, serialized. Those are separate printings with their own treatment rather than a finish, so they would otherwise reach the PDF looking like it. Separator lands and tokens follow the same rule. Every slot keeps its odds and still gives you a card."
+            : "Slots come out foil at their real rates, marked FOIL or ETCHED in the preview and the CSV, and any printing of a card can be drawn — including ones only made as a foil, such as surge foil. An ordinary foil is the same printing as its non-foil and looks the same in the PDF; those treatments do not."}
         </p>
       </Fieldset>
 

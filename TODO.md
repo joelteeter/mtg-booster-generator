@@ -87,10 +87,25 @@ anything already settled lives in the README instead.
   before `finalizeSlots` — which keeps the panel and the generator reading one
   outcome list.
 
-  The one slot that loses more than a finish is Commander Legends' foil-etched
-  legend: it is a separate printing with its own frame, drawn from the
-  `etched` pool, so the outcome is dropped and its 1-in-15 share redistributed
-  rather than merely set to non-foil.
+  Two things change beyond the finish, both for the same reason — they are
+  separate printings rather than a finish on an ordinary card, so they would
+  reach the PDF looking like the treatment they are:
+
+  * Commander Legends' foil-etched legend outcome is dropped and its 1-in-15
+    share redistributed across the rest of that slot.
+  * Printings with no non-foil finish are never drawn: surge foil, galaxy
+    foil, box toppers, serialized, Expeditions. `nonFoilPools` narrows every
+    pool once at the top of a run, and the separator lands and tokens get the
+    same treatment. The rule is Scryfall's `finishes` array rather than a list
+    of promo-type names, so a treatment invented next year is covered without
+    a code change. It matters most for the separator cycles, which gather
+    every printing of a name across every set: Overgrown Tomb has 20 and 5 of
+    them are foil-only.
+
+  Note `-is:promo` does not catch these — the surge-foil Overgrown Tomb in
+  Star Trek has `promo: false`, and `is:booster` filtering keeps it because
+  pools are kept by name+rarity so that showcase and borderless treatments
+  survive.
 
 - [ ] **Dark mode is new; the old app had none**
   Added after phase 5 and following the system by default. Nothing here needs

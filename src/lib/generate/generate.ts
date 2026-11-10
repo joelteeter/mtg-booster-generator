@@ -26,6 +26,8 @@ import {
   nameKey,
   resolvePool,
   tokenSetCode,
+  nonFoilPools,
+  nonFoilPrintings,
   tokenSheets as buildTokenSheets,
 } from "@/lib/booster";
 import type {
@@ -91,6 +93,8 @@ export interface GenerateOptions {
   vanilla: boolean;
   guest: boolean;
   tokenSheets: boolean;
+  /** Draw no printing that exists only as a foil. See `nonFoilPools`. */
+  noFoils?: boolean;
 }
 
 export interface GenerateParams {
@@ -235,9 +239,17 @@ export async function generatePacks({
    * Prefer the Special Guest printing of a card half the time, when the
    * option is on and this set has one under that name.
    */
+  /*
+   * Narrowed once here rather than at each draw, so that everything reading a
+   * pool gets the same cards: the slots, the Special Guest swap below, and
+   * The List's fallback to a common. Names are all kept — only a name's list
+   * of printings is narrowed, and only when it has a non-foil one.
+   */
+  const drawPools = opts.noFoils ? nonFoilPools(pools) : pools;
+
   const processCard = (card: Card | null): Card | null => {
     if (!card || !opts.guest) return card;
-    const spgAll = pools.spgAll as NameMap | undefined;
+    const spgAll = drawPools.spgAll as NameMap | undefined;
     const guest = spgAll && spgAll.get(nameKey(card));
     if (guest && rng() < 0.5) {
       const g = guest[Math.floor(rng() * guest.length)];
@@ -268,7 +280,7 @@ export async function generatePacks({
         const outcome = chooseOutcome(slot.outcomes, rng);
         if (!outcome) continue;
         const drawn = await drawCard(outcome, usedNames, {
-          pools,
+          pools: drawPools,
           rng,
           fetchList,
           log,
@@ -325,7 +337,9 @@ export async function generatePacks({
   let tokenSheetCount = 0;
   if (opts.tokenSheets) {
     onStatus?.(`⏳ Loading ${setCode} tokens...`);
-    const tokens = loadTokens ? await loadTokens() : [];
+    const loaded = loadTokens ? await loadTokens() : [];
+    // Token sets carry surge-foil printings too (Final Fantasy's, for one).
+    const tokens = opts.noFoils ? nonFoilPrintings(loaded) : loaded;
     if (!tokens.length)
       throw new Error(
         `${setCode} has no tokens on Scryfall ` +

@@ -94,10 +94,12 @@ export function useGenerate(): GenerateHandle {
           ? await prepareTokenSeparator(code, {
               loadTokens: (c) => queryClient.fetchQuery(queries.tokens(c)),
               rng,
+              noFoils: opts.noFoils,
             })
           : await prepareBonus(opts.bonusType, {
               loadCycle: (c) => queryClient.fetchQuery(queries.cycle(c)),
               rng,
+              noFoils: opts.noFoils,
             });
       }
 

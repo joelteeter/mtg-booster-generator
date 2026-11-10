@@ -13,6 +13,8 @@
  */
 import {
   LAND_CYCLES,
+  nonFoilMap,
+  nonFoilPrintings,
   pickFromMap,
   sortTokens,
   tokenPair,
@@ -43,11 +45,22 @@ export interface BonusDeps {
   loadCycle(cycle: LandCycle): Promise<NameMap>;
   rng: Rng;
   onWarn?: (message: string) => void;
+  /**
+   * Draw no printing that exists only as a foil.
+   *
+   * The separator lands need this as much as the packs do, and arguably more:
+   * a cycle search gathers every printing of a name across every set it has
+   * ever appeared in, so the foil-only ones pile up. Overgrown Tomb has five
+   * of twenty — surge foil, box topper, serialized, galaxy foil, Expedition.
+   */
+  noFoils?: boolean;
 }
 
 export interface TokenSeparatorDeps {
   loadTokens(code: string): Promise<Card[]>;
   rng: Rng;
+  /** Draw no token that exists only as a foil. */
+  noFoils?: boolean;
 }
 
 /**
@@ -59,14 +72,18 @@ export interface TokenSeparatorDeps {
  */
 export async function prepareBonus(
   typeId: string,
-  { loadCycle, rng, onWarn = (m) => console.warn(m) }: BonusDeps,
+  { loadCycle, rng, onWarn = (m) => console.warn(m), noFoils }: BonusDeps,
 ): Promise<BonusPicker> {
   const real = LAND_CYCLES.filter((c) => c.id !== "random");
+  const usable = async (c: LandCycle): Promise<NameMap> => {
+    const map = await loadCycle(c);
+    return noFoils ? nonFoilMap(map) : map;
+  };
   if (typeId === "random") {
     const maps: Array<{ cycle: LandCycle; map: NameMap }> = [];
     for (const c of real) {
       try {
-        const m = await loadCycle(c);
+        const m = await usable(c);
         if (m.size) maps.push({ cycle: c, map: m });
       } catch (e) {
         onWarn(
@@ -82,7 +99,7 @@ export async function prepareBonus(
     };
   }
   const cycle = real.find((c) => c.id === typeId) || real[0];
-  const map = await loadCycle(cycle);
+  const map = await usable(cycle);
   if (!map.size) throw new Error(`No printings found for ${cycle.label}.`);
   return () => {
     const card = asCard(pickFromMap(map, rng));
@@ -99,9 +116,10 @@ export async function prepareBonus(
  */
 export async function prepareTokenSeparator(
   code: string,
-  { loadTokens, rng }: TokenSeparatorDeps,
+  { loadTokens, rng, noFoils }: TokenSeparatorDeps,
 ): Promise<TokenSeparatorPicker> {
-  const tokens = await loadTokens(code);
+  const loaded = await loadTokens(code);
+  const tokens = noFoils ? nonFoilPrintings(loaded) : loaded;
   if (!tokens.length)
     throw new Error(
       `${String(code).toUpperCase()} has no tokens on Scryfall ` +
