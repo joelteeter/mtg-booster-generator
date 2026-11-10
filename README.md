@@ -83,12 +83,13 @@ Each builder remembers its own options, so settings chosen for Booster Packs nev
 | Separator card (land or token) | after the pack | after the pack |
 | Token sheets | after the packs | – |
 
+* **Printing** – **Leave every card non-foil**, on by default, because a home printer cannot make a foil. Every slot keeps its odds and still gives you a card; only the finish changes, so nothing in the preview or the CSV is marked FOIL or ETCHED. One slot changes more than its finish: Commander Legends' foil-etched legend is a *separate printing* with its own frame rather than a finish on an ordinary one, so that outcome is dropped and its 1-in-15 share goes back to the rest of the slot. This is not a fun option — it describes the printer, not the pack — so it applies in vanilla mode too, is remembered across both booster tabs, and never shows up as a change from vanilla. With it on, the foil wildcard option below has nothing left to do and is switched off
 * **Fun options** (not vanilla):
   * Slot upgrades – the seventh common (slot 7) becomes an uncommon, and the third guaranteed uncommon (slot 10) becomes a guaranteed rare. Both apply at every multiplier, so a fun pack always holds one more rare than a real one
   * Fun multiplier (x1–x5) – raises upgrade odds (mythics, Special Guests, legendary rares, etc.); it removes commons from the Commander foil slot, and on Booster Packs it weights the wildcard slots towards rares and mythics
   * Wildcards start from every card name being equally likely at x1, so rares and mythics already turn up far more often than in real packs; each step of the multiplier weights rares and mythics up by that factor and commons down by it, so the dial keeps moving all the way to x5
   * The land slot (12) becomes a random non-basic land from the set (Booster Pack)
-  * Make the second wildcard foil (Booster Pack)
+  * Make the second wildcard foil (Booster Pack) – unavailable while cards are left non-foil
   * Add The List to slot 7 (Booster Pack)
   * Guest List swap – a card that has a Special Guests printing swaps to it 50% of the time
 * **Pack separator** – an extra card after each pack (not part of the pack, so it's also available in vanilla mode). Choose **land** or **token**:

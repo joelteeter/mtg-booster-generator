@@ -80,7 +80,7 @@ export function useGenerate(): GenerateHandle {
       const stats = statsFromPools(loaded);
       const slots = spec.buildSlots(stats);
       // Play Boosters only: Commander draft boosters are not Booster Packs.
-      const godSlots = mode === "play" ? godPackSpec(stats) : null;
+      const godSlots = mode === "play" ? godPackSpec(stats, opts.noFoils) : null;
 
       let bonusPick: BonusPicker | TokenSeparatorPicker | null = null;
       const separatorIsToken = opts.separatorType === "token";

@@ -11,6 +11,7 @@ import {
   finalizeSlots,
   rareMythic,
   rareMythicFoilSlot,
+  withoutFoils,
   scale,
   weightedTiers,
 } from "./probability";
@@ -29,6 +30,13 @@ export function playSpec(opts: PlayOptions, stats: Stats | null): Slot[] {
   const mult = v ? 1 : opts.mult;
   const slots: SlotDraft[] = [];
   const nf = { foil: 0 as const };
+  /*
+   * The slots are built as a real pack first and stripped at the end, so that
+   * what the option changes is visible in one place rather than threaded
+   * through every outcome. Only the wording has to know about it here.
+   */
+  const noFoils = !!opts.noFoils;
+  const foilNote = noFoils ? "" : "; 20% foil";
 
   slots.push({
     n: 6,
@@ -135,22 +143,21 @@ export function playSpec(opts: PlayOptions, stats: Stats | null): Slot[] {
           label: "Basic land",
           p: 0.5,
           foil: 0.2,
-          formula: "half of land slots (Duskmourn sheet); 20% foil",
+          formula: `half of land slots (Duskmourn sheet)${foilNote}`,
         },
         {
           pool: "landDuals",
           label: "Common dual land",
           p: 0.5,
           foil: 0.2,
-          formula:
-            "half of land slots, if the set has common duals; 20% foil",
+          formula: `half of land slots, if the set has common duals${foilNote}`,
         },
       ],
     });
     const rm = rareMythic(stats, "rares", "mythics", 1, ["Rare", "Mythic"], nf);
     slots.push({
       n: 1,
-      title: "Wildcard (non-foil)",
+      title: noFoils ? "Wildcard" : "Wildcard (non-foil)",
       types: "Any non-basic card of any rarity",
       outcomes: (
         [
@@ -180,9 +187,10 @@ export function playSpec(opts: PlayOptions, stats: Stats | null): Slot[] {
     });
     slots.push({
       n: 1,
-      title: "Wildcard (foil if rare or mythic)",
-      types:
-        "Any non-basic card of any rarity; traditional foil only when it is a rare or mythic",
+      title: noFoils ? "Wildcard (the foil slot)" : "Wildcard (foil if rare or mythic)",
+      types: noFoils
+        ? "Any non-basic card of any rarity; the pack's foil slot, printed non-foil"
+        : "Any non-basic card of any rarity; traditional foil only when it is a rare or mythic",
       outcomes: rareMythicFoilSlot(
         stats,
         { C: "commons", U: "uncommons", R: "rares", M: "mythics" },
@@ -262,15 +270,21 @@ export function playSpec(opts: PlayOptions, stats: Stats | null): Slot[] {
     // mythic); the toggle is a fun override that foils anything.
     slots.push({
       n: 1,
-      affects: ["mult", "foilToggle"],
-      title: opts.foilToggle
-        ? "Wildcard (foil)"
-        : "Wildcard (foil if rare or mythic)",
+      // With no foils the toggle has nothing left to change, so it stops
+      // being named as one of the options that shaped this slot.
+      affects: noFoils ? ["mult"] : ["mult", "foilToggle"],
+      title: noFoils
+        ? "Wildcard (the foil slot)"
+        : opts.foilToggle
+          ? "Wildcard (foil)"
+          : "Wildcard (foil if rare or mythic)",
       types:
         "Same pool as the first wildcard" +
-        (opts.foilToggle
-          ? ", always foil"
-          : "; foil only when rare or mythic"),
+        (noFoils
+          ? "; the pack's foil slot, printed non-foil"
+          : opts.foilToggle
+            ? ", always foil"
+            : "; foil only when rare or mythic"),
       outcomes: opts.foilToggle
         ? wild(1)
         : wild(0).map((o) => ({
@@ -279,5 +293,5 @@ export function playSpec(opts: PlayOptions, stats: Stats | null): Slot[] {
           })),
     });
   }
-  return finalizeSlots(slots, stats);
+  return finalizeSlots(noFoils ? withoutFoils(slots) : slots, stats);
 }

@@ -75,9 +75,19 @@ export const DEFAULT_SELECTION: SetSelection = {
 
 interface OptionsStore {
   mode: Mode;
+  /**
+   * Print every slot non-foil.
+   *
+   * The one option that is not in `byMode`: it describes the printer, not the
+   * pack, so remembering it per tab would mean ticking it twice for the same
+   * reason. On by default — this app exists to print proxies, and a home
+   * printer cannot make a foil.
+   */
+  noFoils: boolean;
   byMode: Record<Mode, TabOptions>;
   selection: SetSelection;
   setMode(mode: Mode): void;
+  setNoFoils(value: boolean): void;
   /** Writes to whichever tab is active. */
   setOption<K extends keyof TabOptions>(key: K, value: TabOptions[K]): void;
   setSelection(patch: Partial<SetSelection>): void;
@@ -85,12 +95,14 @@ interface OptionsStore {
 
 export const useOptionsStore = create<OptionsStore>((set) => ({
   mode: "play",
+  noFoils: true,
   byMode: {
     play: { ...DEFAULT_OPTIONS },
     commander: { ...DEFAULT_OPTIONS },
   },
   selection: { ...DEFAULT_SELECTION },
   setMode: (mode) => set({ mode }),
+  setNoFoils: (noFoils) => set({ noFoils }),
   setOption: (key, value) =>
     set((s) => ({
       byMode: {

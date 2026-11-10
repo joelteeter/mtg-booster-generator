@@ -24,6 +24,10 @@ import type {
   Slot,
   Stats,
 } from "@/lib/booster/types";
+import { vanillaOpts } from "@/lib/explain";
+import { specOptions } from "@/lib/options";
+import { DEFAULT_OPTIONS } from "@/store/options";
+
 import {
   commanderBorrowed,
   commanderFull,
@@ -268,6 +272,127 @@ describe("foils", () => {
       .find((s) => s.from === 14) as Slot;
     expect(on.title).toBe("Wildcard (foil)");
     for (const o of on.outcomes) expect(o.foil).toBe(1);
+  });
+});
+
+/*
+ * `noFoils` is for a printer that cannot make a foil. It is a printing
+ * preference, not an odds change, which is what these pin down: every slot
+ * still fills, every rarity keeps its chance, and only the finish moves —
+ * except for foil-etched, which is a separate printing and has to go.
+ */
+describe("no foils", () => {
+  const everyOutcome = (spec: Slot[]) => spec.flatMap((s) => s.outcomes);
+  const sums = (spec: Slot[]) =>
+    spec.map((s) => s.outcomes.reduce((a, o) => a + (o.p as number), 0));
+
+  it("leaves no foil anywhere in a Play pack, vanilla or fun", () => {
+    for (const [name, stats] of statsCases)
+      for (const opts of [
+        { vanilla: true, mult: 1, listEra: true },
+        { vanilla: false, mult: 3, foilToggle: true, listToggle: true },
+      ] as PlayOptions[]) {
+        const spec = playSpec({ ...opts, noFoils: true }, stats);
+        for (const o of everyOutcome(spec))
+          expect(o.foil || 0, `${name} ${o.label}`).toBe(0);
+      }
+  });
+
+  it("leaves no foil anywhere in a Commander pack, in any layout", () => {
+    for (const layout of LAYOUTS) {
+      const spec = commanderSpec(
+        layout,
+        { vanilla: true, mult: 1, noFoils: true },
+        commanderFull,
+      );
+      for (const o of everyOutcome(spec))
+        expect(o.foil || 0, `${layout} ${o.label}`).toBe(0);
+    }
+  });
+
+  it("leaves no foil in a God Pack", () => {
+    for (const o of everyOutcome(godPackSpec(dsk, true)))
+      expect(o.foil || 0).toBe(0);
+    // Still two Booster Fun slots: only their finish was foil.
+    expect(godPackSpec(dsk, true).reduce((a, s) => a + s.n, 0)).toBe(14);
+  });
+
+  /*
+   * The foil slot is still a slot. Dropping a card from it, rather than its
+   * finish, would make the pack 13 cards.
+   */
+  it("keeps every slot and every card position", () => {
+    const withFoils = playSpec({ vanilla: true, mult: 1 }, dsk);
+    const without = playSpec({ vanilla: true, mult: 1, noFoils: true }, dsk);
+    expect(without.length).toBe(withFoils.length);
+    expect(without.map((s) => [s.from, s.to])).toEqual(
+      withFoils.map((s) => [s.from, s.to]),
+    );
+  });
+
+  /*
+   * Foil-etched is not a finish but a printing of its own, out of the
+   * `etched` pool, so it is dropped outright — and its 1-in-15 share has to
+   * land back on the rest or the slot stops summing to 1.
+   */
+  it("drops Commander Legends' foil-etched legend and redistributes it", () => {
+    const slotOf = (noFoils: boolean) =>
+      commanderSpec("cmr", { vanilla: true, mult: 1, noFoils }, commanderFull)
+        .find((s) => s.from === 20) as Slot;
+
+    const kept = slotOf(false);
+    expect(outcome(kept, "Foil-etched legend")?.foil).toBe("etched");
+
+    const gone = slotOf(true);
+    expect(outcome(gone, "Foil-etched legend")).toBeUndefined();
+    expect(gone.title).toBe("Wildcard (the foil slot)");
+
+    // Every rarity keeps its share of the slot, scaled back up to fill it.
+    for (const label of ["Common", "Uncommon", "Rare", "Mythic"]) {
+      const before = outcome(kept, label)?.p as number;
+      const after = outcome(gone, label)?.p as number;
+      expect(after).toBeGreaterThan(before);
+      expect(after).toBeCloseTo(before / (1 - 1 / 15), 10);
+    }
+  });
+
+  it("leaves every slot summing to 1", () => {
+    for (const sum of sums(playSpec({ vanilla: true, mult: 1, noFoils: true }, dsk)))
+      expect(sum).toBeCloseTo(1, 10);
+    for (const layout of LAYOUTS)
+      for (const sum of sums(
+        commanderSpec(layout, { vanilla: true, mult: 1, noFoils: true }, commanderFull),
+      ))
+        expect(sum).toBeCloseTo(1, 10);
+  });
+
+  /*
+   * Only the finish differs, so the rarity odds have to be untouched. This is
+   * the claim the option rests on: you lose the foil, not the card.
+   */
+  it("changes no rarity odds at all", () => {
+    for (const [name, stats] of statsCases) {
+      const withFoils = playSpec({ vanilla: true, mult: 1 }, stats);
+      const without = playSpec({ vanilla: true, mult: 1, noFoils: true }, stats);
+      const strip = (spec: Slot[]) =>
+        spec.map((s) =>
+          s.outcomes.map((o) => `${o.label}=${o.p}`).join(","),
+        );
+      expect(strip(without), name).toEqual(strip(withFoils));
+    }
+  });
+
+  it("is not switched off by vanilla mode, the way fun options are", () => {
+    const opts = specOptions({
+      mode: "play",
+      options: { ...DEFAULT_OPTIONS, vanilla: true, foilToggle: true },
+      released: "2024-09-27",
+      noFoils: true,
+    });
+    expect(opts.vanilla).toBe(true);
+    expect(opts.foilToggle).toBe(false);
+    expect(opts.noFoils).toBe(true);
+    expect(vanillaOpts(opts).noFoils).toBe(true);
   });
 });
 

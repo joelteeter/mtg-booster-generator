@@ -12,17 +12,16 @@
  * out Booster Fun anyway. Forcing default frames there would contradict how
  * every other slot picks its printing.
  */
-import { finalizeSlots, rareMythic } from "./probability";
+import { finalizeSlots, rareMythic, withoutFoils } from "./probability";
 import type { Card, Slot, Stats } from "./types";
 import type { OutcomeExtra } from "./probability";
 
 export const GOD_PACK_CHANCE = 0.001;
 
-export function godPackSpec(stats: Stats | null): Slot[] {
+export function godPackSpec(stats: Stats | null, noFoils = false): Slot[] {
   const rm = (extra: OutcomeExtra) =>
     rareMythic(stats, "rares", "mythics", 1, ["Rare", "Mythic"], extra);
-  return finalizeSlots(
-    [
+  const slots = [
       {
         n: 10,
         title: "Rare or mythic",
@@ -37,14 +36,16 @@ export function godPackSpec(stats: Stats | null): Slot[] {
       },
       {
         n: 2,
-        title: "Booster Fun rare or mythic (foil)",
-        types:
-          "Rare or mythic in a Booster Fun treatment, traditional foil",
+        title: noFoils
+          ? "Booster Fun rare or mythic (the foil slots)"
+          : "Booster Fun rare or mythic (foil)",
+        types: noFoils
+          ? "Rare or mythic in a Booster Fun treatment; the pack's foil slots, printed non-foil"
+          : "Rare or mythic in a Booster Fun treatment, traditional foil",
         outcomes: rm({ foil: 1, boosterFun: true }),
       },
-    ],
-    stats,
-  );
+  ];
+  return finalizeSlots(noFoils ? withoutFoils(slots) : slots, stats);
 }
 
 /**

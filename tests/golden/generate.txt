@@ -6,6 +6,12 @@
 # point, by tests/generate-parity.test.ts and tests/export-run.test.ts.
 #
 # Not regenerable: the implementation that produced them is gone.
+#
+# Amended by hand since recording, which is the only way this file may change:
+#   * 9 November 2026 — `opts.noFoils = false` added to every options dump.
+#     A new option, and false is the recorded behaviour, so no pack, file or
+#     status line below moved. Checked against the diff: the line was the
+#     whole of it.
 
 ## run vanilla
 exportFiles.base[0] = DSK-AllBoosters-3
@@ -113,6 +119,7 @@ opts.includeBonus = true
 opts.listEra = true
 opts.listToggle = false
 opts.mult = 1
+opts.noFoils = false
 opts.released = 2024-08-02
 opts.separatorType = land
 opts.tokenSheets = false
@@ -702,6 +709,7 @@ opts.includeBonus = true
 opts.listEra = true
 opts.listToggle = true
 opts.mult = 3
+opts.noFoils = false
 opts.released = 2024-08-02
 opts.separatorType = land
 opts.tokenSheets = false
@@ -1534,6 +1542,7 @@ opts.includeBonus = true
 opts.listEra = true
 opts.listToggle = false
 opts.mult = 1
+opts.noFoils = false
 opts.released = 2024-08-02
 opts.separatorType = land
 opts.tokenSheets = false
@@ -1911,6 +1920,7 @@ opts.includeBonus = true
 opts.listEra = true
 opts.listToggle = false
 opts.mult = 1
+opts.noFoils = false
 opts.released = 2024-08-02
 opts.separatorType = token
 opts.tokenSheets = true
@@ -2321,6 +2331,7 @@ opts.includeBonus = false
 opts.listEra = true
 opts.listToggle = false
 opts.mult = 1
+opts.noFoils = false
 opts.released = 2024-08-02
 opts.separatorType = land
 opts.tokenSheets = false
@@ -2674,6 +2685,7 @@ opts.includeBonus = true
 opts.listEra = true
 opts.listToggle = true
 opts.mult = 5
+opts.noFoils = false
 opts.released = 2024-08-02
 opts.separatorType = land
 opts.tokenSheets = false
@@ -3160,6 +3172,7 @@ opts.includeBonus = true
 opts.listEra = false
 opts.listToggle = false
 opts.mult = 1
+opts.noFoils = false
 opts.released = 2023-08-04
 opts.separatorType = land
 opts.tokenSheets = false
@@ -3573,6 +3586,7 @@ opts.includeBonus = true
 opts.listEra = false
 opts.listToggle = false
 opts.mult = 1
+opts.noFoils = false
 opts.released = 2023-08-04
 opts.separatorType = land
 opts.tokenSheets = false
@@ -3875,6 +3889,7 @@ opts.includeBonus = true
 opts.listEra = true
 opts.listToggle = false
 opts.mult = 1
+opts.noFoils = false
 opts.released = 2024-08-02
 opts.separatorType = token
 opts.tokenSheets = true

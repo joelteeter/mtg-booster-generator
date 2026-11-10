@@ -129,6 +129,8 @@ export interface PlayOptions {
   listToggle?: boolean;
   /** Set is from the MKM–Bloomburrow window, when slot 7 could be The List. */
   listEra?: boolean;
+  /** Print every slot non-foil. See `withoutFoils`. */
+  noFoils?: boolean;
 }
 
 /** The three Commander draft-booster layouts. */
@@ -138,6 +140,8 @@ export type CommanderLayout = "cmr" | "clb" | "cmm";
 export interface CommanderOptions {
   vanilla: boolean;
   mult: number;
+  /** Print every slot non-foil. See `withoutFoils`. */
+  noFoils?: boolean;
 }
 
 /** A Commander set the Commander tab supports directly. */

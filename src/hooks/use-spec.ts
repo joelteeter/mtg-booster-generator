@@ -61,6 +61,7 @@ export interface SpecResult {
 
 export function useSpec(): SpecResult {
   const mode = useOptionsStore((s) => s.mode);
+  const noFoils = useOptionsStore((s) => s.noFoils);
   const selection = useOptionsStore((s) => s.selection);
   const options = useOptionsStore(selectOptions);
   const setsByCode = useSetsByCode();
@@ -91,8 +92,8 @@ export function useSpec(): SpecResult {
   const released = setsByCode.get(code)?.released_at ?? null;
 
   const opts: SpecOptions = useMemo(
-    () => specOptions({ mode, options, released }),
-    [options, released, mode],
+    () => specOptions({ mode, options, released, noFoils }),
+    [options, released, mode, noFoils],
   );
 
   return useMemo(() => {

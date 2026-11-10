@@ -97,6 +97,8 @@ export function PackOptions() {
   const selection = useOptionsStore((s) => s.selection);
   const options = useOptionsStore(selectOptions);
   const setOption = useOptionsStore((s) => s.setOption);
+  const noFoils = useOptionsStore((s) => s.noFoils);
+  const setNoFoils = useOptionsStore((s) => s.setNoFoils);
   const set = <K extends keyof TabOptions>(k: K) => (v: TabOptions[K]) =>
     setOption(k, v);
 
@@ -105,7 +107,10 @@ export function PackOptions() {
   const sepOn = options.includeBonus;
 
   const vanillaHint = playOnly
-    ? "Official odds for every slot, in the real order: 6 commons, a seventh that can be a Special Guest, 3 uncommons, a rare or mythic, a land, then two wildcards — the last foil only when it is a rare or mythic. Fun options are switched off."
+    ? "Official odds for every slot, in the real order: 6 commons, a seventh that can be a Special Guest, 3 uncommons, a rare or mythic, a land, then two wildcards" +
+      (noFoils
+        ? ". Fun options are switched off; the printing option above still applies, since vanilla odds do not make a printer able to do foils."
+        : " — the last foil only when it is a rare or mythic. Fun options are switched off.")
     : cmdAny
       ? "Uses the chosen layout's published odds with this set's cards. Fun options (multiplier, Guest List swap) are switched off."
       : "Uses the published Commander draft booster layout for the chosen set. Fun options (multiplier, Guest List swap) are switched off.";
@@ -140,6 +145,17 @@ export function PackOptions() {
         <p className="text-sm text-muted-foreground">{vanillaHint}</p>
       </div>
 
+      <Fieldset legend="🖨️ Printing">
+        <CheckRow id="noFoils" checked={noFoils} onChange={setNoFoils}>
+          Leave every card non-foil?
+        </CheckRow>
+        <p className="text-sm text-muted-foreground">
+          {noFoils
+            ? "No slot comes out foil, so nothing in the CSV or the preview is marked FOIL or ETCHED. Commander Legends' foil-etched legends are dropped too — those are a separate printing with their own frame, not just a finish, so they would otherwise reach the PDF. Every other slot keeps its odds and still gives you a card; only the finish changes."
+            : "Slots come out foil at their real rates, marked FOIL or ETCHED in the preview and the CSV. A traditional foil is the same printing as its non-foil, so it looks the same in the PDF; a foil-etched legend does not."}
+        </p>
+      </Fieldset>
+
       <Fieldset legend="🎉 Fun options" disabled={options.vanilla}>
         <div className="flex min-w-0 flex-col gap-1.5 sm:max-w-sm">
           <Label htmlFor="funMultiplier">Fun Booster Multiplier</Label>
@@ -172,11 +188,12 @@ export function PackOptions() {
           <>
             <CheckRow
               id="foilToggle"
-              checked={options.foilToggle}
+              checked={options.foilToggle && !noFoils}
               onChange={set("foilToggle")}
-              disabled={options.vanilla}
+              disabled={options.vanilla || noFoils}
             >
               Make the second wildcard (slot 14) foil?
+              {noFoils && " — off while cards are left non-foil"}
             </CheckRow>
             <CheckRow
               id="listToggle"

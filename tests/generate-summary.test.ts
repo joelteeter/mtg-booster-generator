@@ -46,7 +46,7 @@ const options = {
   tokenSheets: true,
 };
 
-async function run() {
+async function run(noFoils = false) {
   const fake2 = fakeScryfall({ search, sets, random });
   const client = createScryfallClient({
     fetch: fake2.fetch,
@@ -59,6 +59,7 @@ async function run() {
     mode: "play",
     options,
     released: sets.dsk.released_at ?? null,
+    noFoils,
   });
   const loaded = await pools.loadPlayPools("dsk");
   const stats = statsFromPools(loaded);
@@ -75,7 +76,7 @@ async function run() {
     opts,
     pools: loaded,
     slots: playSpec(opts, stats),
-    godSlots: godPackSpec(stats),
+    godSlots: godPackSpec(stats, noFoils),
     rng,
     bonusPick,
     separatorIsToken: true,
@@ -119,5 +120,43 @@ describe("the names of a finished run", () => {
     ).toBe(golden(recorded, "summary dfc counts"));
     // The fixture has a two-sided token, so this is not vacuous.
     expect(result.packs.some((p) => dfcCount(p) > 0)).toBe(true);
+  });
+});
+
+/*
+ * The option's whole point, checked where it actually lands rather than on
+ * the spec: the finish of every card the run produces, and the `finish`
+ * column of every CSV row, which is what MTGProxyPrinter reads.
+ */
+describe("a run with foils switched off", () => {
+  it("marks no card foil or etched, and the run with foils does", async () => {
+    const plain = await run(true);
+    const finishes = plain.result.packs.flatMap((pack) =>
+      pack.cards.map((e) => e.finish),
+    );
+    expect(finishes.length).toBeGreaterThan(0);
+    expect([...new Set(finishes)]).toEqual(["nonfoil"]);
+
+    // Fun mode at x5 over three packs: the control has to contain a foil, or
+    // the assertion above proves nothing.
+    const normal = await run(false);
+    const theirs = normal.result.packs.flatMap((pack) =>
+      pack.cards.map((e) => e.finish),
+    );
+    expect(theirs).toContain("foil");
+  });
+
+  it("writes nonfoil in every CSV row", async () => {
+    const { result } = await run(true);
+    const rows = result.exportFiles.csv.flatMap((csv) =>
+      csv.split("\n").slice(1),
+    );
+    const finishes = rows
+      .filter((r) => r.trim())
+      // `finish` is the 12th column, and every field before it that can hold
+      // a comma is quoted, so splitting on quotes is not needed here.
+      .map((r) => r.split(",").slice(-6)[0]);
+    expect(finishes.length).toBeGreaterThan(0);
+    expect([...new Set(finishes)]).toEqual(["nonfoil"]);
   });
 });

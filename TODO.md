@@ -79,6 +79,19 @@ anything already settled lives in the README instead.
   finished booster run. Switching between the two builders still does, since
   the packs belong to the one being left.
 
+- [x] **Option: leave every card non-foil** — done, 9 November 2026
+  On by default, since the app exists to print proxies and a home printer
+  cannot make a foil. It is a printing preference rather than an odds change,
+  so it survives vanilla mode, is shared by both booster tabs instead of
+  living in `byMode`, and is applied to the slot drafts by `withoutFoils`
+  before `finalizeSlots` — which keeps the panel and the generator reading one
+  outcome list.
+
+  The one slot that loses more than a finish is Commander Legends' foil-etched
+  legend: it is a separate printing with its own frame, drawn from the
+  `etched` pool, so the outcome is dropped and its 1-in-15 share redistributed
+  rather than merely set to non-foil.
+
 - [ ] **Dark mode is new; the old app had none**
   Added after phase 5 and following the system by default. Nothing here needs
   doing — it is noted because it is the one place the rewrite does more than
@@ -138,3 +151,8 @@ anything already settled lives in the README instead.
   purpose — the 2027 revisit above will — the tests will fail, and the right
   response is to read the diff and update the file by hand rather than to
   re-record, which is no longer possible.
+
+  Done once so far, and `tests/golden/generate.txt` logs it in its own header:
+  the non-foil option added `opts.noFoils = false` to nine recorded options
+  dumps. That value is the recorded behaviour, so no pack, file or status line
+  moved — which is exactly what to check before accepting a golden diff.

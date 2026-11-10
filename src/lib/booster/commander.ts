@@ -16,6 +16,7 @@ import {
   rareMythic,
   scale,
   weightedTiers,
+  withoutFoils,
 } from "./probability";
 import type {
   CommanderLayout,
@@ -59,6 +60,7 @@ export function commanderSpec(
   stats: Stats | null,
 ): Slot[] {
   const mult = opts.vanilla ? 1 : opts.mult;
+  const noFoils = !!opts.noFoils;
   const fx = mult > 1 ? ` × ${mult} (fun)` : "";
   const nf = { foil: 0 as const };
   const M = ["mult"];
@@ -122,10 +124,11 @@ export function commanderSpec(
     }
     return {
       n: 1,
-      title: "Foil",
-      types:
-        "Any card of any rarity, traditional foil" +
-        (etchedP > 0 ? " (or a foil-etched legend)" : ""),
+      title: noFoils ? "Wildcard (the foil slot)" : "Foil",
+      types: noFoils
+        ? "Any card of any rarity; the pack's foil slot, printed non-foil"
+        : "Any card of any rarity, traditional foil" +
+          (etchedP > 0 ? " (or a foil-etched legend)" : ""),
       affects: M,
       outcomes: outs,
     };
@@ -271,5 +274,5 @@ export function commanderSpec(
     });
     slots.push(foilAny(0));
   }
-  return finalizeSlots(slots, stats);
+  return finalizeSlots(noFoils ? withoutFoils(slots) : slots, stats);
 }

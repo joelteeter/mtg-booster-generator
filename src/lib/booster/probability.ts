@@ -172,6 +172,38 @@ export function finalizeSlots(
   });
 }
 
+/**
+ * Every slot printed non-foil, for a printer that cannot do foils.
+ *
+ * Traditional foil is only a *finish*: the same printing either way, drawn
+ * from the same pool, so zeroing the chance changes nothing about which card
+ * comes out. Foil-etched is not a finish but a separate printing with its own
+ * frame, drawn from the `etched` pool — so that outcome is dropped outright
+ * and the rest of the slot takes its share, which is why this cannot simply
+ * map every `foil` to 0.
+ *
+ * Applied to the drafts before `finalizeSlots`, so that the panel and the
+ * generator read one outcome list and cannot disagree about what was printed.
+ */
+export function withoutFoils(slots: SlotDraft[]): SlotDraft[] {
+  return slots.map((s) => {
+    const kept = s.outcomes.filter((o) => o.foil !== "etched");
+    // Nothing but etched printings, or none at all: there is no share to
+    // redistribute, so only the finish changes.
+    if (!kept.length || kept.length === s.outcomes.length)
+      return { ...s, outcomes: s.outcomes.map((o) => ({ ...o, foil: 0 })) };
+    const lost = s.outcomes
+      .filter((o) => o.foil === "etched")
+      .reduce<number | null>(
+        (a, o) => (a == null || o.p == null ? null : a + o.p),
+        0,
+      );
+    const spread =
+      lost != null && lost > 0 && lost < 1 ? scale(kept, 1 / (1 - lost)) : kept;
+    return { ...s, outcomes: spread.map((o) => ({ ...o, foil: 0 })) };
+  });
+}
+
 /** A tier that also fixes the finish of its outcome. */
 interface FoilTier extends Tier {
   foil: Foil;

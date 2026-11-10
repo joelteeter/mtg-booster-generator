@@ -24,6 +24,7 @@ export interface SpecOptions {
   separatorType: "land" | "token";
   bonusType: string;
   tokenSheets: boolean;
+  noFoils: boolean;
 }
 
 export interface SpecOptionsInput {
@@ -31,12 +32,18 @@ export interface SpecOptionsInput {
   options: TabOptions;
   /** The set's release date, or null while the set list is still loading. */
   released: string | null;
+  /**
+   * Print every slot non-foil. Optional, and off when it is left out, so that
+   * a caller describing a real pack gets one; the app always passes it.
+   */
+  noFoils?: boolean;
 }
 
 export function specOptions({
   mode,
   options,
   released,
+  noFoils = false,
 }: SpecOptionsInput): SpecOptions {
   const vanilla = options.vanilla;
   return {
@@ -53,5 +60,11 @@ export function specOptions({
     separatorType: options.separatorType,
     bonusType: options.bonusType,
     tokenSheets: options.tokenSheets,
+    /*
+     * Not switched off by vanilla mode, unlike the fun options above: it is
+     * not a change to the odds but to how the cards are printed, and someone
+     * who cannot print foils cannot print them in vanilla mode either.
+     */
+    noFoils,
   };
 }

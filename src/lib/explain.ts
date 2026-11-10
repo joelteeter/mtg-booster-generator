@@ -134,6 +134,7 @@ export interface ExplainOpts {
   separatorType?: string;
   bonusType?: string;
   tokenSheets?: boolean;
+  noFoils?: boolean;
 }
 
 /** Which of this tab's options are responsible for a slot differing. */
@@ -304,8 +305,10 @@ export function expectedChips(
   const chips: ExpectedChip[] = [
     { label: "Rares + mythics", value: sum(/rare|mythic/i) },
     { label: "Mythics", value: sum(/mythic/i) },
-    { label: "Foils", value: exp.__foil || 0 },
   ];
+  // With foils switched off this is 0 in every pack, which is a row of noise
+  // rather than an expectation.
+  if (!opts.noFoils) chips.push({ label: "Foils", value: exp.__foil || 0 });
   if (mode === "commander")
     chips.push({ label: "Legendaries", value: sum(/legend|background/i) });
 

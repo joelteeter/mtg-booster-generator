@@ -114,7 +114,7 @@ export function ModifierList({
         </>,
       );
     if (mode === "play") {
-      if (opts.foilToggle)
+      if (opts.foilToggle && !opts.noFoils)
         items.push(
           <>
             <b>Foil wildcard</b> (slot {at("foilToggle")}): the second wildcard
@@ -230,7 +230,7 @@ export function ModifierList({
     );
   }
 
-  if (mode === "play") {
+  if (mode === "play" && !opts.noFoils) {
     items.push(
       <>
         <b>Foil (2027 rules):</b> foil commons and uncommons no longer exist,
@@ -254,13 +254,20 @@ export function ModifierList({
         </Source>
       </>,
     );
+  }
+
+  if (mode === "play") {
     items.push(
       <>
         <b>God Pack:</b> each pack rolls its own 1 in 1,000 chance (0.1%) of
         being a God Pack instead: all 14 cards rare or mythic — 10 plain, 2
-        Booster Fun, 2 traditional foil Booster Fun. Wizards&apos; 15th card,
-        the celebration card, belongs to the non-playable slot this app never
-        generates. God Packs are marked ✨ in the pack list and the status line.
+        Booster Fun, 2{" "}
+        {opts.noFoils
+          ? "more Booster Fun that are foil in a real pack"
+          : "traditional foil Booster Fun"}
+        . Wizards&apos; 15th card, the celebration card, belongs to the
+        non-playable slot this app never generates. God Packs are marked ✨ in
+        the pack list and the status line.
       </>,
     );
   }
