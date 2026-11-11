@@ -121,6 +121,7 @@ export function useGenerate(): GenerateHandle {
         bonusPick,
         separatorIsToken,
         loadTokens: () => queryClient.fetchQuery(queries.tokens(code)),
+        loadLands: () => queryClient.fetchQuery(queries.lands(code)),
         fetchList: () => client.fetchRandom("set:plst"),
         onStatus: progress,
       });
@@ -133,6 +134,7 @@ export function useGenerate(): GenerateHandle {
           vanilla: opts.vanilla,
           packs: result.packs,
           tokenSheetCount: result.tokenSheetCount,
+          landSheetCount: result.landSheetCount,
         }),
       });
     } catch (e) {

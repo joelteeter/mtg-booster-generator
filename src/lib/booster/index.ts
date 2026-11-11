@@ -12,6 +12,7 @@ export * from "./lands";
 export * from "./play";
 export * from "./commander";
 export * from "./godpack";
+export * from "./land-sheet";
 export * from "./tokens";
 export * from "./release";
 export * from "./sampling";

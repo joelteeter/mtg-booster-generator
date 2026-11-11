@@ -26,6 +26,8 @@ import {
   nameKey,
   resolvePool,
   tokenSetCode,
+  buildLandSheet,
+  isBasicLand,
   nonFoilPools,
   nonFoilPrintings,
   tokenSheets as buildTokenSheets,
@@ -73,6 +75,8 @@ export interface GeneratedPack {
   godPack: boolean;
   /** 1-based sheet number, for the token sheets that follow the packs. */
   tokenSheet: number | null;
+  /** 1-based sheet number, for the land sheet that follows those. */
+  landSheet: number | null;
 }
 
 /** The CSV files the downloads table offers: index 0 is everything. */
@@ -86,6 +90,7 @@ export interface GenerateResult {
   packs: GeneratedPack[];
   exportFiles: ExportFiles;
   tokenSheetCount: number;
+  landSheetCount: number;
 }
 
 /** The options the generator itself reads. A subset of the tab's options. */
@@ -93,6 +98,8 @@ export interface GenerateOptions {
   vanilla: boolean;
   guest: boolean;
   tokenSheets: boolean;
+  /** Add a page of the set's basic lands after everything else. */
+  landSheet?: boolean;
   /** Draw no printing that exists only as a foil. See `nonFoilPools`. */
   noFoils?: boolean;
 }
@@ -115,6 +122,8 @@ export interface GenerateParams {
   separatorIsToken: boolean;
   /** The set's tokens, unsorted. Called only when `opts.tokenSheets`. */
   loadTokens?: () => Promise<Card[]>;
+  /** Every land printing in the set, for the land sheet. */
+  loadLands?: () => Promise<Card[]>;
   /** One random card from The List. Only called for a List outcome. */
   fetchList: () => Promise<Card>;
   /**
@@ -230,6 +239,7 @@ export async function generatePacks({
   bonusPick,
   separatorIsToken,
   loadTokens,
+  loadLands,
   fetchList,
   onStatus,
   log = (m) => console.log(m),
@@ -325,7 +335,7 @@ export async function generatePacks({
         });
       }
     }
-    packs.push({ cards: packCards, godPack, tokenSheet: null });
+    packs.push({ cards: packCards, godPack, tokenSheet: null, landSheet: null });
     allRows.push(...packRows);
     packCsv.push([CSV_HEADER, ...packRows].join("\n"));
   }
@@ -363,22 +373,58 @@ export async function generatePacks({
           label: s.filler ? "Token (filler)" : "Token",
         };
       });
-      packs.push({ cards, godPack: false, tokenSheet: i + 1 });
+      packs.push({ cards, godPack: false, tokenSheet: i + 1, landSheet: null });
       allRows.push(...rows);
       packCsv.push([CSV_HEADER, ...rows].join("\n"));
     });
   }
 
+  /*
+   * One page of the set's basic lands, after the packs and the token sheets.
+   * Always drops the printings that exist only as a foil, whatever the foil
+   * option says: this is a page you print, and a surge-foil basic printed
+   * flat is the same art with the wrong frame.
+   */
+  let landSheetCount = 0;
+  if (opts.landSheet) {
+    onStatus?.(`⏳ Loading ${setCode} lands...`);
+    const lands = nonFoilPrintings(loadLands ? await loadLands() : []);
+    const sheet = buildLandSheet(lands, 9);
+    if (!sheet.length)
+      throw new Error(`${setCode} has no lands on Scryfall.`);
+    landSheetCount = 1;
+    const rows = sheet.map((c) => formatToFullCSV(asCard(c) as Card, "nonfoil"));
+    packs.push({
+      cards: sheet.map((c, k) => ({
+        card: asCard(c) as Card,
+        finish: "nonfoil",
+        slot: k + 1,
+        label: isBasicLand(c) ? "Basic land" : "Land",
+      })),
+      godPack: false,
+      tokenSheet: null,
+      landSheet: 1,
+    });
+    allRows.push(...rows);
+    packCsv.push([CSV_HEADER, ...rows].join("\n"));
+  }
+
+  /*
+   * Named from each entry rather than from its index, because the sheets that
+   * follow the packs are no longer all of one kind.
+   */
   const exportFiles: ExportFiles = {
     base: [`${setCode}-${allLabel}-${packCount}`].concat(
-      packCsv.map((_, i) =>
-        i < packCount
-          ? `${setCode}-${label}-${i + 1}`
-          : `${setCode}-TokenSheet-${i - packCount + 1}`,
+      packs.map((p, i) =>
+        p.tokenSheet
+          ? `${setCode}-TokenSheet-${p.tokenSheet}`
+          : p.landSheet
+            ? `${setCode}-LandSheet-${p.landSheet}`
+            : `${setCode}-${label}-${i + 1}`,
       ),
     ),
     csv: [[CSV_HEADER, ...allRows].join("\n")].concat(packCsv),
   };
 
-  return { packs, exportFiles, tokenSheetCount };
+  return { packs, exportFiles, tokenSheetCount, landSheetCount };
 }

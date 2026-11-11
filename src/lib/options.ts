@@ -24,6 +24,7 @@ export interface SpecOptions {
   separatorType: "land" | "token";
   bonusType: string;
   tokenSheets: boolean;
+  landSheet: boolean;
   noFoils: boolean;
 }
 
@@ -60,6 +61,7 @@ export function specOptions({
     separatorType: options.separatorType,
     bonusType: options.bonusType,
     tokenSheets: options.tokenSheets,
+    landSheet: options.landSheet,
     /*
      * Not switched off by vanilla mode, unlike the fun options above: it is
      * not a change to the odds but to how the cards are printed, and someone

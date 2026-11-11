@@ -82,6 +82,8 @@ export interface ScryfallPools {
   ): Promise<CommanderPools>;
   loadCycle(cycle: LandCycle, signal?: AbortSignal): Promise<NameMap>;
   loadTokens(code: string, signal?: AbortSignal): Promise<Card[]>;
+  /** Every land printing in a set, for the land sheet. */
+  loadLands(code: string, signal?: AbortSignal): Promise<Card[]>;
   /** The set metadata seen so far, which the set picker reads. */
   readonly setMeta: Record<string, ScryfallSet>;
 }
@@ -284,6 +286,21 @@ export function createScryfallPools(client: ScryfallClient): ScryfallPools {
    * the set code, and `fetchPool` returns [] for a set that has none rather
    * than throwing.
    */
+  /*
+   * Every land in the set, every printing, so the sheet can pick alternate
+   * arts. Its own search rather than a slice of the Play pools: those have no
+   * "all lands" entry, they do not exist at all on the Commander tab, and a
+   * land sheet is wanted in both.
+   */
+  async function loadLands(
+    code: string,
+    signal?: AbortSignal,
+  ): Promise<Card[]> {
+    const key = String(code || "").toLowerCase();
+    if (!key) return [];
+    return client.fetchPool(`s:${key} -is:promo t:land`, signal);
+  }
+
   async function loadTokens(
     code: string,
     signal?: AbortSignal,
@@ -300,6 +317,7 @@ export function createScryfallPools(client: ScryfallClient): ScryfallPools {
     loadCommanderPools,
     loadCycle,
     loadTokens,
+    loadLands,
     get setMeta() {
       return setMeta;
     },

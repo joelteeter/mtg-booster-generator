@@ -30,9 +30,13 @@ export const dfcNames = (pack: GeneratedPack): string =>
 
 const s = (n: number): string => (n === 1 ? "" : "s");
 
-/** "Pack 3", or "Token sheet 1" for the sheets that ride along after them. */
+/** "Pack 3", or the name of a sheet riding along after the packs. */
 export const packName = (pack: GeneratedPack, index: number): string =>
-  pack.tokenSheet ? `Token sheet ${pack.tokenSheet}` : `Pack ${index + 1}`;
+  pack.tokenSheet
+    ? `Token sheet ${pack.tokenSheet}`
+    : pack.landSheet
+      ? `Land sheet ${pack.landSheet}`
+      : `Pack ${index + 1}`;
 
 /** One entry in the preview's pack dropdown. */
 export function previewOptionLabel(
@@ -50,10 +54,12 @@ export function previewOptionLabel(
 /** The downloads table's first row: everything in one file. */
 export function allPacksLabel(packs: GeneratedPack[]): string {
   const sheets = packs.filter((p) => p.tokenSheet).length;
-  const count = packs.length - sheets;
+  const lands = packs.filter((p) => p.landSheet).length;
+  const count = packs.length - sheets - lands;
   return (
     `All ${count} pack${s(count)}` +
-    (sheets ? ` + ${sheets} token sheet${s(sheets)}` : "")
+    (sheets ? ` + ${sheets} token sheet${s(sheets)}` : "") +
+    (lands ? ` + ${lands} land sheet${s(lands)}` : "")
   );
 }
 
@@ -63,6 +69,7 @@ export interface StatusParams {
   vanilla: boolean;
   packs: GeneratedPack[];
   tokenSheetCount: number;
+  landSheetCount?: number;
 }
 
 /** The line under the Generate button once a run finishes. */
@@ -72,9 +79,13 @@ export function generateStatus({
   vanilla,
   packs,
   tokenSheetCount,
+  landSheetCount = 0,
 }: StatusParams): string {
   const godPacks = packs.filter((p) => p.godPack).length;
-  const dfcPacks = packs.filter((p) => !p.tokenSheet && dfcCount(p)).length;
+  const dfcPacks = packs.filter(
+    (p) => !p.tokenSheet && !p.landSheet && dfcCount(p),
+  ).length;
+  const landCards = packs.find((p) => p.landSheet)?.cards.length ?? 0;
   return (
     `✅ Successfully generated ${packCount} ` +
     `${mode === "play" ? "Booster Pack" : "Commander booster"}${s(packCount)}` +
@@ -85,6 +96,9 @@ export function generateStatus({
     (tokenSheetCount
       ? ` 🌟 ${tokenSheetCount} token sheet${s(tokenSheetCount)} with every` +
         ` token in the set; print them double-sided.`
+      : "") +
+    (landSheetCount
+      ? ` 🏞 A land sheet with ${landCards} of the set's lands.`
       : "") +
     (dfcPacks
       ? ` ⟲ ${dfcPacks} pack${s(dfcPacks)} ${dfcPacks === 1 ? "contains" : "contain"}` +

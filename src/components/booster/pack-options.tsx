@@ -275,6 +275,25 @@ export function PackOptions() {
           left over on the last page are filled with random tokens from the set.
         </p>
       </Fieldset>
+
+      <Fieldset legend="🏞 Land sheet">
+        <CheckRow
+          id="landSheet"
+          checked={options.landSheet}
+          onChange={set("landSheet")}
+        >
+          Also make a land sheet: every basic land in the set
+        </CheckRow>
+        <p className="text-sm text-muted-foreground">
+          One page after everything else: each of the set&apos;s basic lands
+          once, then the set&apos;s full-art lands to fill the nine slots —
+          which in a modern set are those same basics in a second treatment, so
+          the page comes out as one of each plus a few alternate arts. Printings
+          that exist only as a foil are left out whatever the printing option
+          says. Single-sided, unlike the token sheets: a land in a deck needs a
+          card back.
+        </p>
+      </Fieldset>
     </div>
   );
 }

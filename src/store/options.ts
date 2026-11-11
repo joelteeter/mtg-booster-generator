@@ -34,6 +34,7 @@ export interface TabOptions {
   separatorType: "land" | "token";
   bonusType: string;
   tokenSheets: boolean;
+  landSheet: boolean;
 }
 
 /** Which set is chosen. Shared across tabs, as in the old UI. */
@@ -61,6 +62,7 @@ export const DEFAULT_OPTIONS: TabOptions = {
   separatorType: "land",
   bonusType: "classic",
   tokenSheets: false,
+  landSheet: false,
 };
 
 export const DEFAULT_SELECTION: SetSelection = {

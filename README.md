@@ -82,6 +82,7 @@ Each builder remembers its own options, so settings chosen for Booster Packs nev
 | Land upgrade (non-basic land) | slot 12, always on in fun mode | – |
 | Separator card (land or token) | after the pack | after the pack |
 | Token sheets | after the packs | – |
+| Land sheet | after those | – |
 
 * **Printing** – **Leave every card non-foil**, on by default, because a home printer cannot make a foil. Every slot keeps its odds and still gives you a card, so nothing in the preview or the CSV is marked FOIL or ETCHED. Two things change beyond the finish, both because they are *separate printings* rather than a finish on an ordinary card, and so would reach the PDF looking like the treatment they are:
   * **Foil-only printings are never drawn** – surge foil, galaxy foil, foil-etched, box toppers, serialized. Scryfall lists each printing's finishes, and any printing without a non-foil one is skipped; if a card has no non-foil printing at all it is still printed, since dropping the card would be worse. This applies to pack slots, separator lands and separator tokens alike. It matters most for the separator cycles, which gather every printing of a name across every set it ever appeared in — Overgrown Tomb has 20, of which 5 are foil-only
@@ -109,6 +110,16 @@ Each builder remembers its own options, so settings chosen for Booster Packs nev
 * as many pages as it takes to cover the set; slots left spare on the last page are filled with random tokens from the set rather than left blank, and so is the back of an odd last pair
 * emblems are on the token sheet too and are included
 * the CSV names both tokens on a card, since they are two different cards even though they share one slot; the PDFs and the MTGProxyPrinter file treat them as the two sides of one card
+
+## Land sheet
+**Also make a land sheet** adds one page after everything else holding the set's basic lands, which is the one thing packs never give you and a draft cannot be played without.
+
+* nine cards, taken a round at a time: one printing of every basic land in the set, then a second of each, until the page is full. Taking them name by name instead piled three Plains and three Islands onto one page with no second Forest
+* within a name the **full-art** printings come first, so the page leads with the set's nicest treatment of each basic. Those are not a separate cycle — a set's full-art lands *are* its basics in a second treatment (`s:dsk t:land is:fullart` answers with five cards, named Plains through Forest), which is why they are what the spare slots are spent on
+* **single-sided**, unlike the token sheets: two tokens can share a card because you only ever need the face that is up, but a land in a deck has to have a card back
+* printings that exist only as a foil are left out whatever the printing option says — a surge-foil basic printed flat is the same art in the wrong frame
+* a set with too few printings to fill nine slots leaves the page part-full rather than repeating a card, since the second copy would print the same image twice
+* it costs one extra Scryfall search, and only when the option is on
 
 ## Preview
 After generating, **Preview packs** shows one pack at a time as card images, with each card's slot, rarity and a FOIL / ETCHED marker. Anything with two sides — a double-faced card, or a token separator or token-sheet card carrying a different token on each side — gets a ⟲ button and turns over with a 3D flip when clicked, with the caption following to the other side's name (it says `front` or `back`, and for a token slot the name changes outright, because the back is a different card). Images come from links already in the Scryfall card data, so previewing makes no extra API requests. Packs containing double-faced cards are flagged (⟲ with a count; hover for the card names) in the downloads table, the preview's pack list and the "generated" message.

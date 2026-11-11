@@ -130,6 +130,20 @@ anything already settled lives in the README instead.
   doing — it is noted because it is the one place the rewrite does more than
   the app it replaced, rather than the same thing differently.
 
+- [x] **Option: a land sheet** — done, 10 November 2026
+  One page after the packs and token sheets, holding the set's basic lands —
+  the one thing packs never provide and a draft cannot run without. Nine
+  cards, taken a round at a time across the basic land types so the spare
+  slots spread rather than piling up on Plains, with each name's full-art
+  printing first.
+
+  A set's "full-art lands" turned out not to be a separate cycle: they are its
+  basics in a second treatment, so there is one pool, not two.
+
+  Single-sided, unlike the token sheets, because a land in a deck needs a card
+  back. Foil-only printings are excluded unconditionally here rather than
+  following the printing option, since the sheet exists to be printed.
+
 ## Pack simulation
 
 - [ ] **Japan Showcase cards in the wildcard slot** (2027 rules)

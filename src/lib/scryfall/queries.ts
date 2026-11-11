@@ -32,6 +32,7 @@ export const scryfallKeys = {
   commanderPools: (code: string) =>
     [...scryfallKeys.all, "pools", "commander", code] as const,
   tokens: (code: string) => [...scryfallKeys.all, "tokens", code] as const,
+  lands: (code: string) => [...scryfallKeys.all, "lands", code] as const,
   cycle: (id: string) => [...scryfallKeys.all, "cycle", id] as const,
   search: (query: string, unique?: UniqueMode) =>
     [...scryfallKeys.all, "search", query, unique ?? null] as const,
@@ -87,6 +88,15 @@ export function scryfallQueries({
         ...shared,
         queryKey: scryfallKeys.tokens(code),
         queryFn: ({ signal }) => pools.loadTokens(code, signal),
+        enabled: !!code,
+      }),
+
+    /** Every land printing in a set, for the land sheet. */
+    lands: (code: string) =>
+      queryOptions({
+        ...shared,
+        queryKey: scryfallKeys.lands(code),
+        queryFn: ({ signal }) => pools.loadLands(code, signal),
         enabled: !!code,
       }),
 

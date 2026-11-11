@@ -348,6 +348,7 @@ export const DEFAULTS: TabOptions = {
   separatorType: "land",
   bonusType: "classic",
   tokenSheets: false,
+  landSheet: false,
 };
 
 export const PLAY_SELECTION: SetSelection = {
