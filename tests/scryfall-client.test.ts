@@ -13,6 +13,7 @@ import {
   API,
   MAX_RETRIES,
   REQUEST_GAP_MS,
+  ScryfallUnavailableError,
   createScryfallClient,
   optional,
 } from "@/lib/scryfall/client";
@@ -269,6 +270,104 @@ describe("optional", () => {
   it("turns a failed query into no cards", async () => {
     await expect(optional(Promise.reject(new Error("boom")))).resolves.toEqual([]);
     await expect(optional(Promise.resolve([card()]))).resolves.toHaveLength(1);
+  });
+
+  /*
+   * The reason this distinction exists. `optional` wraps the `is:booster`
+   * search, and swallowing a rate-limited one leaves `inBooster` empty, which
+   * makes the loader keep every card it was meant to filter out — a pack
+   * built from the precon cards, with nothing to say so. An unreachable
+   * Scryfall is not an empty answer and has to come back out.
+   */
+  it("does not swallow an unreachable Scryfall", async () => {
+    const failed = Promise.reject(
+      new ScryfallUnavailableError("Scryfall is rate-limiting requests (429)."),
+    );
+    await expect(optional(failed)).rejects.toThrow("rate-limiting");
+  });
+
+  it("does not swallow an abandoned request", async () => {
+    const aborted = Promise.reject(
+      Object.assign(new Error("aborted"), { name: "AbortError" }),
+    );
+    await expect(optional(aborted)).rejects.toThrow("aborted");
+  });
+
+  it("throws that type when the retries run out, either way", async () => {
+    const rateLimited = clientWith(
+      (async () => new Response("", { status: 429 })) as typeof globalThis.fetch,
+    );
+    await expect(rateLimited.client.request(API + "sets")).rejects.toBeInstanceOf(
+      ScryfallUnavailableError,
+    );
+
+    const offline = clientWith(
+      (() => Promise.reject(new TypeError("Failed to fetch"))) as typeof globalThis.fetch,
+    );
+    await expect(offline.client.request(API + "sets")).rejects.toBeInstanceOf(
+      ScryfallUnavailableError,
+    );
+  });
+});
+
+/*
+ * Choosing a set while the last one is still loading used to leave its dozen
+ * searches in the queue, each one still spent on Scryfall's rate limit for an
+ * answer nobody would read. TanStack Query aborts the signal once a query has
+ * no observers; these cover what the client does with it.
+ */
+describe("an abandoned request", () => {
+  it("never goes out if it was abandoned while queued", async () => {
+    const control = new AbortController();
+    const fake = fakeScryfall({ setList: [{ code: "dsk", name: "Duskmourn" }] });
+    const { client } = clientWith(fake.fetch);
+    control.abort();
+    await expect(
+      client.request(API + "sets", control.signal),
+    ).rejects.toThrow();
+    expect(fake.paths).toEqual([]);
+  });
+
+  it("is not retried, and does not become an unavailable Scryfall", async () => {
+    const control = new AbortController();
+    const abortingFetch = (() => {
+      control.abort();
+      return Promise.reject(
+        Object.assign(new Error("aborted"), { name: "AbortError" }),
+      );
+    }) as typeof globalThis.fetch;
+    const { client, notices } = clientWith(abortingFetch);
+    const failure = await client
+      .request(API + "sets", control.signal)
+      .catch((e: unknown) => e);
+    expect((failure as Error).name).toBe("AbortError");
+    expect(failure).not.toBeInstanceOf(ScryfallUnavailableError);
+    // No "trying again" toast for something nobody is waiting for.
+    expect(notices).toEqual([]);
+  });
+
+  it("stops a paginated search before its next page", async () => {
+    const control = new AbortController();
+    let calls = 0;
+    const paged = (async (url: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.signal?.aborted)
+        throw Object.assign(new Error("aborted"), { name: "AbortError" });
+      calls += 1;
+      control.abort();
+      return new Response(
+        JSON.stringify({
+          data: [card()],
+          has_more: true,
+          next_page: String(url) + "&page=2",
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }) as typeof globalThis.fetch;
+    const { client } = clientWith(paged);
+    await expect(
+      client.search("s:dsk", { signal: control.signal }),
+    ).rejects.toThrow();
+    expect(calls).toBe(1);
   });
 });
 

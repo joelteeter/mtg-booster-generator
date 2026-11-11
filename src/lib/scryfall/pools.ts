@@ -67,12 +67,21 @@ export interface CommanderPools extends Pools {
 }
 
 export interface ScryfallPools {
+  /*
+   * `getSpg` and `getSetMeta` take no signal on purpose: both memoise across
+   * loads, so one abandoned set load would throw away the answer every later
+   * one is waiting on. They are one request each; the dozen searches below
+   * are what makes abandoning a load worth doing.
+   */
   getSpg(): Promise<Card[]>;
   getSetMeta(code: string): Promise<ScryfallSet | null>;
-  loadPlayPools(code: string): Promise<PlayPools>;
-  loadCommanderPools(code: string): Promise<CommanderPools>;
-  loadCycle(cycle: LandCycle): Promise<NameMap>;
-  loadTokens(code: string): Promise<Card[]>;
+  loadPlayPools(code: string, signal?: AbortSignal): Promise<PlayPools>;
+  loadCommanderPools(
+    code: string,
+    signal?: AbortSignal,
+  ): Promise<CommanderPools>;
+  loadCycle(cycle: LandCycle, signal?: AbortSignal): Promise<NameMap>;
+  loadTokens(code: string, signal?: AbortSignal): Promise<Card[]>;
   /** The set metadata seen so far, which the set picker reads. */
   readonly setMeta: Record<string, ScryfallSet>;
 }
@@ -114,23 +123,26 @@ export function createScryfallPools(client: ScryfallClient): ScryfallPools {
     return setMeta[code] || null;
   }
 
-  async function loadPlayPools(code: string): Promise<PlayPools> {
+  async function loadPlayPools(
+    code: string,
+    signal?: AbortSignal,
+  ): Promise<PlayPools> {
     const s = `s:${code} -is:promo`;
     const [C0, U0, R0, M0, nonBasicLands0, landSlot, boosterCards, spgAll, meta] =
       await Promise.all([
-        client.fetchPool(`${s} r:common -t:basic`),
-        client.fetchPool(`${s} r:uncommon -t:basic`),
-        client.fetchPool(`${s} r:rare -t:basic`),
-        client.fetchPool(`${s} r:mythic -t:basic`),
-        client.fetchPool(`${s} t:land -t:basic`),
-        optional(client.fetchPool(`${s} (t:basic or (r:common t:land -t:creature))`)),
+        client.fetchPool(`${s} r:common -t:basic`, signal),
+        client.fetchPool(`${s} r:uncommon -t:basic`, signal),
+        client.fetchPool(`${s} r:rare -t:basic`, signal),
+        client.fetchPool(`${s} r:mythic -t:basic`, signal),
+        client.fetchPool(`${s} t:land -t:basic`, signal),
+        optional(client.fetchPool(`${s} (t:basic or (r:common t:land -t:creature))`, signal)),
         /*
          * Many set codes also hold cards that are not in Play Boosters —
          * Foundations' starter-kit cards, for one. `is:booster` says which
          * are. Some sets have no `is:booster` data on Scryfall yet; then every
          * card is kept.
          */
-        optional(client.fetchPool(`${s} is:booster -t:basic`)),
+        optional(client.fetchPool(`${s} is:booster -t:basic`, signal)),
         getSpg(),
         getSetMeta(code),
       ]);
@@ -184,21 +196,24 @@ export function createScryfallPools(client: ScryfallClient): ScryfallPools {
     };
   }
 
-  async function loadCommanderPools(code: string): Promise<CommanderPools> {
+  async function loadCommanderPools(
+    code: string,
+    signal?: AbortSignal,
+  ): Promise<CommanderPools> {
     const s = `s:${code} -is:promo`;
     const [C0, U0, R0, M0, boosterCards, piper, etched, spg] = await Promise.all([
-      client.fetchPool(`${s} r:common -t:basic`),
-      client.fetchPool(`${s} r:uncommon -t:basic`),
-      client.fetchPool(`${s} r:rare -t:basic`),
-      client.fetchPool(`${s} r:mythic -t:basic`),
+      client.fetchPool(`${s} r:common -t:basic`, signal),
+      client.fetchPool(`${s} r:uncommon -t:basic`, signal),
+      client.fetchPool(`${s} r:rare -t:basic`, signal),
+      client.fetchPool(`${s} r:mythic -t:basic`, signal),
       /*
        * These set codes also hold their Commander precon deck cards;
        * `is:booster` tells us which names actually appear in draft boosters.
        */
-      optional(client.fetchPool(`${s} is:booster -t:basic`)),
-      optional(client.fetchPool(`s:${code} !"The Prismatic Piper"`)),
+      optional(client.fetchPool(`${s} is:booster -t:basic`, signal)),
+      optional(client.fetchPool(`s:${code} !"The Prismatic Piper"`, signal)),
       code === "cmr"
-        ? optional(client.fetchPool(`s:${code} is:etched`))
+        ? optional(client.fetchPool(`s:${code} is:etched`, signal))
         : Promise.resolve<Card[]>([]),
       getSpg(),
       /*
@@ -252,10 +267,14 @@ export function createScryfallPools(client: ScryfallClient): ScryfallPools {
   }
 
   /** One bonus/separator land cycle. The classic cycle ships with the app. */
-  async function loadCycle(cycle: LandCycle): Promise<NameMap> {
+  async function loadCycle(
+    cycle: LandCycle,
+    signal?: AbortSignal,
+  ): Promise<NameMap> {
     if (cycle.builtIn) return groupByName(bonusPool);
     const cards = await client.fetchPool(
       landCycleQuery(cycle) + " -border:gold -is:oversized",
+      signal,
     );
     return groupByName(cards);
   }
@@ -265,10 +284,13 @@ export function createScryfallPools(client: ScryfallClient): ScryfallPools {
    * the set code, and `fetchPool` returns [] for a set that has none rather
    * than throwing.
    */
-  async function loadTokens(code: string): Promise<Card[]> {
+  async function loadTokens(
+    code: string,
+    signal?: AbortSignal,
+  ): Promise<Card[]> {
     const key = String(code || "").toLowerCase();
     if (!key) return [];
-    return client.fetchPool(`set:${tokenSetCode(key)}`);
+    return client.fetchPool(`set:${tokenSetCode(key)}`, signal);
   }
 
   return {

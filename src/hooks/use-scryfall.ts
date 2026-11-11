@@ -25,7 +25,8 @@ export const pools = createScryfallPools(client);
 export const queries = scryfallQueries({
   pools,
   getSets: () => client.getSets(),
-  searchCards: (query, unique) => client.search(query, { unique }),
+  searchCards: (query, unique, signal) =>
+    client.search(query, { unique, signal }),
 });
 
 /** Every set Scryfall knows about. Loaded once. */

@@ -43,8 +43,19 @@ export interface ScryfallQueryDeps {
   pools: ScryfallPools;
   getSets: () => Promise<import("./types").ScryfallSet[]>;
   /** A plain paginated search, for the pools that are not card pools. */
-  searchCards: (query: string, unique?: UniqueMode) => Promise<Card[]>;
+  searchCards: (
+    query: string,
+    unique?: UniqueMode,
+    signal?: AbortSignal,
+  ) => Promise<Card[]>;
 }
+
+/*
+ * Every `queryFn` below takes Query's `signal` and hands it to the client.
+ * Query aborts it once nothing is waiting on the answer, which is what stops
+ * a set you have navigated away from spending another dozen requests on
+ * Scryfall's rate limit.
+ */
 
 export function scryfallQueries({
   pools,
@@ -59,7 +70,7 @@ export function scryfallQueries({
       queryOptions({
         ...shared,
         queryKey: scryfallKeys.playPools(code),
-        queryFn: () => pools.loadPlayPools(code),
+        queryFn: ({ signal }) => pools.loadPlayPools(code, signal),
         enabled: !!code,
       }),
 
@@ -67,7 +78,7 @@ export function scryfallQueries({
       queryOptions({
         ...shared,
         queryKey: scryfallKeys.commanderPools(code),
-        queryFn: () => pools.loadCommanderPools(code),
+        queryFn: ({ signal }) => pools.loadCommanderPools(code, signal),
         enabled: !!code,
       }),
 
@@ -75,7 +86,7 @@ export function scryfallQueries({
       queryOptions({
         ...shared,
         queryKey: scryfallKeys.tokens(code),
-        queryFn: () => pools.loadTokens(code),
+        queryFn: ({ signal }) => pools.loadTokens(code, signal),
         enabled: !!code,
       }),
 
@@ -88,7 +99,7 @@ export function scryfallQueries({
       queryOptions({
         ...shared,
         queryKey: scryfallKeys.search(query, unique),
-        queryFn: () => searchCards(query, unique),
+        queryFn: ({ signal }) => searchCards(query, unique, signal),
         enabled: !!query,
       }),
 
@@ -96,7 +107,7 @@ export function scryfallQueries({
       queryOptions({
         ...shared,
         queryKey: scryfallKeys.cycle(cycle.id),
-        queryFn: () => pools.loadCycle(cycle),
+        queryFn: ({ signal }) => pools.loadCycle(cycle, signal),
       }),
   };
 }

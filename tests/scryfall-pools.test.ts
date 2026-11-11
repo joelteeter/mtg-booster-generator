@@ -271,6 +271,92 @@ describe("loadCommanderPools parity", () => {
   });
 });
 
+/*
+ * What a rate limit must not do.
+ *
+ * `is:booster` and the land-slot search are wrapped in `optional`, so for a
+ * long time a failed one simply produced no cards — and no cards is a
+ * meaningful answer: plenty of sets have no `is:booster` data. The difference
+ * only shows under a rate limit, where the loader would hand back pools that
+ * had quietly skipped their filter, and the pack would be built from the
+ * precon cards `is:booster` exists to remove.
+ */
+describe("a rate-limited search", () => {
+  const limited = (fetch: typeof globalThis.fetch) =>
+    createScryfallPools(
+      createScryfallClient({
+        fetch,
+        requestGapMs: 0,
+        sleep: async () => {},
+        maxRetries: 0,
+        onNotice: () => {},
+      }),
+    );
+
+  /** Answers everything normally except the one query named. */
+  const failing = (routes: ReturnType<typeof playRoutes>, needle: string) => {
+    const fake = fakeScryfall(routes);
+    const fetch = (async (url: RequestInfo | URL, init?: RequestInit) => {
+      if (String(url).includes(encodeURIComponent(needle)))
+        throw new TypeError("Failed to fetch");
+      return fake.fetch(url, init);
+    }) as typeof globalThis.fetch;
+    return fetch;
+  };
+
+  it("fails the load rather than dropping the is:booster filter", async () => {
+    const pools = limited(failing(playRoutes("dsk"), "is:booster"));
+    await expect(pools.loadPlayPools("dsk")).rejects.toThrow(
+      /Couldn't reach Scryfall/,
+    );
+  });
+
+  it("fails the load rather than dropping the land slot", async () => {
+    const pools = limited(failing(playRoutes("dsk"), "(t:basic or"));
+    await expect(pools.loadPlayPools("dsk")).rejects.toThrow(
+      /Couldn't reach Scryfall/,
+    );
+  });
+
+  it("still treats a genuinely empty is:booster as no data, not a failure", async () => {
+    // The fixture set has no `is:booster` rows at all, which Scryfall answers
+    // with a 404 — an answer, and the loaders are right to carry on.
+    const fake = fakeScryfall(playRoutes("dsk"));
+    const pools = createScryfallPools(
+      createScryfallClient({ fetch: fake.fetch, requestGapMs: 0, sleep: async () => {} }),
+    );
+    await expect(pools.loadPlayPools("dsk")).resolves.toBeTruthy();
+  });
+});
+
+describe("abandoning a set load", () => {
+  const poolsOver = (fetch: typeof globalThis.fetch) =>
+    createScryfallPools(
+      createScryfallClient({ fetch, requestGapMs: 0, sleep: async () => {} }),
+    );
+
+  it("stops asking Scryfall once the signal is aborted", async () => {
+    // What a full load costs, to measure the abandoned one against.
+    const whole = fakeScryfall(playRoutes("dsk"));
+    await poolsOver(whole.fetch).loadPlayPools("dsk");
+    expect(whole.queries.length).toBeGreaterThan(1);
+
+    const fake = fakeScryfall(playRoutes("dsk"));
+    const control = new AbortController();
+    const abandoning = (async (url: RequestInfo | URL, init?: RequestInit) => {
+      // Abandoned the moment the first search goes out, as choosing another
+      // set does.
+      control.abort();
+      return fake.fetch(url, init);
+    }) as typeof globalThis.fetch;
+
+    await expect(
+      poolsOver(abandoning).loadPlayPools("dsk", control.signal),
+    ).rejects.toThrow();
+    expect(fake.queries.length).toBeLessThan(whole.queries.length);
+  });
+});
+
 describe("shared sub-fetches", () => {
   it("fetches Special Guests once across several set loads", async () => {
     const routes = {

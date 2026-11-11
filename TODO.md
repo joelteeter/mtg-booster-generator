@@ -46,6 +46,24 @@ anything already settled lives in the README instead.
 
 ## Frontend
 
+- [x] **A rate limit no longer builds the wrong pack** — done, 10 November 2026
+  `optional()` wrapped the `is:booster` and land-slot searches, so a failure
+  produced no cards — and no cards is a real answer for `is:booster`, which
+  plenty of sets lack. Under a rate limit it was not: the loader carried on
+  with pools that had skipped their filter, and the pack came out built from
+  the precon cards `is:booster` exists to remove, with nothing to say so.
+  `ScryfallUnavailableError` now separates "we never got to ask" from "the
+  answer was empty", and `optional` rethrows the first.
+
+  The rate limit itself is mostly self-inflicted: choosing a set left the
+  previous set's dozen searches in the queue. They now carry TanStack Query's
+  `signal`, so they stop when nothing is waiting for them.
+
+  Note a 429 from Scryfall carries no `Access-Control-Allow-Origin`, so the
+  browser reports it as a CORS failure and the status is unreadable from
+  JavaScript. That is why the client treats a bare network error as "slow
+  down" rather than "offline".
+
 - [x] **Move to Next.js + TypeScript + shadcn/ui** — done, 30–31 October 2026
   Planned and recorded in [docs/nextjs-migration.md](docs/nextjs-migration.md),
   carried out in six phases on the `next` branch. The old plain-scripts app,

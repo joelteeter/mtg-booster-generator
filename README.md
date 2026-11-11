@@ -21,7 +21,7 @@ which can be served by anything that serves files.
 > suite. The reasoning is in [docs/nextjs-migration.md](docs/nextjs-migration.md).
 
 You need an internet connection for:
-* **Scryfall's API** – card and set data. Requests are spaced ~150 ms apart (Scryfall asks for ≤10 per second); if Scryfall answers "429 Too Many Requests", the app waits the time Scryfall asks for and retries, showing a message while it waits
+* **Scryfall's API** – card and set data. Requests are spaced ~150 ms apart (Scryfall asks for ≤10 per second) through one shared queue, and choosing a different set abandons the previous set's searches instead of spending the rest of them on an answer nobody will read. If Scryfall answers "429 Too Many Requests", the app waits and retries, showing a message while it waits; if it still cannot get through, the load fails rather than quietly building a pack from pools whose filters never arrived. A rate-limited 429 reaches the browser as a bare "CORS header missing" network error, because Scryfall's 429 carries no `Access-Control-Allow-Origin` — so "CORS error" in the console almost always means rate limited
 * **Scryfall's image server** (cards.scryfall.io, backs.scryfall.io) – card images for the preview, the PDFs and the simulators. It isn't rate-limited
 * **jsDelivr** – only if you use AI-enhance: TensorFlow.js, UpscalerJS and its ESRGAN model (~3 MB), fetched the first time you tick the box. pdf-lib is bundled, and sql.js is served from this site, so the PDFs and the MTGProxyPrinter file need no third-party CDN
 
