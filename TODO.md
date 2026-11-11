@@ -130,15 +130,24 @@ anything already settled lives in the README instead.
   doing — it is noted because it is the one place the rewrite does more than
   the app it replaced, rather than the same thing differently.
 
-- [x] **Option: a land sheet** — done, 10 November 2026
-  One page after the packs and token sheets, holding the set's basic lands —
-  the one thing packs never provide and a draft cannot run without. Nine
-  cards, taken a round at a time across the basic land types so the spare
-  slots spread rather than piling up on Plains, with each name's full-art
-  printing first.
+- [x] **Option: full-art land sheets** — done, 10 November 2026
+  Pages after the packs and token sheets holding one of every full-art land
+  the set printed. Lands are the one thing packs never provide and a draft
+  cannot run without.
 
   A set's "full-art lands" turned out not to be a separate cycle: they are its
   basics in a second treatment, so there is one pool, not two.
+
+  Two things were wrong in the first cut, both found by running it against
+  real sets rather than fixtures:
+
+  * it filled name by name, which gave Duskmourn three Plains, three Islands
+    and no second Forest. It takes a round at a time now, so the lands spread
+    across the five types.
+  * it was fixed at one page, so Star Trek's ten full-art lands lost one. The
+    full-art count decides the page count now, and they are counted by
+    artwork rather than by printing — Star Trek prints ten arts at fifteen
+    collector numbers.
 
   Single-sided, unlike the token sheets, because a land in a deck needs a card
   back. Foil-only printings are excluded unconditionally here rather than

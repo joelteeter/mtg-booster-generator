@@ -276,22 +276,24 @@ export function PackOptions() {
         </p>
       </Fieldset>
 
-      <Fieldset legend="🏞 Land sheet">
+      <Fieldset legend="🏞 Full-art lands">
         <CheckRow
           id="landSheet"
           checked={options.landSheet}
           onChange={set("landSheet")}
         >
-          Also make a land sheet: every basic land in the set
+          Also make land sheets: every full-art land in the set
         </CheckRow>
         <p className="text-sm text-muted-foreground">
-          One page after everything else: each of the set&apos;s basic lands
-          once, then the set&apos;s full-art lands to fill the nine slots —
-          which in a modern set are those same basics in a second treatment, so
-          the page comes out as one of each plus a few alternate arts. Printings
-          that exist only as a foil are left out whatever the printing option
-          says. Single-sided, unlike the token sheets: a land in a deck needs a
-          card back.
+          Pages after everything else holding one of every full-art land the
+          set printed — as many pages as that takes, so Star Trek&apos;s ten
+          get two. They are counted by artwork, not by printing, so an art
+          printed at several collector numbers appears once. Whatever is left
+          of the last page is filled with the set&apos;s ordinary basic arts,
+          taken a round at a time so the lands spread across the five types
+          rather than piling up on Plains. Printings that exist only as a foil
+          are left out whatever the printing option says. Single-sided, unlike
+          the token sheets: a land in a deck needs a card back.
         </p>
       </Fieldset>
     </div>

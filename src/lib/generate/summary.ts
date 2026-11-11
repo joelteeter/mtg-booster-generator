@@ -85,7 +85,7 @@ export function generateStatus({
   const dfcPacks = packs.filter(
     (p) => !p.tokenSheet && !p.landSheet && dfcCount(p),
   ).length;
-  const landCards = packs.find((p) => p.landSheet)?.cards.length ?? 0;
+
   return (
     `✅ Successfully generated ${packCount} ` +
     `${mode === "play" ? "Booster Pack" : "Commander booster"}${s(packCount)}` +
@@ -98,7 +98,8 @@ export function generateStatus({
         ` token in the set; print them double-sided.`
       : "") +
     (landSheetCount
-      ? ` 🏞 A land sheet with ${landCards} of the set's lands.`
+      ? ` 🏞 ${landSheetCount} land sheet${s(landSheetCount)} with every` +
+        ` full-art land in the set.`
       : "") +
     (dfcPacks
       ? ` ⟲ ${dfcPacks} pack${s(dfcPacks)} ${dfcPacks === 1 ? "contains" : "contain"}` +

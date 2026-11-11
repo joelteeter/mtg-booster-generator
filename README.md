@@ -82,7 +82,7 @@ Each builder remembers its own options, so settings chosen for Booster Packs nev
 | Land upgrade (non-basic land) | slot 12, always on in fun mode | – |
 | Separator card (land or token) | after the pack | after the pack |
 | Token sheets | after the packs | – |
-| Land sheet | after those | – |
+| Full-art land sheets | after those | – |
 
 * **Printing** – **Leave every card non-foil**, on by default, because a home printer cannot make a foil. Every slot keeps its odds and still gives you a card, so nothing in the preview or the CSV is marked FOIL or ETCHED. Two things change beyond the finish, both because they are *separate printings* rather than a finish on an ordinary card, and so would reach the PDF looking like the treatment they are:
   * **Foil-only printings are never drawn** – surge foil, galaxy foil, foil-etched, box toppers, serialized. Scryfall lists each printing's finishes, and any printing without a non-foil one is skipped; if a card has no non-foil printing at all it is still printed, since dropping the card would be worse. This applies to pack slots, separator lands and separator tokens alike. It matters most for the separator cycles, which gather every printing of a name across every set it ever appeared in — Overgrown Tomb has 20, of which 5 are foil-only
@@ -111,14 +111,17 @@ Each builder remembers its own options, so settings chosen for Booster Packs nev
 * emblems are on the token sheet too and are included
 * the CSV names both tokens on a card, since they are two different cards even though they share one slot; the PDFs and the MTGProxyPrinter file treat them as the two sides of one card
 
-## Land sheet
-**Also make a land sheet** adds one page after everything else holding the set's basic lands, which is the one thing packs never give you and a draft cannot be played without.
+## Full-art land sheets
+**Also make land sheets** adds pages after everything else holding one of every full-art land the set printed. Lands are the one thing packs never give you and a draft cannot be played without, and the full-art ones are the version worth printing.
 
-* nine cards, taken a round at a time: one printing of every basic land in the set, then a second of each, until the page is full. Taking them name by name instead piled three Plains and three Islands onto one page with no second Forest
-* within a name the **full-art** printings come first, so the page leads with the set's nicest treatment of each basic. Those are not a separate cycle — a set's full-art lands *are* its basics in a second treatment (`s:dsk t:land is:fullart` answers with five cards, named Plains through Forest), which is why they are what the spare slots are spent on
+* a set's full-art lands are not a separate cycle: they *are* its basics in a second treatment (`s:dsk t:land is:fullart` answers with five cards, named Plains through Forest)
+* **as many pages as the full-art lands need** — Duskmourn has 5 and takes one page, Star Trek has 10 and takes two
+* counted **by artwork, not by printing**: Star Trek prints its ten full-art arts at fifteen collector numbers, and printing the same image twice is wasted paper
+* whatever is left of the last page is filled with the set's ordinary basic arts, so a page is not left half empty
+* lands are taken **a round at a time** — one of every type, then a second of every type — so they spread across the five rather than piling up on Plains. Taking them name by name gave Duskmourn three Plains, three Islands and no second Forest
 * **single-sided**, unlike the token sheets: two tokens can share a card because you only ever need the face that is up, but a land in a deck has to have a card back
 * printings that exist only as a foil are left out whatever the printing option says — a surge-foil basic printed flat is the same art in the wrong frame
-* a set with too few printings to fill nine slots leaves the page part-full rather than repeating a card, since the second copy would print the same image twice
+* a set with no full-art lands still gets one page of its ordinary basics; one with too few arts to fill a page leaves it part-full rather than repeating a card
 * it costs one extra Scryfall search, and only when the option is on
 
 ## Preview

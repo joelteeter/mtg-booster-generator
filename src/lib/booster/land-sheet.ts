@@ -36,49 +36,70 @@ function byCollectorNumber(cards: Card[]): Card[] {
     );
 }
 
+/** One per distinct artwork: a second copy would print the same image. */
+function distinctArt(cards: Card[]): Card[] {
+  const seen = new Set<string>();
+  return cards.filter((c) => {
+    const art = String(c.illustration_id ?? c.collector_number ?? c.name);
+    if (seen.has(art)) return false;
+    seen.add(art);
+    return true;
+  });
+}
+
 /**
- * One page of the set's basic lands, spread evenly across the types.
+ * One of every name, then a second of every name, and so on.
  *
- * Taken a round at a time rather than a name at a time: one printing of every
- * basic, then a second of every basic, and so on until the page is full. Going
- * name by name instead gave Duskmourn three Plains, three Islands and no
- * second Forest, which is the wrong nine cards to hand someone building a
- * deck.
- *
- * Within a name the full-art printings come first, so the page leads with the
- * set's nicest treatment of each basic and falls back to its ordinary art for
- * the later rounds. A set with too few printings to fill nine slots leaves the
- * page part-full rather than repeating one: the second copy would print the
- * same image twice.
+ * Taking them name by name instead piled three Plains and three Islands onto
+ * Duskmourn's page with no second Forest, which is the wrong nine cards to
+ * hand someone building a deck.
  */
-export function buildLandSheet(lands: Card[], perPage: number): Card[] {
+function roundRobinByName(cards: Card[]): Card[] {
+  const byName = new Map<string, Card[]>();
+  for (const c of cards) {
+    const printings = byName.get(c.name ?? "");
+    if (printings) printings.push(c);
+    else byName.set(c.name ?? "", [c]);
+  }
+  const out: Card[] = [];
+  for (let round = 0; ; round++) {
+    let added = false;
+    for (const printings of byName.values()) {
+      if (round >= printings.length) continue;
+      out.push(printings[round]);
+      added = true;
+    }
+    if (!added) return out;
+  }
+}
+
+/**
+ * The set's full-art lands, over as many pages as they need.
+ *
+ * The full-art lands decide how many pages there are, because they are what
+ * the sheet is for — Star Trek has ten of them and will not fit on one page.
+ * Whatever is left of the last page is filled with the set's ordinary basic
+ * arts rather than left blank, since they are worth having too and the paper
+ * is already being printed.
+ *
+ * A set with no full-art lands at all still gets one page of its basics,
+ * which is what the option did before full-art drove the count.
+ */
+export function buildLandSheets(lands: Card[], perPage: number): Card[][] {
   const all = byCollectorNumber(lands);
   const basics = all.filter(isBasicLand);
   // Every set this is meant for has basics; one that has none still gets a
   // useful page out of whatever lands it does have.
-  const source = basics.length ? basics : all;
+  const distinct = distinctArt(basics.length ? basics : all);
 
-  const byName = new Map<string, Card[]>();
-  for (const c of source) {
-    const name = c.name ?? "";
-    const printings = byName.get(name);
-    if (printings) printings.push(c);
-    else byName.set(name, [c]);
-  }
-  // A stable sort, so collector order survives inside each treatment.
-  for (const printings of byName.values())
-    printings.sort((a, b) => Number(!!b.full_art) - Number(!!a.full_art));
+  const fullArt = roundRobinByName(distinct.filter((c) => c.full_art));
+  const plain = roundRobinByName(distinct.filter((c) => !c.full_art));
 
-  const sheet: Card[] = [];
-  for (let round = 0; sheet.length < perPage; round++) {
-    let added = false;
-    for (const printings of byName.values()) {
-      if (round >= printings.length) continue;
-      sheet.push(printings[round]);
-      added = true;
-      if (sheet.length === perPage) return sheet;
-    }
-    if (!added) break;
-  }
-  return sheet;
+  const pages = Math.max(1, Math.ceil(fullArt.length / perPage));
+  const cards = [...fullArt, ...plain].slice(0, pages * perPage);
+
+  const sheets: Card[][] = [];
+  for (let i = 0; i < cards.length; i += perPage)
+    sheets.push(cards.slice(i, i + perPage));
+  return sheets;
 }

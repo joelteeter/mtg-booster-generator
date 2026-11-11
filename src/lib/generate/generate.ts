@@ -26,7 +26,7 @@ import {
   nameKey,
   resolvePool,
   tokenSetCode,
-  buildLandSheet,
+  buildLandSheets,
   isBasicLand,
   nonFoilPools,
   nonFoilPrintings,
@@ -389,24 +389,31 @@ export async function generatePacks({
   if (opts.landSheet) {
     onStatus?.(`⏳ Loading ${setCode} lands...`);
     const lands = nonFoilPrintings(loadLands ? await loadLands() : []);
-    const sheet = buildLandSheet(lands, 9);
-    if (!sheet.length)
-      throw new Error(`${setCode} has no lands on Scryfall.`);
-    landSheetCount = 1;
-    const rows = sheet.map((c) => formatToFullCSV(asCard(c) as Card, "nonfoil"));
-    packs.push({
-      cards: sheet.map((c, k) => ({
-        card: asCard(c) as Card,
-        finish: "nonfoil",
-        slot: k + 1,
-        label: isBasicLand(c) ? "Basic land" : "Land",
-      })),
-      godPack: false,
-      tokenSheet: null,
-      landSheet: 1,
+    const sheets = buildLandSheets(lands, 9);
+    if (!sheets.length) throw new Error(`${setCode} has no lands on Scryfall.`);
+    landSheetCount = sheets.length;
+    sheets.forEach((sheet, i) => {
+      const rows = sheet.map((c) =>
+        formatToFullCSV(asCard(c) as Card, "nonfoil"),
+      );
+      packs.push({
+        cards: sheet.map((c, k) => ({
+          card: asCard(c) as Card,
+          finish: "nonfoil",
+          slot: k + 1,
+          label: c.full_art
+            ? "Full-art land"
+            : isBasicLand(c)
+              ? "Basic land"
+              : "Land",
+        })),
+        godPack: false,
+        tokenSheet: null,
+        landSheet: i + 1,
+      });
+      allRows.push(...rows);
+      packCsv.push([CSV_HEADER, ...rows].join("\n"));
     });
-    allRows.push(...rows);
-    packCsv.push([CSV_HEADER, ...rows].join("\n"));
   }
 
   /*

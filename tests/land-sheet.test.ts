@@ -9,7 +9,7 @@
  */
 import { describe, expect, it } from "vitest";
 
-import { buildLandSheet, isBasicLand } from "@/lib/booster";
+import { buildLandSheets, isBasicLand } from "@/lib/booster";
 import type { Card, Slot } from "@/lib/booster/types";
 import { allPacksLabel, generatePacks, packName } from "@/lib/generate";
 
@@ -24,6 +24,7 @@ const land = (
 ): Card =>
   ({
     id: `${name}-${n}`,
+    illustration_id: `art-${name}-${n}`,
     name,
     collector_number: String(n),
     type_line: BASICS.includes(name)
@@ -47,28 +48,51 @@ function duskmourn(): Card[] {
 }
 
 const names = (sheet: Card[]) => sheet.map((c) => c.name);
+const one = (lands: Card[]) => buildLandSheets(lands, 9)[0];
+const flat = (lands: Card[]) => buildLandSheets(lands, 9).flat();
+
+/**
+ * Star Trek's shape: two full-art arts of each basic, each printed twice, so
+ * ten distinct arts behind fifteen printings.
+ */
+function starTrek(): Card[] {
+  const out: Card[] = [];
+  let n = 400;
+  for (const name of BASICS)
+    for (const art of [1, 2]) {
+      // The same artwork at two collector numbers.
+      out.push(
+        land(name, n++, { full_art: true, illustration_id: `${name}-fa-${art}` }),
+        land(name, n++, { full_art: true, illustration_id: `${name}-fa-${art}` }),
+      );
+    }
+  for (const name of BASICS)
+    for (const art of [1, 2])
+      out.push(land(name, n++, { illustration_id: `${name}-plain-${art}` }));
+  return out;
+}
 
 describe("the land sheet", () => {
-  it("is one page of nine", () => {
-    expect(buildLandSheet(duskmourn(), 9)).toHaveLength(9);
+  it("is one page of nine for a set with five full-art lands", () => {
+    expect(buildLandSheets(duskmourn(), 9)).toHaveLength(1);
+    expect(one(duskmourn())).toHaveLength(9);
   });
 
   it("holds every basic land in the set before anything else", () => {
-    const sheet = buildLandSheet(duskmourn(), 9);
+    const sheet = one(duskmourn());
     for (const name of BASICS) expect(names(sheet)).toContain(name);
-    // The five basics come first, in collector-number order.
     expect(names(sheet).slice(0, 5)).toEqual(BASICS);
     // One of each before a second of any.
     expect(new Set(names(sheet).slice(0, 5)).size).toBe(5);
   });
 
   it("leads with the full-art printing of each basic", () => {
-    const sheet = buildLandSheet(duskmourn(), 9);
-    for (const c of sheet.slice(0, 5)) expect(c.full_art, c.name).toBe(true);
+    for (const c of one(duskmourn()).slice(0, 5))
+      expect(c.full_art, c.name).toBe(true);
   });
 
   it("holds nothing but basic lands", () => {
-    for (const c of buildLandSheet(duskmourn(), 9))
+    for (const c of flat(duskmourn()))
       expect(isBasicLand(c), c.name).toBe(true);
   });
 
@@ -79,17 +103,39 @@ describe("the land sheet", () => {
    */
   it("spreads the spare slots across the types, not down one of them", () => {
     const counts = new Map<string, number>();
-    for (const c of buildLandSheet(duskmourn(), 9))
+    for (const c of one(duskmourn()))
       counts.set(c.name as string, (counts.get(c.name as string) ?? 0) + 1);
     expect([...counts.keys()].sort()).toEqual([...BASICS].sort());
     // Nine cards over five types: four types twice, one once.
     expect([...counts.values()].sort()).toEqual([1, 2, 2, 2, 2]);
   });
 
-  it("never prints the same printing twice", () => {
-    const sheet = buildLandSheet(duskmourn(), 9);
-    const numbers = sheet.map((c) => c.collector_number);
-    expect(new Set(numbers).size).toBe(numbers.length);
+  /*
+   * The second bug: Star Trek has ten full-art lands and they will not fit on
+   * one page. The full-art lands decide how many pages there are.
+   */
+  it("grows to as many pages as the full-art lands need", () => {
+    const sheets = buildLandSheets(starTrek(), 9);
+    expect(sheets).toHaveLength(2);
+    expect(sheets[0]).toHaveLength(9);
+    expect(sheets[1]).toHaveLength(9);
+
+    const fullArt = flat(starTrek()).filter((c) => c.full_art);
+    expect(fullArt).toHaveLength(10);
+  });
+
+  it("counts a repeated artwork once, however many times it is printed", () => {
+    // Twenty full-art printings in the fixture, over ten distinct arts.
+    expect(starTrek().filter((c) => c.full_art)).toHaveLength(20);
+    const arts = flat(starTrek()).map((c) => c.illustration_id);
+    expect(new Set(arts).size).toBe(arts.length);
+  });
+
+  it("fills what is left of the last page with the ordinary arts", () => {
+    const cards = flat(starTrek());
+    expect(cards).toHaveLength(18);
+    expect(cards.filter((c) => c.full_art)).toHaveLength(10);
+    expect(cards.filter((c) => !c.full_art)).toHaveLength(8);
   });
 
   /*
@@ -105,32 +151,35 @@ describe("the land sheet", () => {
         full_art: true,
       }),
     ]);
-    const sheet = buildLandSheet(six, 9);
+    const sheet = one(six);
     expect(sheet).toHaveLength(9);
     expect(new Set(names(sheet)).size).toBe(6);
   });
 
-  it("falls back to other basic printings when full-art runs out", () => {
+  it("still gives one page to a set with no full-art lands at all", () => {
     const plain = BASICS.flatMap((name, i) => [
       land(name, 400 + i * 2),
       land(name, 401 + i * 2),
     ]);
-    const sheet = buildLandSheet(plain, 9);
-    expect(sheet).toHaveLength(9);
-    for (const c of sheet) expect(isBasicLand(c)).toBe(true);
+    const sheets = buildLandSheets(plain, 9);
+    expect(sheets).toHaveLength(1);
+    expect(sheets[0]).toHaveLength(9);
+    for (const c of sheets[0]) expect(isBasicLand(c)).toBe(true);
   });
 
   /*
-   * A set with too few lands leaves the page part-full rather than repeating
+   * A set with too few arts leaves the page part-full rather than repeating
    * a card: the second copy would print exactly the same image.
    */
   it("leaves the page short rather than repeating a card", () => {
-    const sheet = buildLandSheet([land("Plains", 1), land("Island", 2)], 9);
-    expect(names(sheet)).toEqual(["Plains", "Island"]);
+    expect(names(one([land("Plains", 1), land("Island", 2)]))).toEqual([
+      "Plains",
+      "Island",
+    ]);
   });
 
   it("is empty for a set with no lands", () => {
-    expect(buildLandSheet([], 9)).toEqual([]);
+    expect(buildLandSheets([], 9)).toEqual([]);
   });
 });
 
@@ -215,6 +264,21 @@ describe("a run with a land sheet", () => {
     const { packs } = await run(true, withSurge);
     for (const entry of packs[2].cards)
       expect(Number(entry.card.collector_number)).toBeLessThan(500);
+  });
+
+  it("gives each page its own file and row when there are two", async () => {
+    const { packs, exportFiles, landSheetCount } = await run(true, starTrek());
+    expect(landSheetCount).toBe(2);
+    expect(exportFiles.base).toEqual([
+      "DSK-AllBoosters-2",
+      "DSK-Booster-1",
+      "DSK-Booster-2",
+      "DSK-LandSheet-1",
+      "DSK-LandSheet-2",
+    ]);
+    expect(packName(packs[2], 2)).toBe("Land sheet 1");
+    expect(packName(packs[3], 3)).toBe("Land sheet 2");
+    expect(allPacksLabel(packs)).toBe("All 2 packs + 2 land sheets");
   });
 
   it("writes the sheet into the CSV as its own file", async () => {

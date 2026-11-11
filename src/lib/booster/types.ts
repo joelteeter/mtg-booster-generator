@@ -38,6 +38,8 @@ export interface Card {
   frame_effects?: string[];
   /** Scryfall's finishes for this printing: "nonfoil", "foil", "etched". */
   finishes?: string[];
+  /** Shared by every printing that uses the same artwork. */
+  illustration_id?: string;
   [key: string]: unknown;
 }
 
