@@ -22,6 +22,8 @@ export const DEFAULT_EXPORT_SETTINGS: ExportSettings = {
   customBackUrl: null,
   newPagePerPack: false,
   enhance: false,
+  backOffsetXMm: 0,
+  backOffsetYMm: 0,
 };
 
 interface ExportStore {

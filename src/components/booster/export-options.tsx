@@ -13,6 +13,7 @@ import { useRef } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -41,12 +42,75 @@ function Field({
   );
 }
 
+/** How far one press of − or + moves the sheet, and how far it may go. */
+const OFFSET_STEP_MM = 0.5;
+const OFFSET_LIMIT_MM = 10;
+
+/**
+ * One axis of the duplex offset: − , a number you can type, and +.
+ *
+ * Half a millimetre a press, because that is about the smallest shift worth
+ * making and about what a printer's error moves between paper types. The
+ * limit is well past any real misregistration; a sheet 10 mm out has a
+ * different problem.
+ */
+function OffsetField({
+  id,
+  label,
+  value,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+}) {
+  const clamp = (v: number) =>
+    Math.round(Math.max(-OFFSET_LIMIT_MM, Math.min(OFFSET_LIMIT_MM, v)) * 100) /
+    100;
+  return (
+    <Field id={id} label={label}>
+      <div className="flex items-center gap-1.5">
+        <Button
+          type="button"
+          variant="secondary"
+          size="icon"
+          aria-label={`${label}: less`}
+          onClick={() => onChange(clamp(value - OFFSET_STEP_MM))}
+        >
+          −
+        </Button>
+        <Input
+          id={id}
+          type="number"
+          step={OFFSET_STEP_MM}
+          min={-OFFSET_LIMIT_MM}
+          max={OFFSET_LIMIT_MM}
+          value={value}
+          onChange={(e) => onChange(clamp(Number(e.target.value) || 0))}
+          className="w-20 text-center"
+        />
+        <Button
+          type="button"
+          variant="secondary"
+          size="icon"
+          aria-label={`${label}: more`}
+          onClick={() => onChange(clamp(value + OFFSET_STEP_MM))}
+        >
+          +
+        </Button>
+      </div>
+    </Field>
+  );
+}
+
 export function ExportOptions() {
   const settings = useExportStore((s) => s.settings);
   const customBackName = useExportStore((s) => s.customBackName);
   const set = useExportStore((s) => s.set);
   const setCustomBack = useExportStore((s) => s.setCustomBack);
-  const { compare, comparing, hasPacks } = useExport();
+  const { compare, comparing, hasPacks, alignmentPrint, exporting } =
+    useExport();
   const fileInput = useRef<HTMLInputElement>(null);
 
   return (
@@ -222,6 +286,43 @@ export function ExportOptions() {
           seconds per card (≈2½ min per pack, ≈20 min for 8 packs), and PDFs get
           about 4× bigger. Best on photo paper, cardstock or a good laser
           printer.
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-3 rounded-lg border bg-muted/40 p-4">
+        <div className="flex flex-wrap items-end gap-4">
+          <OffsetField
+            id="backOffsetX"
+            label="Backs: across (mm, + right)"
+            value={settings.backOffsetXMm}
+            onChange={(v) => set("backOffsetXMm", v)}
+          />
+          <OffsetField
+            id="backOffsetY"
+            label="Backs: up the page (mm, + up)"
+            value={settings.backOffsetYMm}
+            onChange={(v) => set("backOffsetYMm", v)}
+          />
+          <Button
+            variant="secondary"
+            size="sm"
+            disabled={exporting}
+            onClick={alignmentPrint}
+            className="mb-0.5"
+          >
+            🎯 Alignment test print
+          </Button>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          No printer puts the second side exactly behind the first, and the
+          error only shows once you cut. These move the <b>backs</b> sheet to
+          meet the fronts — the fronts carry the guides you cut to, so they
+          stay put. The test print is two pages: print it double-sided the way
+          you print your packs, hold it up to a light, and read the error off
+          the rulers on the back, which are ticked every millimetre. Type the
+          negative of what you read, then print it again to check. The current
+          offsets are built into it, so the second one is a check rather than
+          another guess.
         </p>
       </div>
     </div>

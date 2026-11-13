@@ -17,6 +17,7 @@ import {
   compareEnhance,
   enhancedMessage,
   enhancingMessage,
+  runAlignmentPrint,
   runExport,
   type ExportKind,
 } from "@/lib/export";
@@ -53,6 +54,25 @@ export function useExport() {
     [exportFiles, packs],
   );
 
+  /*
+   * Needs no packs: measuring the printer is as useful before a run as after
+   * one, which is why it does not go through `runExport`.
+   */
+  const alignmentPrint = useCallback(async () => {
+    const store = useExportStore.getState();
+    if (store.exporting) return;
+    store.setExporting(true);
+    try {
+      await runAlignmentPrint({
+        settings: store.settings,
+        onStatus: store.setStatus,
+        save: saveAs,
+      });
+    } finally {
+      useExportStore.getState().setExporting(false);
+    }
+  }, []);
+
   const compare = useCallback(async () => {
     const store = useExportStore.getState();
     const entry = cardForComparison(
@@ -77,5 +97,13 @@ export function useExport() {
     }
   }, [packs, previewIndex]);
 
-  return { run, compare, exporting, comparing, settings, hasPacks: packs.length > 0 };
+  return {
+    run,
+    compare,
+    alignmentPrint,
+    exporting,
+    comparing,
+    settings,
+    hasPacks: packs.length > 0,
+  };
 }

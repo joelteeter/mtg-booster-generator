@@ -103,6 +103,7 @@ export function recordingPdfLib(): PdfRecorder {
   const makePage = (index: number) => ({
     drawLine: (o: any) => push("drawLine", index, o),
     drawImage: (img: any, o: any) => push("drawImage", index, img.ref, o),
+    drawText: (text: string, o: any) => push("drawText", index, text, o),
     pushOperators: (...ops: any[]) => push("operators", index, ops),
   });
 
@@ -113,6 +114,12 @@ export function recordingPdfLib(): PdfRecorder {
     addPage: (size: number[]) => {
       push("addPage", size);
       return makePage(pageCount++);
+    },
+    embedFont: async (name: string) => {
+      push("embedFont", name);
+      // Enough of a font for the alignment print, which only measures text to
+      // centre its ruler labels.
+      return { widthOfTextAtSize: (t: string, size: number) => t.length * size * 0.5 };
     },
     embedJpg: async (bytes: Uint8Array) => {
       const ref = digest(bytes);
@@ -137,6 +144,7 @@ export function recordingPdfLib(): PdfRecorder {
     }),
     clip: () => ({ op: "W" }),
     endPath: () => ({ op: "n" }),
+    StandardFonts: { Helvetica: "Helvetica" },
   };
   return { lib, calls };
 }

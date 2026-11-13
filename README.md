@@ -146,6 +146,15 @@ Every format is available for all packs together or for each pack on its own.
   The MTGProxyPrinter file follows the same setting; the CSV lists each card once
 * **Start each pack on a new page** (PDFs and MTGProxyPrinter file)
 
+## Duplex alignment
+No printer puts the second side exactly behind the first. The error is a millimetre or two, it is consistent for a given printer and paper path, and it stays invisible until you cut — at which point every card is off-centre on one side.
+
+* **Backs: across / up the page** nudge the backs sheet in millimetres, half a millimetre a press, up to 10 mm either way. They move the **backs** only: the fronts carry the cut guides you cut to, so they stay put. The whole sheet moves together — images, crosshairs and crop marks — because the point is to move the print relative to the paper, not the cards relative to their own guides
+* **🎯 Alignment test print** downloads two pages to measure the error with. Print it double-sided the way you print your packs, hold it up to a light, and the front's cross falls somewhere on the back's rulers; the ticks are 1 mm and the long ones 5 mm. Type the opposite of what you read into the offsets
+* the test print bakes in the offsets you already have, so printing it again is a check rather than another guess
+* it needs no packs — measuring the printer is as useful before a run as after one
+* it has no "flip" setting, unlike a real backs sheet: every cell carries the same marks, and a uniform grid is its own mirror, so a cell's rulers land behind a cell's cross whichever way the paper turns over
+
 ## Files
 ```
 src/app/                 the three pages, the providers and the global stylesheet

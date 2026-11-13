@@ -232,6 +232,8 @@ export const DEFAULT_SETTINGS: ExportSettings = {
   customBackUrl: null,
   newPagePerPack: false,
   enhance: false,
+  backOffsetXMm: 0,
+  backOffsetYMm: 0,
 };
 
 /** Settings worth running every download button against. */

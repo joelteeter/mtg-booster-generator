@@ -49,6 +49,18 @@ export interface PdfOptions {
   dfcMode?: DfcMode;
   /** Backs only. */
   flip?: Flip;
+  /**
+   * Shift everything on the page, in millimetres: +x toward the right edge,
+   * +y toward the top.
+   *
+   * For duplex registration. No printer puts the second side exactly behind
+   * the first, so the backs sheet is nudged until it does. The whole grid
+   * moves together — images, crosshairs and crop marks — because the point is
+   * to move the printed sheet relative to the paper, not the cards relative
+   * to their own guides.
+   */
+  offsetXMm?: number;
+  offsetYMm?: number;
   customBackUrl?: string | null;
   /** Defaults to on, except the fronts of a "front only" double-sided sheet. */
   cutLines?: boolean;
@@ -146,9 +158,12 @@ export async function buildPdf(
   pdf.setTitle(opts.title || "Booster packs");
   pdf.setCreator("MTG Booster Generator");
   const embedded = new Map<string, PdfLib.PDFImage>();
-  const x0 = (paper.w - GRID.cols * CARD_PT.w) / 2;
-  // The top edge of the grid. A PDF's origin is its bottom-left corner.
-  const yTop = paper.h - (paper.h - GRID.rows * CARD_PT.h) / 2;
+  const offsetX = (Number(opts.offsetXMm) || 0) * MM;
+  const offsetY = (Number(opts.offsetYMm) || 0) * MM;
+  const x0 = (paper.w - GRID.cols * CARD_PT.w) / 2 + offsetX;
+  // The top edge of the grid. A PDF's origin is its bottom-left corner, so a
+  // positive y offset moves the grid up the page.
+  const yTop = paper.h - (paper.h - GRID.rows * CARD_PT.h) / 2 + offsetY;
   const cellX = (col: number) => x0 + col * CARD_PT.w;
   const cellY = (row: number) => yTop - (row + 1) * CARD_PT.h;
 

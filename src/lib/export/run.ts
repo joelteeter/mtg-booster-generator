@@ -13,6 +13,10 @@
  */
 import type { PackEntry } from "@/lib/generate";
 
+import {
+  buildAlignmentPdf as defaultBuildAlignmentPdf,
+  type AlignmentPdfOptions,
+} from "./alignment";
 import { buildPdf as defaultBuildPdf, type PdfOptions } from "./pdf";
 import {
   buildSaveFile as defaultBuildSaveFile,
@@ -40,10 +44,19 @@ export interface ExportSettings {
   customBackUrl: string | null;
   newPagePerPack: boolean;
   enhance: boolean;
+  /**
+   * Duplex registration, in millimetres, applied to the backs sheet only.
+   *
+   * The fronts are the reference — they carry the cut guides you cut to — so
+   * it is the backs that move to meet them.
+   */
+  backOffsetXMm: number;
+  backOffsetYMm: number;
 }
 
 export interface Exporter {
   buildPdf(packs: PackEntry[][], opts: PdfOptions): Promise<Uint8Array>;
+  buildAlignmentPdf?(opts: AlignmentPdfOptions): Promise<Uint8Array>;
   buildSaveFile(
     packs: PackEntry[][],
     opts: SaveFileOptions,
@@ -113,6 +126,8 @@ export async function runExport({
           side === "back" && custom ? settings.customBackUrl : null,
         paper: settings.paper,
         bleedMm: settings.bleedMm,
+        offsetXMm: side === "back" ? settings.backOffsetXMm : 0,
+        offsetYMm: side === "back" ? settings.backOffsetYMm : 0,
         quality: settings.quality,
         // pdf.ts skips plain card backs; only card faces are upscaled.
         enhance: settings.enhance,
@@ -168,3 +183,41 @@ export const enhancingMessage = (name: string): string =>
 
 export const enhancedMessage = (name: string, ms: number): string =>
   `✅ AI-enhanced "${name}" in ${(ms / 1000).toFixed(1)} s.`;
+
+/**
+ * The alignment test print: two pages, printed double-sided, measured by eye.
+ *
+ * Its own runner rather than another `ExportKind`, because it is not an
+ * export of anything — it takes no packs, and it is as useful before a run as
+ * after one.
+ */
+export async function runAlignmentPrint({
+  settings,
+  onStatus,
+  save,
+  exporter,
+}: {
+  settings: ExportSettings;
+  onStatus: (message: string) => void;
+  save: (bytes: Uint8Array, filename: string, type: string) => void;
+  exporter?: Exporter;
+}): Promise<void> {
+  const build = exporter?.buildAlignmentPdf ?? defaultBuildAlignmentPdf;
+  try {
+    onStatus("⏳ Building the alignment test print…");
+    const bytes = await build({
+      paper: settings.paper,
+      offsetXMm: settings.backOffsetXMm,
+      offsetYMm: settings.backOffsetYMm,
+    });
+    save(bytes, "alignment-test.pdf", "application/pdf");
+    onStatus(
+      "✅ Alignment test print downloaded. Print it double-sided the way you " +
+        "print your packs, hold it to a light, and read the error off the " +
+        "rulers on the back.",
+    );
+  } catch (e) {
+    console.error(e);
+    onStatus(`❌ Alignment test print failed: ${(e as Error).message}`);
+  }
+}

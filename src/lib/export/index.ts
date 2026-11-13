@@ -9,6 +9,7 @@
  * every browser-only dependency — canvas, pdf-lib, sql.js, the GPU upscaler —
  * sits behind an argument that the tests replace.
  */
+export * from "./alignment";
 export * from "./enhance";
 export * from "./images";
 export * from "./layout";

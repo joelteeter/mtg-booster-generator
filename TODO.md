@@ -153,6 +153,23 @@ anything already settled lives in the README instead.
   back. Foil-only printings are excluded unconditionally here rather than
   following the printing option, since the sheet exists to be printed.
 
+- [x] **Duplex alignment: offsets and a test print** — done, 12 November 2026
+  Found by printing: no printer lands the back exactly behind the front, and
+  the error only shows once the cards are cut. Two offsets in millimetres move
+  the backs sheet to meet the fronts, and a two-page test print measures what
+  to type into them.
+
+  The offsets move the whole page — images, crosshairs and crop marks — since
+  the sheet moves relative to the paper, not the cards relative to their own
+  guides. They apply to the backs only, because the fronts carry the guides
+  you cut to.
+
+  The test print has no `flip`, unlike a real backs sheet: all nine cells
+  carry the same marks, and a uniform grid is its own mirror. Its rulers went
+  out unlabelled in the end — numbering both axes put the +5 of one beside the
+  −5 of the other at every corner, and two 5 pt numerals a millimetre apart
+  are worse than none.
+
 ## Pack simulation
 
 - [ ] **Japan Showcase cards in the wildcard slot** (2027 rules)
