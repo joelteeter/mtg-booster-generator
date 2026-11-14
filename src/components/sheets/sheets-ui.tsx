@@ -30,12 +30,16 @@ import { saveAs } from "@/lib/download";
 import { runExport, type ExportKind } from "@/lib/export";
 import {
   buildSheets,
+  filterLands,
+  foilOnlyCount,
+  LAND_FILTERS,
   sheetCards,
   sheetFilenames,
   sheetQuery,
   tokenSetFor,
   type SheetKind,
 } from "@/lib/sheets";
+import { cn } from "@/lib/utils";
 import { useExportStore } from "@/store/export";
 import { useSheetsStore } from "@/store/sheets";
 
@@ -64,8 +68,10 @@ export function SheetsUi({ kind }: { kind: SheetKind }) {
   const { data: sets } = useSets();
   const code = useSheetsStore((s) => s.byKind[kind].code);
   const doubleSided = useSheetsStore((s) => s.byKind.tokens.doubleSided);
+  const landFilter = useSheetsStore((s) => s.byKind.lands.landFilter);
   const setCode = useSheetsStore((s) => s.setCode);
   const setDoubleSided = useSheetsStore((s) => s.setDoubleSided);
+  const setLandFilter = useSheetsStore((s) => s.setLandFilter);
   const status = useExportStore((s) => s.status);
   const exporting = useExportStore((s) => s.exporting);
   const [busy, setBusy] = useState(false);
@@ -86,7 +92,13 @@ export function SheetsUi({ kind }: { kind: SheetKind }) {
     enabled: !!searchCode,
   });
 
-  const cards = useMemo(() => (data ? sheetCards(data) : []), [data]);
+  /* Foil-only printings are dropped first; see `sheetCards`. */
+  const printable = useMemo(() => (data ? sheetCards(data) : []), [data]);
+  const skippedFoils = useMemo(() => (data ? foilOnlyCount(data) : 0), [data]);
+  const cards = useMemo(
+    () => (kind === "lands" ? filterLands(printable, landFilter) : printable),
+    [printable, kind, landFilter],
+  );
   const sheets = useMemo(
     () => buildSheets(cards, kind, doubleSided),
     [cards, kind, doubleSided],
@@ -156,6 +168,35 @@ export function SheetsUi({ kind }: { kind: SheetKind }) {
         hint={words.hint}
       />
 
+      {kind === "lands" && (
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">How much of the set</span>
+          <ul className="flex flex-wrap gap-1.5">
+            {LAND_FILTERS.map((f) => (
+              <li key={f.id}>
+                <button
+                  type="button"
+                  aria-pressed={f.id === landFilter}
+                  onClick={() => setLandFilter(f.id)}
+                  className={cn(
+                    "rounded-md border px-2.5 py-1 text-sm transition-colors",
+                    f.id === landFilter
+                      ? "border-primary bg-primary/10 text-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  )}
+                >
+                  {f.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+          <p className="text-sm text-muted-foreground">
+            A set&apos;s full-art lands are its basics in another treatment,
+            so each of these is a narrowing of the one before it.
+          </p>
+        </div>
+      )}
+
       {kind === "tokens" && (
         <div className="flex items-center gap-2.5">
           <Checkbox
@@ -179,6 +220,15 @@ export function SheetsUi({ kind }: { kind: SheetKind }) {
               : cards.length
                 ? `✅ ${cards.length} ${words.noun}${cards.length === 1 ? "" : "s"} in ${searchCode.toUpperCase()}, one per artwork — ${sheets.length} page${sheets.length === 1 ? "" : "s"} of nine.`
                 : `No ${words.noun}s found in ${searchCode.toUpperCase()}.`}
+          {skippedFoils > 0 && !isFetching && !error && (
+            <>
+              {" "}
+              <span className="text-muted-foreground">
+                {skippedFoils} printing{skippedFoils === 1 ? "" : "s"} left out
+                for existing only as a foil.
+              </span>
+            </>
+          )}
         </p>
       )}
 

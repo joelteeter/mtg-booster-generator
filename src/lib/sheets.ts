@@ -13,7 +13,9 @@
 import {
   byCollectorNumber,
   distinctArt,
+  isBasicLand,
   isDoubleFacedToken,
+  nonFoilPrintings,
   tokenPair,
 } from "@/lib/booster";
 import type { Card as PureCard, TokenSlot } from "@/lib/booster/types";
@@ -48,10 +50,46 @@ export function tokenSetFor(set: ScryfallSet): string {
   return set.set_type === "token" ? set.code : "t" + set.code;
 }
 
-/** One printing per artwork, in collector-number order. */
-export function sheetCards(cards: Card[]): Card[] {
-  return distinctArt(byCollectorNumber(cards as PureCard[])) as Card[];
+/**
+ * How much of a set's lands to print.
+ *
+ * Nested rather than independent: full-art lands are basics, so "full-art" is
+ * a narrowing of "basics" and not a separate axis. Two checkboxes would allow
+ * a fourth state that means nothing.
+ */
+export type LandFilter = "all" | "basics" | "fullArtBasics";
+
+export const LAND_FILTERS: Array<{ id: LandFilter; label: string }> = [
+  { id: "all", label: "All lands" },
+  { id: "basics", label: "Basic lands" },
+  { id: "fullArtBasics", label: "Full-art basics" },
+];
+
+export function filterLands(cards: Card[], filter: LandFilter): Card[] {
+  if (filter === "all") return cards;
+  const basics = cards.filter((c) => isBasicLand(c as PureCard));
+  return filter === "basics"
+    ? basics
+    : basics.filter((c) => (c as PureCard).full_art);
 }
+
+/**
+ * One printing per artwork, in collector-number order, never one that was
+ * only ever made as a foil.
+ *
+ * The foils go first, before the artwork is deduplicated. A set often prints
+ * one art both ways, and deduplicating first could keep the foil-only
+ * printing and throw away the ordinary one — which would then be dropped as
+ * unprintable, losing a card the set does have.
+ */
+export function sheetCards(cards: Card[]): Card[] {
+  const printable = nonFoilPrintings(cards as PureCard[]);
+  return distinctArt(byCollectorNumber(printable)) as Card[];
+}
+
+/** How many printings were skipped for existing only as a foil. */
+export const foilOnlyCount = (cards: Card[]): number =>
+  cards.length - nonFoilPrintings(cards as PureCard[]).length;
 
 /**
  * Lay cards out as pages.

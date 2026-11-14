@@ -8,22 +8,29 @@
  */
 import { create } from "zustand";
 
-import type { SheetKind } from "@/lib/sheets";
+import type { LandFilter, SheetKind } from "@/lib/sheets";
 
 interface SheetsState {
   /** The set code chosen, lower case. Empty until one is. */
   code: string;
   /** Two tokens to a card. Tokens only; lands always print single-sided. */
   doubleSided: boolean;
+  /** How much of the set's lands to print. Lands only. */
+  landFilter: LandFilter;
 }
 
 interface SheetsStore {
   byKind: Record<SheetKind, SheetsState>;
   setCode(kind: SheetKind, code: string): void;
   setDoubleSided(value: boolean): void;
+  setLandFilter(value: LandFilter): void;
 }
 
-const empty = (): SheetsState => ({ code: "", doubleSided: true });
+const empty = (): SheetsState => ({
+  code: "",
+  doubleSided: true,
+  landFilter: "all",
+});
 
 export const useSheetsStore = create<SheetsStore>((set) => ({
   byKind: { lands: empty(), tokens: empty() },
@@ -37,5 +44,9 @@ export const useSheetsStore = create<SheetsStore>((set) => ({
         ...s.byKind,
         tokens: { ...s.byKind.tokens, doubleSided },
       },
+    })),
+  setLandFilter: (landFilter) =>
+    set((s) => ({
+      byKind: { ...s.byKind, lands: { ...s.byKind.lands, landFilter } },
     })),
 }));

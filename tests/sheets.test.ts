@@ -12,6 +12,8 @@ import { matchSets } from "@/components/sheets/set-search";
 import { runExport } from "@/lib/export";
 import {
   buildSheets,
+  filterLands,
+  foilOnlyCount,
   sheetCards,
   sheetFilenames,
   sheetQuery,
@@ -94,6 +96,75 @@ describe("what lands up on the pages", () => {
     expect(sheets[0][0].backCard).toBeUndefined();
     expect(sheets[0][0].tokenSlot).toBeUndefined();
     expect(sheets[0][0].finish).toBe("nonfoil");
+  });
+});
+
+/*
+ * The same rule the booster sheets follow: a printing that only exists as a
+ * foil is a separate treatment with its own frame, not an ordinary card with
+ * a finish, so it cannot be printed flat and is never offered.
+ */
+describe("printings that exist only as a foil", () => {
+  it("are left out, and counted so the page can say so", () => {
+    const cards = [
+      card("Plains", 1, { finishes: ["nonfoil", "foil"] }),
+      card("Island", 2, { finishes: ["foil"] }),
+      card("Swamp", 3, { finishes: ["nonfoil"] }),
+    ];
+    expect(sheetCards(cards).map((c) => c.name)).toEqual(["Plains", "Swamp"]);
+    expect(foilOnlyCount(cards)).toBe(1);
+  });
+
+  /*
+   * Dropped before the artwork is deduplicated. A set often prints one art
+   * both ways; deduplicating first could keep the foil-only printing and
+   * throw away the ordinary one, losing a card the set does have.
+   */
+  it("never cost a card that also exists in non-foil", () => {
+    const art = "shared-art";
+    const cards = [
+      card("Forest", 1, { finishes: ["foil"], illustration_id: art }),
+      card("Forest", 2, { finishes: ["nonfoil"], illustration_id: art }),
+    ];
+    const kept = sheetCards(cards);
+    expect(kept).toHaveLength(1);
+    expect(kept[0].collector_number).toBe("2");
+  });
+});
+
+describe("how much of a set's lands to print", () => {
+  const cards = [
+    card("Plains", 1, { type_line: "Basic Land — Plains" }),
+    card("Plains", 2, { type_line: "Basic Land — Plains", full_art: true }),
+    card("Island", 3, { type_line: "Basic Land — Island", full_art: true }),
+    card("Hallowed Fountain", 4, { type_line: "Land — Plains Island" }),
+  ];
+
+  it("prints everything by default", () => {
+    expect(filterLands(cards, "all")).toHaveLength(4);
+  });
+
+  it("drops the nonbasics when asked for basics", () => {
+    expect(filterLands(cards, "basics").map((c) => c.name)).toEqual([
+      "Plains",
+      "Plains",
+      "Island",
+    ]);
+  });
+
+  /*
+   * Nested, not independent: a set's full-art lands are its basics in another
+   * treatment, so this is a narrowing of "basics" rather than a second axis.
+   */
+  it("narrows again to the full-art ones", () => {
+    const full = filterLands(cards, "fullArtBasics");
+    expect(full.map((c) => c.collector_number)).toEqual(["2", "3"]);
+    const basics = filterLands(cards, "basics");
+    expect(full.every((c) => basics.includes(c))).toBe(true);
+  });
+
+  it("leaves tokens alone, which have no such filter", () => {
+    expect(filterLands(cards, "all")).toEqual(cards);
   });
 });
 

@@ -196,6 +196,19 @@ anything already settled lives in the README instead.
   it does not do is group a product that spans several set codes, if one
   turns up.
 
+- [x] **Lands filter, and the foils the new pages were missing** — done,
+  13 November 2026
+  *All lands*, *Basic lands*, *Full-art basics*, each a narrowing of the one
+  before: a set's full-art lands are its basics in another treatment, so it
+  is one nested choice rather than two checkboxes with a meaningless fourth
+  state.
+
+  The pages also went out without the no-foil rule the booster sheets have
+  had since the surge-foil fix — 28 printings of Star Trek's lands and 12 of
+  Final Fantasy's tokens would have printed as foil treatments. Foils are
+  dropped before the artwork is deduplicated, or an art printed both ways
+  could keep the foil-only copy and lose the card entirely.
+
 - [x] **Duplex rotation** — done, 13 November 2026
   Found by printing: a sheet that lines up at one end and is out at the other
   by about a millimetre, repeatably, on an inkjet. An offset cannot fix that
