@@ -108,8 +108,10 @@ function PreviewCard({ entry }: { entry: PackEntry }) {
         {entry.label && ` · ${entry.label}`}
         <br />
         <span>
-          {printing && <span className="tabular-nums">{printing} </span>}
           {sides[face]?.name ?? entry.card.name}
+          {printing && (
+            <span className="tabular-nums opacity-70"> {printing}</span>
+          )}
         </span>
         {two && <span className="opacity-70"> · {face === 1 ? "back" : "front"}</span>}
       </figcaption>
