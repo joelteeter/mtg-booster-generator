@@ -116,6 +116,28 @@ export interface SearchPage {
   data: Card[];
 }
 
+/**
+ * One way of naming a card to `/cards/collection`.
+ *
+ * Scryfall accepts several; these are the three the proxy list needs — an
+ * exact printing, a card within a set, and a card by name whichever printing
+ * that turns out to be.
+ */
+export type CardIdentifier =
+  | { set: string; collector_number: string }
+  | { name: string; set: string }
+  | { name: string };
+
+/**
+ * `/cards/collection`'s answer: what was found, and the identifiers that were
+ * not, echoed back as they were sent.
+ */
+export interface CollectionPage {
+  object?: "list";
+  data: Card[];
+  not_found: CardIdentifier[];
+}
+
 /** The `/sets` listing. */
 export interface SetListResponse {
   object: "list";

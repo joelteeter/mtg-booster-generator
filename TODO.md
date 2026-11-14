@@ -46,6 +46,40 @@ anything already settled lives in the README instead.
 
 ## Frontend
 
+- [x] **A Proxies page** — done, 14 November 2026
+  `/proxies` takes a pasted decklist and prints those exact cards. Its own
+  page rather than a tab, for the reason the simulators are: it shares nothing
+  with the generator — no set, no pack count, no run — and the header is where
+  pages go.
+
+  Four decisions worth keeping:
+
+  - **the collector number wins a disagreement with the name, and says so.**
+    Set plus number names one printing and a name does not, so the number is
+    what gets printed; the report names the card it actually is. Nothing is
+    substituted silently, which is the whole principle of the page
+  - **misses fall back one step at a time** — this printing, then this card in
+    this set, then this card anywhere. A hand-edited list goes stale at the
+    collector number first and the set code last, and a bare-name list
+    (nothing but names, no sets) still resolves through the last step rather
+    than failing against whatever set the page assumed
+  - **`/cards/collection`, not a request per card.** 75 identifiers a POST, so
+    a hundred-card deck is two requests. It is the only POST in the app and
+    the only request that pays for a CORS preflight; one preflight per
+    seventy-five cards is the trade
+  - **faces are split before the pages are counted.** `expandFaces` turns a
+    double-faced card into two slots inside `buildPdf`, which lets a pack
+    reflow across pages. That cannot happen here: the page you choose in the
+    downloads table has to be the page you saw in the preview. So the split
+    happens in `lib/proxies/pages.ts` and every entry handed to the exporter
+    is exactly one slot — there is a test that asserts `expandFaces` cannot
+    change the page lengths
+
+  Not built, and worth saying why: no saved lists (asked for and declined —
+  nothing is remembered between visits), and no CSV or MTGProxyPrinter
+  download, both of which would hand back a card list to someone who just
+  pasted one.
+
 - [x] **A rate limit no longer builds the wrong pack** — done, 10 November 2026
   `optional()` wrapped the `is:booster` and land-slot searches, so a failure
   produced no cards — and no cards is a real answer for `is:booster`, which

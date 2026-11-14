@@ -60,6 +60,88 @@ function clientWith(
 const gaps = (times: number[]): number[] =>
   times.slice(1).map((t, i) => t - times[i]);
 
+/*
+ * `/cards/collection`: the one POST in the app, and the reason the Proxies
+ * page is two requests rather than a hundred.
+ */
+describe("looking up a list of named cards", () => {
+  /** Answers any collection POST with whatever of the shelf was asked for. */
+  const collectionFetch = (shelf: Array<{ set: string; n: string }>) =>
+    (async (url: string | URL | Request, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body ?? "{}")) as {
+        identifiers: Array<{ set: string; collector_number: string }>;
+      };
+      sent.push({ url: String(url), init: init ?? {}, ids: body.identifiers });
+      const data = body.identifiers
+        .filter((id) =>
+          shelf.some(
+            (c) => c.set === id.set && c.n === id.collector_number,
+          ),
+        )
+        .map((id) => card({ set: id.set, collector_number: id.collector_number }));
+      const not_found = body.identifiers.filter(
+        (id) =>
+          !shelf.some((c) => c.set === id.set && c.n === id.collector_number),
+      );
+      return new Response(JSON.stringify({ data, not_found }), { status: 200 });
+    }) as unknown as typeof globalThis.fetch;
+
+  let sent: Array<{ url: string; init: RequestInit; ids: unknown[] }> = [];
+  const ids = (n: number) =>
+    Array.from({ length: n }, (_, i) => ({
+      set: "trc",
+      collector_number: String(i + 1),
+    }));
+
+  it("posts the identifiers as JSON", async () => {
+    sent = [];
+    const { client } = clientWith(collectionFetch([{ set: "trc", n: "1" }]));
+    const page = await client.collection(ids(1));
+    expect(sent[0].url).toBe(API + "cards/collection");
+    expect(sent[0].init.method).toBe("POST");
+    expect(
+      (sent[0].init.headers as Record<string, string>)["Content-Type"],
+    ).toBe("application/json");
+    expect(page.data).toHaveLength(1);
+    expect(page.not_found).toEqual([]);
+  });
+
+  /* Scryfall's limit is 75 an request, and a Commander deck is past it. */
+  it("chunks at seventy-five and stitches the answers together", async () => {
+    sent = [];
+    const shelf = Array.from({ length: 100 }, (_, i) => ({
+      set: "trc",
+      n: String(i + 1),
+    }));
+    const { client } = clientWith(collectionFetch(shelf));
+    const page = await client.collection(ids(100));
+    expect(sent.map((s) => s.ids.length)).toEqual([75, 25]);
+    expect(page.data).toHaveLength(100);
+  });
+
+  /*
+   * A list with two typos in it should print the other ninety-eight, so the
+   * misses come back as data rather than as a thrown error.
+   */
+  it("carries the misses back rather than failing", async () => {
+    sent = [];
+    const { client } = clientWith(collectionFetch([{ set: "trc", n: "1" }]));
+    const page = await client.collection(ids(3));
+    expect(page.data).toHaveLength(1);
+    expect(page.not_found).toEqual([
+      { set: "trc", collector_number: "2" },
+      { set: "trc", collector_number: "3" },
+    ]);
+  });
+
+  it("asks for nothing when there is nothing to ask for", async () => {
+    sent = [];
+    const { client } = clientWith(collectionFetch([]));
+    expect(await client.collection([])).toEqual({ data: [], not_found: [] });
+    expect(sent).toEqual([]);
+  });
+});
+
 describe("the shared request queue", () => {
   it("keeps requests 150ms apart when made one after another", async () => {
     const q = poolQuery("set:x");

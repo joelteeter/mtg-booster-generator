@@ -26,10 +26,10 @@ You need an internet connection for:
 * **jsDelivr** – only if you use AI-enhance: TensorFlow.js, UpscalerJS and its ESRGAN model (~3 MB), fetched the first time you tick the box. pdf-lib is bundled, and sql.js is served from this site, so the PDFs and the MTGProxyPrinter file need no third-party CDN
 
 ## Pages
-Five of them, behind a site header that carries the links, the brand and the
+Six of them, behind a site header that carries the links, the brand and the
 theme toggle: the booster builders on the front page, lands at `/lands`,
-tokens at `/tokens`, Planechase at `/planechase` and Archenemy at
-`/archenemy`. Below `md` the links collapse behind a menu button. The two
+tokens at `/tokens`, proxies at `/proxies`, Planechase at `/planechase` and
+Archenemy at `/archenemy`. Below `md` the links collapse behind a menu button. The two
 booster builders share one page and are chosen with the tab strip on it, since
 they share every control below it.
 
@@ -126,6 +126,28 @@ Two pages that print a whole set rather than a pack: pick any set, get every lan
 * **two tokens per card** is on by default and halves the paper — you only ever need the face that is up. A token that is already double-faced keeps a card to itself, and an odd one out keeps a blank back rather than printing a second copy of another token. Lands are always single-sided: a land in a deck needs a card back
 * downloads are the booster page's own — CSV, PDF fronts, PDF backs, MTGProxyPrinter — per page or all in one file, named like `SLD-Lands-3` and `TDSK-AllTokens-2`
 
+## Proxies
+`/proxies` is the page that is told what to print rather than deciding: paste a
+decklist, get those exact cards, nine to a page, with the same print settings,
+preview and duplex alignment as everything else.
+
+```
+1 Academy Ruins (TRC) 512
+```
+Quantity, name, set in brackets, collector number — what Moxfield, Archidekt
+and Scryfall all export. A quantity of four prints four copies.
+
+* **set and collector number name one printing**, and that is the one printed. It is the only way to ask for a particular art, which is the whole point of pasting a list rather than searching for the cards
+* **both are optional.** `4x Sol Ring` works, and so does a bare name. A line with no set uses the set picked on the page, or, with none picked, the newest set that has actually been released — which is not the newest set Scryfall lists: that is usually next spring's expansion, or a token set, art series or Arena-only set sharing a release date
+* **the rest of a real export is ignored**: `//` and `#` comments, blank lines, Deck/Sideboard/Commander headings, Moxfield's `*F*` finish markers and `#Category` tags. A heading is only a heading when the line has no quantity, so `1 Commander Tower` is still a card
+* **a miss falls back one step at a time** — this printing, then this card in this set, then this card from anywhere — and each step away from what was asked for is listed under the text area. A collector number is the first thing to go stale in a hand-edited list, and the set code is usually still right
+* **the collector number wins a disagreement**, because it names one printing and a name does not. `1 Sol Ring (TRC) 485` prints TRC 485 and says in the report that 485 is Arcane Signet. Nothing is substituted silently
+* **a line that matches nothing is left out and named**, and the other ninety-nine still print
+* **one request per seventy-five cards**, not one per card: Scryfall's `/cards/collection` takes a list, so a Commander deck is two requests. It runs on a button rather than as you type
+* **a double-faced card becomes two slots** in *separate* mode, each with a plain card back, and stays one two-sided slot in *front only* mode. The split happens before the pages are counted, so the page you pick in the downloads table is the page you saw in the preview — the booster path lets a pack reflow across pages, and a list you chose the pages of cannot
+* downloads are PDF fronts and backs, per page or all in one file, named `Proxies-2` and `Proxies-All-5`. No CSV or MTGProxyPrinter file: both would hand back a card list, which is what was pasted in
+* nothing is remembered between visits. The print settings are, as everywhere; the list is not
+
 ## Full-art land sheets
 **Also make land sheets** adds pages after everything else holding one of every full-art land the set printed. Lands are the one thing packs never give you and a draft cannot be played without, and the full-art ones are the version worth printing.
 
@@ -189,9 +211,11 @@ No printer puts the second side exactly behind the first. The error is a millime
 
 ## Files
 ```
-src/app/                 the three pages, the providers and the global stylesheet
+src/app/                 the six pages, the providers and the global stylesheet
 src/components/          the site header (with its mobile menu) and the page shell
 src/components/booster/  set picker, options, slot panel, generate, downloads, preview
+src/components/sheets/   the set search, and the Lands and Tokens pages
+src/components/proxies/  the Proxies page
 src/components/sim/      the Planechase and Archenemy simulators
 src/components/ui/       shadcn/ui components
 src/hooks/               use-spec, use-generate, use-export, use-scryfall
@@ -200,6 +224,7 @@ src/lib/booster/         pack layouts and odds, shared by the generator and the 
 src/lib/scryfall/        Scryfall requests (queue + retries), card pools, Special Guests, separator lands
 src/lib/generate/        pack generation, separators, and the wording of a finished run
 src/lib/export/          page layout, card images, the PDFs, the MTGProxyPrinter file, AI upscaling
+src/lib/proxies/         reading a pasted decklist, resolving it, laying it out
 src/lib/explain.ts       the "How each card slot is determined" panel's wording
 src/lib/csv.ts           CSV rows in Scryfall's format
 src/lib/preview.ts       card faces and sides for the preview

@@ -26,6 +26,7 @@ const PAGES = [
   { href: "/", label: "Boosters" },
   { href: "/lands", label: "Lands" },
   { href: "/tokens", label: "Tokens" },
+  { href: "/proxies", label: "Proxies" },
   { href: "/planechase", label: "Planechase" },
   { href: "/archenemy", label: "Archenemy" },
 ];

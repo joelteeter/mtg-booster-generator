@@ -16,6 +16,8 @@
  */
 import type {
   Card,
+  CardIdentifier,
+  CollectionPage,
   ScryfallSet,
   SearchPage,
   SetListResponse,
@@ -33,6 +35,9 @@ const HEADERS: Record<string, string> = { Accept: "application/json" };
 
 /** ≈6–7 requests/second; Scryfall asks for ≤10/s on average. */
 export const REQUEST_GAP_MS = 150;
+
+/** Scryfall's limit on `/cards/collection`, which is the point of using it. */
+export const COLLECTION_CHUNK = 75;
 export const MAX_RETRIES = 3;
 
 export interface ScryfallClientOptions {
@@ -74,7 +79,18 @@ export interface SearchOptions {
 
 export interface ScryfallClient {
   /** A single request, queued and retried. Returns the raw Response. */
-  request(url: string, signal?: AbortSignal): Promise<Response>;
+  request(url: string, signal?: AbortSignal, body?: unknown): Promise<Response>;
+  /**
+   * Named cards, up to 75 a request — `/cards/collection`.
+   *
+   * The alternative is one request per card, and a Commander deck is a hundred
+   * of them. Returns what was found and echoes back what was not, in
+   * Scryfall's own shape, because the caller has to match both to its lines.
+   */
+  collection(
+    identifiers: CardIdentifier[],
+    signal?: AbortSignal,
+  ): Promise<CollectionPage>;
   /** Every card matching a query, following `next_page` to the end. */
   search(query: string, options?: SearchOptions): Promise<Card[]>;
   /** Every printing of every match — the pool loaders' default. */
@@ -158,10 +174,26 @@ export function createScryfallClient(
     return at > t ? sleep(at - t) : Promise.resolve();
   }
 
+  /*
+   * `body` makes it a POST, which only `/cards/collection` needs. A JSON
+   * content type is not CORS-safelisted, so each of those costs a preflight —
+   * one extra round trip per seventy-five cards, against seventy-five
+   * requests for doing it the other way.
+   */
   async function request(
     url: string,
     signal?: AbortSignal,
+    body?: unknown,
   ): Promise<Response> {
+    const init: RequestInit =
+      body === undefined
+        ? { method: "GET", headers: HEADERS, signal }
+        : {
+            method: "POST",
+            headers: { ...HEADERS, "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+            signal,
+          };
     let backoff = 0;
     for (let attempt = 0; ; attempt++) {
       await takeTurn(backoff);
@@ -170,7 +202,7 @@ export function createScryfallClient(
       // abandoned while queued should never go out at all.
       signal?.throwIfAborted();
       try {
-        res = await doFetch(url, { method: "GET", headers: HEADERS, signal });
+        res = await doFetch(url, init);
       } catch (e) {
         if (isAbort(e)) throw e;
         /*
@@ -244,6 +276,29 @@ export function createScryfallClient(
     return (await res.json()) as Card;
   }
 
+  /*
+   * Chunked at Scryfall's limit and stitched back together. `not_found` is
+   * carried through rather than thrown on: a list of a hundred cards with two
+   * typos in it should print the ninety-eight.
+   */
+  async function collection(
+    identifiers: CardIdentifier[],
+    signal?: AbortSignal,
+  ): Promise<CollectionPage> {
+    const out: CollectionPage = { data: [], not_found: [] };
+    for (let i = 0; i < identifiers.length; i += COLLECTION_CHUNK) {
+      const chunk = identifiers.slice(i, i + COLLECTION_CHUNK);
+      const res = await request(API + "cards/collection", signal, {
+        identifiers: chunk,
+      });
+      if (!res.ok) throw new Error(`Scryfall API Error: ${res.status}`);
+      const page = (await res.json()) as CollectionPage;
+      out.data.push(...(page.data ?? []));
+      out.not_found.push(...(page.not_found ?? []));
+    }
+    return out;
+  }
+
   async function getSets(signal?: AbortSignal): Promise<ScryfallSet[]> {
     const res = await request(API + "sets", signal);
     if (!res.ok) throw new Error(`Scryfall API Error: ${res.status}`);
@@ -273,7 +328,15 @@ export function createScryfallClient(
     return null;
   }
 
-  return { request, search, fetchPool, fetchRandom, getSets, getSet };
+  return {
+    request,
+    search,
+    fetchPool,
+    fetchRandom,
+    collection,
+    getSets,
+    getSet,
+  };
 }
 
 /** The app's client. Tests build their own with a stubbed fetch and clock. */
