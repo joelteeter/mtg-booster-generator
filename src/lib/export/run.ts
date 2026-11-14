@@ -203,6 +203,17 @@ export const enhancedMessage = (name: string, ms: number): string =>
  * export of anything — it takes no packs, and it is as useful before a run as
  * after one.
  */
+/**
+ * How an offset reads in a filename: `x+1.5`, `x-2`, `x0`.
+ *
+ * On both files, not just the back, so a printed pair cannot be separated
+ * from the numbers it was testing — which is the whole use of keeping them.
+ */
+export const offsetTag = (xMm: number, yMm: number): string => {
+  const one = (v: number) => (v > 0 ? `+${v}` : String(v));
+  return `x${one(xMm)}-y${one(yMm)}`;
+};
+
 export async function runAlignmentPrint({
   settings,
   onStatus,
@@ -217,17 +228,22 @@ export async function runAlignmentPrint({
   const build = exporter?.buildAlignmentPdf ?? defaultBuildAlignmentPdf;
   try {
     onStatus("⏳ Building the alignment test print…");
-    const bytes = await build({
-      paper: settings.paper,
-      flip: settings.flip,
-      offsetXMm: settings.backOffsetXMm,
-      offsetYMm: settings.backOffsetYMm,
-    });
-    save(bytes, "alignment-test.pdf", "application/pdf");
+    const tag = offsetTag(settings.backOffsetXMm, settings.backOffsetYMm);
+    for (const side of ["front", "back"] as const) {
+      const bytes = await build({
+        side,
+        paper: settings.paper,
+        flip: settings.flip,
+        offsetXMm: settings.backOffsetXMm,
+        offsetYMm: settings.backOffsetYMm,
+      });
+      save(bytes, `alignment-${side}-${tag}.pdf`, "application/pdf");
+    }
     onStatus(
-      "✅ Alignment test print downloaded. Print it double-sided the way you " +
-        "print your packs, hold it to a light, and read the error off the " +
-        "rulers on the back.",
+      `✅ Alignment test print downloaded: alignment-front-${tag}.pdf and ` +
+        `alignment-back-${tag}.pdf. Print the front, turn the paper over the ` +
+        "way your printer does, print the back, then hold the sheet to a " +
+        "light with the fronts toward you.",
     );
   } catch (e) {
     console.error(e);

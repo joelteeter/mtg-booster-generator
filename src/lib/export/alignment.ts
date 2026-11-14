@@ -20,7 +20,7 @@
  */
 import type * as PdfLib from "pdf-lib";
 
-import { backPageOffset, type Flip } from "./layout";
+import { backPageOffset, type Flip, type Side } from "./layout";
 import { CARD_PT, GRID, MM, PAPER, type PaperName } from "./paper";
 
 /** How far the rulers reach either side of true, in millimetres. */
@@ -38,6 +38,13 @@ export interface AlignmentPdfOptions {
    * printed on, exactly as a real backs sheet does.
    */
   flip?: Flip;
+  /**
+   * Which side to draw. One side per file, because that is how they get
+   * printed: the fronts, then the paper turned over, then the backs. A
+   * two-page PDF makes the printer decide how to turn it over, which is the
+   * very thing being measured.
+   */
+  side?: Side;
   /** The offsets being tested, as measured; applied to the back page. */
   offsetXMm?: number;
   offsetYMm?: number;
@@ -77,7 +84,9 @@ export async function buildAlignmentPdf(
   const offsetY = measured.y * MM;
 
   const pdf = await PDFDocument.create();
-  pdf.setTitle("Alignment test print");
+  pdf.setTitle(
+    `Alignment test print (${opts.side === "back" ? "back" : "front"})`,
+  );
   pdf.setCreator("MTG Booster Generator");
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const ink = rgb(0, 0, 0);
@@ -85,7 +94,8 @@ export async function buildAlignmentPdf(
   const baseX = (paper.w - GRID.cols * CARD_PT.w) / 2;
   const baseYTop = paper.h - (paper.h - GRID.rows * CARD_PT.h) / 2;
 
-  for (const side of ["front", "back"] as const) {
+  {
+    const side: Side = opts.side === "back" ? "back" : "front";
     const back = side === "back";
     const page = pdf.addPage([paper.w, paper.h]);
     const x0 = baseX + (back ? offsetX : 0);

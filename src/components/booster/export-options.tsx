@@ -320,14 +320,16 @@ export function ExportOptions() {
           stay put.
         </p>
         <p className="text-sm text-muted-foreground">
-          The test print is two pages. Print it double-sided the way you print
-          your packs, then hold it to a light <b>with the fronts toward you</b>
-          . The back&apos;s rulers are ticked every millimetre; measure from a
-          ruler&apos;s middle to the front&apos;s cross and type that in, the
-          way you are looking at it — if the cross sits to the right of the
-          middle, the backs need to move right, so enter a positive number.
-          Print it again to check: the offsets you have are built into it, so
-          the second one is a check rather than another guess.
+          The test print is two files, a front and a back, each named for the
+          offsets it was made with. Print the front, turn the paper over the
+          way your printer does, print the back, then hold the sheet to a
+          light <b>with the fronts toward you</b>. The back&apos;s rulers are
+          ticked every millimetre; measure from a ruler&apos;s middle to the
+          front&apos;s cross and type that in, the way you are looking at it —
+          if the cross sits to the right of the middle, the backs need to move
+          right, so enter a positive number. Print it again to check: the
+          offsets you have are built into it, so the second one is a check
+          rather than another guess.
         </p>
         <p className="text-sm text-muted-foreground">
           Which way round the printer turns the paper is already accounted
