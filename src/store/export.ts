@@ -11,6 +11,8 @@ import { create } from "zustand";
 
 import type { ExportSettings } from "@/lib/export";
 
+import { mergeSlice, persist, STORE_VERSION } from "./persist";
+
 /** The old index.html's initial control values. */
 export const DEFAULT_EXPORT_SETTINGS: ExportSettings = {
   paper: "letter",
@@ -48,7 +50,9 @@ interface ExportStore {
   showComparison(c: ExportStore["comparison"]): void;
 }
 
-export const useExportStore = create<ExportStore>((set, get) => ({
+export const useExportStore = create<ExportStore>()(
+  persist(
+    (set, get) => ({
   settings: { ...DEFAULT_EXPORT_SETTINGS },
   customBackName: null,
   status: "",
@@ -71,4 +75,24 @@ export const useExportStore = create<ExportStore>((set, get) => ({
   setExporting: (exporting) => set({ exporting }),
   setComparing: (comparing) => set({ comparing }),
   showComparison: (comparison) => set({ comparison }),
-}));
+    }),
+    {
+      name: "mtg-print-settings",
+      version: STORE_VERSION,
+      merge: mergeSlice<ExportStore, "settings">("settings"),
+      /*
+       * The settings only, and not all of them. `customBackUrl` is a blob
+       * URL that is dead the moment the page reloads, and `backImage` would
+       * come back saying "custom" with nothing to point at — so the card back
+       * goes back to the standard one and everything else is remembered.
+       */
+      partialize: ({ settings }) => ({
+        settings: {
+          ...settings,
+          customBackUrl: null,
+          backImage: "standard" as const,
+        },
+      }),
+    },
+  ),
+);

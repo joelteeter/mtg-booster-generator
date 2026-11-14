@@ -10,6 +10,8 @@ import { create } from "zustand";
 
 import type { LandFilter, SheetKind } from "@/lib/sheets";
 
+import { mergeSlice, persist, STORE_VERSION } from "./persist";
+
 interface SheetsState {
   /** The set code chosen, lower case. Empty until one is. */
   code: string;
@@ -17,6 +19,8 @@ interface SheetsState {
   doubleSided: boolean;
   /** How much of the set's lands to print. Lands only. */
   landFilter: LandFilter;
+  /** Pad the last page out to nine with more cards from the same set. */
+  fill: boolean;
 }
 
 interface SheetsStore {
@@ -24,15 +28,19 @@ interface SheetsStore {
   setCode(kind: SheetKind, code: string): void;
   setDoubleSided(value: boolean): void;
   setLandFilter(value: LandFilter): void;
+  setFill(kind: SheetKind, value: boolean): void;
 }
 
 const empty = (): SheetsState => ({
   code: "",
   doubleSided: true,
   landFilter: "all",
+  fill: false,
 });
 
-export const useSheetsStore = create<SheetsStore>((set) => ({
+export const useSheetsStore = create<SheetsStore>()(
+  persist(
+    (set) => ({
   byKind: { lands: empty(), tokens: empty() },
   setCode: (kind, code) =>
     set((s) => ({
@@ -49,4 +57,15 @@ export const useSheetsStore = create<SheetsStore>((set) => ({
     set((s) => ({
       byKind: { ...s.byKind, lands: { ...s.byKind.lands, landFilter } },
     })),
-}));
+  setFill: (kind, fill) =>
+    set((s) => ({
+      byKind: { ...s.byKind, [kind]: { ...s.byKind[kind], fill } },
+    })),
+    }),
+    {
+      name: "mtg-sheet-choices",
+      version: STORE_VERSION,
+      merge: mergeSlice<SheetsStore, "byKind">("byKind"),
+    },
+  ),
+);

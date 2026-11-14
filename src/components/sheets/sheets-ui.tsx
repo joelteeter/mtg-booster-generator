@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 
 import { ExportOptions } from "@/components/booster/export-options";
+import { PreviewDeck } from "@/components/booster/pack-preview";
 import { SetSearch } from "@/components/sheets/set-search";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -35,6 +36,7 @@ import {
   LAND_FILTERS,
   sheetCards,
   sheetFilenames,
+  PER_SHEET,
   sheetQuery,
   tokenSetFor,
   type SheetKind,
@@ -69,12 +71,16 @@ export function SheetsUi({ kind }: { kind: SheetKind }) {
   const code = useSheetsStore((s) => s.byKind[kind].code);
   const doubleSided = useSheetsStore((s) => s.byKind.tokens.doubleSided);
   const landFilter = useSheetsStore((s) => s.byKind.lands.landFilter);
+  const fill = useSheetsStore((s) => s.byKind[kind].fill);
   const setCode = useSheetsStore((s) => s.setCode);
   const setDoubleSided = useSheetsStore((s) => s.setDoubleSided);
   const setLandFilter = useSheetsStore((s) => s.setLandFilter);
+  const setFill = useSheetsStore((s) => s.setFill);
   const status = useExportStore((s) => s.status);
   const exporting = useExportStore((s) => s.exporting);
   const [busy, setBusy] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewIndex, setPreviewIndex] = useState(0);
 
   const chosen = useMemo(
     () => (sets ?? []).find((s) => s.code === code) ?? null,
@@ -100,9 +106,28 @@ export function SheetsUi({ kind }: { kind: SheetKind }) {
     [printable, kind, landFilter],
   );
   const sheets = useMemo(
-    () => buildSheets(cards, kind, doubleSided),
-    [cards, kind, doubleSided],
+    () =>
+      buildSheets(
+        cards,
+        kind,
+        doubleSided,
+        PER_SHEET,
+        // Seeded from the selection, so the same set and filter always give
+        // the same filler — the preview and the PDF cannot disagree.
+        fill ? { seed: `${searchCode}:${kind}:${landFilter}` } : null,
+      ),
+    [cards, kind, doubleSided, fill, searchCode, landFilter],
   );
+  /*
+   * What the padding added, for the status line. Measured against the same
+   * build without it rather than against the card count, because paired
+   * tokens put two cards in one slot and the slot is what gets filled.
+   */
+  const filler = useMemo(() => {
+    const bare = buildSheets(cards, kind, doubleSided).flat().length;
+    return sheets.flat().length - bare;
+  }, [cards, kind, doubleSided, sheets]);
+
   const base = useMemo(
     () => sheetFilenames(searchCode || "set", kind, sheets.length),
     [searchCode, kind, sheets.length],
@@ -197,6 +222,20 @@ export function SheetsUi({ kind }: { kind: SheetKind }) {
         </div>
       )}
 
+      {searchCode && (
+        <div className="flex items-center gap-2.5">
+          <Checkbox
+            id="fillSheets"
+            checked={fill}
+            onCheckedChange={(v) => setFill(kind, v === true)}
+          />
+          <Label htmlFor="fillSheets" className="font-normal">
+            Fill the last page to nine with more {words.noun}s from the same
+            selection
+          </Label>
+        </div>
+      )}
+
       {kind === "tokens" && (
         <div className="flex items-center gap-2.5">
           <Checkbox
@@ -220,6 +259,14 @@ export function SheetsUi({ kind }: { kind: SheetKind }) {
               : cards.length
                 ? `✅ ${cards.length} ${words.noun}${cards.length === 1 ? "" : "s"} in ${searchCode.toUpperCase()}, one per artwork — ${sheets.length} page${sheets.length === 1 ? "" : "s"} of nine.`
                 : `No ${words.noun}s found in ${searchCode.toUpperCase()}.`}
+          {filler > 0 && (
+            <>
+              {" "}
+              <span className="text-muted-foreground">
+                {filler} repeated to fill the last page.
+              </span>
+            </>
+          )}
           {skippedFoils > 0 && !isFetching && !error && (
             <>
               {" "}
@@ -247,6 +294,17 @@ export function SheetsUi({ kind }: { kind: SheetKind }) {
           </ol>
         </details>
       )}
+
+      <PreviewDeck
+        pages={sheets}
+        open={previewOpen}
+        index={previewIndex}
+        onToggle={() => setPreviewOpen((o) => !o)}
+        onShow={setPreviewIndex}
+        labelFor={(page, i) => `Page ${i + 1} (${page.length} cards)`}
+        showLabel={`👁 Preview ${words.noun}s`}
+        hideLabel="🙈 Hide preview"
+      />
 
       {sheets.length > 0 && (
         <div className="flex flex-col gap-4 border-t pt-4">

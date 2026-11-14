@@ -20,6 +20,8 @@ import { create } from "zustand";
 
 import type { CommanderLayout } from "@/lib/booster/types";
 
+import { persist, STORE_VERSION } from "./persist";
+
 export type Mode = "play" | "commander";
 
 /** The options each tab remembers separately — `OPT_IDS` in the old state.js. */
@@ -95,7 +97,9 @@ interface OptionsStore {
   setSelection(patch: Partial<SetSelection>): void;
 }
 
-export const useOptionsStore = create<OptionsStore>((set) => ({
+export const useOptionsStore = create<OptionsStore>()(
+  persist(
+    (set) => ({
   mode: "play",
   noFoils: true,
   byMode: {
@@ -114,7 +118,20 @@ export const useOptionsStore = create<OptionsStore>((set) => ({
     })),
   setSelection: (patch) =>
     set((s) => ({ selection: { ...s.selection, ...patch } })),
-}));
+    }),
+    {
+      name: "mtg-printing-prefs",
+      version: STORE_VERSION,
+      /*
+       * This one key only. The rest of this store is what you were doing —
+       * which set, how many packs, which fun options — and coming back to
+       * someone else's half-finished run is worse than starting clean.
+       * Whether your printer can make a foil is not that.
+       */
+      partialize: ({ noFoils }) => ({ noFoils }),
+    },
+  ),
+);
 
 /** The active tab's options. */
 export const selectOptions = (s: {

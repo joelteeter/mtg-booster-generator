@@ -227,6 +227,30 @@ anything already settled lives in the README instead.
   error changing *down* the page is rotation; changing *across* the page would
   be scale, which nothing corrects yet; the same everywhere is an offset.
 
+- [x] **Settings that survive a reload** — done, 13 November 2026
+  Every store was plain in memory, so a refresh reset everything — including
+  a duplex calibration that takes three test sheets to find. `localStorage`
+  now holds the print settings, the lands and tokens choices, and the no-foil
+  preference: all three describe the printer or the standing choice rather
+  than the job in hand.
+
+  Not the custom card back, which is a blob URL and dead after a reload, and
+  not the booster run's own options, which are what you were doing rather
+  than how you print.
+
+  Stored values merge *over* the defaults. Zustand's own merge is shallow and
+  would swap the whole slice, so a browser holding a copy from before an
+  option existed would come back missing it — and options get added here
+  often enough that it is the common case.
+
+- [x] **Fill and preview on the sheets pages** — done, 13 November 2026
+  Filling the last page out to nine is off by default and seeded from the
+  selection, so the preview and the PDF cannot disagree about which cards are
+  on it. The preview is the booster page's own, pulled out of `PackPreview`
+  into a presentational component both use; which page is open stays with the
+  caller, since the booster page keeps it in a store that "Compare on one
+  card" reads.
+
 ## Pack simulation
 
 - [ ] **Japan Showcase cards in the wildcard slot** (2027 rules)

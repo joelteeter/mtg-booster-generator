@@ -92,6 +92,53 @@ export const foilOnlyCount = (cards: Card[]): number =>
   cards.length - nonFoilPrintings(cards as PureCard[]).length;
 
 /**
+ * A small deterministic generator, seeded from the set code.
+ *
+ * The filler has to be the same every time the page renders. With
+ * `Math.random` the preview would reshuffle on every keystroke elsewhere on
+ * the page, and the PDF you downloaded would hold different cards from the
+ * ones you had just looked at. Seeding it from the selection means the same
+ * set and the same filter always give the same page.
+ */
+export function seedFrom(text: string): () => number {
+  let h = 2166136261;
+  for (let i = 0; i < text.length; i++) {
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return () => {
+    h |= 0;
+    h = (h + 0x6d2b79f5) | 0;
+    let t = Math.imul(h ^ (h >>> 15), 1 | h);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * Pad the last page out to a full nine with more cards from the same set.
+ *
+ * Off by default, because the pages are a reference first: one of each is
+ * the point, and a second copy of a card is only worth having if you were
+ * going to use the paper anyway. On, it is drawn from the same selection, so
+ * narrowing to full-art basics fills with full-art basics.
+ */
+export function fillToPage<T>(
+  items: T[],
+  perSheet: number,
+  seed: string,
+): T[] {
+  const short = items.length % perSheet;
+  if (!items.length || short === 0) return items;
+  const rng = seedFrom(seed);
+  const extra = Array.from(
+    { length: perSheet - short },
+    () => items[Math.floor(rng() * items.length)],
+  );
+  return [...items, ...extra];
+}
+
+/**
  * Lay cards out as pages.
  *
  * Lands are single-sided: a land in a deck needs a card back, so its sheet is
@@ -104,6 +151,7 @@ export function buildSheets(
   kind: SheetKind,
   doubleSided: boolean,
   perSheet: number = PER_SHEET,
+  fill: { seed: string } | null = null,
 ): PackEntry[][] {
   const entries: PackEntry[] =
     kind === "tokens" && doubleSided
@@ -122,9 +170,18 @@ export function buildSheets(
           label: kind === "lands" ? "Land" : "Token",
         }));
 
+  /*
+   * Padded after the pairing, not before, so a filled token page is nine
+   * cards rather than nine tokens — the unit being filled is the slot on the
+   * paper.
+   */
+  const placed = fill ? fillToPage(entries, perSheet, fill.seed) : entries;
+
   const sheets: PackEntry[][] = [];
-  for (let i = 0; i < entries.length; i += perSheet)
-    sheets.push(entries.slice(i, i + perSheet));
+  for (let i = 0; i < placed.length; i += perSheet)
+    sheets.push(
+      placed.slice(i, i + perSheet).map((e, k) => ({ ...e, slot: k + 1 })),
+    );
   return sheets;
 }
 

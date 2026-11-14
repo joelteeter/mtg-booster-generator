@@ -121,6 +121,8 @@ Two pages that print a whole set rather than a pack: pick any set, get every lan
 * **one card per artwork.** A set often prints the same art at two collector numbers, and the second copy would print the same image. Secret Lair Drop comes to 413 lands over 46 pages on this rule
 * **promos are kept**, unlike the booster pools. A booster pool asks what could come out of a pack, where a promo could not; this asks what a set printed, where it did — and some products are nothing but promos
 * **tokens live in their own set**, "t" and the set's code (`tdsk` for Duskmourn), so pick the ordinary set and the page finds them. A token set chosen directly works too; it is recognised by its type and not by its code, since `thb` is Theros Beyond Death and not the tokens of `hb`
+* **fill the last page** pads it out to nine with more cards from the same selection, so a part-empty sheet is not wasted. Off by default, because the pages are a reference first and a second copy is only worth having if you were going to use the paper anyway. The filler is drawn with a generator seeded from the set and filter, so the same selection always gives the same page — otherwise the preview would reshuffle on any re-render and the PDF would hold different cards from the ones you had just looked at
+* **preview** shows a page at a time, the same one the booster page uses
 * **two tokens per card** is on by default and halves the paper — you only ever need the face that is up. A token that is already double-faced keeps a card to itself, and an odd one out keeps a blank back rather than printing a second copy of another token. Lands are always single-sided: a land in a deck needs a card back
 * downloads are the booster page's own — CSV, PDF fronts, PDF backs, MTGProxyPrinter — per page or all in one file, named like `SLD-Lands-3` and `TDSK-AllTokens-2`
 
@@ -158,6 +160,17 @@ Every format is available for all packs together or for each pack on its own.
 
   The MTGProxyPrinter file follows the same setting; the CSV lists each card once
 * **Start each pack on a new page** (PDFs and MTGProxyPrinter file)
+
+## What is remembered
+Three things survive a reload, in `localStorage`; everything else resets, which is deliberate.
+
+* **the print settings** — paper, bleed, quality, double-faced mode, flip, new-page, AI-enhance, and the duplex offsets and rotation. The calibration is three test sheets' work and describes the printer, not the job, so losing it on a refresh means printing them again. Not the custom card back: that is a blob URL, dead the moment the page reloads, so the back goes to standard and everything else comes back
+* **the lands and tokens choices** — the set, the filter, fill, double-sided
+* **"leave every card non-foil"** — also a property of the printer
+
+Not remembered: which set you were building packs from, how many, and the fun options. That is what you were doing rather than how you print, and coming back to someone else's half-finished run is worse than starting clean.
+
+Stored values are merged *over* the defaults rather than replacing them, so a browser holding a copy from before an option existed comes back with that option at its default rather than `undefined`.
 
 ## Duplex alignment
 No printer puts the second side exactly behind the first. The error is a millimetre or two, it is consistent for a given printer and paper path, and it stays invisible until you cut — at which point every card is off-centre on one side.

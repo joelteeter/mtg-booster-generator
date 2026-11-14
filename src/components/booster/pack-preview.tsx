@@ -106,6 +106,96 @@ function PreviewCard({ entry }: { entry: PackEntry }) {
   );
 }
 
+/**
+ * The preview itself: a page at a time, with its own chooser.
+ *
+ * Presentational, so that the booster page and the lands and tokens pages can
+ * all use it. Which page is open lives with the caller, because the booster
+ * page keeps it in a store — the "Compare on one card" button reads it to
+ * decide which card to compare — while the sheets pages only need it while
+ * they are on screen.
+ */
+export function PreviewDeck({
+  pages,
+  open,
+  index,
+  onToggle,
+  onShow,
+  labelFor,
+  showLabel,
+  hideLabel,
+}: {
+  pages: PackEntry[][];
+  open: boolean;
+  index: number;
+  onToggle: () => void;
+  onShow: (index: number) => void;
+  labelFor: (page: PackEntry[], index: number) => string;
+  showLabel: string;
+  hideLabel: string;
+}) {
+  if (!pages.length) return null;
+  const shown = Math.min(index, pages.length - 1);
+  const page = pages[shown];
+
+  return (
+    <div className="flex flex-col gap-3 border-t pt-4">
+      <Button variant="secondary" className="self-start" onClick={onToggle}>
+        {open ? hideLabel : showLabel}
+      </Button>
+      {open && (
+        <>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              aria-label="Previous page"
+              disabled={shown === 0}
+              onClick={() => onShow(shown - 1)}
+            >
+              ◀
+            </Button>
+            <Select
+              value={String(shown)}
+              onValueChange={(v) => onShow(Number(v))}
+            >
+              <SelectTrigger aria-label="Page to preview" className="flex-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {pages.map((p, i) => (
+                  <SelectItem key={i} value={String(i)}>
+                    {labelFor(p, i)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              aria-label="Next page"
+              disabled={shown === pages.length - 1}
+              onClick={() => onShow(shown + 1)}
+            >
+              ▶
+            </Button>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Images load from Scryfall&apos;s image server (cards.scryfall.io),
+            one page at a time; no extra API requests. Cards with two sides —
+            double-faced cards, and the token separators and token sheets that
+            carry a different token on each side — show a ⟲ button; click the
+            card to flip it.
+          </p>
+          <div className="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(130px,1fr))] sm:[grid-template-columns:repeat(auto-fill,minmax(150px,1fr))]">
+            {page.map((e, i) => (
+              <PreviewCard key={`${shown}-${i}`} entry={e} />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function PackPreview() {
   const packs = usePacksStore((s) => s.packs);
   const open = usePacksStore((s) => s.previewOpen);
@@ -113,63 +203,16 @@ export function PackPreview() {
   const toggle = usePacksStore((s) => s.togglePreview);
   const showPack = usePacksStore((s) => s.showPack);
 
-  if (!packs.length) return null;
-  const pack = packs[Math.min(index, packs.length - 1)];
-
   return (
-    <div className="flex flex-col gap-3 border-t pt-4">
-      <Button variant="secondary" className="self-start" onClick={toggle}>
-        {open ? "🙈 Hide preview" : "👁 Preview packs"}
-      </Button>
-      {open && (
-        <>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              aria-label="Previous pack"
-              disabled={index === 0}
-              onClick={() => showPack(index - 1)}
-            >
-              ◀
-            </Button>
-            <Select
-              value={String(index)}
-              onValueChange={(v) => showPack(Number(v))}
-            >
-              <SelectTrigger aria-label="Pack to preview" className="flex-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {packs.map((p, i) => (
-                  <SelectItem key={i} value={String(i)}>
-                    {previewOptionLabel(p, i)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button
-              variant="outline"
-              aria-label="Next pack"
-              disabled={index === packs.length - 1}
-              onClick={() => showPack(index + 1)}
-            >
-              ▶
-            </Button>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Images load from Scryfall&apos;s image server (cards.scryfall.io),
-            one pack at a time; no extra API requests. Cards with two sides —
-            double-faced cards, and the token separators and token sheets that
-            carry a different token on each side — show a ⟲ button; click the
-            card to flip it.
-          </p>
-          <div className="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(130px,1fr))] sm:[grid-template-columns:repeat(auto-fill,minmax(150px,1fr))]">
-            {pack.cards.map((e, i) => (
-              <PreviewCard key={`${index}-${i}`} entry={e} />
-            ))}
-          </div>
-        </>
-      )}
-    </div>
+    <PreviewDeck
+      pages={packs.map((p) => p.cards)}
+      open={open}
+      index={index}
+      onToggle={toggle}
+      onShow={showPack}
+      labelFor={(_cards, i) => previewOptionLabel(packs[i], i)}
+      showLabel="👁 Preview packs"
+      hideLabel="🙈 Hide preview"
+    />
   );
 }

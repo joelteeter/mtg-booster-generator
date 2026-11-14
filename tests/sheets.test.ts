@@ -12,10 +12,12 @@ import { matchSets } from "@/components/sheets/set-search";
 import { runExport } from "@/lib/export";
 import {
   buildSheets,
+  fillToPage,
   filterLands,
   foilOnlyCount,
   sheetCards,
   sheetFilenames,
+  seedFrom,
   sheetQuery,
   tokenSetFor,
 } from "@/lib/sheets";
@@ -209,6 +211,76 @@ describe("tokens two to a card", () => {
     // Paired tokens get a real card on the back; this one does not.
     const paired = sheet.filter((e) => e.backCard);
     expect(paired.every((e) => e.card.name !== "Punchcard")).toBe(true);
+  });
+});
+
+/*
+ * Filling the last page.
+ *
+ * Off by default: the pages are a reference first, and a second copy of a
+ * card is only worth having if the paper was going to be used anyway.
+ */
+describe("filling the last page out to nine", () => {
+  const cards = Array.from({ length: 10 }, (_, i) => card("Land", i));
+
+  it("leaves a full page alone", () => {
+    const nine = cards.slice(0, 9);
+    expect(fillToPage(nine, 9, "seed")).toEqual(nine);
+    expect(fillToPage([], 9, "seed")).toEqual([]);
+  });
+
+  it("tops a short page up from the same cards", () => {
+    const filled = fillToPage(cards, 9, "seed");
+    expect(filled).toHaveLength(18);
+    for (const c of filled) expect(cards).toContain(c);
+  });
+
+  /*
+   * The whole reason it is seeded. With `Math.random` the preview would
+   * reshuffle on any re-render, and the PDF you downloaded would hold
+   * different cards from the ones you had just looked at.
+   */
+  it("gives the same page every time for the same selection", () => {
+    const once = fillToPage(cards, 9, "dsk:lands:all").map((c) => c.id);
+    const again = fillToPage(cards, 9, "dsk:lands:all").map((c) => c.id);
+    expect(again).toEqual(once);
+  });
+
+  it("gives a different one for a different selection", () => {
+    const a = fillToPage(cards, 9, "dsk:lands:all").map((c) => c.id);
+    const b = fillToPage(cards, 9, "dsk:lands:basics").map((c) => c.id);
+    expect(b).not.toEqual(a);
+  });
+
+  it("seeds reproducibly and spreads over the range", () => {
+    const draws = Array.from({ length: 200 }, seedFrom("dsk"));
+    // Same seed, same sequence — that is the point of it.
+    expect(Array.from({ length: 200 }, seedFrom("dsk"))).toEqual(draws);
+    expect(Array.from({ length: 200 }, seedFrom("trk"))).not.toEqual(draws);
+    for (const d of draws) {
+      expect(d).toBeGreaterThanOrEqual(0);
+      expect(d).toBeLessThan(1);
+    }
+    expect(new Set(draws).size).toBeGreaterThan(150);
+  });
+
+  it("numbers the slots on each page from one, filler included", () => {
+    const sheets = buildSheets(cards, "lands", false, 9, { seed: "x" });
+    expect(sheets).toHaveLength(2);
+    expect(sheets.map((s) => s.length)).toEqual([9, 9]);
+    for (const sheet of sheets)
+      expect(sheet.map((e) => e.slot)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  });
+
+  /*
+   * Padded after the tokens are paired, not before: the unit being filled is
+   * the slot on the paper, so a filled token page is nine cards rather than
+   * nine tokens.
+   */
+  it("fills token pages by the card, not by the token", () => {
+    const tokens = Array.from({ length: 5 }, (_, i) => card("Token", i));
+    const [sheet] = buildSheets(tokens, "tokens", true, 9, { seed: "x" });
+    expect(sheet).toHaveLength(9);
   });
 });
 
