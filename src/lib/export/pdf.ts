@@ -31,6 +31,7 @@ import {
   expandFaces,
   layoutPages,
   placementsFor,
+  rotationMatrix,
   type DfcMode,
   type Flip,
   type Quality,
@@ -49,6 +50,14 @@ export interface PdfOptions {
   dfcMode?: DfcMode;
   /** Backs only. */
   flip?: Flip;
+  /**
+   * Turn everything on the page, in degrees about the page's centre.
+   *
+   * The other half of duplex registration. An offset cannot fix a sheet that
+   * is square at one end and out at the other: that is the two sides going
+   * through at slightly different angles, and only an angle cancels it.
+   */
+  rotationDeg?: number;
   /**
    * Shift everything on the page, in millimetres: +x toward the right edge,
    * +y toward the top.
@@ -88,6 +97,7 @@ export async function buildPdf(
     rectangle,
     clip,
     endPath,
+    concatTransformationMatrix,
   } = opts.pdfLib ?? (await import("pdf-lib"));
   const paper = PAPER[opts.paper as PaperName] || PAPER.letter;
   const bleed = Math.max(0, Number(opts.bleedMm) || 0) * MM;
@@ -167,8 +177,23 @@ export async function buildPdf(
   const cellX = (col: number) => x0 + col * CARD_PT.w;
   const cellY = (row: number) => yTop - (row + 1) * CARD_PT.h;
 
+  const rotation = Number(opts.rotationDeg) || 0;
+
   for (const placed of pages) {
     const page = pdf.addPage([paper.w, paper.h]);
+    /*
+     * Everything on the page turns together, so it is one transform around
+     * the whole page rather than a rotation on each thing drawn. Left out
+     * entirely at zero, which keeps an unrotated page byte-identical to what
+     * it was before this existed.
+     */
+    if (rotation)
+      page.pushOperators(
+        pushGraphicsState(),
+        concatTransformationMatrix(
+          ...rotationMatrix(rotation, paper.w / 2, paper.h / 2),
+        ),
+      );
     const taken = new Set(placed.map((p) => p.row * GRID.cols + p.col));
     const occupied = (c: number, r: number) =>
       c >= 0 &&
@@ -271,6 +296,8 @@ export async function buildPdf(
         page.drawLine({ start: { x, y: y - arm }, end: { x, y: y + arm }, ...mark });
       }
     }
+
+    if (rotation) page.pushOperators(popGraphicsState());
   }
   return pdf.save();
 }

@@ -196,6 +196,24 @@ anything already settled lives in the README instead.
   it does not do is group a product that spans several set codes, if one
   turns up.
 
+- [x] **Duplex rotation** — done, 13 November 2026
+  Found by printing: a sheet that lines up at one end and is out at the other
+  by about a millimetre, repeatably, on an inkjet. An offset cannot fix that
+  — it moves where the error is zero without changing how fast it grows — so
+  the backs page now takes a rotation as well, about the page centre.
+
+  It is applied as one transform over the whole page rather than a rotation
+  on each thing drawn, so the cards, crosshairs and crop marks swing
+  together, and it is left out of the PDF entirely at zero.
+
+  Reversed for the back page like the offsets, but unconditionally: a mirror
+  in either axis turns anticlockwise into clockwise, so unlike the offsets
+  the flip setting does not come into it.
+
+  Worth remembering the diagnosis, which took three printed sheets: horizontal
+  error changing *down* the page is rotation; changing *across* the page would
+  be scale, which nothing corrects yet; the same everywhere is an offset.
+
 ## Pack simulation
 
 - [ ] **Japan Showcase cards in the wildcard slot** (2027 rules)

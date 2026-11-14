@@ -13,7 +13,11 @@
 import { describe, expect, it } from "vitest";
 
 import { buildAlignmentPdf, RULER_MM } from "@/lib/export/alignment";
-import { backPageOffset } from "@/lib/export/layout";
+import {
+  backPageOffset,
+  backPageRotation,
+  rotationMatrix,
+} from "@/lib/export/layout";
 import { buildPdf } from "@/lib/export/pdf";
 import { GRID, MM, PAPER } from "@/lib/export/paper";
 import { offsetTag, runAlignmentPrint } from "@/lib/export/run";
@@ -63,6 +67,33 @@ describe("the duplex offset", () => {
       expect(call[2].end.x).toBeCloseTo(none[i][2].end.x + 1.5 * MM, 5);
       expect(call[2].end.y).toBeCloseTo(none[i][2].end.y + 1.5 * MM, 5);
     }
+  });
+
+  /*
+   * That it is a translation and nothing else.
+   *
+   * The two tests above check each thing moved by the right amount; this
+   * checks the page did not also turn or stretch while moving. Every vector
+   * between two drawn things has to come through unchanged — which is what
+   * rules out a rotation hiding inside the offset, since a rotation leaves
+   * the things near the centre almost where they were and swings the rest.
+   */
+  it("keeps the page rigid: every distance and angle survives", async () => {
+    const corners = (calls: any[]) =>
+      images(calls).map((c) => ({ x: c[3].x, y: c[3].y }));
+    const before = corners(await pdfWith(0, 0));
+    const after = corners(await pdfWith(2, -3));
+    expect(before.length).toBeGreaterThan(1);
+    for (let i = 1; i < before.length; i++) {
+      expect(after[i].x - after[0].x).toBeCloseTo(before[i].x - before[0].x, 5);
+      expect(after[i].y - after[0].y).toBeCloseTo(before[i].y - before[0].y, 5);
+    }
+  });
+
+  it("emits no transform of its own, however far it shifts", async () => {
+    // A rotation shows up as a `cm` operator; an offset must never add one.
+    const calls = await pdfWith(5, -5);
+    expect(calls.filter((c) => c[0] === "operators" && JSON.stringify(c[2]).includes("cm"))).toHaveLength(0);
   });
 
   it("does nothing when it is zero, missing or nonsense", async () => {
@@ -115,6 +146,76 @@ describe("turning a measured offset into a page offset", () => {
       expect(Object.is(backPageOffset(flip, 0, 0).x, 0)).toBe(true);
       expect(Object.is(backPageOffset(flip, 0, 0).y, 0)).toBe(true);
     }
+  });
+});
+
+/*
+ * Rotation, for the error an offset cannot reach: a sheet that lines up at
+ * one end and is out at the other, because the two sides go through at
+ * slightly different angles.
+ */
+describe("the duplex rotation", () => {
+  const cm = (calls: any[]) =>
+    calls
+      .filter((c) => c[0] === "operators")
+      .flatMap((c) => c[2])
+      .filter((op: any) => op?.op === "cm");
+
+  it("turns the page about its centre, leaving the centre alone", () => {
+    const [cx, cy] = [PAPER.letter.w / 2, PAPER.letter.h / 2];
+    const [a, b, c, d, e, f] = rotationMatrix(90, cx, cy);
+    const at = (x: number, y: number) => [a * x + c * y + e, b * x + d * y + f];
+    const [mx, my] = at(cx, cy);
+    expect(mx).toBeCloseTo(cx, 6);
+    expect(my).toBeCloseTo(cy, 6);
+    // A quarter turn sends a point above the centre to its left.
+    const [px, py] = at(cx, cy + 10);
+    expect(px).toBeCloseTo(cx - 10, 6);
+    expect(py).toBeCloseTo(cy, 6);
+  });
+
+  it("swings the bottom right and the top left when positive", () => {
+    const [cx, cy] = [0, 0];
+    const [a, b, c, d, e, f] = rotationMatrix(1, cx, cy);
+    const at = (x: number, y: number) => [a * x + c * y + e, b * x + d * y + f];
+    expect(at(0, -100)[0]).toBeGreaterThan(0); // below centre moves right
+    expect(at(0, 100)[0]).toBeLessThan(0); // above centre moves left
+  });
+
+  /*
+   * As with the offset, it is measured with the fronts toward you, where the
+   * back shows through mirrored — and a mirror reverses which way a rotation
+   * goes. Both flips are a single mirror, so both reverse it.
+   */
+  it("is reversed for the back page, whichever way the paper turns", () => {
+    expect(backPageRotation(0.4)).toBe(-0.4);
+    expect(backPageRotation(-0.4)).toBe(0.4);
+    expect(Object.is(backPageRotation(0), 0)).toBe(true);
+  });
+
+  it("puts no transform on the page at all when it is zero", async () => {
+    const rec = recordingPdfLib();
+    await buildPdf(exportPacks().slice(0, 1), {
+      side: "back",
+      rotationDeg: 0,
+      imageLoader: fakeImageLoader,
+      pdfLib: rec.lib as never,
+    });
+    expect(cm(rec.calls)).toHaveLength(0);
+  });
+
+  it("puts one on each page when it is not", async () => {
+    const rec = recordingPdfLib();
+    await buildPdf(exportPacks(), {
+      side: "back",
+      rotationDeg: 0.4,
+      newPagePerPack: true,
+      imageLoader: fakeImageLoader,
+      pdfLib: rec.lib as never,
+    });
+    const pages = rec.calls.filter((c) => c[0] === "addPage").length;
+    expect(pages).toBeGreaterThan(1);
+    expect(cm(rec.calls)).toHaveLength(pages);
   });
 });
 
@@ -235,6 +336,7 @@ describe("running the alignment print", () => {
     ...DEFAULT_SETTINGS,
     backOffsetXMm: 1.5,
     backOffsetYMm: -2,
+    backRotationDeg: 0.4,
   });
 
   it("saves one file per side, each named for the offsets it was testing", async () => {
@@ -254,15 +356,24 @@ describe("running the alignment print", () => {
         },
       },
     });
+    const common = {
+      paper: "a4",
+      flip: "long",
+      offsetXMm: 1.5,
+      offsetYMm: -2,
+      rotationDeg: 0.4,
+    };
     expect(seen).toEqual([
-      { side: "front", paper: "a4", flip: "long", offsetXMm: 1.5, offsetYMm: -2 },
-      { side: "back", paper: "a4", flip: "long", offsetXMm: 1.5, offsetYMm: -2 },
+      { side: "front", ...common },
+      { side: "back", ...common },
     ]);
     // The offsets are on both files: a printed pair that cannot be matched to
     // the numbers it was testing is a sheet of wasted paper.
+    // The rotation is in the name too when there is one, for the same reason
+    // the offsets are: a printed pair has to be matchable to its numbers.
     expect(saved).toEqual([
-      [3, "alignment-front-x+1.5-y-2.pdf", "application/pdf"],
-      [3, "alignment-back-x+1.5-y-2.pdf", "application/pdf"],
+      [3, "alignment-front-x+1.5-y-2-r+0.4.pdf", "application/pdf"],
+      [3, "alignment-back-x+1.5-y-2-r+0.4.pdf", "application/pdf"],
     ]);
     expect(status[status.length - 1]).toMatch(/^✅/);
   });
@@ -270,6 +381,9 @@ describe("running the alignment print", () => {
   it("writes zero without a sign, and a positive one with it", () => {
     expect(offsetTag(0, 0)).toBe("x0-y0");
     expect(offsetTag(1, -0.5)).toBe("x+1-y-0.5");
+    // No rotation, no mention of it: most sheets will not need one.
+    expect(offsetTag(1, 0, 0)).toBe("x+1-y0");
+    expect(offsetTag(1, 0, -0.35)).toBe("x+1-y0-r-0.35");
   });
 
   it("reports a failure rather than throwing", async () => {

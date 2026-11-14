@@ -159,6 +159,37 @@ export function backPageOffset(
 }
 
 /**
+ * Turn a measured rotation into one the backs page can use.
+ *
+ * Like the offset, you read it with the fronts toward you, where the back
+ * shows through mirrored — and a mirror reverses which way round a rotation
+ * goes. Unlike the offset, that is true of *both* flips: reflecting in either
+ * axis turns anticlockwise into clockwise, so the sign is reversed either way
+ * and the flip setting does not come into it.
+ */
+export const backPageRotation = (deg: number): number => (deg === 0 ? 0 : -deg);
+
+/**
+ * The matrix that turns a page about a point: `[a b c d e f]` for PDF's
+ * `cm` operator, mapping p to R(p − centre) + centre.
+ *
+ * Rotating the sheet is not the same as rotating each thing on it. The cards,
+ * the crosshairs and the crop marks have to swing together, keeping their
+ * places relative to each other, which is what a transform over the whole
+ * page does and what nine separately rotated images would not.
+ */
+export function rotationMatrix(
+  deg: number,
+  cx: number,
+  cy: number,
+): [number, number, number, number, number, number] {
+  const t = (deg * Math.PI) / 180;
+  const cos = Math.cos(t);
+  const sin = Math.sin(t);
+  return [cos, sin, -sin, cos, cx - cos * cx + sin * cy, cy - sin * cx - cos * cy];
+}
+
+/**
  * Place one page's cards, mirrored on the backs sheet so each back lands
  * behind its front when the page is printed double-sided: flipping on the long
  * edge mirrors left↔right (column 1 front ↔ column 3 back), flipping on the

@@ -24,6 +24,7 @@ export const DEFAULT_EXPORT_SETTINGS: ExportSettings = {
   enhance: false,
   backOffsetXMm: 0,
   backOffsetYMm: 0,
+  backRotationDeg: 0,
 };
 
 interface ExportStore {

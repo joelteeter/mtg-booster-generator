@@ -144,6 +144,7 @@ export function recordingPdfLib(): PdfRecorder {
     }),
     clip: () => ({ op: "W" }),
     endPath: () => ({ op: "n" }),
+    concatTransformationMatrix: (...m: number[]) => ({ op: "cm", m }),
     StandardFonts: { Helvetica: "Helvetica" },
   };
   return { lib, calls };

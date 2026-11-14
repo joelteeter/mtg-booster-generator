@@ -22,7 +22,7 @@ import {
   buildSaveFile as defaultBuildSaveFile,
   type SaveFileOptions,
 } from "./save-file";
-import { backPageOffset } from "./layout";
+import { backPageOffset, backPageRotation } from "./layout";
 import type { DfcMode, Flip, PaperName, Quality } from "./index";
 
 export type ExportKind = "pdf" | "back" | "mpp";
@@ -57,6 +57,15 @@ export interface ExportSettings {
    */
   backOffsetXMm: number;
   backOffsetYMm: number;
+  /**
+   * Duplex rotation, in degrees, applied to the backs sheet only.
+   *
+   * What an offset cannot fix: a sheet square at one end and out at the
+   * other, because the two sides go through at slightly different angles.
+   * Positive swings the bottom of the backs to the right, as you see it with
+   * the fronts toward you.
+   */
+  backRotationDeg: number;
 }
 
 export interface Exporter {
@@ -132,14 +141,18 @@ export async function runExport({
         paper: settings.paper,
         bleedMm: settings.bleedMm,
         ...(side === "back"
-          ? (({ x, y }) => ({ offsetXMm: x, offsetYMm: y }))(
+          ? (({ x, y }) => ({
+              offsetXMm: x,
+              offsetYMm: y,
+              rotationDeg: backPageRotation(settings.backRotationDeg),
+            }))(
               backPageOffset(
                 settings.flip,
                 settings.backOffsetXMm,
                 settings.backOffsetYMm,
               ),
             )
-          : { offsetXMm: 0, offsetYMm: 0 }),
+          : { offsetXMm: 0, offsetYMm: 0, rotationDeg: 0 }),
         quality: settings.quality,
         // pdf.ts skips plain card backs; only card faces are upscaled.
         enhance: settings.enhance,
@@ -209,9 +222,16 @@ export const enhancedMessage = (name: string, ms: number): string =>
  * On both files, not just the back, so a printed pair cannot be separated
  * from the numbers it was testing — which is the whole use of keeping them.
  */
-export const offsetTag = (xMm: number, yMm: number): string => {
+export const offsetTag = (
+  xMm: number,
+  yMm: number,
+  rotationDeg = 0,
+): string => {
   const one = (v: number) => (v > 0 ? `+${v}` : String(v));
-  return `x${one(xMm)}-y${one(yMm)}`;
+  return (
+    `x${one(xMm)}-y${one(yMm)}` +
+    (rotationDeg ? `-r${one(rotationDeg)}` : "")
+  );
 };
 
 export async function runAlignmentPrint({
@@ -228,7 +248,11 @@ export async function runAlignmentPrint({
   const build = exporter?.buildAlignmentPdf ?? defaultBuildAlignmentPdf;
   try {
     onStatus("⏳ Building the alignment test print…");
-    const tag = offsetTag(settings.backOffsetXMm, settings.backOffsetYMm);
+    const tag = offsetTag(
+      settings.backOffsetXMm,
+      settings.backOffsetYMm,
+      settings.backRotationDeg,
+    );
     for (const side of ["front", "back"] as const) {
       const bytes = await build({
         side,
@@ -236,6 +260,7 @@ export async function runAlignmentPrint({
         flip: settings.flip,
         offsetXMm: settings.backOffsetXMm,
         offsetYMm: settings.backOffsetYMm,
+        rotationDeg: settings.backRotationDeg,
       });
       save(bytes, `alignment-${side}-${tag}.pdf`, "application/pdf");
     }

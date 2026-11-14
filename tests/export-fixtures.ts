@@ -232,6 +232,7 @@ export const DEFAULT_SETTINGS: ExportSettings = {
   customBackUrl: null,
   newPagePerPack: false,
   enhance: false,
+  backRotationDeg: 0,
   backOffsetXMm: 0,
   backOffsetYMm: 0,
 };

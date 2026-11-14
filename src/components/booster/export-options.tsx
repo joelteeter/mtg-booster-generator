@@ -45,6 +45,14 @@ function Field({
 /** How far one press of − or + moves the sheet, and how far it may go. */
 const OFFSET_STEP_MM = 0.5;
 const OFFSET_LIMIT_MM = 10;
+/*
+ * Rotation is a much smaller number than the offsets: a tenth of a degree
+ * swings the bottom of a sheet about 0.3 mm, which is already near what can
+ * be measured by eye. Past a degree or two the paper is going in crooked and
+ * that is a problem for the paper guides, not for a correction.
+ */
+const ROTATION_STEP_DEG = 0.05;
+const ROTATION_LIMIT_DEG = 2;
 
 /**
  * One axis of the duplex offset: − , a number you can type, and +.
@@ -59,15 +67,18 @@ function OffsetField({
   label,
   value,
   onChange,
+  step = OFFSET_STEP_MM,
+  limit = OFFSET_LIMIT_MM,
 }: {
   id: string;
   label: string;
   value: number;
   onChange: (value: number) => void;
+  step?: number;
+  limit?: number;
 }) {
   const clamp = (v: number) =>
-    Math.round(Math.max(-OFFSET_LIMIT_MM, Math.min(OFFSET_LIMIT_MM, v)) * 100) /
-    100;
+    Math.round(Math.max(-limit, Math.min(limit, v)) * 100) / 100;
   return (
     <Field id={id} label={label}>
       <div className="flex items-center gap-1.5">
@@ -76,16 +87,16 @@ function OffsetField({
           variant="secondary"
           size="icon"
           aria-label={`${label}: less`}
-          onClick={() => onChange(clamp(value - OFFSET_STEP_MM))}
+          onClick={() => onChange(clamp(value - step))}
         >
           −
         </Button>
         <Input
           id={id}
           type="number"
-          step={OFFSET_STEP_MM}
-          min={-OFFSET_LIMIT_MM}
-          max={OFFSET_LIMIT_MM}
+          step={step}
+          min={-limit}
+          max={limit}
           value={value}
           onChange={(e) => onChange(clamp(Number(e.target.value) || 0))}
           className="w-20 text-center"
@@ -95,7 +106,7 @@ function OffsetField({
           variant="secondary"
           size="icon"
           aria-label={`${label}: more`}
-          onClick={() => onChange(clamp(value + OFFSET_STEP_MM))}
+          onClick={() => onChange(clamp(value + step))}
         >
           +
         </Button>
@@ -303,6 +314,14 @@ export function ExportOptions() {
             value={settings.backOffsetYMm}
             onChange={(v) => set("backOffsetYMm", v)}
           />
+          <OffsetField
+            id="backRotation"
+            label="Turn backs (°)"
+            value={settings.backRotationDeg}
+            onChange={(v) => set("backRotationDeg", v)}
+            step={ROTATION_STEP_DEG}
+            limit={ROTATION_LIMIT_DEG}
+          />
           <Button
             variant="secondary"
             size="sm"
@@ -330,6 +349,16 @@ export function ExportOptions() {
           right, so enter a positive number. Print it again to check: the
           offsets you have are built into it, so the second one is a check
           rather than another guess.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          <b>Turn backs</b> is for the error an offset cannot reach: a sheet
+          that lines up at one end and is out at the other, which means the
+          two sides went through at slightly different angles. Positive swings
+          the bottom of the backs to the right and the top to the left. A
+          tenth of a degree moves the bottom of the page about 0.3 mm, so this
+          is a much smaller number than the offsets — if you need more than a
+          degree, the paper is feeding crooked and the tray guides are the
+          thing to fix.
         </p>
         <p className="text-sm text-muted-foreground">
           Which way round the printer turns the paper is already accounted

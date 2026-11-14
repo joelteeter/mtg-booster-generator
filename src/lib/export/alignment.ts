@@ -20,7 +20,13 @@
  */
 import type * as PdfLib from "pdf-lib";
 
-import { backPageOffset, type Flip, type Side } from "./layout";
+import {
+  backPageOffset,
+  backPageRotation,
+  rotationMatrix,
+  type Flip,
+  type Side,
+} from "./layout";
 import { CARD_PT, GRID, MM, PAPER, type PaperName } from "./paper";
 
 /** How far the rulers reach either side of true, in millimetres. */
@@ -48,6 +54,8 @@ export interface AlignmentPdfOptions {
   /** The offsets being tested, as measured; applied to the back page. */
   offsetXMm?: number;
   offsetYMm?: number;
+  /** The rotation being tested, as measured; applied to the back page. */
+  rotationDeg?: number;
   /** Swapped out by the tests, which have no pdf-lib. */
   pdfLib?: typeof PdfLib;
 }
@@ -72,8 +80,14 @@ function cellCentres(
 export async function buildAlignmentPdf(
   opts: AlignmentPdfOptions = {},
 ): Promise<Uint8Array> {
-  const { PDFDocument, rgb, StandardFonts } =
-    opts.pdfLib ?? (await import("pdf-lib"));
+  const {
+    PDFDocument,
+    rgb,
+    StandardFonts,
+    pushGraphicsState,
+    popGraphicsState,
+    concatTransformationMatrix,
+  } = opts.pdfLib ?? (await import("pdf-lib"));
   const paper = PAPER[opts.paper as PaperName] || PAPER.letter;
   const measured = backPageOffset(
     opts.flip,
@@ -98,6 +112,14 @@ export async function buildAlignmentPdf(
     const side: Side = opts.side === "back" ? "back" : "front";
     const back = side === "back";
     const page = pdf.addPage([paper.w, paper.h]);
+    const turn = back ? backPageRotation(Number(opts.rotationDeg) || 0) : 0;
+    if (turn)
+      page.pushOperators(
+        pushGraphicsState(),
+        concatTransformationMatrix(
+          ...rotationMatrix(turn, paper.w / 2, paper.h / 2),
+        ),
+      );
     const x0 = baseX + (back ? offsetX : 0);
     const yTop = baseYTop + (back ? offsetY : 0);
     const line = (
@@ -167,6 +189,8 @@ export async function buildAlignmentPdf(
       font,
       color: ink,
     });
+
+    if (turn) page.pushOperators(popGraphicsState());
   }
 
   return pdf.save();
