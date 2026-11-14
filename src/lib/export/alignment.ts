@@ -20,23 +20,25 @@
  */
 import type * as PdfLib from "pdf-lib";
 
+import { backPageOffset, type Flip } from "./layout";
 import { CARD_PT, GRID, MM, PAPER, type PaperName } from "./paper";
 
 /** How far the rulers reach either side of true, in millimetres. */
 export const RULER_MM = 7;
 
-/*
- * Note there is no `flip` here, unlike a real backs sheet.
- *
- * A backs sheet mirrors its columns or its rows so each card lands behind its
- * own front. This sheet draws the same marks in all nine cells, and a uniform
- * grid is its own mirror: whichever way the printer turns the paper, a cell's
- * rulers land behind a cell's cross. What is being measured is the offset
- * between the two sides, and that is the same either way.
- */
 export interface AlignmentPdfOptions {
   paper?: PaperName;
-  /** The offsets being tested; applied to the back page, as in a real run. */
+  /*
+   * Not used to mirror anything: this sheet draws the same marks in all nine
+   * cells, and a uniform grid is its own mirror, so a cell's rulers land
+   * behind a cell's cross whichever way the paper turns over.
+   *
+   * It is needed for the offsets, which are written the way you read them —
+   * fronts toward you — and so have to be turned around for the page they are
+   * printed on, exactly as a real backs sheet does.
+   */
+  flip?: Flip;
+  /** The offsets being tested, as measured; applied to the back page. */
   offsetXMm?: number;
   offsetYMm?: number;
   /** Swapped out by the tests, which have no pdf-lib. */
@@ -66,8 +68,13 @@ export async function buildAlignmentPdf(
   const { PDFDocument, rgb, StandardFonts } =
     opts.pdfLib ?? (await import("pdf-lib"));
   const paper = PAPER[opts.paper as PaperName] || PAPER.letter;
-  const offsetX = (Number(opts.offsetXMm) || 0) * MM;
-  const offsetY = (Number(opts.offsetYMm) || 0) * MM;
+  const measured = backPageOffset(
+    opts.flip,
+    Number(opts.offsetXMm) || 0,
+    Number(opts.offsetYMm) || 0,
+  );
+  const offsetX = measured.x * MM;
+  const offsetY = measured.y * MM;
 
   const pdf = await PDFDocument.create();
   pdf.setTitle("Alignment test print");
@@ -140,9 +147,9 @@ export async function buildAlignmentPdf(
      * offset, and stays where it can be read.
      */
     const heading = back
-      ? "BACK — hold the sheet to a light. Where the front's cross falls on these rulers is the error:" +
-        " ticks are 1 mm, long ticks 5 mm. Type the opposite of what you read into the back offsets."
-      : "FRONT — print this double-sided, the same way you print your packs, then hold it up to a light.";
+      ? "BACK — ticks are 1 mm, long ticks 5 mm. Measure from this ruler's middle to the front's cross:" +
+        " that is how far the backs must move, so type it in as you see it here (right +, up +)."
+      : "FRONT — print this double-sided the way you print your packs, then hold it to a light with this side toward you.";
     page.drawText(heading, {
       x: baseX,
       y: baseYTop + 7,

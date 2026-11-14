@@ -293,13 +293,13 @@ export function ExportOptions() {
         <div className="flex flex-wrap items-end gap-4">
           <OffsetField
             id="backOffsetX"
-            label="Backs: across (mm, + right)"
+            label="Move backs right (mm)"
             value={settings.backOffsetXMm}
             onChange={(v) => set("backOffsetXMm", v)}
           />
           <OffsetField
             id="backOffsetY"
-            label="Backs: up the page (mm, + up)"
+            label="Move backs up (mm)"
             value={settings.backOffsetYMm}
             onChange={(v) => set("backOffsetYMm", v)}
           />
@@ -317,12 +317,22 @@ export function ExportOptions() {
           No printer puts the second side exactly behind the first, and the
           error only shows once you cut. These move the <b>backs</b> sheet to
           meet the fronts — the fronts carry the guides you cut to, so they
-          stay put. The test print is two pages: print it double-sided the way
-          you print your packs, hold it up to a light, and read the error off
-          the rulers on the back, which are ticked every millimetre. Type the
-          negative of what you read, then print it again to check. The current
-          offsets are built into it, so the second one is a check rather than
-          another guess.
+          stay put.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          The test print is two pages. Print it double-sided the way you print
+          your packs, then hold it to a light <b>with the fronts toward you</b>
+          . The back&apos;s rulers are ticked every millimetre; measure from a
+          ruler&apos;s middle to the front&apos;s cross and type that in, the
+          way you are looking at it — if the cross sits to the right of the
+          middle, the backs need to move right, so enter a positive number.
+          Print it again to check: the offsets you have are built into it, so
+          the second one is a check rather than another guess.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Which way round the printer turns the paper is already accounted
+          for, so the numbers mean the same thing whichever flip you have
+          chosen above.
         </p>
       </div>
     </div>

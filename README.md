@@ -149,11 +149,12 @@ Every format is available for all packs together or for each pack on its own.
 ## Duplex alignment
 No printer puts the second side exactly behind the first. The error is a millimetre or two, it is consistent for a given printer and paper path, and it stays invisible until you cut — at which point every card is off-centre on one side.
 
-* **Backs: across / up the page** nudge the backs sheet in millimetres, half a millimetre a press, up to 10 mm either way. They move the **backs** only: the fronts carry the cut guides you cut to, so they stay put. The whole sheet moves together — images, crosshairs and crop marks — because the point is to move the print relative to the paper, not the cards relative to their own guides
-* **🎯 Alignment test print** downloads two pages to measure the error with. Print it double-sided the way you print your packs, hold it up to a light, and the front's cross falls somewhere on the back's rulers; the ticks are 1 mm and the long ones 5 mm. Type the opposite of what you read into the offsets
+* **Move backs right / up** nudge the backs sheet in millimetres, half a millimetre a press, up to 10 mm either way. They move the **backs** only: the fronts carry the cut guides you cut to, so they stay put. The whole sheet moves together — images, crosshairs and crop marks — because the point is to move the print relative to the paper, not the cards relative to their own guides
+* **🎯 Alignment test print** downloads two pages to measure the error with. Print it double-sided the way you print your packs, then hold it to a light **with the fronts toward you**. Measure from a ruler's middle to the front's cross — ticks are 1 mm, long ticks 5 mm — and type that in the way you are looking at it. Cross to the right of the middle means the backs must move right, so a positive number
+* **the numbers mean what you see, not what the file holds.** Held to the light, the backs show through mirrored, so one axis is reversed by the time it reaches the page — and which one depends on whether the printer flips on the long or the short edge. `backPageOffset` does that conversion, so the same reading works under either setting. Without it the sign depended on a control three fields away and the only way to find it was to print twice
 * the test print bakes in the offsets you already have, so printing it again is a check rather than another guess
 * it needs no packs — measuring the printer is as useful before a run as after one
-* it has no "flip" setting, unlike a real backs sheet: every cell carries the same marks, and a uniform grid is its own mirror, so a cell's rulers land behind a cell's cross whichever way the paper turns over
+* the test sheet itself is never mirrored, unlike a real backs sheet: every cell carries the same marks, and a uniform grid is its own mirror, so a cell's rulers land behind a cell's cross whichever way the paper turns over
 
 ## Files
 ```

@@ -164,11 +164,18 @@ anything already settled lives in the README instead.
   guides. They apply to the backs only, because the fronts carry the guides
   you cut to.
 
-  The test print has no `flip`, unlike a real backs sheet: all nine cells
+  The test sheet is never mirrored, unlike a real backs sheet: all nine cells
   carry the same marks, and a uniform grid is its own mirror. Its rulers went
   out unlabelled in the end — numbering both axes put the +5 of one beside the
   −5 of the other at every corner, and two 5 pt numerals a millimetre apart
   are worse than none.
+
+  Shipped with the sign wrong, in the sense that mattered: the offsets were
+  in the backs page's own coordinates, but they are read off a sheet held to
+  a light with the fronts toward you, where the back shows through mirrored.
+  So "+ right" moved it left, and which axis was reversed depended on the
+  flip setting. `backPageOffset` converts now, and the controls say what you
+  see. Worth remembering for anything else printed on a second side.
 
 ## Pack simulation
 

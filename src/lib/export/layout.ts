@@ -131,6 +131,34 @@ export interface PlacementOptions {
 }
 
 /**
+ * Turn an offset you measured into one the backs page can use.
+ *
+ * You read the error holding the sheet up to a light with the fronts toward
+ * you, so that is what the control means: + is right and + is up *as you were
+ * looking at it*. The backs page does not see it that way. It is printed on
+ * the other side and mirrored to match, so moving its content toward its own
+ * +x moves it to your left once the sheet is turned over — and which axis is
+ * reversed depends on which edge the printer flips about.
+ *
+ * Long edge mirrors left↔right, so across is reversed and up is not. Short
+ * edge mirrors top↔bottom, so up is reversed and across is not.
+ *
+ * Without this the sign depended on a setting three fields away, and the only
+ * way to find it was to print twice.
+ */
+export function backPageOffset(
+  flip: Flip | undefined,
+  xMm: number,
+  yMm: number,
+): { x: number; y: number } {
+  // `-0` would render as a different string in the recorded calls.
+  const flipped = (v: number) => (v === 0 ? 0 : -v);
+  return flip === "short"
+    ? { x: xMm, y: flipped(yMm) }
+    : { x: flipped(xMm), y: yMm };
+}
+
+/**
  * Place one page's cards, mirrored on the backs sheet so each back lands
  * behind its front when the page is printed double-sided: flipping on the long
  * edge mirrors left↔right (column 1 front ↔ column 3 back), flipping on the

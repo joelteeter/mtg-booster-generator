@@ -22,6 +22,7 @@ import {
   buildSaveFile as defaultBuildSaveFile,
   type SaveFileOptions,
 } from "./save-file";
+import { backPageOffset } from "./layout";
 import type { DfcMode, Flip, PaperName, Quality } from "./index";
 
 export type ExportKind = "pdf" | "back" | "mpp";
@@ -49,6 +50,10 @@ export interface ExportSettings {
    *
    * The fronts are the reference — they carry the cut guides you cut to — so
    * it is the backs that move to meet them.
+   *
+   * Measured, and therefore written, as you see it holding the printed sheet
+   * to a light with the fronts toward you: + right and + up. `backPageOffset`
+   * turns that into what the backs page needs.
    */
   backOffsetXMm: number;
   backOffsetYMm: number;
@@ -126,8 +131,15 @@ export async function runExport({
           side === "back" && custom ? settings.customBackUrl : null,
         paper: settings.paper,
         bleedMm: settings.bleedMm,
-        offsetXMm: side === "back" ? settings.backOffsetXMm : 0,
-        offsetYMm: side === "back" ? settings.backOffsetYMm : 0,
+        ...(side === "back"
+          ? (({ x, y }) => ({ offsetXMm: x, offsetYMm: y }))(
+              backPageOffset(
+                settings.flip,
+                settings.backOffsetXMm,
+                settings.backOffsetYMm,
+              ),
+            )
+          : { offsetXMm: 0, offsetYMm: 0 }),
         quality: settings.quality,
         // pdf.ts skips plain card backs; only card faces are upscaled.
         enhance: settings.enhance,
@@ -207,6 +219,7 @@ export async function runAlignmentPrint({
     onStatus("⏳ Building the alignment test print…");
     const bytes = await build({
       paper: settings.paper,
+      flip: settings.flip,
       offsetXMm: settings.backOffsetXMm,
       offsetYMm: settings.backOffsetYMm,
     });
