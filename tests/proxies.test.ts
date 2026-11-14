@@ -13,6 +13,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { expandFaces } from "@/lib/export/layout";
+import { printingOf } from "@/lib/preview";
 
 import {
   faceCard,
@@ -373,7 +374,13 @@ describe("laying the list out", () => {
     ]);
     // The slot numbers the preview captions use are positions in the list.
     expect(entries.map((e) => e.slot)).toEqual([1, 2, 3, 4]);
-    expect(entries[0].label).toBe("TRC 1");
+    /*
+     * No label: a label says what drew the card, and nothing drew these but
+     * the line that was typed. The preview caption names the printing from
+     * the card itself — see `printingOf`.
+     */
+    expect(entries.map((e) => e.label)).toEqual(["", "", "", ""]);
+    expect(printingOf(entries[0].card)).toBe("TRC 1");
   });
 
   it("skips a line that resolved to nothing", () => {
@@ -455,6 +462,21 @@ describe("laying the list out", () => {
     // Two double-faced cards split in two, plus nine: 13 slots, so 9 + 4.
     expect(proxyPages(proxyEntries(resolved, "separate")).map((p) => p.length)).toEqual([9, 4]);
     expect(proxyPages(proxyEntries(resolved, "frontOnly")).map((p) => p.length)).toEqual([9, 2]);
+  });
+
+  /*
+   * The preview's caption, in the shape a decklist is written in: the
+   * question a proxy preview answers is "is this the right printing", and
+   * the art alone often cannot.
+   */
+  it("names one printing the way a decklist does", () => {
+    expect(printingOf(card("Forest", "neo", "302"))).toBe("NEO 302");
+    expect(printingOf(faceCard(dfc("Fable // Reflection", "neo", "141"), 1))).toBe(
+      "NEO 141",
+    );
+    // A card with neither — the built-in separator lands — says nothing.
+    expect(printingOf({ name: "Forest" } as Card)).toBe("");
+    expect(printingOf(null)).toBe("");
   });
 
   it("names the files for the page", () => {

@@ -30,6 +30,19 @@ export function faceImages(card: Card, size: ImageSize = "normal"): string[] {
   return [];
 }
 
+/**
+ * `NEO 302`: a set and a collector number, which between them name one
+ * printing and nothing else.
+ *
+ * It is the shape a decklist is written in, so the preview says it the same
+ * way — the question a preview answers for a proxy is "is this the right
+ * printing", and the art alone often cannot.
+ */
+export const printingOf = (card: Card | null | undefined): string =>
+  card?.set && card?.collector_number
+    ? `${card.set.toUpperCase()} ${card.collector_number}`
+    : "";
+
 export interface CardSide {
   url: string;
   name: string;

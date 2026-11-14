@@ -41,10 +41,6 @@ export function faceCard(card: Card, face: 0 | 1): Card {
   };
 }
 
-/** What the preview caption shows: the printing this slot is actually of. */
-const printing = (card: Card): string =>
-  `${(card.set ?? "").toUpperCase()} ${card.collector_number ?? ""}`.trim();
-
 /**
  * One entry per slot, in the order the list was written, with each line's
  * copies together.
@@ -57,7 +53,12 @@ export function proxyEntries(
   for (const { line, card } of resolved) {
     if (!card) continue;
     for (let copy = 0; copy < line.qty; copy++) {
-      const base = { finish: "nonfoil", label: printing(card) };
+      /*
+       * No label: a pack entry's label is what drew it — "common", "token
+       * separator" — and nothing drew this one but the line you typed. The
+       * preview caption carries the printing itself.
+       */
+      const base = { finish: "nonfoil", label: "" };
       if (dfcMode === "separate" && isDfc(card)) {
         out.push({ ...base, card: faceCard(card, 0), slot: out.length + 1 });
         out.push({ ...base, card: faceCard(card, 1), slot: out.length + 1 });

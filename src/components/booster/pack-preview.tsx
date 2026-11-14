@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { previewOptionLabel, type PackEntry } from "@/lib/generate";
-import { cardSides } from "@/lib/preview";
+import { cardSides, printingOf } from "@/lib/preview";
 import { cn } from "@/lib/utils";
 import { usePacksStore } from "@/store/packs";
 
@@ -35,6 +35,14 @@ function PreviewCard({ entry }: { entry: PackEntry }) {
     entry.finish === "foil" ? "FOIL" : entry.finish === "etched" ? "ETCHED" : "";
   const flip = () => two && setFace((f) => (f + 1) % 2);
   const other = sides[(face + 1) % 2];
+  /*
+   * A second card printed on the back — a token separator, a token sheet
+   * slot — is appended after the card's own faces, so the last side is the
+   * back card's and carries the back card's printing. A double-faced card's
+   * two faces are one printing.
+   */
+  const backSide = face > 0 && !!entry.backCard && face === sides.length - 1;
+  const printing = printingOf(backSide ? entry.backCard : entry.card);
 
   return (
     <figure
@@ -96,10 +104,13 @@ function PreviewCard({ entry }: { entry: PackEntry }) {
       <figcaption className="mt-1.5">
         <b className="text-foreground">
           {entry.slot ? `Slot ${entry.slot}` : "Separator"}
-        </b>{" "}
-        · {entry.label}
+        </b>
+        {entry.label && ` · ${entry.label}`}
         <br />
-        <span>{sides[face]?.name ?? entry.card.name}</span>
+        <span>
+          {printing && <span className="tabular-nums">{printing} </span>}
+          {sides[face]?.name ?? entry.card.name}
+        </span>
         {two && <span className="opacity-70"> · {face === 1 ? "back" : "front"}</span>}
       </figcaption>
     </figure>
