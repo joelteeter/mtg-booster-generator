@@ -181,6 +181,35 @@ describe("reading a pasted list", () => {
     ]);
   });
 
+  /*
+   * `6 forest neo 302` — a real list, pasted with no brackets at all. It read
+   * as a card called "forest neo" with no set, so it took the page's fallback
+   * set and the number 302 from it, and printed TRK 302 instead of NEO 302.
+   *
+   * The set list is what makes this safe: `Academy Ruins 512` has exactly the
+   * same shape, and `ruins` is not a set.
+   */
+  it("reads a set code with no brackets round it", () => {
+    const sets = ["neo", "trk", "trc"];
+    const { lines } = parseProxyList(
+      "6 forest neo 302\n1 island trk 313\n1 Academy Ruins 512\n1 Plains 318",
+      sets,
+    );
+    expect(lines).toMatchObject([
+      { qty: 6, name: "forest", set: "NEO", number: "302" },
+      { qty: 1, name: "island", set: "TRK", number: "313" },
+      // Not a set, so the whole name is kept and only the number is taken.
+      { qty: 1, name: "Academy Ruins", set: null, number: "512" },
+      // A set here would leave no card name at all.
+      { qty: 1, name: "Plains", set: null, number: "318" },
+    ]);
+  });
+
+  it("only reads bare set codes when it knows the sets", () => {
+    const [line] = parseProxyList("6 forest neo 302").lines;
+    expect(line).toMatchObject({ name: "forest neo", set: null, number: "302" });
+  });
+
   it("accepts square brackets as well as round ones", () => {
     expect(parseProxyList("1 Academy Ruins [TRC] 512").lines[0]).toMatchObject({
       set: "TRC",

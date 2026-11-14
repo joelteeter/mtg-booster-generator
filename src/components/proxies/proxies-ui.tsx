@@ -63,7 +63,8 @@ export function ProxiesUi() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewIndex, setPreviewIndex] = useState(0);
 
-  const parsed = useMemo(() => parseProxyList(text), [text]);
+  const codes = useMemo(() => (sets ?? []).map((s) => s.code), [sets]);
+  const parsed = useMemo(() => parseProxyList(text, codes), [text, codes]);
   const newest = useMemo(() => mostRecentSet(sets ?? []), [sets]);
   /* The picker wins; the newest released set is the fallback. */
   const fallbackSet = setCode || newest?.code || "";
@@ -74,7 +75,7 @@ export function ProxiesUi() {
     setFailed("");
     try {
       setResolved(
-        await resolveProxyList(parseProxyList(text), fallbackSet, {
+        await resolveProxyList(parseProxyList(text, codes), fallbackSet, {
           collection: (ids, signal) => client.collection(ids, signal),
         }),
       );
@@ -86,7 +87,7 @@ export function ProxiesUi() {
     } finally {
       setLooking(false);
     }
-  }, [text, fallbackSet]);
+  }, [text, codes, fallbackSet]);
 
   /*
    * Faces are split here and not in the exporter, so the page you pick in the
@@ -160,7 +161,9 @@ export function ProxiesUi() {
         <p className="text-sm text-muted-foreground">
           Set and collector number name one printing exactly, and that is what
           gets printed. Both are optional: <code>4x Sol Ring</code> and a bare
-          name work too, and so do <code>{"//"}</code> comments and the
+          name work too, and the brackets are optional as well —{" "}
+          <code>6 forest neo 302</code> reads the same. So do{" "}
+          <code>{"//"}</code> comments and the
           Deck/Sideboard/Commander headings an export writes between its
           sections.
         </p>
@@ -229,7 +232,7 @@ export function ProxiesUi() {
       )}
 
       {(parsed.bad.length > 0 || missing.length > 0 || noted.length > 0) && (
-        <details className="rounded-lg border p-3" open={missing.length > 0}>
+        <details className="rounded-lg border p-3" open>
           <summary className="cursor-pointer text-sm font-medium">
             Lines to look at
           </summary>

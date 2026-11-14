@@ -13,8 +13,9 @@
  *
  * It is deliberately forgiving, because the lists people paste come from
  * everywhere: `4x Sol Ring`, a bare name with no set at all, `[TRC]` brackets,
- * Moxfield's `*F*` foil marker, category tags, and the section headings a
- * deck export writes between its parts.
+ * `6 forest neo 302` with no brackets at all, Moxfield's `*F*` foil marker,
+ * category tags, and the section headings a deck export writes between its
+ * parts.
  */
 
 export interface ProxyLine {
@@ -78,6 +79,16 @@ const SET_AND_NUMBER = /[([]([A-Za-z0-9]{2,6})[)\]]\s*([^\s]+)?\s*$/;
 const BARE_NUMBER = /\s+(\d{1,5}[a-z★†]?)\s*$/i;
 
 /**
+ * A set code with no brackets round it: `6 forest neo 302`.
+ *
+ * Only taken as a set when it is a set — `knownSets` decides, because
+ * `Academy Ruins 512` has the same shape and `ruins` is not a set code. A
+ * name must survive it too, so `Plains 318` keeps `Plains` as the card rather
+ * than reading it as a set with nothing in front of it.
+ */
+const BARE_SET_AND_NUMBER = /\s+([A-Za-z][A-Za-z0-9]{1,5})\s+(\d{1,5}[a-z★†]?)\s*$/i;
+
+/**
  * The name to look a card up by.
  *
  * A double-faced card is written `Front // Back` by most exporters, and
@@ -86,7 +97,19 @@ const BARE_NUMBER = /\s+(\d{1,5}[a-z★†]?)\s*$/i;
 export const matchName = (name: string): string =>
   (name.split("//")[0] ?? name).trim();
 
-export function parseProxyList(text: string): ProxyParse {
+/**
+ * `knownSets` are the codes Scryfall lists, which is what makes an
+ * unbracketed set code safe to recognise. Without them — a test, or the set
+ * list still loading — only the bracketed forms are read as sets, which is
+ * what this did before and is never wrong, only less helpful.
+ */
+export function parseProxyList(
+  text: string,
+  knownSets?: Iterable<string>,
+): ProxyParse {
+  const known = new Set<string>();
+  for (const code of knownSets ?? []) known.add(code.toLowerCase());
+
   const lines: ProxyLine[] = [];
   const bad: BadLine[] = [];
   let total = 0;
@@ -113,10 +136,17 @@ export function parseProxyList(text: string): ProxyParse {
       number = m[2] ?? null;
       rest = rest.slice(0, m.index).trim();
     } else {
-      const n = BARE_NUMBER.exec(rest);
-      if (n) {
-        number = n[1];
-        rest = rest.slice(0, n.index).trim();
+      const bare = BARE_SET_AND_NUMBER.exec(rest);
+      if (bare && known.has(bare[1].toLowerCase()) && rest.slice(0, bare.index).trim()) {
+        set = bare[1].toUpperCase();
+        number = bare[2];
+        rest = rest.slice(0, bare.index).trim();
+      } else {
+        const n = BARE_NUMBER.exec(rest);
+        if (n) {
+          number = n[1];
+          rest = rest.slice(0, n.index).trim();
+        }
       }
     }
 
