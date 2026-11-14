@@ -26,11 +26,12 @@ You need an internet connection for:
 * **jsDelivr** – only if you use AI-enhance: TensorFlow.js, UpscalerJS and its ESRGAN model (~3 MB), fetched the first time you tick the box. pdf-lib is bundled, and sql.js is served from this site, so the PDFs and the MTGProxyPrinter file need no third-party CDN
 
 ## Pages
-Three of them, behind a site header that carries the links, the brand and the
-theme toggle: the booster builders on the front page, Planechase at
-`/planechase` and Archenemy at `/archenemy`. Below `md` the links collapse
-behind a menu button. The two booster builders share one page and are chosen
-with the tab strip on it, since they share every control below it.
+Five of them, behind a site header that carries the links, the brand and the
+theme toggle: the booster builders on the front page, lands at `/lands`,
+tokens at `/tokens`, Planechase at `/planechase` and Archenemy at
+`/archenemy`. Below `md` the links collapse behind a menu button. The two
+booster builders share one page and are chosen with the tab strip on it, since
+they share every control below it.
 
 * **Booster Pack** – 14-card Booster Packs (Play Boosters renamed, see below) from any expansion, core, masters or draft-innovation set. Sets Scryfall lists but that are not out yet are grouped under “🔜 Not released yet” with their release date, since Scryfall only holds the cards spoiled so far and odds worked out from a part of a set move as more are revealed — the slot panel says so when one is chosen. The set list opens on the newest released set that is built for Limited (an expansion or core set), rather than the newest release outright, which is often a Commander or supplemental product with too few commons to build a pack from
 * **Commander Draft Booster** – 20-card draft boosters from the official Commander booster sets:
@@ -110,6 +111,16 @@ Each builder remembers its own options, so settings chosen for Booster Packs nev
 * as many pages as it takes to cover the set; slots left spare on the last page are filled with random tokens from the set rather than left blank, and so is the back of an odd last pair
 * emblems are on the token sheet too and are included
 * the CSV names both tokens on a card, since they are two different cards even though they share one slot; the PDFs and the MTGProxyPrinter file treat them as the two sides of one card
+
+## Lands and Tokens
+Two pages that print a whole set rather than a pack: pick any set, get every land or every token it printed, nine to a page, with the same print settings and downloads as the packs.
+
+* **any set Scryfall lists** — expansions, Commander decks, Secret Lair drops, old core sets. Over a thousand of them, so the picker is a search box rather than a dropdown; type part of the name or the code. An exact code wins, so `sld` is the Secret Lair Drop rather than every set with those letters in its name
+* **one card per artwork.** A set often prints the same art at two collector numbers, and the second copy would print the same image. Secret Lair Drop comes to 413 lands over 46 pages on this rule
+* **promos are kept**, unlike the booster pools. A booster pool asks what could come out of a pack, where a promo could not; this asks what a set printed, where it did — and some products are nothing but promos
+* **tokens live in their own set**, "t" and the set's code (`tdsk` for Duskmourn), so pick the ordinary set and the page finds them. A token set chosen directly works too; it is recognised by its type and not by its code, since `thb` is Theros Beyond Death and not the tokens of `hb`
+* **two tokens per card** is on by default and halves the paper — you only ever need the face that is up. A token that is already double-faced keeps a card to itself, and an odd one out keeps a blank back rather than printing a second copy of another token. Lands are always single-sided: a land in a deck needs a card back
+* downloads are the booster page's own — CSV, PDF fronts, PDF backs, MTGProxyPrinter — per page or all in one file, named like `SLD-Lands-3` and `TDSK-AllTokens-2`
 
 ## Full-art land sheets
 **Also make land sheets** adds pages after everything else holding one of every full-art land the set printed. Lands are the one thing packs never give you and a draft cannot be played without, and the full-art ones are the version worth printing.

@@ -23,8 +23,6 @@ import { DEFAULT_SETTINGS, exportPacks } from "./export-fixtures";
 
 const images = (calls: any[]) => calls.filter((c) => c[0] === "drawImage");
 const lines = (calls: any[]) => calls.filter((c) => c[0] === "drawLine");
-const onPage = (calls: any[], page: number) =>
-  calls.filter((c) => c[1] === page);
 
 async function pdfWith(offsetXMm: number, offsetYMm: number) {
   const rec = recordingPdfLib();

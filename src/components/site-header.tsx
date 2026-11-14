@@ -24,6 +24,8 @@ import { cn } from "@/lib/utils";
 
 const PAGES = [
   { href: "/", label: "Boosters" },
+  { href: "/lands", label: "Lands" },
+  { href: "/tokens", label: "Tokens" },
   { href: "/planechase", label: "Planechase" },
   { href: "/archenemy", label: "Archenemy" },
 ];

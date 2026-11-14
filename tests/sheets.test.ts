@@ -1,0 +1,218 @@
+/*
+ * The Lands and Tokens pages: what goes on the pages, and what the downloads
+ * are called.
+ *
+ * The fixtures copy the shapes that made this worth building — a Secret Lair
+ * drop whose lands are promos, a set that prints one artwork at two collector
+ * numbers, a token set with a double-faced token in it.
+ */
+import { describe, expect, it } from "vitest";
+
+import { matchSets } from "@/components/sheets/set-search";
+import { runExport } from "@/lib/export";
+import {
+  buildSheets,
+  sheetCards,
+  sheetFilenames,
+  sheetQuery,
+  tokenSetFor,
+} from "@/lib/sheets";
+import type { Card, ScryfallSet } from "@/lib/scryfall/types";
+
+import { DEFAULT_SETTINGS } from "./export-fixtures";
+
+const card = (
+  name: string,
+  n: number,
+  extra: Partial<Card> = {},
+): Card =>
+  ({
+    id: `${name}-${n}`,
+    name,
+    collector_number: String(n),
+    illustration_id: `art-${name}-${n}`,
+    type_line: "Land",
+    ...extra,
+  }) as Card;
+
+const set = (code: string, name: string, type = "expansion"): ScryfallSet =>
+  ({ code, name, set_type: type, released_at: "2024-01-01" }) as ScryfallSet;
+
+describe("the search a page runs", () => {
+  it("asks for a set's lands, or for everything in a token set", () => {
+    expect(sheetQuery("lands", "sld")).toBe("set:sld t:land");
+    expect(sheetQuery("tokens", "tdsk")).toBe("set:tdsk");
+  });
+
+  /*
+   * Promos are not excluded, unlike the booster pools. A booster pool asks
+   * what could come out of a pack, where a promo could not; this asks what a
+   * set printed, where it did — and a Secret Lair drop is nothing else.
+   */
+  it("does not exclude promos the way the booster pools do", () => {
+    expect(sheetQuery("lands", "sld")).not.toContain("is:promo");
+  });
+});
+
+describe("finding a set's tokens", () => {
+  it("prefixes an ordinary set's code", () => {
+    expect(tokenSetFor(set("dsk", "Duskmourn"))).toBe("tdsk");
+  });
+
+  /*
+   * By type, never by the spelling of the code: `thb` is Theros Beyond Death,
+   * not the tokens of a set called `hb`.
+   */
+  it("takes a token set as it is, and is not fooled by a leading t", () => {
+    expect(tokenSetFor(set("tdsk", "Duskmourn Tokens", "token"))).toBe("tdsk");
+    expect(tokenSetFor(set("thb", "Theros Beyond Death"))).toBe("tthb");
+  });
+});
+
+describe("what lands up on the pages", () => {
+  it("keeps one printing per artwork, in collector order", () => {
+    const cards = [
+      card("Island", 30),
+      card("Plains", 10),
+      // The same artwork at a second collector number.
+      card("Plains", 20, { illustration_id: "art-Plains-10" }),
+    ];
+    expect(sheetCards(cards).map((c) => c.collector_number)).toEqual([
+      "10",
+      "30",
+    ]);
+  });
+
+  it("fills pages nine at a time, leaving the last one short", () => {
+    const cards = Array.from({ length: 20 }, (_, i) => card("Land", i));
+    const sheets = buildSheets(cards, "lands", false);
+    expect(sheets.map((s) => s.length)).toEqual([9, 9, 2]);
+  });
+
+  it("prints lands single-sided, so each gets a card back", () => {
+    const sheets = buildSheets([card("Plains", 1)], "lands", false);
+    expect(sheets[0][0].backCard).toBeUndefined();
+    expect(sheets[0][0].tokenSlot).toBeUndefined();
+    expect(sheets[0][0].finish).toBe("nonfoil");
+  });
+});
+
+describe("tokens two to a card", () => {
+  const tokens = Array.from({ length: 5 }, (_, i) => card("Token", i));
+
+  it("halves the paper when asked, and does not when not", () => {
+    expect(buildSheets(tokens, "tokens", true).flat()).toHaveLength(3);
+    expect(buildSheets(tokens, "tokens", false).flat()).toHaveLength(5);
+  });
+
+  it("pairs them front to back", () => {
+    const [sheet] = buildSheets(tokens, "tokens", true);
+    expect(sheet[0].card.name).toBe("Token");
+    expect(sheet[0].backCard?.collector_number).toBe("1");
+    expect(sheet[0].tokenSlot).toBe(true);
+  });
+
+  /*
+   * An odd one out keeps a blank back rather than repeating a token: these
+   * pages are a reference, and a second copy of one token at the cost of a
+   * different one is a poor trade.
+   */
+  it("leaves the odd one's back blank rather than repeating a token", () => {
+    const [sheet] = buildSheets(tokens, "tokens", true);
+    expect(sheet[sheet.length - 1].backCard).toBeNull();
+  });
+
+  /*
+   * A token that is already double-faced brings its own back, so it is never
+   * paired with another. It carries no `backCard`; `tokenSlot` is what tells
+   * the exporter to print the card's own second face there.
+   */
+  it("gives a double-faced token a card to itself", () => {
+    const dfc = card("Punchcard", 9, {
+      card_faces: [{ image_uris: {} }, { image_uris: {} }],
+    } as Partial<Card>);
+    const [sheet] = buildSheets([dfc, ...tokens], "tokens", true);
+    const own = sheet.find((e) => e.card.name === "Punchcard");
+    expect(own?.backCard).toBeFalsy();
+    expect(own?.tokenSlot).toBe(true);
+    // Paired tokens get a real card on the back; this one does not.
+    const paired = sheet.filter((e) => e.backCard);
+    expect(paired.every((e) => e.card.name !== "Punchcard")).toBe(true);
+  });
+});
+
+describe("what the downloads are called", () => {
+  it("names the set, the kind and the page", () => {
+    expect(sheetFilenames("tdsk", "tokens", 2)).toEqual([
+      "TDSK-AllTokens-2",
+      "TDSK-Tokens-1",
+      "TDSK-Tokens-2",
+    ]);
+    expect(sheetFilenames("sld", "lands", 1)).toEqual([
+      "SLD-AllLands-1",
+      "SLD-Lands-1",
+    ]);
+  });
+
+  /*
+   * The pages hand their sheets to the same exporter the booster page uses,
+   * so a page of lands and a pack go through one path. Row 0 is everything.
+   */
+  it("exports a page, or all of them, through the booster's own exporter", async () => {
+    const cards = Array.from({ length: 10 }, (_, i) => card("Plains", i));
+    const sheets = buildSheets(cards, "lands", false);
+    const base = sheetFilenames("sld", "lands", sheets.length);
+    const saved: string[] = [];
+    const seen: number[] = [];
+    for (const idx of [0, 1, 2]) {
+      await runExport({
+        kind: "pdf",
+        idx,
+        packs: sheets,
+        base,
+        settings: DEFAULT_SETTINGS,
+        onStatus: () => {},
+        save: (_b, name) => saved.push(name),
+        exporter: {
+          buildPdf: async (packs) => {
+            seen.push(packs.flat().length);
+            return new Uint8Array([1]);
+          },
+          buildSaveFile: async () => new Uint8Array(),
+        },
+      });
+    }
+    expect(saved).toEqual([
+      "SLD-AllLands-2.pdf",
+      "SLD-Lands-1.pdf",
+      "SLD-Lands-2.pdf",
+    ]);
+    // All ten cards for row 0; then nine and one.
+    expect(seen).toEqual([10, 9, 1]);
+  });
+});
+
+describe("searching the set list", () => {
+  const sets = [
+    set("sld", "Secret Lair Drop", "box"),
+    set("slp", "Secret Lair Promo"),
+    set("dsk", "Duskmourn: House of Horror"),
+  ];
+
+  it("matches on name or code", () => {
+    expect(matchSets(sets, "duskmourn").map((s) => s.code)).toEqual(["dsk"]);
+    expect(matchSets(sets, "secret").map((s) => s.code)).toEqual(["sld", "slp"]);
+  });
+
+  /*
+   * An exact code first: typing "sld" means the Secret Lair Drop, not every
+   * set with those letters somewhere in its name.
+   */
+  it("puts an exact code match at the front", () => {
+    expect(matchSets(sets, "sld")[0].code).toBe("sld");
+  });
+
+  it("shows the newest few when nothing is typed", () => {
+    expect(matchSets(sets, "", 2)).toHaveLength(2);
+  });
+});

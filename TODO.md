@@ -177,6 +177,25 @@ anything already settled lives in the README instead.
   flip setting. `backPageOffset` converts now, and the controls say what you
   see. Worth remembering for anything else printed on a second side.
 
+- [x] **Lands and Tokens pages** — done, 13 November 2026
+  `/lands` and `/tokens`: pick any set, print every land or token it made.
+  The booster page's land sheet and token sheets are for a pack run; these are
+  the same pages on their own, which is a different job — no odds, no pack
+  order, and any set at all rather than one a booster can be built from.
+
+  One component for both, differing only in the search and the wording. The
+  downloads go through `runExport` exactly as a pack does, so there is one
+  export path rather than two.
+
+  Over a thousand sets, so the picker is a search box. Cards are kept one per
+  artwork, and promos are kept rather than excluded — a Secret Lair drop is
+  nothing but promos, and it comes to 413 lands over 46 pages.
+
+  Open: the user asked for this to reach "commander deck sets, secret lair
+  drops, and that kind of thing", which it does by taking any set code. What
+  it does not do is group a product that spans several set codes, if one
+  turns up.
+
 ## Pack simulation
 
 - [ ] **Japan Showcase cards in the wildcard slot** (2027 rules)

@@ -22,7 +22,7 @@ import type { Card } from "./types";
 export const isBasicLand = (c: Card): boolean => /Basic/.test(typeLine(c));
 
 /** Collector-number order, numerically, with the string as a tie-break. */
-function byCollectorNumber(cards: Card[]): Card[] {
+export function byCollectorNumber(cards: Card[]): Card[] {
   const num = (c: Card): number => {
     const m = /\d+/.exec(c.collector_number || "");
     return m ? parseInt(m[0], 10) : Number.MAX_SAFE_INTEGER;
@@ -37,7 +37,7 @@ function byCollectorNumber(cards: Card[]): Card[] {
 }
 
 /** One per distinct artwork: a second copy would print the same image. */
-function distinctArt(cards: Card[]): Card[] {
+export function distinctArt(cards: Card[]): Card[] {
   const seen = new Set<string>();
   return cards.filter((c) => {
     const art = String(c.illustration_id ?? c.collector_number ?? c.name);
