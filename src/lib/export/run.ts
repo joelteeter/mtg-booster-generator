@@ -168,7 +168,10 @@ export async function runExport({
       onStatus(`⏳ Saving PDF…`);
       save(
         bytes,
-        base[idx] + (side === "back" ? "-backs" : "") + ".pdf",
+        base[idx] +
+          (side === "back" ? "-backs" : "") +
+          registrationTag(settings) +
+          ".pdf",
         "application/pdf",
       );
       log(
@@ -210,13 +213,6 @@ export const enhancedMessage = (name: string, ms: number): string =>
   `✅ AI-enhanced "${name}" in ${(ms / 1000).toFixed(1)} s.`;
 
 /**
- * The alignment test print: two pages, printed double-sided, measured by eye.
- *
- * Its own runner rather than another `ExportKind`, because it is not an
- * export of anything — it takes no packs, and it is as useful before a run as
- * after one.
- */
-/**
  * How an offset reads in a filename: `x+1.5`, `x-2`, `x0`.
  *
  * On both files, not just the back, so a printed pair cannot be separated
@@ -233,6 +229,37 @@ export const offsetTag = (
     (rotationDeg ? `-r${one(rotationDeg)}` : "")
   );
 };
+
+/**
+ * The alignment test print: two pages, printed double-sided, measured by eye.
+ *
+ * Its own runner rather than another `ExportKind`, because it is not an
+ * export of anything — it takes no packs, and it is as useful before a run as
+ * after one.
+ */
+/**
+ * The registration numbers as a filename suffix — `-x+0.5-y0-r+0.6` — and
+ * nothing at all while they are all zero, which is most printers' answer and
+ * every filename the app shipped with.
+ *
+ * On the fronts as well as the backs, for the same reason the alignment test
+ * print puts it on both: the two sheets are a pair. The fronts carry the
+ * guides you cut to, so a fronts page only lines up with backs printed to the
+ * same numbers, and a folder holding two attempts at the same set is
+ * otherwise a guess.
+ *
+ * Not on the MTGProxyPrinter file. That one is a list of cards which another
+ * program lays out, so none of this reaches it, and a number in its name
+ * would claim a setting that did nothing.
+ */
+export const registrationTag = (s: {
+  backOffsetXMm: number;
+  backOffsetYMm: number;
+  backRotationDeg: number;
+}): string =>
+  s.backOffsetXMm || s.backOffsetYMm || s.backRotationDeg
+    ? `-${offsetTag(s.backOffsetXMm, s.backOffsetYMm, s.backRotationDeg)}`
+    : "";
 
 export async function runAlignmentPrint({
   settings,

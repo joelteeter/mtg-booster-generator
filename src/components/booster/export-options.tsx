@@ -365,6 +365,12 @@ export function ExportOptions() {
           for, so the numbers mean the same thing whichever flip you have
           chosen above.
         </p>
+        <p className="text-sm text-muted-foreground">
+          Every PDF you download is named for the numbers it was built with —{" "}
+          <code>NEO-Lands-1-x+0.5-y0-r+0.6.pdf</code> — so a sheet of fronts
+          can always be matched to the backs that fit it, and a reprint at
+          different settings cannot be mistaken for the first attempt.
+        </p>
       </div>
     </div>
   );

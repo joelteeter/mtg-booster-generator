@@ -14,6 +14,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   cardForComparison,
   enhanceCrop,
+  registrationTag,
   runExport,
   type ExportKind,
   type ExportSettings,
@@ -266,6 +267,76 @@ describe("one download button, old against new", () => {
      * the left, 58% down, 62% wide and 20% tall of a 1490×2080 upscaled card.
      */
     expect(enhanceCrop(1490, 2080)).toEqual({ x: 75, y: 1206, w: 924, h: 416 });
+  });
+
+  /*
+   * The numbers that squared the printer belong in the filename, the way the
+   * alignment test print already writes them: a sheet of fronts is only
+   * usable with backs printed to the same registration, and two attempts at
+   * the same set are otherwise indistinguishable in a downloads folder.
+   */
+  describe("the registration numbers in the filename", () => {
+    const tuned: ExportSettings = {
+      ...DEFAULT_SETTINGS,
+      backOffsetXMm: 0.5,
+      backOffsetYMm: 0,
+      backRotationDeg: 0.6,
+    };
+
+    const nameFor = async (kind: ExportKind, settings: ExportSettings) => {
+      const { packs, base } = await shared;
+      const names: string[] = [];
+      await runExport({
+        kind,
+        idx: 1,
+        packs,
+        base,
+        settings,
+        exporter: recordingExporter().exporter,
+        onStatus: () => {},
+        save: (_bytes, filename) => names.push(filename),
+        log: () => {},
+      });
+      return names;
+    };
+
+    it("tags the fronts and the backs alike", async () => {
+      expect(await nameFor("pdf", tuned)).toEqual([
+        "DSK-Booster-1-x+0.5-y0-r+0.6.pdf",
+      ]);
+      expect(await nameFor("back", tuned)).toEqual([
+        "DSK-Booster-1-backs-x+0.5-y0-r+0.6.pdf",
+      ]);
+    });
+
+    /*
+     * The .mtgproxies file is a list of cards that another program lays out,
+     * so no offset of ours reaches it.
+     */
+    it("leaves the MTGProxyPrinter file alone", async () => {
+      expect(await nameFor("mpp", tuned)).toEqual([
+        "DSK-Booster-1.mtgproxies",
+      ]);
+    });
+
+    it("adds nothing at all when the printer needed no correction", async () => {
+      expect(await nameFor("pdf", DEFAULT_SETTINGS)).toEqual([
+        "DSK-Booster-1.pdf",
+      ]);
+      expect(await nameFor("back", DEFAULT_SETTINGS)).toEqual([
+        "DSK-Booster-1-backs.pdf",
+      ]);
+    });
+
+    it("keeps an axis that is zero, so the pair can be read off either name", () => {
+      expect(registrationTag(tuned)).toBe("-x+0.5-y0-r+0.6");
+      expect(
+        registrationTag({ ...tuned, backRotationDeg: 0, backOffsetXMm: 0 }),
+      ).toBe("");
+      expect(
+        registrationTag({ ...tuned, backOffsetXMm: 0, backOffsetYMm: -1 }),
+      ).toBe("-x0-y-1-r+0.6");
+    });
   });
 
   it("logs how long the PDF took and how big it is", async () => {
