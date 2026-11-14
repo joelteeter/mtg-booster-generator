@@ -333,6 +333,36 @@ describe("what the downloads are called", () => {
     // All ten cards for row 0; then nine and one.
     expect(seen).toEqual([10, 9, 1]);
   });
+
+  /*
+   * A sheet is a page, not a pack. These pages shared the booster page's
+   * status line, which called a page of lands "pack 1".
+   */
+  it("calls a row a page in the status line", async () => {
+    const sheets = buildSheets([card("Plains", 0)], "lands", false);
+    const status: string[] = [];
+    for (const idx of [0, 1]) {
+      await runExport({
+        kind: "pdf",
+        idx,
+        packs: sheets,
+        base: sheetFilenames("sld", "lands", sheets.length),
+        settings: DEFAULT_SETTINGS,
+        unit: "page",
+        onStatus: (m) => status.push(m),
+        save: () => {},
+        exporter: {
+          buildPdf: async () => new Uint8Array([1]),
+          buildSaveFile: async () => new Uint8Array(),
+        },
+        log: () => {},
+      });
+    }
+    expect(status.filter((m) => m.startsWith("✅"))).toEqual([
+      "✅ Fronts PDF for all 1 page downloaded.",
+      "✅ Fronts PDF for page 1 downloaded.",
+    ]);
+  });
 });
 
 describe("searching the set list", () => {

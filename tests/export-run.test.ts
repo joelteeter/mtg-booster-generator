@@ -14,6 +14,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   cardForComparison,
   enhanceCrop,
+  exportTarget,
   registrationTag,
   runExport,
   type ExportKind,
@@ -337,6 +338,15 @@ describe("one download button, old against new", () => {
         registrationTag({ ...tuned, backOffsetXMm: 0, backOffsetYMm: -1 }),
       ).toBe("-x0-y-1-r+0.6");
     });
+  });
+
+  it("counts packs by default and pages when asked", () => {
+    expect(exportTarget(0, 3)).toBe("all 3 packs");
+    expect(exportTarget(2, 3)).toBe("pack 2");
+    expect(exportTarget(0, 3, "page")).toBe("all 3 pages");
+    expect(exportTarget(2, 3, "page")).toBe("page 2");
+    // The old app said "all 1 packs"; this does not.
+    expect(exportTarget(0, 1, "page")).toBe("all 1 page");
   });
 
   it("logs how long the PDF took and how big it is", async () => {

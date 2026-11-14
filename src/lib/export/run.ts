@@ -27,6 +27,9 @@ import type { DfcMode, Flip, PaperName, Quality } from "./index";
 
 export type ExportKind = "pdf" | "back" | "mpp";
 
+/** What a row of the downloads table is one of, for the status line. */
+export type ExportUnit = "pack" | "page";
+
 const KIND_LABEL: Record<ExportKind, string> = {
   pdf: "Fronts PDF",
   back: "Backs PDF",
@@ -85,6 +88,8 @@ export interface RunExportParams {
   /** Filename stems, as `ExportFiles.base`. */
   base: string[];
   settings: ExportSettings;
+  /** "pack" unless the rows are sheets, as on the lands and tokens pages. */
+  unit?: ExportUnit;
   onStatus: (message: string) => void;
   save: (bytes: Uint8Array, filename: string, type: string) => void;
   exporter?: Exporter;
@@ -99,9 +104,23 @@ export interface RunExportParams {
  * that row spells them out separately ("All 3 packs + 2 token sheets"). That
  * is how the old app worded it, and a sheet really is another page of cards in
  * the file, so it is left alone.
+ *
+ * The lands and tokens pages download pages, not packs, and said "pack 1"
+ * until they were given a noun of their own.
+ *
+ * The plural is counted, which the old app did not do: one pack was "all 1
+ * packs" there. No recorded run has a single pack at row 0, so nothing in the
+ * goldens moves — it is a deliberate difference, and "all 1 pages" was too
+ * sloppy to copy forward into a new page.
  */
-export const exportTarget = (idx: number, packCount: number): string =>
-  idx === 0 ? `all ${packCount} packs` : `pack ${idx}`;
+export const exportTarget = (
+  idx: number,
+  packCount: number,
+  unit: ExportUnit = "pack",
+): string =>
+  idx === 0
+    ? `all ${packCount} ${unit}${packCount === 1 ? "" : "s"}`
+    : `${unit} ${idx}`;
 
 export async function runExport({
   kind,
@@ -109,6 +128,7 @@ export async function runExport({
   packs: all,
   base,
   settings,
+  unit = "pack",
   onStatus,
   save,
   exporter,
@@ -118,7 +138,7 @@ export async function runExport({
   const buildPdf = exporter?.buildPdf ?? defaultBuildPdf;
   const buildSaveFile = exporter?.buildSaveFile ?? defaultBuildSaveFile;
   const packs = idx === 0 ? all : [all[idx - 1]];
-  const what = exportTarget(idx, packs.length);
+  const what = exportTarget(idx, packs.length, unit);
   const { newPagePerPack, dfcMode } = settings;
   try {
     if (kind === "mpp") {

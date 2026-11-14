@@ -160,6 +160,7 @@ export function SheetsUi({ kind }: { kind: SheetKind }) {
           packs: sheets,
           base,
           settings: store.settings,
+          unit: "page",
           onStatus: store.setStatus,
           save: saveAs,
         });
