@@ -46,7 +46,7 @@ anything already settled lives in the README instead.
 
 ## Frontend
 
-- [ ] **Async draft** — *phase 1 built 15 November 2026, the rest planned*
+- [ ] **Async draft** — *phases 1 and 2 built 15 November 2026*
   Draft digitally, print only the decks. The format wastes a pile of cards
   per player that never make a deck, and they are printed before the draft
   because the draft needs them — so inverting the order is the fix. Planned in
@@ -78,9 +78,21 @@ anything already settled lives in the README instead.
     `QUANTITY NAME (SET) NUMBER`, which `/proxies` reads — and every drafted
     card is a known printing, so it never touches the name fallback
 
-  Phase 1 is in: `src/lib/draft/` is the whole rule set as pure functions over
-  opaque card keys, with 31 tests, and the order-independence claim verified by
-  breaking it on purpose. Nothing is provisioned and nothing calls it yet.
+  Phase 1 is the rules: `src/lib/draft/` as pure functions over opaque card
+  keys, with the order-independence claim verified by breaking it on purpose.
+  Phase 2 is the whole server — `db/001-draft.sql`, the storage port and room
+  operations in `src/lib/room/`, the view split that gives the public board
+  nowhere to put a card, and one Netlify function. 73 tests over the two, all
+  of it driven against a fake store that honours the same conditional writes
+  Postgres will.
+
+  **Not provisioned**: `netlify db init`, then
+  `psql "$NETLIFY_DATABASE_URL" -f db/001-draft.sql`, with a different database
+  per deploy context so a branch deploy cannot write to a real draft. A deploy
+  without the variable answers 503 to draft requests and serves every page as
+  usual.
+
+  Phase 3 is the browser: the queue, the picks, the board, Check for packs.
 
   Blocked after that on the `main` cut-over: `main` serves the old
   plain-scripts app and has no functions.

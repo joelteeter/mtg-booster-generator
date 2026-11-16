@@ -1,10 +1,22 @@
 # Next.js static export.
 #
-# `output: "export"` in next.config.ts writes plain HTML, CSS and JS to `out/`,
-# with no serverless functions. That matters for cost as well as correctness:
-# Netlify meters compute and web requests but not static assets, so hosting
-# stays at exactly what the old static site cost. Build minutes are not metered
-# either, so the build command itself is free.
+# `output: "export"` in next.config.ts writes plain HTML, CSS and JS to `out/`.
+# That matters for cost as well as correctness: Netlify meters compute and web
+# requests but not static assets, so serving the pages costs what the old
+# static site cost. Build minutes are not metered either, so the build command
+# itself is free.
+#
+# There is one function, and it is not Next's. `netlify/functions/draft.mts`
+# serves the async draft, which is the one feature that cannot run in a
+# browser — see docs/async-draft.md. Every page is still static; nothing calls
+# the function except the draft pages.
+#
+# The free plan is 300 credits a month and the cap pauses every site on the
+# account, so the function's cost is a design constraint rather than a detail:
+# at 2 credits per 10,000 requests and 10 per GB-hour of compute, a whole
+# draft is 3 to 5 credits, but anything that polled would be hundreds. Nothing
+# polls. The draft is fetched on page open, after your own pick, on tab focus,
+# and when you ask it to.
 #
 # This file is per-branch. `dev` still carries the old version of it, which
 # publishes the repo root as-is with no build — so the old app keeps serving
@@ -17,6 +29,13 @@
 
 [build.environment]
   NODE_VERSION = "26"
+
+# The default, written down because this project had none until the draft.
+# Netlify bundles the TypeScript with esbuild and follows its imports, which is
+# why `src/lib/draft` and `src/lib/room` use relative paths between themselves
+# rather than the `@/` alias only Next's bundler knows.
+[functions]
+  directory = "netlify/functions"
 
 [[headers]]
   for = "/*"

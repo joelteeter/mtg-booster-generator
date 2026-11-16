@@ -226,6 +226,7 @@ src/lib/generate/        pack generation, separators, and the wording of a finis
 src/lib/export/          page layout, card images, the PDFs, the MTGProxyPrinter file, AI upscaling
 src/lib/proxies/         reading a pasted decklist, resolving it, laying it out
 src/lib/draft/           the async draft's rules: dealing, picking, passing
+src/lib/room/            a draft with people in it: codes, seat keys, storage
 src/lib/explain.ts       the "How each card slot is determined" panel's wording
 src/lib/csv.ts           CSV rows in Scryfall's format
 src/lib/preview.ts       card faces and sides for the preview

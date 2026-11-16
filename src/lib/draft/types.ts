@@ -12,6 +12,15 @@
  * copies of the same printing, which generated packs do.
  */
 
+/**
+ * A random source in [0, 1), injected so a deal can be replayed.
+ *
+ * Declared here rather than imported from `lib/booster`, identical though it
+ * is, because this module is bundled into a Netlify function as well as into
+ * the app: it has to stand alone, with no path alias to resolve.
+ */
+export type Rng = () => number;
+
 /** Which way a pack moves between seats. */
 export type Direction = "left" | "right";
 
@@ -102,3 +111,22 @@ export type PickRefusal =
 export type PickResult =
   | { ok: true; state: DraftState; taken: Taken[] }
   | { ok: false; reason: PickRefusal };
+
+/**
+ * What a card key stands for. The engine never reads this — only the view
+ * does, when it turns a seat's queue into something to look at.
+ */
+export interface PoolCard {
+  /** Scryfall id. */
+  id: string;
+  /** "nonfoil", "foil" or "etched", as `PackEntry.finish`. */
+  finish: string;
+}
+
+/** Every card in the draft, by key. Fixed once the draft is dealt. */
+export type Pool = Record<string, PoolCard>;
+
+/** A card as the view hands it over: the key, and what it stands for. */
+export interface CardRef extends PoolCard {
+  key: string;
+}

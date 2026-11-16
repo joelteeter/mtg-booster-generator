@@ -12,6 +12,10 @@ import type { NextConfig } from "next";
  *
  * The costs (none of which this app uses): no API routes, no middleware, no
  * ISR, and no default image loader — hence `images.unoptimized`.
+ *
+ * The async draft does need a server, and it does not get one from here: it is
+ * a Netlify function in `netlify/functions/`, outside this build entirely. The
+ * pages stay static and fetch it. See docs/async-draft.md.
  */
 const nextConfig: NextConfig = {
   output: "export",

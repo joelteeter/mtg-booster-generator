@@ -6,9 +6,7 @@
  * the room has to seat every name regardless, and a draft where the admin is
  * always seat 0 looks rigged even when it is not.
  */
-import type { Rng } from "@/lib/booster/types";
-
-import type { DraftRules, DraftState, PackState } from "./types";
+import type { DraftRules, DraftState, PackState, Rng } from "./types";
 
 /** Fisher–Yates, on a copy. */
 export function shuffled<T>(items: readonly T[], rng: Rng): T[] {

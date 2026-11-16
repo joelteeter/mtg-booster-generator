@@ -1,6 +1,6 @@
 # Async draft
 
-Written 15 November 2026. Phase 1 is built; the rest is still a plan.
+Written 15 November 2026. Phases 1 and 2 are built; the rest is still a plan.
 
 ## The problem it solves
 
@@ -204,14 +204,19 @@ which invalidates the old.
 
 ### The seat-scoped view
 
-What a player may see is one pure function — `viewFor(state, pool, seat)`,
-phase 2, in `src/lib/draft/` beside the engine. It returns that seat's queue
-with contents, that seat's own cards, and nothing but counts and names for
-everyone else.
+What a player may see is pure functions in `src/lib/draft/view.ts`, beside the
+engine — and it is **two** of them rather than the one this plan first called
+`viewFor`. `boardView` is what everybody may see; `seatView` is what one seat
+may see.
 
-Making it a function rather than care taken in each handler is the point: the
-hidden-information rule gets tested once, the way the pick rules are, instead
-of being re-honoured correctly in four endpoints.
+Two, because then the type system enforces it. A `BoardView` has nowhere to put
+a card, so no handler can leak one into it by being careless, and the test
+backs that up the only way worth doing: it serialises a board after a few picks
+and searches it for every card key and every Scryfall id in the pool.
+
+Making them functions rather than care taken in each handler is the rest of the
+point. The hidden-information rule gets tested once, the way the pick rules
+are, instead of being re-honoured correctly in four separate endpoints.
 
 ## The engine
 
@@ -334,6 +339,22 @@ the blob store name differ by context, and the production context is the only
 one that can see real rooms. A room code is six characters and collisions
 across contexts would otherwise be a matter of luck.
 
+## Provisioning
+
+Not done, and not something the code can do for itself:
+
+```
+netlify db init
+psql "$NETLIFY_DATABASE_URL" -f db/001-draft.sql
+```
+
+Then the database URL has to differ by deploy context, which is the point of
+the earlier section on environments: a test room on a branch deploy must not
+write to the same database as a real draft. A deploy with no
+`NETLIFY_DATABASE_URL` answers 503 to every draft request and serves every
+page as usual, which is the right behaviour for a branch that has not been
+given one.
+
 ## Phases
 
 1. **The engine** — done, 15 November 2026. `src/lib/draft/` and 31 tests in
@@ -352,10 +373,53 @@ across contexts would otherwise be a matter of luck.
    Scryfall id, because a generated pack can hold two copies of one printing
    and "I take this one" has to mean something; `dealPacks` refuses a pool
    where a key repeats.
-2. **The room.** Schema, functions, room creation, seat claim, pool upload from
-   the generator the admin already uses, and `viewFor` — the seat-scoped
-   projection, which is pure and belongs beside the engine.
-3. **The draft.** Your queue, your picks, the board, Check for packs.
+2. **The room** — done, 15 November 2026. The whole server: `db/001-draft.sql`,
+   the `Store` port and the room operations in `src/lib/room/`, the view split
+   in `src/lib/draft/view.ts`, the Neon implementation in `netlify/lib/`, and
+   one function in `netlify/functions/draft.mts`. 42 more tests.
+
+   Picking was pulled forward out of phase 3, which was the right boundary
+   after all: phase 2 is now the entire server and phase 3 is the entire
+   client. A room you cannot pick from is not a room you can test, and
+   `applyPick` was already written.
+
+   Five things decided while building it, each in the code's own comments:
+
+   - **the seat assignment lives in the draft row**, not in a column of
+     `player`. That makes dealing one conditional write instead of a
+     transaction, so a draft whose packs were shuffled by one deal and whose
+     seats came from another is a state that cannot be represented — and it
+     removed a method from the storage port rather than adding careful SQL to
+     it. Two clicks of Start is exactly how you would otherwise get one.
+   - **`lost-race` is its own refusal**, not `not-your-pack`. The whole draft
+     is one row, so two picks from two different packs still serialise on the
+     same `rev` and one loses — but that pick is almost certainly still legal,
+     so the client re-reads and sends it again rather than telling somebody
+     their pack moved on. Normalising packs into rows of their own would remove
+     the contention and, at eight people picking twice a day, would be removing
+     nothing.
+   - **the room code is Crockford's base32**, picked rather than invented. It
+     is meant to be read aloud, so I, L, O and U are gone; it is exactly 32
+     characters, so reducing a random byte modulo the alphabet stays uniform;
+     and it defines how to read a mistyped one, which `tidyCode` follows.
+   - **the storage port exists for the race conditions.** `putDraft` is only
+     safe because the `rev` check and the write are one statement, and
+     `addPlayer` only because the seat count and the insert are. The fake in
+     `tests/memory-store.ts` honours both, and copies rows in and out the way a
+     real database does, so an operation that mutated what it read would fail
+     there too.
+   - **`src/lib/draft` and `src/lib/room` import each other relatively**, not
+     through `@/`. They are bundled into the function as well as the app, and
+     the path alias is something only Next's bundler knows. Verified by
+     bundling the function with esbuild rather than by reasoning about it.
+
+   The seat count is also settled: `maxSeats` is a cap on joining, and the
+   table is whoever turned up. The admin generates the packs *after* seeing the
+   turnout, which is the real workflow and removes the earlier worry about
+   six people arriving for an eight-seat pool.
+
+3. **The draft**, in the browser. Your queue, your picks, the board, Check for
+   packs. The server needs nothing more for it.
 4. **Deck building** and submission.
 5. **Admin printing**, through `/proxies`.
 6. **Polish.** The draft log, who is holding it up, reassigning a seat,
