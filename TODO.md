@@ -67,6 +67,13 @@ anything already settled lives in the README instead.
   - **timing cannot change what anybody sees**, because the seat order is
     fixed, so packs flow freely instead of in lockstep and a slow player only
     delays. There is a property test to write that asserts it
+  - **the database holds the whole draft in one row**, because the engine's
+    state is already pure JSON. `rev` is an optimistic lock so a pick is one
+    `update`; a separate `shape` version catches a deploy landing mid-draft;
+    an append-only pick log makes a lost draft replayable. The browser holds
+    a seat key and no state at all, so there is nothing to reconcile — and
+    the key rides in the URL fragment because Safari clears `localStorage`
+    after seven days without a visit
   - **the printing already exists.** A submitted deck is
     `QUANTITY NAME (SET) NUMBER`, which `/proxies` reads — and every drafted
     card is a known printing, so it never touches the name fallback

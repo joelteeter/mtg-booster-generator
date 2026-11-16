@@ -55,8 +55,8 @@ no reason to, once the room exists.
 
 ## Where the state lives
 
-Netlify Functions, with Netlify DB (Neon Postgres) for the draft state and
-Netlify Blobs for the pool. One vendor, one deploy, no new accounts.
+Netlify Functions, with Netlify DB (Neon Postgres) holding everything. One
+vendor, one deploy, no new accounts.
 
 The site itself stays `output: "export"`. Static assets are not metered; only
 the function calls are.
@@ -89,24 +89,129 @@ An async draft measured in days is a pull: you check whether a pack is waiting,
 the way you check a mailbox. A socket held open for three days to tell you
 something that changes twice a day is the wrong shape regardless of cost.
 
-### Why a database and not just Blobs
+### Why a database, and not Blobs
 
 A pick is a read-modify-write: read the pack, remove a card, work out where it
 goes next, store it. Netlify's own guidance says not to build read-modify-write
 on a blob key *even with `onlyIfMatch` retries*, and points at Netlify DB for
-it. Two players picking in the same second is rare but a lost pick is
-unfixable after the fact — there is no record of what the pack held, so there
-is nothing to replay.
+it. Two players picking in the same second is rare, but a lost pick is
+unfixable after the fact if nothing recorded what the pack held — which is also
+why there is an append-only pick log below.
 
-The pool is the opposite: generated once, never changed, read often. That is
-written once to Blobs with `onlyIfNew` and never touched again.
+### One row holds the draft
 
-The variant worth knowing about, if provisioning a database turns out to be
-more trouble than it looks: store an append-only log of picks, one blob per
-pick, keyed by pick number so `onlyIfNew` makes a collision impossible rather
-than merely unlikely, and derive the state by replaying the log through the
-engine. It is a nicer fit for Blobs and it costs a snapshot mechanism to keep
-state reads from growing with the draft. Not worth it at eight players.
+The engine's `DraftState` is already pure JSON — packs, contents, positions,
+who has seen what, what everybody has taken — so it goes in a column as it
+stands. There is no object-relational anything, and no second definition of
+the state that could drift from the TypeScript one, because the database does
+not have an opinion about its shape.
+
+```sql
+create table draft (
+  code         text primary key,            -- K7MQ2F
+  created_at   timestamptz not null default now(),
+  phase        text not null,               -- setup | drafting | building | closed
+  shape        int  not null,               -- the DraftState layout version
+  rev          int  not null default 0,     -- optimistic lock
+  rules        jsonb not null,              -- DraftRules
+  pool         jsonb not null,              -- card key -> { id, finish }
+  state        jsonb not null,              -- DraftState, verbatim
+  admin_hash   text not null,
+  print_basics boolean not null default false
+);
+
+create table seat (
+  code         text not null references draft(code) on delete cascade,
+  seat         int  not null,
+  name         text,
+  key_hash     text,                        -- sha-256 of the seat key
+  claimed_at   timestamptz,
+  deck         jsonb,
+  submitted_at timestamptz,
+  primary key (code, seat)
+);
+
+create table pick (
+  code     text not null references draft(code) on delete cascade,
+  at       int  not null,                   -- state.clock
+  seat     int  not null,
+  pack_id  text not null,
+  cards    text[] not null,
+  made_at  timestamptz not null default now(),
+  primary key (code, at)
+);
+```
+
+Four things in there are load-bearing:
+
+- **`rev` is the lock.** A pick is
+  `update draft set state = $1, rev = rev + 1 where code = $2 and rev = $3`.
+  Zero rows means somebody else picked while this request was thinking, which
+  is exactly `not-your-pack` from the engine's side: the loser's page refreshes
+  and nothing is lost. This is the read-modify-write that Blobs could not do
+  safely, and it is one statement.
+- **`shape` is a different version entirely**, and conflating the two would be
+  a mistake. `rev` changes on every pick; `shape` changes when a deploy changes
+  the layout of `DraftState`. A draft at an older shape is refused loudly
+  rather than read as if it were current, which is the answer to a deploy
+  landing mid-draft.
+- **`pick` is append-only and never read while drafting.** It is the backup:
+  replaying it through `applyPick` rebuilds the draft from nothing, which is
+  what makes a lost or corrupted `state` survivable. It is also the draft log
+  the players will want afterwards.
+- **`key_hash`, not the key.** A database dump should not hand out anybody's
+  seat.
+
+The pool goes in a column beside the state rather than in Blobs, which is a
+change from the first draft of this plan: 336 entries is about 20 KB of JSON,
+it is read in the same request as the state every time, and one storage system
+beats two. Blobs was in here out of caution about size that does not survive
+doing the arithmetic.
+
+### What the browser holds
+
+One thing, and it is not state:
+
+```
+localStorage["draft:K7MQ2F"] = "<seat key>"
+```
+
+No cached packs, no copy of the draft, nothing to reconcile. The database is
+the only truth and the browser holds a credential, so there is no question of
+the two disagreeing — only of whether the credential is still good, which
+nothing but the server can answer. A page load sends the key and gets one of
+three answers: your view of the room, or "this browser is not seated here"
+with the free seats listed, or the public view if there is no key at all.
+
+That the key is in `localStorage` makes it a cache rather than the record,
+which matters because **Safari deletes it**: WebKit's cap on script-writable
+storage clears it for a site the user has not interacted with for seven days,
+and a draft can easily run longer than that. On iOS that is most of a group of
+friends.
+
+So the key lives in the link the admin hands out, in the **fragment**:
+
+```
+https://…/draft/K7MQ2F#s=9f3c…
+```
+
+A fragment is never sent to the server, so it stays out of access logs and out
+of `Referer` headers, unlike a query string. The page reads it once, stores it,
+and the link in somebody's messages stays a working way back in after Safari
+has forgotten. The cost is honest and worth stating: that link is the seat, so
+pasting it into the group chat gives the seat away. The admin can re-issue one,
+which invalidates the old.
+
+### The seat-scoped view
+
+What a player may see is one pure function — `viewFor(state, pool, seat)`,
+phase 2, in `src/lib/draft/` beside the engine. It returns that seat's queue
+with contents, that seat's own cards, and nothing but counts and names for
+everyone else.
+
+Making it a function rather than care taken in each handler is the point: the
+hidden-information rule gets tested once, the way the pick rules are, instead
+of being re-honoured correctly in four endpoints.
 
 ## The engine
 
@@ -248,7 +353,8 @@ across contexts would otherwise be a matter of luck.
    and "I take this one" has to mean something; `dealPacks` refuses a pool
    where a key repeats.
 2. **The room.** Schema, functions, room creation, seat claim, pool upload from
-   the generator the admin already uses.
+   the generator the admin already uses, and `viewFor` — the seat-scoped
+   projection, which is pure and belongs beside the engine.
 3. **The draft.** Your queue, your picks, the board, Check for packs.
 4. **Deck building** and submission.
 5. **Admin printing**, through `/proxies`.
