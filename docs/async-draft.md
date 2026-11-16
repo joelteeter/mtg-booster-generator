@@ -1,6 +1,6 @@
 # Async draft
 
-A plan, not a record. Written 15 November 2026, before any of it exists.
+Written 15 November 2026. Phase 1 is built; the rest is still a plan.
 
 ## The problem it solves
 
@@ -231,9 +231,22 @@ across contexts would otherwise be a matter of luck.
 
 ## Phases
 
-1. **The engine.** `src/lib/draft/` and its tests, including the
-   order-independence property test. No network, nothing provisioned; the rules
-   are provable before any infrastructure exists.
+1. **The engine** — done, 15 November 2026. `src/lib/draft/` and 31 tests in
+   `tests/draft.test.ts`. No network, nothing provisioned.
+
+   The order-independence claim is asserted three ways and the assertion was
+   checked by breaking it: making the pass direction depend on the clock fails
+   exactly those three tests and nothing else in the file. Worth repeating that
+   check if the engine is ever rewritten — a property test that cannot fail is
+   decoration.
+
+   Two things the engine deliberately does not do. It does not make a seat pick
+   from its oldest pack, because a pack visits the same seats in the same order
+   either way, so the queue order is a thing to display rather than a rule. And
+   it identifies a card by a **key** naming one physical card rather than by a
+   Scryfall id, because a generated pack can hold two copies of one printing
+   and "I take this one" has to mean something; `dealPacks` refuses a pool
+   where a key repeats.
 2. **The room.** Schema, functions, room creation, seat claim, pool upload from
    the generator the admin already uses.
 3. **The draft.** Your queue, your picks, the board, Check for packs.

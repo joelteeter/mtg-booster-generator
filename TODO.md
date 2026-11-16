@@ -46,7 +46,7 @@ anything already settled lives in the README instead.
 
 ## Frontend
 
-- [ ] **Async draft** — *planned 15 November 2026, nothing built*
+- [ ] **Async draft** — *phase 1 built 15 November 2026, the rest planned*
   Draft digitally, print only the decks. The format wastes a pile of cards
   per player that never make a deck, and they are printed before the draft
   because the draft needs them — so inverting the order is the fix. Planned in
@@ -71,8 +71,12 @@ anything already settled lives in the README instead.
     `QUANTITY NAME (SET) NUMBER`, which `/proxies` reads — and every drafted
     card is a known printing, so it never touches the name fallback
 
-  Blocked on the `main` cut-over: `main` serves the old plain-scripts app and
-  has no functions.
+  Phase 1 is in: `src/lib/draft/` is the whole rule set as pure functions over
+  opaque card keys, with 31 tests, and the order-independence claim verified by
+  breaking it on purpose. Nothing is provisioned and nothing calls it yet.
+
+  Blocked after that on the `main` cut-over: `main` serves the old
+  plain-scripts app and has no functions.
 
 - [x] **A Proxies page** — done, 14 November 2026
   `/proxies` takes a pasted decklist and prints those exact cards. Its own
