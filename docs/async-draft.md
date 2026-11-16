@@ -341,19 +341,33 @@ across contexts would otherwise be a matter of luck.
 
 ## Provisioning
 
-Not done, and not something the code can do for itself:
+`netlify database init`, answering **Direct SQL** and **no** to sample data —
+the schema is written, and sample data would scaffold its own migration into
+the same directory and apply it to the real database on every deploy.
 
-```
-netlify db init
-psql "$NETLIFY_DATABASE_URL" -f db/001-draft.sql
-```
+There is no command to run the schema. Netlify applies every migration in
+`netlify/database/migrations` in lexicographic order immediately before a
+deploy is published, and a failure blocks the publish; `0001_draft.sql` being
+in that directory is the whole of it. `netlify database migrations apply` runs
+them against the local development database, which is how to try one first.
 
-Then the database URL has to differ by deploy context, which is the point of
-the earlier section on environments: a test room on a branch deploy must not
-write to the same database as a real draft. A deploy with no
-`NETLIFY_DATABASE_URL` answers 503 to every draft request and serves every
-page as usual, which is the right behaviour for a branch that has not been
-given one.
+The connection string is read from `NETLIFY_DB_URL`, falling back to
+`NETLIFY_DATABASE_URL` (the earlier incarnation's name) and `DATABASE_URL`. A
+deploy with none of them answers 503 to every draft request and serves every
+page as usual, which is what a branch deploy that has not been given a
+database should do.
+
+### What a branch deploy connects to is unresolved
+
+The docs say production deploys are the only ones allowed to reach the main
+database, and that **deploy previews** get their own database branch with a
+copy of production's data. They say nothing about an ordinary branch deploy
+with no pull request — which is exactly what `next` and `dev` are — and they
+describe no way to pin a deploy context to a database branch.
+
+So the environments question above is not answered by the platform, and it
+has to be settled by experiment before a real draft runs: make a room on
+`next`, then look at whether it appears in production's database.
 
 ## Phases
 

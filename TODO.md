@@ -86,11 +86,16 @@ anything already settled lives in the README instead.
   of it driven against a fake store that honours the same conditional writes
   Postgres will.
 
-  **Not provisioned**: `netlify db init`, then
-  `psql "$NETLIFY_DATABASE_URL" -f db/001-draft.sql`, with a different database
-  per deploy context so a branch deploy cannot write to a real draft. A deploy
-  without the variable answers 503 to draft requests and serves every page as
-  usual.
+  **Not provisioned**: `netlify database init`, Direct SQL, no sample data.
+  Netlify applies `netlify/database/migrations/0001_draft.sql` itself on every
+  deploy, so there is no schema command to run. A deploy with no connection
+  string answers 503 to draft requests and serves every page as usual.
+
+  Two things the docs do not settle, both needing an experiment before a real
+  draft runs: what an ordinary branch deploy (no pull request) connects to —
+  only deploy previews are documented to get their own database branch — and
+  whether the free plan's 48 compute units a period are included or billed at
+  10 credits each.
 
   Phase 3 is the browser: the queue, the picks, the board, Check for packs.
 

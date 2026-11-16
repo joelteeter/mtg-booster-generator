@@ -13,9 +13,13 @@
 --           changes any of them, so that a draft stored at an older layout is
 --           refused loudly instead of misread.
 --
--- Run against the Netlify DB branch for this deploy context:
---   netlify db init          -- once, to provision it
---   psql "$NETLIFY_DATABASE_URL" -f db/001-draft.sql
+-- Applied automatically. Netlify runs every migration in
+-- `netlify/database/migrations` in lexicographic order, immediately before a
+-- deploy is published, and a failure blocks the publish. So there is no
+-- command to run — the file being here and named this way is the whole of it.
+--
+-- `netlify database migrations apply` runs them against the local development
+-- database, which is the way to try one before pushing.
 
 create table if not exists draft (
   code         text primary key,

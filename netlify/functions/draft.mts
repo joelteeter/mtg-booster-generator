@@ -45,7 +45,22 @@ const handler = async (
   req: Request,
   context: Context,
 ): Promise<Response> => {
-  const url = process.env.NETLIFY_DATABASE_URL;
+  /*
+   * `NETLIFY_DB_URL` is the name the docs give, and the one to rely on.
+   * `NETLIFY_DATABASE_URL` is what the earlier incarnation of Netlify DB set
+   * and may still be what `netlify database init` leaves behind; `DATABASE_URL`
+   * is for pointing a local run at something by hand. Three names for one
+   * value is not elegant, but a draft failing because the platform renamed its
+   * variable is worse.
+   *
+   * `@netlify/database` exposes `getConnectionString()` and is the documented
+   * alternative. Not used, so that this function depends on the driver and
+   * nothing else.
+   */
+  const url =
+    process.env.NETLIFY_DB_URL ??
+    process.env.NETLIFY_DATABASE_URL ??
+    process.env.DATABASE_URL;
   /*
    * A deploy context with no database is a configuration mistake, not a
    * request error — 503 says "this deploy cannot serve drafts", which is what
