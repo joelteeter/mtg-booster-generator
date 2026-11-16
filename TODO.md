@@ -46,6 +46,34 @@ anything already settled lives in the README instead.
 
 ## Frontend
 
+- [ ] **Async draft** — *planned 15 November 2026, nothing built*
+  Draft digitally, print only the decks. The format wastes a pile of cards
+  per player that never make a deck, and they are printed before the draft
+  because the draft needs them — so inverting the order is the fix. Planned in
+  [docs/async-draft.md](docs/async-draft.md).
+
+  The decisions that shape it:
+
+  - **a room code, not accounts.** Six characters names the room; a seat key
+    in `localStorage` is what lets you pick. No users, no emails, no passwords
+  - **this is the first feature that cannot be static.** Eight devices have to
+    agree where each pack is while every browser is closed. Netlify Functions
+    with Netlify DB for the state, Blobs for the immutable pool; the site
+    stays `output: "export"`
+  - **nothing polls.** The free plan's 300 credits are a hard cap that pauses
+    every site on the account, and eight tabs polling for three days is four
+    times the allowance. A whole draft on demand-only fetches is 3–5 credits.
+    An async draft is a mailbox, so this is the right shape anyway
+  - **timing cannot change what anybody sees**, because the seat order is
+    fixed, so packs flow freely instead of in lockstep and a slow player only
+    delays. There is a property test to write that asserts it
+  - **the printing already exists.** A submitted deck is
+    `QUANTITY NAME (SET) NUMBER`, which `/proxies` reads — and every drafted
+    card is a known printing, so it never touches the name fallback
+
+  Blocked on the `main` cut-over: `main` serves the old plain-scripts app and
+  has no functions.
+
 - [x] **A Proxies page** — done, 14 November 2026
   `/proxies` takes a pasted decklist and prints those exact cards. Its own
   page rather than a tab, for the reason the simulators are: it shares nothing
