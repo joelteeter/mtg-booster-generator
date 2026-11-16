@@ -1,6 +1,6 @@
 # Async draft
 
-Written 15 November 2026. Phases 1 and 2 are built; the rest is still a plan.
+Written 15 November 2026. Phases 1 to 3 are built; the rest is still a plan.
 
 ## The problem it solves
 
@@ -431,8 +431,37 @@ rather than `drafts`, which is one argument to `netlifyBucket`.
    turnout, which is the real workflow and removes the earlier worry about
    six people arriving for an eight-seat pool.
 
-3. **The draft**, in the browser. Your queue, your picks, the board, Check for
-   packs. The server needs nothing more for it.
+3. **The draft, in the browser** — done, 15 November 2026. `/draft`: the gate,
+   the lobby and the board, in `src/components/draft/`, with the API client in
+   `src/lib/room-client.ts` and the seam to the generator in
+   `src/lib/draft-pool.ts`. 19 more tests, and the whole flow driven in a
+   browser against `netlify dev` — room made, three players joined, packs
+   dealt, a card taken, the pass watched, and the finished state reached.
+
+   Three things worth keeping:
+
+   - **a pack costs no API request.** `artById` derives Scryfall's CDN path
+     from the id, and the view already hands over ids, so a pack appears
+     without asking Scryfall anything. The deck builder will need real card
+     data for a decklist; picking does not.
+   - **the room is read without an effect that sets state.** The page is
+     prerendered, so neither the address bar nor `localStorage` exists at
+     first render, and the obvious `useEffect` is both a lint error and a
+     wasted render. `useSyncExternalStore` over a snapshot cached at module
+     scope says the true thing instead: arriving happens once.
+   - **a lost race is retried once, silently.** The client re-sends the same
+     pick rather than reporting it, which is what `lost-race` being its own
+     refusal was for.
+
+   The route is `/draft?room=CODE`, not `/draft/CODE`: a static export has to
+   know every path at build time and a room code is not knowable then. The
+   seat key rides in the fragment, is saved on arrival, and is then taken out
+   of the address bar, so a screenshot of the page does not hand over a seat.
+
+   Also here because it had nowhere else to go: `netlify dev` pins both ports
+   in `netlify.toml`. Left alone, Netlify puts its own port in the environment,
+   Next reads `PORT`, binds there, and Netlify waits forever for a framework
+   listening on the address Netlify is listening on itself.
 4. **Deck building** and submission.
 5. **Admin printing**, through `/proxies`.
 6. **Polish.** The draft log, who is holding it up, reassigning a seat,

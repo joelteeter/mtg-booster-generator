@@ -46,7 +46,7 @@ anything already settled lives in the README instead.
 
 ## Frontend
 
-- [ ] **Async draft** — *phases 1 and 2 built 15 November 2026*
+- [ ] **Async draft** — *phases 1 to 3 built 15 November 2026*
   Draft digitally, print only the decks. The format wastes a pile of cards
   per player that never make a deck, and they are printed before the draft
   because the draft needs them — so inverting the order is the fix. Planned in
@@ -101,10 +101,21 @@ anything already settled lives in the README instead.
   above it, which is the only evidence worth having that the port was worth
   writing.
 
-  One thing left to settle by experiment: blobs are scoped to a site rather
-  than a deploy context, so `next`, `dev` and production probably share a
-  store. Harmless — rooms cannot touch each other — but untidy, and the fix is
-  one argument to `netlifyBucket`.
+  Phase 3 is `/draft` itself, verified in a browser against `netlify dev`: a
+  room made, three players joined, packs dealt, a card taken and passed, and
+  the finished state reached. A pack costs no Scryfall request — the image
+  path is derived from the id the view already sends.
+
+  Two things left to settle by experiment:
+
+  - blobs are scoped to a site rather than a deploy context, so `next`, `dev`
+    and production probably share a store. Harmless — rooms cannot touch each
+    other — but untidy, and the fix is one argument to `netlifyBucket`
+  - a draft cannot be reached on `main` until the cut-over, since `main` is
+    still the old plain-scripts app with no functions at all
+
+  Still to build: deck building (phase 4) and printing everybody's decks
+  through `/proxies` (phase 5), which is where the paper is actually saved.
 
   Phase 3 is the browser: the queue, the picks, the board, Check for packs.
 

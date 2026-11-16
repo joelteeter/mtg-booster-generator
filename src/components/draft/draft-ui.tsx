@@ -1,0 +1,195 @@
+"use client";
+
+/*
+ * The draft page: which room this is, and which of its faces to show.
+ *
+ * Everything about *when* the room is fetched is here, and it is the one place
+ * the hosting bill is visible in the code. Nothing polls. The room is read
+ * when the page opens, after your own pick, when the tab regains focus with
+ * the view over a minute old, and when somebody presses Check for packs.
+ * Netlify's free plan is a hard cap that pauses every site on the account, and
+ * eight tabs asking every five seconds for three days would be four times the
+ * monthly allowance — see docs/async-draft.md.
+ *
+ * Which is also the honest shape for the thing: an async draft is a mailbox.
+ */
+import { useQuery } from "@tanstack/react-query";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+
+import { Button } from "@/components/ui/button";
+import {
+  DraftError,
+  fetchRoom,
+  recallAdmin,
+  recallSeat,
+  rememberAdmin,
+  rememberSeat,
+  roomFromUrl,
+} from "@/lib/room-client";
+import { prettyCode } from "@/lib/room/codes";
+
+import { DraftBoard } from "./draft-board";
+import { RoomGate } from "./room-gate";
+import { RoomLobby } from "./room-lobby";
+
+/** How long a fetched room counts as fresh. Focus inside this re-uses it. */
+const FRESH = 60_000;
+
+/** Who this browser is in which draft. */
+export interface Entry {
+  code: string | null;
+  seat: string | null;
+  admin: string | null;
+}
+
+const NOBODY: Entry = { code: null, seat: null, admin: null };
+
+/** The keys a join or a room-creation hands back. */
+export interface Entered {
+  seat?: string;
+  admin?: string;
+}
+
+/*
+ * Where the page came in: the URL, and what this browser already remembered
+ * about that room.
+ *
+ * Read through `useSyncExternalStore` rather than in an effect, because the
+ * page is prerendered and neither the address bar nor `localStorage` exists
+ * until it is in a browser. The snapshot is cached at module scope so that it
+ * is the same object on every render — which is what that hook requires, and
+ * is true in any case: arriving happens once.
+ */
+let arrival: Entry | null = null;
+
+const howWeGotHere = (): Entry => {
+  if (arrival) return arrival;
+  const { code, seatKey } = roomFromUrl(
+    window.location.search,
+    window.location.hash,
+  );
+  arrival = code
+    ? { code, seat: seatKey ?? recallSeat(code), admin: recallAdmin(code) }
+    : NOBODY;
+  return arrival;
+};
+
+const whilePrerendered = (): Entry => NOBODY;
+const neverChanges = () => () => {};
+
+export function DraftUi() {
+  const came = useSyncExternalStore(
+    neverChanges,
+    howWeGotHere,
+    whilePrerendered,
+  );
+  const [moved, setMoved] = useState<Entry | null>(null);
+  const here = moved ?? came;
+
+  const address = useCallback((code: string | null) => {
+    history.replaceState(
+      null,
+      "",
+      code ? `${window.location.pathname}?room=${code}` : window.location.pathname,
+    );
+  }, []);
+
+  useEffect(() => {
+    if (!came.code) return;
+    /*
+     * A seat key that arrived in the fragment is saved and then taken out of
+     * the address bar: a key in a screenshot, or read over a shoulder, is the
+     * seat. The link in somebody's messages stays the way back in.
+     */
+    if (came.seat) rememberSeat(came.code, came.seat);
+    address(came.code);
+  }, [came, address]);
+
+  const enter = useCallback(
+    (code: string, keys: Entered) => {
+      if (keys.seat) rememberSeat(code, keys.seat);
+      if (keys.admin) rememberAdmin(code, keys.admin);
+      setMoved({
+        code,
+        seat: keys.seat ?? recallSeat(code),
+        admin: keys.admin ?? recallAdmin(code),
+      });
+      address(code);
+    },
+    [address],
+  );
+
+  const leave = useCallback(() => {
+    setMoved(NOBODY);
+    address(null);
+  }, [address]);
+
+  /* A seat key identifies a player; an admin without a seat gets the board. */
+  const key = here.seat ?? here.admin;
+
+  const room = useQuery({
+    queryKey: ["draft", here.code, key],
+    enabled: !!here.code,
+    queryFn: () => fetchRoom(here.code as string, key),
+    staleTime: FRESH,
+    refetchOnWindowFocus: true,
+    retry: false,
+  });
+
+  if (!here.code) return <RoomGate onEnter={enter} />;
+
+  if (room.isPending)
+    return (
+      <p className="text-sm text-muted-foreground">
+        Looking for {prettyCode(here.code)}…
+      </p>
+    );
+
+  if (room.error) {
+    const why =
+      room.error instanceof DraftError
+        ? ({
+            "no-such-room": `There is no draft called ${prettyCode(here.code)}.`,
+            "stale-shape":
+              "This draft was made by an older version of the site and cannot be read any more.",
+            "no-storage": "This deploy of the site cannot serve drafts.",
+          }[room.error.reason] ?? room.error.message)
+        : "The draft could not be reached.";
+    return (
+      <div className="flex flex-col items-start gap-3">
+        <p className="text-sm text-destructive">{why}</p>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => void room.refetch()}>
+            Try again
+          </Button>
+          <Button variant="ghost" onClick={leave}>
+            Start over
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const view = room.data.view;
+  const refresh = () => void room.refetch();
+
+  return view.phase === "setup" ? (
+    <RoomLobby
+      view={view}
+      seatKey={here.seat}
+      adminKey={here.admin}
+      onEnter={enter}
+      onRefresh={refresh}
+      onLeave={leave}
+      refreshing={room.isFetching}
+    />
+  ) : (
+    <DraftBoard
+      view={view}
+      seatKey={here.seat}
+      onRefresh={refresh}
+      onLeave={leave}
+      refreshing={room.isFetching}
+    />
+  );
+}

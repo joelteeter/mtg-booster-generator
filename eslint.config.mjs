@@ -17,6 +17,13 @@ const eslintConfig = defineConfig([
      * sql.js's own minified loader in beside the `.wasm` it fetches.
      */
     "public/**",
+    /*
+     * `netlify dev` scratch: the bundled function, its bootstrap, and the
+     * local blob store. Git ignores it, but ESLint's flat config does not read
+     * `.gitignore`, so without this a dev server turns the lint into two and a
+     * half thousand complaints about generated code.
+     */
+    ".netlify/**",
   ]),
 ]);
 

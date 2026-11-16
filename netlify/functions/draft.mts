@@ -13,7 +13,7 @@
  */
 import type { Config, Context } from "@netlify/functions";
 
-import { tidyCode } from "../../src/lib/room/codes";
+import { gateOpen, tidyCode } from "../../src/lib/room/codes";
 import { STATUS } from "../../src/lib/room/http";
 import {
   createRoom,
@@ -64,10 +64,19 @@ const handler = async (
   const body = async (): Promise<unknown> =>
     await req.json().catch(() => null);
 
-  if (!code)
-    return req.method === "POST"
-      ? reply(await createRoom(store, await body()))
-      : json({ error: "method-not-allowed" }, 405);
+  if (!code) {
+    if (req.method !== "POST")
+      return json({ error: "method-not-allowed" }, 405);
+    /*
+     * Normally no gate at all: `DRAFT_ADMIN_PASSWORD` is unset and anybody
+     * who can reach the site can make a room, which is fine for a site nobody
+     * is linking to. Setting it in the Netlify UI turns the gate on without a
+     * deploy.
+     */
+    if (!gateOpen(process.env.DRAFT_ADMIN_PASSWORD, req.headers.get("x-draft-password")))
+      return json({ error: "not-admin", detail: "wrong password" }, 403);
+    return reply(await createRoom(store, await body()));
+  }
 
   if (!action)
     return req.method === "GET"

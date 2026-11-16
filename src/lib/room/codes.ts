@@ -69,3 +69,20 @@ export const tidyCode = (typed: string): string =>
 /** `K7M-Q2F` — how a code is shown, never how it is stored. */
 export const prettyCode = (code: string): string =>
   code.length === 6 ? `${code.slice(0, 3)}-${code.slice(3)}` : code;
+
+/**
+ * Whether a request may create a room.
+ *
+ * `expected` is the deploy's `DRAFT_ADMIN_PASSWORD`, and is normally unset:
+ * this is a hook left in place and switched off, so the gate can be turned on
+ * later with one environment variable and no code change.
+ *
+ * A shared constant compared with `===`, which is not what you would do for a
+ * password protecting anything. This one would only stop a stranger making
+ * rooms on somebody else's site. What actually guards a draft is the seat
+ * keys, and those are 128 random bits each.
+ */
+export const gateOpen = (
+  expected: string | undefined,
+  supplied: string | null,
+): boolean => !expected || supplied === expected;

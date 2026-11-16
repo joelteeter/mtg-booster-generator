@@ -42,6 +42,20 @@
 [functions]
   directory = "netlify/functions"
 
+# `netlify dev` only, so the draft's function can be exercised locally — plain
+# `next dev` serves the pages but has no functions at all, and nothing but the
+# draft needs them.
+#
+# Next is told its port on the command line rather than left to infer one.
+# Netlify puts its own port in the environment, Next reads `PORT` and binds
+# there, and then Netlify waits forever for a framework listening on the
+# address Netlify is itself listening on. `--port` settles it.
+[dev]
+  command = "npm run dev -- --port 3000"
+  targetPort = 3000
+  port = 8899
+
+
 [[headers]]
   for = "/*"
   [headers.values]

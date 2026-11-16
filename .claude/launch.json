@@ -4,14 +4,30 @@
     {
       "name": "next-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 3000
     },
     {
       "name": "next-static",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve@latest", "out", "-l", "4477"],
+      "runtimeArgs": [
+        "serve@latest",
+        "out",
+        "-l",
+        "4477"
+      ],
       "port": 4477
+    },
+    {
+      "name": "netlify-dev",
+      "runtimeExecutable": "netlify",
+      "runtimeArgs": [
+        "dev"
+      ],
+      "port": 8899
     }
   ]
 }

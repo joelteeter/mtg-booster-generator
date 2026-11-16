@@ -26,10 +26,10 @@ You need an internet connection for:
 * **jsDelivr** – only if you use AI-enhance: TensorFlow.js, UpscalerJS and its ESRGAN model (~3 MB), fetched the first time you tick the box. pdf-lib is bundled, and sql.js is served from this site, so the PDFs and the MTGProxyPrinter file need no third-party CDN
 
 ## Pages
-Six of them, behind a site header that carries the links, the brand and the
+Seven of them, behind a site header that carries the links, the brand and the
 theme toggle: the booster builders on the front page, lands at `/lands`,
-tokens at `/tokens`, proxies at `/proxies`, Planechase at `/planechase` and
-Archenemy at `/archenemy`. Below `md` the links collapse behind a menu button. The two
+tokens at `/tokens`, proxies at `/proxies`, the draft at `/draft`, Planechase
+at `/planechase` and Archenemy at `/archenemy`. Below `md` the links collapse behind a menu button. The two
 booster builders share one page and are chosen with the tab strip on it, since
 they share every control below it.
 
@@ -126,6 +126,26 @@ Two pages that print a whole set rather than a pack: pick any set, get every lan
 * **two tokens per card** is on by default and halves the paper — you only ever need the face that is up. A token that is already double-faced keeps a card to itself, and an odd one out keeps a blank back rather than printing a second copy of another token. Lands are always single-sided: a land in a deck needs a card back
 * downloads are the booster page's own — CSV, PDF fronts, PDF backs, MTGProxyPrinter — per page or all in one file, named like `SLD-Lands-3` and `TDSK-AllTokens-2`
 
+## Draft
+`/draft` is the one page that is not just a browser: a draft runs over days,
+across everybody's devices, so it needs somewhere to keep the state. That is a
+Netlify function and Netlify Blobs — the pages are all still static, and
+nothing but this page calls it. The whole design, and why it is not a
+database, is in [docs/async-draft.md](docs/async-draft.md).
+
+The point of it is paper. Drafting in person means printing every pack, and
+most of those cards never make a deck. Draft first and print only what people
+actually play.
+
+* **a room code, not accounts.** Six characters in Crockford's base32, so there is no I, L, O or U to misread and a mistyped one still resolves. Join with a name; the browser keeps a seat key, and the link you were sent carries it in the URL fragment so it is recoverable on another device — a fragment never reaches a server, so it stays out of logs
+* **the admin generates the packs after seeing who turned up.** The seat cap is only a cap on joining; the table is the turnout. Packs come from the Boosters page exactly as they would to print, so there is one generator with one set of odds rather than a second that would drift
+* **packs flow freely, nobody waits in lockstep.** With the seat order fixed at the start, a pack's contents on any visit depend only on the seats that saw it earlier — so a player taking two days changes *when* a card is taken and nothing else. The result is the draft you would have had in person. A round still waits for every pack in it to empty before the next one opens
+* **the cards in your pack are only ever sent to you.** Everybody can see names, pick counts and whose turn it is; the contents go to whoever is holding the pack. There is a test that serialises the public board and searches it for every card id in the pool
+* **nothing polls.** The room is fetched when the page opens, after your own pick, on tab focus if it is over a minute old, and when you press Check for packs. Netlify's free plan is a hard cap that pauses the whole site, and an async draft is a mailbox anyway
+* a pack appears with no API request at all: the view hands over Scryfall ids and the image path is derived from them
+
+Deck building and printing the decks are not built yet.
+
 ## Proxies
 `/proxies` is the page that is told what to print rather than deciding: paste a
 decklist, get those exact cards, nine to a page, with the same print settings,
@@ -211,11 +231,12 @@ No printer puts the second side exactly behind the first. The error is a millime
 
 ## Files
 ```
-src/app/                 the six pages, the providers and the global stylesheet
+src/app/                 the seven pages, the providers and the global stylesheet
 src/components/          the site header (with its mobile menu) and the page shell
 src/components/booster/  set picker, options, slot panel, generate, downloads, preview
 src/components/sheets/   the set search, and the Lands and Tokens pages
 src/components/proxies/  the Proxies page
+src/components/draft/    the Draft page: the gate, the lobby and the board
 src/components/sim/      the Planechase and Archenemy simulators
 src/components/ui/       shadcn/ui components
 src/hooks/               use-spec, use-generate, use-export, use-scryfall
@@ -227,6 +248,9 @@ src/lib/export/          page layout, card images, the PDFs, the MTGProxyPrinter
 src/lib/proxies/         reading a pasted decklist, resolving it, laying it out
 src/lib/draft/           the async draft's rules: dealing, picking, passing
 src/lib/room/            a draft with people in it: codes, seat keys, storage
+src/lib/room-client.ts   the browser's side of the draft API
+src/lib/draft-pool.ts    a generated run, as cards a draft can be dealt from
+netlify/functions/       the one function there is, which serves the draft
 src/lib/explain.ts       the "How each card slot is determined" panel's wording
 src/lib/csv.ts           CSV rows in Scryfall's format
 src/lib/preview.ts       card faces and sides for the preview
@@ -245,6 +269,9 @@ it heavily.
 ## Development
 ```
 npm run dev        # dev server on :3000
+netlify dev        # :8899 — the pages *and* the draft's function. `npm run
+                   # dev` has no functions at all, so /draft cannot work under
+                   # it; everything else can
 npm test           # the test suite
 npm run typecheck  # tsc --noEmit
 npm run lint       # eslint
@@ -259,6 +286,10 @@ every case the suite covers, read out of it on its last day. Those files cannot
 be regenerated — the code that produced them is gone — so a failure there is
 either a real regression or a change you meant to make, in which case read the
 diff and update the file by hand.
+
+The draft is the one thing `npm run dev` cannot serve. Under `netlify dev` the
+function runs and Blobs are kept in `.netlify/blobs-serve`, so a draft made
+locally is local — delete that directory to start from nothing.
 
 ## Deploying
 Open work and decisions still to make are tracked in [TODO.md](TODO.md).

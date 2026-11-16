@@ -11,6 +11,17 @@ import type { Card, ImageUris } from "@/lib/scryfall/types";
 export type ImageSize = keyof ImageUris;
 
 /**
+ * Where a card's image lives, given nothing but its Scryfall id.
+ *
+ * The path is derived from the id rather than looked up, which is what lets
+ * the draft show a pack without a single API request — it is handed ids, and
+ * the image is the card. The first two characters of the id are the directory
+ * fan-out Scryfall's CDN uses.
+ */
+export const artById = (id: string, size: ImageSize = "normal"): string =>
+  `https://cards.scryfall.io/${size}/front/${id[0]}/${id[1]}/${id}.jpg`;
+
+/**
  * Every face image a card has, in face order.
  *
  * The last branch is for the built-in bonus lands, which carry only an id:
@@ -23,10 +34,7 @@ export function faceImages(card: Card, size: ImageSize = "normal"): string[] {
     return card.card_faces
       .filter((f) => f.image_uris)
       .map((f) => (f.image_uris as ImageUris)[size] as string);
-  if (card.id)
-    return [
-      `https://cards.scryfall.io/${size}/front/${card.id[0]}/${card.id[1]}/${card.id}.jpg`,
-    ];
+  if (card.id) return [artById(card.id, size)];
   return [];
 }
 
