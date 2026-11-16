@@ -55,8 +55,8 @@ no reason to, once the room exists.
 
 ## Where the state lives
 
-Netlify Functions, with Netlify DB (Neon Postgres) holding everything. One
-vendor, one deploy, no new accounts.
+Netlify Functions, with Netlify Blobs holding everything. One vendor, one
+deploy, no new accounts, and nothing to provision.
 
 The site itself stays `output: "export"`. Static assets are not metered; only
 the function calls are.
@@ -72,6 +72,10 @@ GB-hour of function compute. One draft is 8 players × 42 picks = 336 writes
 plus a few hundred state reads; at a 512 MB function taking 200 ms that is
 about **3 to 5 credits for a whole draft**, or a third of one production
 deploy. Three or four drafts a month is noise.
+
+That number was quoted once before it was true, and the correction is the
+reason the storage is what it is — see below. It counts the function. It does
+not count a database, because there no longer is one.
 
 Polling would destroy that. Eight tabs left open for three days asking every
 five seconds is about 414,000 invocations, roughly 1,150 credits — four times
@@ -89,84 +93,78 @@ An async draft measured in days is a pull: you check whether a pack is waiting,
 the way you check a mailbox. A socket held open for three days to tell you
 something that changes twice a day is the wrong shape regardless of cost.
 
-### Why a database, and not Blobs
+### Why not a database, in the end
 
-A pick is a read-modify-write: read the pack, remove a card, work out where it
-goes next, store it. Netlify's own guidance says not to build read-modify-write
-on a blob key *even with `onlyIfMatch` retries*, and points at Netlify DB for
-it. Two players picking in the same second is rare, but a lost pick is
-unfixable after the fact if nothing recorded what the pack held — which is also
-why there is an append-only pick log below.
+The first version of this plan put the draft in Netlify DB, on the grounds
+that a pick is a read-modify-write and Netlify's own guidance says not to
+build one on a blob key even with `onlyIfMatch` retries. That reasoning was
+sound and the conclusion was still wrong, because it priced the wrong thing.
 
-### One row holds the draft
+Netlify Database is metered by how long it is **awake**, not by how much work
+it does. Their own worked example: "33 hours of using the minimum compute (1
+unit) — consuming 1 unit per hour", and active time counts "including idle
+time before going to sleep". The free plan sleeps after five minutes and five
+minutes is also its maximum, with a ceiling of 48 compute units in a billing
+period.
 
-The engine's `DraftState` is already pure JSON — packs, contents, positions,
-who has seen what, what everybody has taken — so it goes in a column as it
-stands. There is no object-relational anything, and no second definition of
-the state that could drift from the TypeScript one, because the database does
-not have an opinion about its shape.
+So an isolated request costs about five minutes of billed wake time however
+briefly it ran — and an async draft is *made of* isolated requests. That is
+the premise, not an accident of it. Three hundred and thirty-six picks plus a
+few hundred checks, spread over a fortnight the way people actually behave,
+comes to sixty-odd hours awake: past the 48-unit ceiling on its own, before
+asking whether those units are billed at ten credits each or included. The
+same draft, if everyone happened to pick inside the same five-minute windows,
+would cost about four. A fifteen-fold swing, with the design sitting at the
+expensive end.
 
-```sql
-create table draft (
-  code         text primary key,            -- K7MQ2F
-  created_at   timestamptz not null default now(),
-  phase        text not null,               -- setup | drafting | building | closed
-  shape        int  not null,               -- the DraftState layout version
-  rev          int  not null default 0,     -- optimistic lock
-  rules        jsonb not null,              -- DraftRules
-  pool         jsonb not null,              -- card key -> { id, finish }
-  state        jsonb not null,              -- DraftState, verbatim
-  admin_hash   text not null,
-  print_basics boolean not null default false
-);
+Blobs has no such meter. The function invocation is the whole cost, which is
+the 3 to 5 credits above.
 
-create table seat (
-  code         text not null references draft(code) on delete cascade,
-  seat         int  not null,
-  name         text,
-  key_hash     text,                        -- sha-256 of the seat key
-  claimed_at   timestamptz,
-  deck         jsonb,
-  submitted_at timestamptz,
-  primary key (code, seat)
-);
+### The revision chain
 
-create table pick (
-  code     text not null references draft(code) on delete cascade,
-  at       int  not null,                   -- state.clock
-  seat     int  not null,
-  pack_id  text not null,
-  cards    text[] not null,
-  made_at  timestamptz not null default now(),
-  primary key (code, at)
-);
+What a database was for was the conditional write, and object storage can do
+exactly one conditional thing: create a key that does not exist. That turns
+out to be enough, because **the key can be the lock**.
+
+A draft is a sequence of immutable blobs. Writing means creating the next one:
+
+```
+rooms/K7MQ2F/rev/0000      the room as created
+rooms/K7MQ2F/rev/0001      … after the deal
+rooms/K7MQ2F/rev/0002      … after a pick
+rooms/K7MQ2F/seat/0000     a player
+rooms/K7MQ2F/pick/0001     the log, one blob a pick
 ```
 
-Four things in there are load-bearing:
+Two requests that both computed from revision 7 both try to create
+`rev/0008` with `onlyIfNew`; exactly one succeeds and the loser is told so.
+That is the same `rev`-conditional `UPDATE` the SQL version did, expressed as
+a filename — and unlike `onlyIfMatch` on a mutable key, it is safe by
+construction rather than by the storage honouring a comparison.
 
-- **`rev` is the lock.** A pick is
-  `update draft set state = $1, rev = rev + 1 where code = $2 and rev = $3`.
-  Zero rows means somebody else picked while this request was thinking, which
-  is exactly `not-your-pack` from the engine's side: the loser's page refreshes
-  and nothing is lost. This is the read-modify-write that Blobs could not do
-  safely, and it is one statement.
-- **`shape` is a different version entirely**, and conflating the two would be
-  a mistake. `rev` changes on every pick; `shape` changes when a deploy changes
-  the layout of `DraftState`. A draft at an older shape is refused loudly
-  rather than read as if it were current, which is the answer to a deploy
-  landing mid-draft.
-- **`pick` is append-only and never read while drafting.** It is the backup:
-  replaying it through `applyPick` rebuilds the draft from nothing, which is
-  what makes a lost or corrupted `state` survivable. It is also the draft log
-  the players will want afterwards.
-- **`key_hash`, not the key.** A database dump should not hand out anybody's
-  seat.
+Three consequences worth having:
 
-The pool goes in a column beside the state rather than in Blobs, which is a
-change from the first draft of this plan: 336 entries is about 20 KB of JSON,
-it is read in the same request as the state every time, and one storage system
-beats two. Blobs was in here out of caution about size that does not survive
-doing the arithmetic.
+- **it is append-only**, so the chain is a second backup beside the pick log.
+  Every state the draft was ever in is still there.
+- **slots bound the room.** A player claims `seat/0000`, `seat/0001` … upward
+  with the same operation, so two people cannot take one seat and nobody can
+  take an eighth in a seven-seat room. Names cannot be claimed that way, so
+  they are settled by a rule both racers apply identically: among players
+  sharing a name, the lowest slot keeps it and anybody above withdraws.
+- **a list may lag a write.** Finding the newest revision by listing could
+  therefore hand back a draft one pick out of date, whose own write would then
+  land on a key that already exists — a player told they had been beaten to it
+  by themselves. So the chain lists for a floor and then probes forward by
+  name until it misses. Revisions are consecutive, so the first gap is the
+  end. There is a test that hides keys from the list, and removing the probe
+  fails it.
+
+Four digits of zero padding, so lexicographic order is numeric order, which
+caps a draft at 9,999 revisions. A nine-seat draft is about four hundred.
+
+The storage port earned itself here. Swapping Postgres for blobs was one new
+implementation of `Store`, and the engine, the view, the room operations and
+their tests did not change at all.
 
 ### What the browser holds
 
@@ -341,33 +339,27 @@ across contexts would otherwise be a matter of luck.
 
 ## Provisioning
 
-`netlify database init`, answering **Direct SQL** and **no** to sample data —
-the schema is written, and sample data would scaffold its own migration into
-the same directory and apply it to the real database on every deploy.
+None. Blobs needs no connection string and no setup inside a Netlify
+function, so there is nothing to run and nothing to pay for until somebody
+makes a room.
 
-There is no command to run the schema. Netlify applies every migration in
-`netlify/database/migrations` in lexicographic order immediately before a
-deploy is published, and a failure blocks the publish; `0001_draft.sql` being
-in that directory is the whole of it. `netlify database migrations apply` runs
-them against the local development database, which is how to try one first.
+Not using Netlify Database also means not installing `@netlify/database`,
+which is what triggers Netlify to provision a database in the first place.
 
-The connection string is read from `NETLIFY_DB_URL`, falling back to
-`NETLIFY_DATABASE_URL` (the earlier incarnation's name) and `DATABASE_URL`. A
-deploy with none of them answers 503 to every draft request and serves every
-page as usual, which is what a branch deploy that has not been given a
-database should do.
+A deploy where Blobs is unreachable answers 503 to draft requests and serves
+every page as usual, which is what a context without the runtime should do.
 
-### What a branch deploy connects to is unresolved
+### What a branch deploy shares is unresolved
 
-The docs say production deploys are the only ones allowed to reach the main
-database, and that **deploy previews** get their own database branch with a
-copy of production's data. They say nothing about an ordinary branch deploy
-with no pull request — which is exactly what `next` and `dev` are — and they
-describe no way to pin a deploy context to a database branch.
+Blobs are scoped to a site, not to a deploy context, so `next`, `dev` and
+production very likely share one store — which means a test room made on a
+branch deploy would sit in the same place as a real draft. Nothing read so far
+says otherwise.
 
-So the environments question above is not answered by the platform, and it
-has to be settled by experiment before a real draft runs: make a room on
-`next`, then look at whether it appears in production's database.
+It is not dangerous, because rooms are independent and a test room cannot
+touch a real one. It is untidy, and it wants settling before a real draft
+runs: the fix, if it is needed, is to name the store after the deploy context
+rather than `drafts`, which is one argument to `netlifyBucket`.
 
 ## Phases
 
@@ -387,10 +379,17 @@ has to be settled by experiment before a real draft runs: make a room on
    Scryfall id, because a generated pack can hold two copies of one printing
    and "I take this one" has to mean something; `dealPacks` refuses a pool
    where a key repeats.
-2. **The room** — done, 15 November 2026. The whole server: `db/001-draft.sql`,
-   the `Store` port and the room operations in `src/lib/room/`, the view split
-   in `src/lib/draft/view.ts`, the Neon implementation in `netlify/lib/`, and
-   one function in `netlify/functions/draft.mts`. 42 more tests.
+2. **The room** — done, 15 November 2026. The whole server: the `Store` port
+   and the room operations in `src/lib/room/`, the view split in
+   `src/lib/draft/view.ts`, the revision chain in `src/lib/room/blob-store.ts`,
+   its Netlify adapter in `netlify/lib/`, and one function in
+   `netlify/functions/draft.mts`. 54 more tests.
+
+   Built on Postgres first and moved to Blobs the same day, once the database's
+   billing turned out to be metered by wake time — the reasoning is under "Why
+   not a database, in the end". The move cost one new implementation of the
+   storage port and changed nothing above it, which is the only evidence worth
+   having that the port was worth writing.
 
    Picking was pulled forward out of phase 3, which was the right boundary
    after all: phase 2 is now the entire server and phase 3 is the entire
@@ -453,6 +452,13 @@ the reasoning in it, and it costs nothing to run.
 - **Supabase and Cloudflare.** Both would work; Supabase free projects pause
   after about a week idle and need unpausing by hand, which is a second thing
   to watch. Staying on one vendor won.
+- **Netlify Database**, after building on it. Metered by wake time with a
+  five-minute floor, which is the worst possible shape for a draft made of
+  sparse requests. Running Neon directly instead would have kept the SQL
+  unchanged and removed the coupling to the credit cap that pauses the site,
+  and was turned down to avoid a second account: free hosting is a hard
+  constraint here, so the feature is designed to fit inside one rather than to
+  be worth paying for.
 
 ## Open
 

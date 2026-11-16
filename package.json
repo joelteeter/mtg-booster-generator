@@ -13,7 +13,7 @@
     "postinstall": "node scripts/copy-sql-wasm.mjs"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.2.1",
+    "@netlify/blobs": "^11.1.9",
     "@tanstack/react-query": "^5.105.0",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.1",

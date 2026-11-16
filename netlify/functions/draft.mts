@@ -23,7 +23,8 @@ import {
   startDraft,
 } from "../../src/lib/room/ops";
 import type { Outcome, Refused } from "../../src/lib/room/ops";
-import { neonStore } from "../lib/neon-store";
+import { blobStore } from "../../src/lib/room/blob-store";
+import { netlifyBucket } from "../lib/netlify-bucket";
 
 const json = (body: unknown, status = 200): Response =>
   new Response(JSON.stringify(body), {
@@ -46,29 +47,17 @@ const handler = async (
   context: Context,
 ): Promise<Response> => {
   /*
-   * `NETLIFY_DB_URL` is the name the docs give, and the one to rely on.
-   * `NETLIFY_DATABASE_URL` is what the earlier incarnation of Netlify DB set
-   * and may still be what `netlify database init` leaves behind; `DATABASE_URL`
-   * is for pointing a local run at something by hand. Three names for one
-   * value is not elegant, but a draft failing because the platform renamed its
-   * variable is worse.
-   *
-   * `@netlify/database` exposes `getConnectionString()` and is the documented
-   * alternative. Not used, so that this function depends on the driver and
-   * nothing else.
+   * Blobs needs no configuration inside a Netlify function — there is no
+   * connection string and no provisioning step. It does need the Netlify
+   * runtime, so a failure here means this is not running in one, which is a
+   * 503: "this deploy cannot serve drafts", not "your request was wrong".
    */
-  const url =
-    process.env.NETLIFY_DB_URL ??
-    process.env.NETLIFY_DATABASE_URL ??
-    process.env.DATABASE_URL;
-  /*
-   * A deploy context with no database is a configuration mistake, not a
-   * request error — 503 says "this deploy cannot serve drafts", which is what
-   * a branch deploy that has not been given one should say.
-   */
-  if (!url) return json({ error: "no-database" }, 503);
-
-  const store = neonStore(url);
+  let store;
+  try {
+    store = blobStore(netlifyBucket());
+  } catch (e) {
+    return json({ error: "no-storage", detail: String(e) }, 503);
+  }
   const key = req.headers.get("x-draft-key");
   const code = tidyCode(context.params.code ?? "");
   const action = (context.params.action ?? "").toLowerCase();

@@ -11,6 +11,11 @@
 # browser — see docs/async-draft.md. Every page is still static; nothing calls
 # the function except the draft pages.
 #
+# It keeps its state in Netlify Blobs, which needs no provisioning and has no
+# meter of its own. Deliberately not Netlify Database: that is billed by how
+# long it stays awake, with a five-minute floor, and a draft is made of
+# requests hours apart.
+#
 # The free plan is 300 credits a month and the cap pauses every site on the
 # account, so the function's cost is a design constraint rather than a detail:
 # at 2 credits per 10,000 requests and 10 per GB-hour of compute, a whole

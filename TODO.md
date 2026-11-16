@@ -80,22 +80,31 @@ anything already settled lives in the README instead.
 
   Phase 1 is the rules: `src/lib/draft/` as pure functions over opaque card
   keys, with the order-independence claim verified by breaking it on purpose.
-  Phase 2 is the whole server — `db/001-draft.sql`, the storage port and room
-  operations in `src/lib/room/`, the view split that gives the public board
-  nowhere to put a card, and one Netlify function. 73 tests over the two, all
-  of it driven against a fake store that honours the same conditional writes
-  Postgres will.
+  Phase 2 is the whole server — the storage port and room operations in
+  `src/lib/room/`, the view split that gives the public board nowhere to put a
+  card, the revision chain on Netlify Blobs, and one Netlify function. 85 tests
+  over the two, driven against fakes that honour the same conditional writes
+  the real storage does. **The key is the lock**: a draft is a chain of
+  immutable blobs and a write creates the next one with `onlyIfNew`, so two
+  requests computed from the same revision cannot both land.
 
-  **Not provisioned**: `netlify database init`, Direct SQL, no sample data.
-  Netlify applies `netlify/database/migrations/0001_draft.sql` itself on every
-  deploy, so there is no schema command to run. A deploy with no connection
-  string answers 503 to draft requests and serves every page as usual.
+  **Nothing to provision.** Blobs needs no connection string and no setup, so
+  the draft costs nothing until somebody makes a room. It is deliberately not
+  Netlify Database, which was built on first and abandoned the same day:
+  that is metered by how long it stays *awake*, with a five-minute floor on
+  the free plan and a 48-hour monthly ceiling, and an async draft is made of
+  requests hours apart — one spread-out draft could exhaust the ceiling by
+  itself. Not installing `@netlify/database` is also what stops Netlify
+  provisioning a database at all.
 
-  Two things the docs do not settle, both needing an experiment before a real
-  draft runs: what an ordinary branch deploy (no pull request) connects to —
-  only deploy previews are documented to get their own database branch — and
-  whether the free plan's 48 compute units a period are included or billed at
-  10 credits each.
+  The move cost one new implementation of the storage port and changed nothing
+  above it, which is the only evidence worth having that the port was worth
+  writing.
+
+  One thing left to settle by experiment: blobs are scoped to a site rather
+  than a deploy context, so `next`, `dev` and production probably share a
+  store. Harmless — rooms cannot touch each other — but untidy, and the fix is
+  one argument to `netlifyBucket`.
 
   Phase 3 is the browser: the queue, the picks, the board, Check for packs.
 
