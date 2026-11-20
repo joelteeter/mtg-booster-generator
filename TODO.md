@@ -5,26 +5,33 @@ anything already settled lives in the README instead.
 
 ## Deployment
 
-- [ ] **Cut `main` over to the Next.js app** — *waiting on credits*
-  `next` and `dev` both hold the rewrite; `main` still serves the plain-scripts
-  app. The cut-over is `git checkout main && git merge dev`, which costs one
-  production deploy (15 credits) and so waits for the reset: the billing period
-  runs 19 October to 18 November.
-  - `netlify.toml` on both branches already runs `npm run build` and publishes
-    `out/`; nothing else needs changing for the cut-over
-  - `main` is the rollback until it is cut over: the old app is live on it, and
-    stays in this repo's history afterwards
-  - **14 credits left** as of 8 November, confirmed on the billing page. A
-    production deploy costs 15, so this period cannot pay for one at all —
-    there is no judgement left in the wait, only arithmetic
-  - read that number off the billing page, not the API: `getAccount`'s
-    `capabilities.credits` reported `used: 0` on the same day, for the same
-    period. It sits beside concurrency counters that are also `0` and is not a
-    period total
+- [x] **Cut `main` over to the Next.js app** — done, 20 November 2026
+  `main` served the plain-scripts app for the whole of the rewrite and is now
+  the Next.js app, the async draft included. A clean fast-forward of 55
+  commits: `main` was a strict ancestor of `dev`, so there was nothing to
+  merge and nothing to conflict.
 
-- [ ] **Automate the monthly production deploy** — *after 19 November 2026*
-  Credits reset on 19 Nov (`next_billing_period_start`), so set this up on the
-  20th or later, with the cycle fresh. Deliberately not done in October: the
+  What was checked first, since the failure mode is the account's credits
+  running out and *every* site being paused:
+
+  - the billing period had rolled over — `next_billing_period_start` is now
+    19 December, so 19 November happened and the 300 are fresh
+  - every recent `dev` and `next` deploy was `ready` at the exact commit being
+    shipped, with the same `netlify.toml` production would use
+  - the merge was a fast-forward, so what builds on `dev` is byte for byte
+    what builds on `main`
+
+  Worth correcting one thing this entry used to claim: `netlify.toml` on
+  `main` was *not* already the Next.js one. It was still `publish = "."` with
+  no build command. That was harmless — the merge carried the right file over
+  like any other change — but the note was wrong, and a wrong note about a
+  deploy is worth more than a wrong note about anything else.
+
+  `main`'s history still holds the old app, so the rollback is a revert away.
+
+- [ ] **Automate the monthly production deploy** — *now due*
+  Credits reset on 19 Nov and the cut-over on the 20th cost one deploy, so the
+  cycle is fresh and this can be set up whenever. Deliberately not done in October: the
   free plan is a hard limit and running out pauses the project, so visitors get
   a "Site not available" page rather than just deploys being blocked. We were at
   285/300 and did not want to gamble the site being served.
@@ -40,13 +47,13 @@ anything already settled lives in the README instead.
     one deploy — that is the point, but it should be a deliberate choice
 
 - [ ] **Set `build_settings.dir` to `.` in the Netlify UI**
-  It is currently empty. Deploys work because `netlify.toml` sets
-  `publish = "."` and the file wins, but nothing would cover us if the toml were
-  renamed or removed.
+  It is currently empty. Deploys work because `netlify.toml` sets the build
+  and `publish = "out"` and the file wins, but nothing would cover us if the
+  toml were renamed or removed.
 
 ## Frontend
 
-- [ ] **Async draft** — *all five phases built, 15–20 November 2026; waiting on the cut-over*
+- [ ] **Async draft** — *all five phases built and live, 15–20 November 2026*
   Draft digitally, print only the decks. The format wastes a pile of cards
   per player that never make a deck, and they are printed before the draft
   because the draft needs them — so inverting the order is the fix. Planned in
@@ -131,9 +138,19 @@ anything already settled lives in the README instead.
   turning them on puts the number straight back to 336, which is the whole
   point of the switch.
 
-  Nothing is left to build. What is left is to **run one**, which cannot
-  happen until `main` is cut over, since `main` is the old plain-scripts app
-  with no functions at all.
+  Nothing is left to build, and it is live on `main` as of 20 November. What
+  is left is to **run one with real people**, which is the only test that has
+  not been done: everything so far has been one browser pretending to be
+  several.
+
+  Two things to watch the first time:
+
+  - blobs are scoped to a site rather than a deploy context, so a test room
+    made on `next` or `dev` probably lands in the same store as a real draft.
+    Harmless — rooms cannot touch each other — but worth confirming, and the
+    fix is one argument to `netlifyBucket`
+  - `DRAFT_ADMIN_PASSWORD` is unset, so anybody who finds the URL can make a
+    room. Setting it in the Netlify UI turns the gate on with no deploy
 
   Phase 3 is the browser: the queue, the picks, the board, Check for packs.
 
