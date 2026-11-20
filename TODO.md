@@ -5,6 +5,20 @@ anything already settled lives in the README instead.
 
 ## Deployment
 
+- [x] **Releases are tagged on `main`** — started 20 November 2026
+  `v2.0.0` is the Next.js app with the async draft, and the first tag this
+  repo has. Version 1 was the plain-scripts app, which was never numbered —
+  the tag history starts where the rewrite shipped rather than pretending to
+  cover what came before.
+
+  The convention, such as it is: tag the commit that `main` actually
+  published, after the deploy is `ready` rather than before, so a tag always
+  names something that built. `package.json` carries the same number.
+
+  ```
+  git tag -a v2.1.0 -m "..." && git push origin v2.1.0
+  ```
+
 - [x] **Cut `main` over to the Next.js app** — done, 20 November 2026
   `main` served the plain-scripts app for the whole of the rewrite and is now
   the Next.js app, the async draft included. A clean fast-forward of 55
@@ -52,6 +66,32 @@ anything already settled lives in the README instead.
   toml were renamed or removed.
 
 ## Frontend
+
+- [ ] **Clearing out old drafts, and an admin panel to do it**
+  Nothing deletes a room. Every draft ever made is still in the blob store,
+  along with every revision of it and every pick — and so is every test room,
+  of which there are already a few from verifying the thing.
+
+  Harmless for now and deliberately ignored: a room is a few kilobytes, Blobs
+  storage is not metered the way compute is, and rooms cannot reach each
+  other. It gets less harmless the longer it runs, and the names of people who
+  played are sitting in there, which is the part that should not accumulate
+  for ever without somebody deciding it should.
+
+  What it probably wants:
+
+  - a page listing the rooms this browser's admin keys can open, with what
+    phase each is in and when it was last touched
+  - delete, which means deleting a prefix: `rooms/CODE/` covers the revision
+    chain, the seats and the pick log in one sweep. `Bucket` would need a
+    `deleteAll(prefix)`, which Netlify Blobs can do by listing and deleting
+  - an age to sweep at — a finished draft is of no use to anybody a month on,
+    and nothing in the design wants it kept
+  - the open question underneath it: there is no index of rooms, by design,
+    because a room code is the only way in. An admin panel needs a list, and
+    a list of every room on the site is the one thing the room-code scheme
+    was avoiding. Probably: a per-admin index blob, written at creation, so
+    the listing is "rooms you made" rather than "rooms"
 
 - [ ] **Async draft** — *all five phases built and live, 15–20 November 2026*
   Draft digitally, print only the decks. The format wastes a pile of cards

@@ -299,6 +299,11 @@ locally is local — delete that directory to start from nothing.
 ## Deploying
 Open work and decisions still to make are tracked in [TODO.md](TODO.md).
 
+Releases are tagged on `main`, after the deploy reports `ready` rather than
+before, so a tag always names something that built. `v2.0.0` is the first:
+the Next.js app with the async draft. The plain-scripts app that came before
+was never numbered, so the tags start where the rewrite shipped.
+
 The site is hosted on Netlify, which builds it straight from this repo:
 `netlify.toml` runs `npm run build` and publishes `out/`. Build minutes are not
 metered, so the build itself is free; what costs credits is the production
