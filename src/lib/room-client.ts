@@ -6,7 +6,7 @@
  * and remembering a key. Anything in this file that started deciding
  * something would be a second opinion about the draft.
  */
-import type { Direction } from "@/lib/draft";
+import type { Deck, DeckCheck, Direction } from "@/lib/draft";
 import type { PackCard, RoomView } from "@/lib/room";
 import { tidyCode } from "@/lib/room/codes";
 
@@ -26,13 +26,16 @@ export class DraftError extends Error {
 
 interface Heads {
   key?: string | null;
+  /** Sent alongside the seat key, since one browser can be both. */
+  adminKey?: string | null;
   password?: string | null;
   json?: boolean;
 }
 
-const head = ({ key, password, json }: Heads): HeadersInit => ({
+const head = ({ key, adminKey, password, json }: Heads): HeadersInit => ({
   ...(json ? { "content-type": "application/json" } : {}),
   ...(key ? { "x-draft-key": key } : {}),
+  ...(adminKey ? { "x-draft-admin-key": adminKey } : {}),
   ...(password ? { "x-draft-password": password } : {}),
 });
 
@@ -65,8 +68,11 @@ export const makeRoom = (body: NewRoomBody, password?: string) =>
     body: JSON.stringify(body),
   });
 
-export const fetchRoom = (code: string, key: string | null) =>
-  send<{ view: RoomView }>(`/${code}`, { headers: head({ key }) });
+export const fetchRoom = (
+  code: string,
+  key: string | null,
+  adminKey?: string | null,
+) => send<{ view: RoomView }>(`/${code}`, { headers: head({ key, adminKey }) });
 
 export const joinRoom = (code: string, name: string) =>
   send<{ playerId: string; playerKey: string; name: string }>(
@@ -85,7 +91,7 @@ export const startRoom = (
 ) =>
   send<{ seats: Record<string, number> }>(`/${code}/start`, {
     method: "POST",
-    headers: head({ key: adminKey, json: true }),
+    headers: head({ adminKey, json: true }),
     body: JSON.stringify({ packs }),
   });
 
@@ -99,6 +105,31 @@ export const sendPick = (
     method: "POST",
     headers: head({ key, json: true }),
     body: JSON.stringify({ packId, cards }),
+  });
+
+/**
+ * Save a deck. `submit` is the difference between "this is where I got to"
+ * and "this is finished" — only the second is checked for legality, because
+ * a half-built deck is a normal thing for a deck to be.
+ */
+export const saveDeck = (
+  code: string,
+  key: string,
+  deck: Deck,
+  submit: boolean,
+) =>
+  send<{ check: DeckCheck; submitted: boolean }>(`/${code}/deck`, {
+    method: "POST",
+    headers: head({ key, json: true }),
+    body: JSON.stringify({ deck, submit }),
+  });
+
+/** Admin: let somebody change a deck they have already handed in. */
+export const unlockDeck = (code: string, adminKey: string, playerId: string) =>
+  send<{ name: string }>(`/${code}/unlock`, {
+    method: "POST",
+    headers: head({ adminKey, json: true }),
+    body: JSON.stringify({ playerId }),
   });
 
 /* ------------------------------------------------------------------- URLs */

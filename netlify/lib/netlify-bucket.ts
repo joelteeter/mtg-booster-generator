@@ -27,6 +27,10 @@ export function netlifyBucket(name = "drafts"): Bucket {
       return modified;
     },
 
+    async set(key: string, value: unknown): Promise<void> {
+      await store.setJSON(key, value);
+    },
+
     async list(prefix: string): Promise<string[]> {
       const { blobs } = await store.list({ prefix });
       return blobs.map((b) => b.key).sort();

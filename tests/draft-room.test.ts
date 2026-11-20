@@ -492,7 +492,7 @@ describe("reading a room", () => {
     const res = await readRoom(store, room.code, null);
     if (!res.ok) throw new Error(res.reason);
 
-    expect(res.view.role).toBe("guest");
+    expect(res.view).toMatchObject({ role: "guest", admin: false });
     expect(res.view.you).toBeNull();
     expect(res.view.board).not.toBeNull();
     expect(res.view.roster.map((p) => p.seat)).toEqual([0, 1, 2, 3]);
@@ -508,7 +508,7 @@ describe("reading a room", () => {
     const res = await readRoom(store, room.code, room.keys.Cleo);
     if (!res.ok) throw new Error(res.reason);
 
-    expect(res.view.role).toBe("player");
+    expect(res.view).toMatchObject({ role: "player", admin: false });
     expect(res.view.you).not.toBeNull();
     expect(res.view.you!.queue).toHaveLength(1);
 
@@ -520,13 +520,40 @@ describe("reading a room", () => {
     );
   });
 
-  it("knows the admin, who is not playing", async () => {
+  it("knows an admin who is not playing", async () => {
     const store = new MemoryStore();
     const room = await dealt(store, FOUR);
     const res = await readRoom(store, room.code, room.adminKey);
     if (!res.ok) throw new Error(res.reason);
-    expect(res.view.role).toBe("admin");
+    expect(res.view).toMatchObject({ role: "guest", admin: true });
     expect(res.view.you).toBeNull();
+  });
+
+  it("knows an admin who is also playing, which is the usual case", async () => {
+    /*
+     * Playing and running the draft are separate facts rather than one role.
+     * Whoever organises a draft is normally in it, and before this was two
+     * answers they could not be both: the browser sends a seat key as its
+     * identity, so the admin key has to travel beside it rather than instead.
+     */
+    const store = new MemoryStore();
+    const room = await dealt(store, FOUR);
+    const res = await readRoom(store, room.code, room.keys.Ada, room.adminKey);
+    if (!res.ok) throw new Error(res.reason);
+
+    expect(res.view).toMatchObject({ role: "player", admin: true });
+    expect(res.view.you).not.toBeNull();
+    /* And so they get the ids that handing a deck back needs. */
+    expect(res.view.roster.every((p) => typeof p.id === "string")).toBe(true);
+  });
+
+  it("does not take somebody's word for being the admin", async () => {
+    const store = new MemoryStore();
+    const room = await dealt(store, FOUR);
+    const res = await readRoom(store, room.code, room.keys.Ada, room.keys.Bram);
+    if (!res.ok) throw new Error(res.reason);
+    expect(res.view).toMatchObject({ role: "player", admin: false });
+    expect(res.view.roster.every((p) => p.id === undefined)).toBe(true);
   });
 
   it("shows a room in setup with no board at all", async () => {
@@ -538,8 +565,8 @@ describe("reading a room", () => {
     expect(res.view.board).toBeNull();
     expect(res.view.you).toBeNull();
     expect(res.view.roster).toEqual([
-      { name: "Ada", seat: null },
-      { name: "Bram", seat: null },
+      { name: "Ada", seat: null, submitted: false },
+      { name: "Bram", seat: null, submitted: false },
     ]);
   });
 

@@ -28,6 +28,7 @@ import {
 } from "@/lib/room-client";
 import { prettyCode } from "@/lib/room/codes";
 
+import { DeckBuilder } from "./deck-builder";
 import { DraftBoard } from "./draft-board";
 import { RoomGate } from "./room-gate";
 import { RoomLobby } from "./room-lobby";
@@ -124,13 +125,16 @@ export function DraftUi() {
     address(null);
   }, [address]);
 
-  /* A seat key identifies a player; an admin without a seat gets the board. */
-  const key = here.seat ?? here.admin;
-
+  /*
+   * Both keys go up. The seat key says who you are; the admin key says you
+   * may also deal and hand decks back, which whoever started the draft can do
+   * while playing in it.
+   */
   const room = useQuery({
-    queryKey: ["draft", here.code, key],
+    queryKey: ["draft", here.code, here.seat, here.admin],
     enabled: !!here.code,
-    queryFn: () => fetchRoom(here.code as string, key),
+    queryFn: () =>
+      fetchRoom(here.code as string, here.seat, here.admin),
     staleTime: FRESH,
     refetchOnWindowFocus: true,
     retry: false,
@@ -173,17 +177,33 @@ export function DraftUi() {
   const view = room.data.view;
   const refresh = () => void room.refetch();
 
-  return view.phase === "setup" ? (
-    <RoomLobby
-      view={view}
-      seatKey={here.seat}
-      adminKey={here.admin}
-      onEnter={enter}
-      onRefresh={refresh}
-      onLeave={leave}
-      refreshing={room.isFetching}
-    />
-  ) : (
+  if (view.phase === "setup")
+    return (
+      <RoomLobby
+        view={view}
+        seatKey={here.seat}
+        adminKey={here.admin}
+        onEnter={enter}
+        onRefresh={refresh}
+        onLeave={leave}
+        refreshing={room.isFetching}
+      />
+    );
+
+  /* Drafting is over, so the page stops being a draft and becomes a deck. */
+  if (view.phase !== "drafting")
+    return (
+      <DeckBuilder
+        view={view}
+        seatKey={here.seat}
+        adminKey={here.admin}
+        onRefresh={refresh}
+        onLeave={leave}
+        refreshing={room.isFetching}
+      />
+    );
+
+  return (
     <DraftBoard
       view={view}
       seatKey={here.seat}

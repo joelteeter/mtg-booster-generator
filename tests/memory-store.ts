@@ -11,6 +11,7 @@
  * back a copy, so an operation that mutated what it read would work here and
  * fail in production.
  */
+import type { Deck } from "@/lib/draft";
 import type {
   DraftPatch,
   DraftRow,
@@ -76,6 +77,20 @@ export class MemoryStore implements Store {
     if (list.some((p) => same(p.name, row.name))) return "name-taken";
     list.push(copy(row));
     return "joined";
+  }
+
+  async putDeck(
+    code: string,
+    playerId: string,
+    deck: Deck | null,
+    submittedAt: string | null,
+  ): Promise<boolean> {
+    const list = this.roster.get(code) ?? [];
+    const player = list.find((p) => p.id === playerId);
+    if (!player) return false;
+    player.deck = copy(deck);
+    player.submittedAt = submittedAt;
+    return true;
   }
 
   async logPicks(rows: PickRow[]): Promise<void> {

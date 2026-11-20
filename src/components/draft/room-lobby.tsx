@@ -187,13 +187,13 @@ export function RoomLobby({
         </section>
       )}
 
-      {!seatKey && full && !adminKey && (
+      {!seatKey && full && !view.admin && (
         <p className="text-sm text-muted-foreground">
           This draft is full, so there is no seat to take — but you can watch.
         </p>
       )}
 
-      {adminKey && (
+      {view.admin && adminKey && (
         <section className="rounded-lg border p-4">
           <h2 className="mb-1 font-semibold">Deal the packs</h2>
           {/*

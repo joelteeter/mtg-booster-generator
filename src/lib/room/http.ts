@@ -15,6 +15,7 @@ export const STATUS: Record<RoomRefusal | PickRefusal, number> = {
   "bad-name": 400,
   "bad-pool": 400,
   "bad-pick": 400,
+  "bad-deck": 400,
 
   /* The caller is not who they would need to be. */
   "not-admin": 403,

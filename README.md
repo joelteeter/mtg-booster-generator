@@ -143,8 +143,10 @@ actually play.
 * **the cards in your pack are only ever sent to you.** Everybody can see names, pick counts and whose turn it is; the contents go to whoever is holding the pack. There is a test that serialises the public board and searches it for every card id in the pool
 * **nothing polls.** The room is fetched when the page opens, after your own pick, on tab focus if it is over a minute old, and when you press Check for packs. Netlify's free plan is a hard cap that pauses the whole site, and an async draft is a mailbox anyway
 * a pack appears with no API request at all: the view hands over Scryfall ids and the image path is derived from them
+* **a deck is forty cards with the basics counted in**, plus five beside it. Basics are free, added by name rather than drafted, and not printed unless you ask. A half-built deck can be saved as often as you like and only a finished one is checked; editing one you handed in takes it back off the pile, and the admin can hand one back
+* legality is decided in one place and the page shows the server's answer early, so the two cannot disagree about what is wrong with a deck
 
-Deck building and printing the decks are not built yet.
+Printing everybody's decks is not built yet.
 
 ## Proxies
 `/proxies` is the page that is told what to print rather than deciding: paste a

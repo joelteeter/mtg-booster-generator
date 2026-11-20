@@ -14,6 +14,7 @@
  * bundled into a Netlify function as well as into the app, and a path alias is
  * something Next's bundler knows about that the function bundler does not.
  */
+import type { Deck } from "../draft/deck";
 import type { DraftRules, DraftState, Pool } from "../draft/types";
 
 /**
@@ -69,6 +70,17 @@ export interface PlayerRow {
   name: string;
   keyHash: string;
   joinedAt: string;
+  /**
+   * What they are building, saved as they go. Null until they save one.
+   *
+   * On the player's own row rather than in the draft row, which is the whole
+   * reason a half-built deck can be saved at all: nobody else writes this
+   * blob, so there is no revision to lose and no reason to make somebody
+   * finish in one sitting.
+   */
+  deck?: Deck | null;
+  /** When they said it was finished. Null while it is still a draft of one. */
+  submittedAt?: string | null;
 }
 
 /** One row of `pick`: append-only, and never read while drafting. */
@@ -103,5 +115,17 @@ export interface Store {
    * last seat at once, or two people join under one name.
    */
   addPlayer(row: PlayerRow, maxSeats: number): Promise<JoinOutcome>;
+  /**
+   * Save a player's deck, submitted or not. False if there is no such player.
+   *
+   * Unconditional, unlike every other write here, and safe for the same
+   * reason it is useful: a player's row is written by that player alone.
+   */
+  putDeck(
+    code: string,
+    playerId: string,
+    deck: Deck | null,
+    submittedAt: string | null,
+  ): Promise<boolean>;
   logPicks(rows: PickRow[]): Promise<void>;
 }

@@ -20,7 +20,9 @@ import {
   joinRoom,
   makePick,
   readRoom,
+  saveDeck,
   startDraft,
+  unlockDeck,
 } from "../../src/lib/room/ops";
 import type { Outcome, Refused } from "../../src/lib/room/ops";
 import { blobStore } from "../../src/lib/room/blob-store";
@@ -59,6 +61,12 @@ const handler = async (
     return json({ error: "no-storage", detail: String(e) }, 503);
   }
   const key = req.headers.get("x-draft-key");
+  /*
+   * A second key, because playing and running the draft are separate facts
+   * and whoever started it is usually both. The seat key is the identity;
+   * this one only says they may also deal, and hand decks back.
+   */
+  const adminKey = req.headers.get("x-draft-admin-key");
   const code = tidyCode(context.params.code ?? "");
   const action = (context.params.action ?? "").toLowerCase();
   const body = async (): Promise<unknown> =>
@@ -80,7 +88,7 @@ const handler = async (
 
   if (!action)
     return req.method === "GET"
-      ? reply(await readRoom(store, code, key))
+      ? reply(await readRoom(store, code, key, adminKey))
       : json({ error: "method-not-allowed" }, 405);
 
   if (req.method !== "POST") return json({ error: "method-not-allowed" }, 405);
@@ -90,9 +98,17 @@ const handler = async (
     case "join":
       return reply(await joinRoom(store, code, sent.name));
     case "start":
-      return reply(await startDraft(store, code, key ?? "", sent.packs));
+      return reply(
+        await startDraft(store, code, adminKey ?? key ?? "", sent.packs),
+      );
     case "pick":
       return reply(await makePick(store, code, key, sent.packId, sent.cards));
+    case "deck":
+      return reply(await saveDeck(store, code, key, sent));
+    case "unlock":
+      return reply(
+        await unlockDeck(store, code, adminKey ?? key ?? "", sent.playerId),
+      );
     default:
       return json({ error: "no-such-action", detail: action }, 404);
   }

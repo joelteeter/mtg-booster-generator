@@ -1,6 +1,7 @@
 # Async draft
 
-Written 15 November 2026. Phases 1 to 3 are built; the rest is still a plan.
+Written 15 November 2026, built through 20 November. Phases 1 to 4 are
+built; printing is still a plan.
 
 ## The problem it solves
 
@@ -278,15 +279,36 @@ do today.
 
 ## Deck building
 
-Opens for a seat as soon as that seat has drafted its last card, so the fast
-players have something to do.
-
 - minimum 40 cards, the draft standard
 - basics are free and unlimited, and are not drawn from the pool
 - a sideboard of five, which is the sideboard the printing budget can pay for
   rather than the one the rules allow
-- everything else must come from that seat's own 42 cards
-- submitting locks it; the admin can unlock a seat
+- everything else must come from that seat's own cards
+- the admin can hand a submitted deck back
+
+Three things settled in the building of it.
+
+**A half-built deck can be saved, and only a finished one is checked.** A
+draft runs over days and so does building; nobody should have to do it in one
+sitting, or keep it in a browser that Safari will clear. That is affordable
+because a deck lives on the player's own row, which has exactly one writer —
+no revision to lose, so no contention and no reason to make saving rare.
+
+**Editing a submitted deck takes it back off the pile.** The alternative is a
+deck the admin has already printed changing underneath them, which is worse
+than having to press the button again.
+
+**Basics are counted by name, not as cards.** Nobody opened them, so there is
+no card key to give them, and which printing they get is a question for
+whoever prints them — if they are printed at all, which by default they are
+not. That is also what keeps the 40 honest: the check counts drafted cards
+*and* basics, so seventeen Forests really do get you to forty.
+
+The builder itself still makes no Scryfall request: the piles are images
+derived from ids, and you sort by looking at them. Names and mana costs would
+make it a better builder and cost a request per seventy-five cards — worth it
+when the decklist has to be written out for printing, which is the next
+phase, and not worth it to move a picture from one pile to another.
 
 ## Printing
 
@@ -462,8 +484,21 @@ rather than `drafts`, which is one argument to `netlifyBucket`.
    in `netlify.toml`. Left alone, Netlify puts its own port in the environment,
    Next reads `PORT`, binds there, and Netlify waits forever for a framework
    listening on the address Netlify is listening on itself.
-4. **Deck building** and submission.
-5. **Admin printing**, through `/proxies`.
+4. **Deck building** — done, 20 November 2026. `checkDeck` in
+   `src/lib/draft/deck.ts` is the only thing that decides legality, and both
+   the browser and the handler call it, so the page is showing the server's
+   answer early rather than forming its own. `src/components/draft/deck-builder.tsx`
+   is three piles and six steppers; one tap moves a card on. 23 more tests,
+   and the whole thing built and handed in through a browser.
+
+   It turned up a real hole, which is now the model: **playing and running a
+   draft are separate facts, not one role.** Whoever organises a draft is
+   normally in it, and the browser sends a seat key as its identity — so the
+   admin key has to travel beside it rather than instead of it. Before that,
+   the one person certain to need both could only ever be one.
+
+5. **Admin printing**, through `/proxies`. The first phase that needs real
+   card data: a decklist is names, and the draft has only ever handled ids.
 6. **Polish.** The draft log, who is holding it up, reassigning a seat,
    picking for an absent player.
 

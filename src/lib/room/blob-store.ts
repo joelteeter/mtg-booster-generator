@@ -17,6 +17,8 @@
  * It is append-only, so it is also a second backup beside the pick log: every
  * state the draft was ever in is still there.
  */
+import type { Deck } from "../draft/deck";
+
 import type { Bucket } from "./bucket";
 import type {
   DraftPatch,
@@ -156,6 +158,27 @@ export function blobStore(bucket: Bucket): Store {
         return "name-taken";
       }
       return "joined";
+    },
+
+    /*
+     * A player's row has one writer, so this overwrites rather than racing.
+     * The slot has to be looked up because the row is keyed by it and a
+     * `PlayerRow` does not carry its own seat.
+     */
+    async putDeck(
+      code: string,
+      playerId: string,
+      deck: Deck | null,
+      submittedAt: string | null,
+    ): Promise<boolean> {
+      const mine = (await seated(code)).find((s) => s.player.id === playerId);
+      if (!mine) return false;
+      await bucket.set(seatKey(code, mine.slot), {
+        ...mine.player,
+        deck,
+        submittedAt,
+      });
+      return true;
     },
 
     /*

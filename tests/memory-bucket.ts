@@ -33,6 +33,10 @@ export class MemoryBucket implements Bucket {
     return true;
   }
 
+  async set(key: string, value: unknown): Promise<void> {
+    this.data.set(key, JSON.stringify(value));
+  }
+
   async list(prefix: string): Promise<string[]> {
     return [...this.data.keys()]
       .filter((k) => k.startsWith(prefix) && !this.hideFromList.has(k))

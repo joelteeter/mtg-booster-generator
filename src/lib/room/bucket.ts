@@ -17,6 +17,14 @@ export interface Bucket {
    * transaction that object storage cannot give us.
    */
   setIfNew(key: string, value: unknown): Promise<boolean>;
+  /**
+   * Write, whether or not the key is there.
+   *
+   * Only for a key with exactly one writer — a player's own row. Anything
+   * contended goes through `setIfNew`, which is the only thing here that can
+   * settle a race.
+   */
+  set(key: string, value: unknown): Promise<void>;
   /** Every key under a prefix, in lexicographic order. */
   list(prefix: string): Promise<string[]>;
   delete(key: string): Promise<void>;

@@ -14,6 +14,8 @@
  */
 /* Relative rather than aliased — see the note in `types.ts`. */
 import { dealPacks, poolKeys, seatOrder } from "../draft/deal";
+import { checkDeck, poolOf, problemText } from "../draft/deck";
+import type { Deck, DeckCheck } from "../draft/deck";
 import { applyPick, isOver } from "../draft/engine";
 import type {
   Direction,
@@ -45,6 +47,7 @@ export type RoomRefusal =
   | "bad-rules"
   | "bad-pool"
   | "bad-pick"
+  | "bad-deck"
   | "lost-race";
 
 export interface Refused {
@@ -73,6 +76,9 @@ const PER_TURN = [1, 2] as const;
 const PACK_CARDS = [1, 60] as const;
 const POOL_CARDS = 1200;
 const NAME_CHARS = 40;
+/* Bounds on a posted deck, so a stray request cannot be enormous. */
+const MAIN_MAX = 300;
+const SIDE_MAX = 50;
 
 const whole = (v: unknown): number | null =>
   typeof v === "number" && Number.isInteger(v) ? v : null;
@@ -316,9 +322,17 @@ export async function startDraft(
 
 /* ----------------------------------------------------------------- pick */
 
+/**
+ * Who is asking.
+ *
+ * Playing and running the draft are separate facts rather than one role,
+ * because the usual case is both: whoever organises it is also in it. A
+ * request carries a seat key and an admin key independently, and either may
+ * be absent.
+ */
 interface Caller {
-  role: "admin" | "player" | "guest";
   player: PlayerRow | null;
+  admin: boolean;
 }
 
 /** Where a player is sitting, or null before the draft is dealt. */
@@ -329,14 +343,19 @@ const whoIs = async (
   row: DraftRow,
   players: readonly PlayerRow[],
   key: string | null,
+  adminKey?: string | null,
 ): Promise<Caller> => {
-  if (!key) return { role: "guest", player: null };
-  const hash = await hashKey(key);
-  const player = players.find((p) => p.keyHash === hash) ?? null;
-  if (player) return { role: "player", player };
-  return row.adminHash === hash
-    ? { role: "admin", player: null }
-    : { role: "guest", player: null };
+  const hash = key ? await hashKey(key) : null;
+  const player = hash
+    ? (players.find((p) => p.keyHash === hash) ?? null)
+    : null;
+  /*
+   * Either key proves the admin: one browser holding both sends the seat key
+   * as its identity, and an admin who is not playing has only the one.
+   */
+  const adminHash = adminKey ? await hashKey(adminKey) : null;
+  const admin = row.adminHash === hash || row.adminHash === adminHash;
+  return { player, admin };
 };
 
 export async function makePick(
@@ -412,6 +431,109 @@ export async function makePick(
   return { ok: true, taken: picked.taken, over };
 }
 
+/* ----------------------------------------------------------------- deck */
+
+const strings = (v: unknown, max: number): string[] | null =>
+  Array.isArray(v) &&
+  v.length <= max &&
+  v.every((x) => typeof x === "string" && x)
+    ? (v as string[])
+    : null;
+
+/**
+ * A deck off the wire, or null if it is not one.
+ *
+ * Shape only. Whether it is a *legal* deck is `checkDeck`'s to say, and it
+ * says it for the browser too — so there is one answer rather than a server
+ * opinion and a client one that drift apart.
+ */
+const parseDeck = (value: unknown): Deck | null => {
+  if (!value || typeof value !== "object") return null;
+  const d = value as Record<string, unknown>;
+  const main = strings(d.main, MAIN_MAX);
+  const side = strings(d.side, SIDE_MAX);
+  if (!main || !side) return null;
+
+  const given = d.basics ?? {};
+  if (typeof given !== "object" || Array.isArray(given)) return null;
+  const basics: Record<string, number> = {};
+  for (const [name, count] of Object.entries(given as Record<string, unknown>)) {
+    if (typeof count !== "number") return null;
+    basics[name] = count;
+  }
+  return { main, side, basics: basics as Deck["basics"] };
+};
+
+/**
+ * Save a deck, finished or not.
+ *
+ * Saving an unfinished one is the point: a draft runs over days and so does
+ * building, and nobody should have to do it in one sitting or keep it in a
+ * browser that Safari will clear. Only submitting is checked — an illegal
+ * work in progress is a normal state for a deck to be in.
+ *
+ * Editing after submitting un-submits, which is deliberate. The alternative
+ * is a deck the admin has printed quietly changing underneath them.
+ */
+export async function saveDeck(
+  store: Store,
+  code: string,
+  key: string | null,
+  body: unknown,
+  clock: Clock = {},
+): Promise<Outcome<{ check: DeckCheck; submitted: boolean }>> {
+  const room = await liveRoom(store, code, "building");
+  if (!room.ok) return room;
+  const { row } = room;
+  if (!row.state) return no("wrong-phase", "the room has not been dealt");
+
+  const who = await whoIs(row, await store.listPlayers(code), key);
+  if (!who.player) return no("not-a-player");
+  const seat = seatOf(row, who.player);
+  if (seat === null) return no("no-seat");
+
+  const sent = (body ?? {}) as Record<string, unknown>;
+  const deck = parseDeck(sent.deck);
+  if (!deck) return no("bad-deck", "that is not a deck");
+  const submit = sent.submit === true;
+
+  const check = checkDeck(deck, poolOf(row.state.picked[seat] ?? []));
+  if (submit && !check.ok)
+    return no("bad-deck", check.problems.map(problemText).join(" "));
+
+  const when = submit
+    ? (clock.now ?? (() => new Date().toISOString()))()
+    : null;
+  if (!(await store.putDeck(code, who.player.id, deck, when)))
+    return no("not-a-player");
+
+  return { ok: true, check, submitted: submit };
+}
+
+/** Let somebody change a deck they have already handed in. Admin only. */
+export async function unlockDeck(
+  store: Store,
+  code: string,
+  adminKey: string,
+  playerId: unknown,
+): Promise<Outcome<{ name: string }>> {
+  const room = await liveRoom(store, code, "building");
+  if (!room.ok) return room;
+  if ((await hashKey(adminKey)) !== room.row.adminHash) return no("not-admin");
+  if (typeof playerId !== "string" || !playerId)
+    return no("bad-deck", "which player?");
+
+  const player = (await store.listPlayers(code)).find(
+    (p) => p.id === playerId,
+  );
+  if (!player) return no("not-a-player");
+
+  /* The deck itself is kept; only the saying-it-is-finished is undone. */
+  if (!(await store.putDeck(code, playerId, player.deck ?? null, null)))
+    return no("not-a-player");
+  return { ok: true, name: player.name };
+}
+
 /* ----------------------------------------------------------------- read */
 
 export interface RoomView {
@@ -420,26 +542,46 @@ export interface RoomView {
   rounds: number;
   maxSeats: number;
   printBasics: boolean;
-  role: Caller["role"];
-  /** Everyone in the room. Seats are null until it is dealt. */
-  roster: { name: string; seat: number | null }[];
+  /** Whether this browser is playing in the draft. */
+  role: "player" | "guest";
+  /** Whether it is also running it. Both are true for whoever started it. */
+  admin: boolean;
+  /**
+   * Everyone in the room. Seats are null until it is dealt.
+   *
+   * `id` is there for the admin alone, who needs it to hand a deck back. It
+   * is not a secret — it authorises nothing — but it is nobody else's
+   * business either, and the rule here is that a view carries what its reader
+   * can act on.
+   */
+  roster: {
+    name: string;
+    seat: number | null;
+    submitted: boolean;
+    id?: string;
+  }[];
   /** Null before the deal. Carries no cards — see `lib/draft/view.ts`. */
   board: BoardView | null;
   /** Null for a guest, and for an admin who is not also playing. */
   you: SeatView | null;
+  /** Your deck as last saved, which may be half-built. */
+  deck: Deck | null;
+  /** Whether you have called it finished. */
+  submitted: boolean;
 }
 
 export async function readRoom(
   store: Store,
   code: string,
   key: string | null,
+  adminKey?: string | null,
 ): Promise<Outcome<{ view: RoomView }>> {
   const room = await liveRoom(store, code, null);
   if (!room.ok) return room;
   const { row } = room;
 
   const players = await store.listPlayers(code);
-  const who = await whoIs(row, players, key);
+  const who = await whoIs(row, players, key, adminKey);
 
   const names: (string | undefined)[] = [];
   for (const p of players) {
@@ -456,12 +598,20 @@ export async function readRoom(
       rounds: row.rules.rounds,
       maxSeats: row.maxSeats,
       printBasics: row.printBasics,
-      role: who.role,
+      role: who.player ? "player" : "guest",
+      admin: who.admin,
       roster: players
-        .map((p) => ({ name: p.name, seat: seatOf(row, p) }))
+        .map((p) => ({
+          name: p.name,
+          seat: seatOf(row, p),
+          submitted: !!p.submittedAt,
+          ...(who.admin ? { id: p.id } : {}),
+        }))
         .sort((a, b) => (a.seat ?? 99) - (b.seat ?? 99)),
       board: row.state ? boardView(row.state, names) : null,
       you: row.state && seat !== null ? seatView(row.state, row.pool, seat) : null,
+      deck: who.player?.deck ?? null,
+      submitted: !!who.player?.submittedAt,
     },
   };
 }

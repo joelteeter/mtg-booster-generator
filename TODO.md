@@ -46,7 +46,7 @@ anything already settled lives in the README instead.
 
 ## Frontend
 
-- [ ] **Async draft** — *phases 1 to 3 built 15 November 2026*
+- [ ] **Async draft** — *phases 1 to 4 built, 15–20 November 2026*
   Draft digitally, print only the decks. The format wastes a pile of cards
   per player that never make a deck, and they are printed before the draft
   because the draft needs them — so inverting the order is the fix. Planned in
@@ -114,8 +114,20 @@ anything already settled lives in the README instead.
   - a draft cannot be reached on `main` until the cut-over, since `main` is
     still the old plain-scripts app with no functions at all
 
-  Still to build: deck building (phase 4) and printing everybody's decks
-  through `/proxies` (phase 5), which is where the paper is actually saved.
+  Phase 4 is deck building: forty cards with basics counted in, five beside
+  it, saved half-built as often as you like and checked only when handed in.
+  `checkDeck` is the one thing that decides legality and both sides call it.
+
+  It turned up the one real hole in the model so far: **playing and running a
+  draft are separate facts, not one role.** Whoever organises a draft is
+  normally in it, and a browser sends its seat key as its identity, so the
+  admin key had to start travelling beside it rather than instead — otherwise
+  the one person certain to need both could only ever be one.
+
+  Still to build: printing everybody's decks through `/proxies` (phase 5),
+  which is where the paper is actually saved. It is the first phase that needs
+  real card data, since a decklist is names and the draft has only ever
+  handled ids.
 
   Phase 3 is the browser: the queue, the picks, the board, Check for packs.
 
