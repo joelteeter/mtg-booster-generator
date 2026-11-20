@@ -145,8 +145,10 @@ actually play.
 * a pack appears with no API request at all: the view hands over Scryfall ids and the image path is derived from them
 * **a deck is forty cards with the basics counted in**, plus five beside it. Basics are free, added by name rather than drafted, and not printed unless you ask. A half-built deck can be saved as often as you like and only a finished one is checked; editing one you handed in takes it back off the pile, and the admin can hand one back
 * legality is decided in one place and the page shows the server's answer early, so the two cannot disagree about what is wrong with a deck
+* **the admin prints one file a player**, each starting on a fresh sheet, plus one file holding everybody. Cards are looked up by Scryfall id, so every printing is the one that was drafted; basic lands are off by default and come from the draft's own set when turned on
+* each deck also comes as a decklist to copy, in the format `/proxies` reads, so it can be pasted there and changed before printing
 
-Printing everybody's decks is not built yet.
+An eight-player draft prints about 200 cards this way instead of 336, and every one of them gets played.
 
 ## Proxies
 `/proxies` is the page that is told what to print rather than deciding: paste a
@@ -252,6 +254,7 @@ src/lib/draft/           the async draft's rules: dealing, picking, passing
 src/lib/room/            a draft with people in it: codes, seat keys, storage
 src/lib/room-client.ts   the browser's side of the draft API
 src/lib/draft-pool.ts    a generated run, as cards a draft can be dealt from
+src/lib/draft-print.ts   everybody's decks, as decklists and pages to print
 netlify/functions/       the one function there is, which serves the draft
 src/lib/explain.ts       the "How each card slot is determined" panel's wording
 src/lib/csv.ts           CSV rows in Scryfall's format

@@ -15,9 +15,10 @@
 /* Relative rather than aliased — see the note in `types.ts`. */
 import { dealPacks, poolKeys, seatOrder } from "../draft/deal";
 import { checkDeck, poolOf, problemText } from "../draft/deck";
-import type { Deck, DeckCheck } from "../draft/deck";
+import type { BasicLand, Deck, DeckCheck } from "../draft/deck";
 import { applyPick, isOver } from "../draft/engine";
 import type {
+  CardRef,
   Direction,
   DraftRules,
   PickRefusal,
@@ -25,7 +26,7 @@ import type {
   Rng,
   Taken,
 } from "../draft/types";
-import { boardView, seatView } from "../draft/view";
+import { boardView, cardRefs, seatView } from "../draft/view";
 import type { BoardView, SeatView } from "../draft/view";
 
 import { hashKey, roomCode, secretKey } from "./codes";
@@ -532,6 +533,60 @@ export async function unlockDeck(
   if (!(await store.putDeck(code, playerId, player.deck ?? null, null)))
     return no("not-a-player");
   return { ok: true, name: player.name };
+}
+
+/* ---------------------------------------------------------------- print */
+
+/** One player's deck, as the cards it is made of. For the admin alone. */
+export interface DeckSheet {
+  playerId: string;
+  name: string;
+  seat: number;
+  submitted: boolean;
+  main: CardRef[];
+  side: CardRef[];
+  basics: Partial<Record<BasicLand, number>>;
+}
+
+/**
+ * Every deck in the draft, for printing.
+ *
+ * The one place a request is answered with somebody else's cards, which is
+ * why it is admin-only and separate from `readRoom` rather than a branch
+ * inside it: a view that *sometimes* carries everybody's decks is one
+ * mistaken condition away from always carrying them.
+ *
+ * Players without a deck are still listed, so the admin can see who is
+ * missing rather than inferring it from a gap.
+ */
+export async function allDecks(
+  store: Store,
+  code: string,
+  adminKey: string,
+): Promise<Outcome<{ decks: DeckSheet[] }>> {
+  const room = await liveRoom(store, code, null);
+  if (!room.ok) return room;
+  const { row } = room;
+  if (!row.state) return no("wrong-phase", "the draft has not been dealt");
+  if ((await hashKey(adminKey)) !== row.adminHash) return no("not-admin");
+
+  const decks: DeckSheet[] = [];
+  for (const player of await store.listPlayers(code)) {
+    const seat = seatOf(row, player);
+    if (seat === null) continue;
+    const deck = player.deck ?? { main: [], side: [], basics: {} };
+    decks.push({
+      playerId: player.id,
+      name: player.name,
+      seat,
+      submitted: !!player.submittedAt,
+      main: cardRefs(row.pool, deck.main),
+      side: cardRefs(row.pool, deck.side),
+      basics: deck.basics,
+    });
+  }
+  decks.sort((a, b) => a.seat - b.seat);
+  return { ok: true, decks };
 }
 
 /* ----------------------------------------------------------------- read */

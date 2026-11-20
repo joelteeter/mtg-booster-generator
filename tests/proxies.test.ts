@@ -88,6 +88,8 @@ function shelf(cards: Card[]) {
     const not_found: CardIdentifier[] = [];
     for (const id of ids) {
       const hit = cards.find((c) => {
+        /* By Scryfall id, which is what the draft's printing asks for. */
+        if ("id" in id) return c.id === id.id;
         if ("collector_number" in id)
           return (
             c.set === id.set.toLowerCase() &&

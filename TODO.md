@@ -46,7 +46,7 @@ anything already settled lives in the README instead.
 
 ## Frontend
 
-- [ ] **Async draft** — *phases 1 to 4 built, 15–20 November 2026*
+- [ ] **Async draft** — *all five phases built, 15–20 November 2026; waiting on the cut-over*
   Draft digitally, print only the decks. The format wastes a pile of cards
   per player that never make a deck, and they are printed before the draft
   because the draft needs them — so inverting the order is the fix. Planned in
@@ -124,10 +124,16 @@ anything already settled lives in the README instead.
   admin key had to start travelling beside it rather than instead — otherwise
   the one person certain to need both could only ever be one.
 
-  Still to build: printing everybody's decks through `/proxies` (phase 5),
-  which is where the paper is actually saved. It is the first phase that needs
-  real card data, since a decklist is names and the draft has only ever
-  handled ids.
+  Phase 5 is the printing, and the arithmetic it was all for: an eight-player
+  draft prints about 200 cards this way instead of 336, and every one of them
+  gets played. One file a player, each starting on a fresh sheet, plus a
+  decklist to copy in the format `/proxies` reads. Basics off by default —
+  turning them on puts the number straight back to 336, which is the whole
+  point of the switch.
+
+  Nothing is left to build. What is left is to **run one**, which cannot
+  happen until `main` is cut over, since `main` is the old plain-scripts app
+  with no functions at all.
 
   Phase 3 is the browser: the queue, the picks, the board, Check for packs.
 

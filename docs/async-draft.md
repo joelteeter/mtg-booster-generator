@@ -1,7 +1,7 @@
 # Async draft
 
-Written 15 November 2026, built through 20 November. Phases 1 to 4 are
-built; printing is still a plan.
+Written 15 November 2026, built 15–20 November. All five phases are done;
+what is left is listed at the bottom.
 
 ## The problem it solves
 
@@ -317,13 +317,37 @@ The part that already works. A submitted deck is
 because every drafted card is a known printing by construction, it never
 touches the name-resolution fallback at all.
 
-The admin page collects every submitted deck into one pile:
+The admin's panel collects every deck:
 
-- a page break per player, and a divider card carrying their name through the
-  separator mechanism
+- **one file a player**, plus one holding everybody. A player is a *row*, and
+  `runExport` already starts a new page per row — so the page break between
+  people is the exporter's own `newPagePerPack`, forced on rather than left to
+  a setting, because two people's decks sharing a sheet is never what was
+  wanted and cutting them apart afterwards is somebody's evening.
 - **don't print basic lands**, on by default — the one option asked for
-  explicitly, and the bulk of the saving
-- a per-player decklist to copy, so a deck can be hand-edited before printing
+  explicitly, and the bulk of the saving: 25 cards a player instead of 42.
+- **a per-player decklist to copy**, so a deck can be pasted into `/proxies`
+  and hand-edited before printing. There is a test that reads one back with
+  the proxy parser and gets the same cards in the same numbers, because that
+  claim is only true if the two agree on the format down to the brackets.
+
+No divider card, which the plan had asked for. It would have meant generating
+an image with a name on it, and a file per player does the same job better —
+you print Ada's deck, not page 14 to 17 of a pile.
+
+Two things worth keeping:
+
+**Basics are looked up in the draft's own set.** The cards come back first and
+say which set most of the draft was; the lands are then asked for in that one.
+A deck of Kamigawa commons with a Zendikar Forest in it would print perfectly
+and look wrong on the table. It costs a second request and nothing else.
+
+**This is the first part of the draft that asks Scryfall anything.** Picking
+and building need an image, and an image comes from an id. A decklist needs
+names, set codes and collector numbers — one `/cards/collection` request per
+seventy-five cards, by id, so no printing can resolve to the wrong art. The
+Proxies page has a whole fallback chain for exactly that problem and this
+never reaches it.
 
 ## Hidden information
 
@@ -497,8 +521,18 @@ rather than `drafts`, which is one argument to `netlifyBucket`.
    admin key has to travel beside it rather than instead of it. Before that,
    the one person certain to need both could only ever be one.
 
-5. **Admin printing**, through `/proxies`. The first phase that needs real
-   card data: a decklist is names, and the draft has only ever handled ids.
+5. **Admin printing** — done, 20 November 2026. `src/lib/draft-print.ts` and
+   `src/components/draft/deck-prints.tsx`: one file a player, the decklists to
+   copy, and the basics switch. 15 more tests, including the round trip
+   through the proxy parser and the page break asserted against the
+   exporter's own pagination rather than by reading a PDF.
+
+   `proxyEntries` was split so that `cardEntries` — cards to printed slots,
+   double-faced ones included — is shared rather than copied. The face
+   splitting cannot now be right on one page and wrong on the other.
+
+   Verified in a browser: two drafted decks, looked up live from Scryfall,
+   printed to `Draft-XW58J1-All-2.pdf` and `Draft-XW58J1-1-Bram.pdf`.
 6. **Polish.** The draft log, who is holding it up, reassigning a seat,
    picking for an absent player.
 
@@ -523,6 +557,19 @@ the reasoning in it, and it costs nothing to run.
   and was turned down to avoid a second account: free hosting is a hard
   constraint here, so the feature is designed to fit inside one rather than to
   be worth paying for.
+
+## What it cost, in the end
+
+The arithmetic the whole thing was for, on a real eight-player draft:
+
+| | printed |
+|---|---|
+| drafting in person | 8 × 3 × 14 = **336 cards**, plus land and token sheets |
+| drafting first | 8 × 25 = **200 cards**, and every one of them played |
+
+Twenty-five is a forty-card deck minus seventeen basics, plus a sideboard of
+five. Turning the basics on makes it 336 against 336, which is why that switch
+is off: the saving *is* the basics and the cards nobody picked.
 
 ## Open
 

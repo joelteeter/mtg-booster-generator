@@ -26,6 +26,8 @@ import type { RoomView } from "@/lib/room";
 import { DraftError, saveDeck, unlockDeck } from "@/lib/room-client";
 import { cn } from "@/lib/utils";
 
+import { DeckPrints } from "./deck-prints";
+
 type Zone = "main" | "side" | "out";
 
 /** One tap moves a card on: into the deck, across to the side, then out. */
@@ -325,10 +327,11 @@ export function DeckBuilder({
               </li>
             ))}
           </ul>
-          <p className="mt-3 text-sm text-muted-foreground">
-            Printing everybody&apos;s decks is the next thing to be built.
-          </p>
         </section>
+      )}
+
+      {view.admin && adminKey && (
+        <DeckPrints view={view} adminKey={adminKey} />
       )}
     </>
   );

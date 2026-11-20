@@ -28,7 +28,7 @@ import type { DfcMode, Flip, PaperName, Quality } from "./index";
 export type ExportKind = "pdf" | "back" | "mpp";
 
 /** What a row of the downloads table is one of, for the status line. */
-export type ExportUnit = "pack" | "page";
+export type ExportUnit = "pack" | "page" | "deck";
 
 const KIND_LABEL: Record<ExportKind, string> = {
   pdf: "Fronts PDF",

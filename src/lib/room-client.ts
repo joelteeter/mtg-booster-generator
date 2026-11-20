@@ -7,7 +7,7 @@
  * something would be a second opinion about the draft.
  */
 import type { Deck, DeckCheck, Direction } from "@/lib/draft";
-import type { PackCard, RoomView } from "@/lib/room";
+import type { DeckSheet, PackCard, RoomView } from "@/lib/room";
 import { tidyCode } from "@/lib/room/codes";
 
 const BASE = "/api/draft";
@@ -130,6 +130,12 @@ export const unlockDeck = (code: string, adminKey: string, playerId: string) =>
     method: "POST",
     headers: head({ adminKey, json: true }),
     body: JSON.stringify({ playerId }),
+  });
+
+/** Admin: everybody's decks, which is the only read that carries them. */
+export const fetchDecks = (code: string, adminKey: string) =>
+  send<{ decks: DeckSheet[] }>(`/${code}/decks`, {
+    headers: head({ adminKey }),
   });
 
 /* ------------------------------------------------------------------- URLs */

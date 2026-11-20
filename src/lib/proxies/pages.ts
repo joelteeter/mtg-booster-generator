@@ -42,6 +42,37 @@ export function faceCard(card: Card, face: 0 | 1): Card {
 }
 
 /**
+ * Cards to printed slots, in order: one entry each, two for a double-faced
+ * card being printed as two.
+ *
+ * Pulled out of `proxyEntries` when the draft needed to print decks, which is
+ * the same job — a list of cards somebody chose — reached by another route.
+ * One implementation means the face splitting cannot be right on one page and
+ * wrong on the other.
+ */
+export function cardEntries(
+  cards: readonly Card[],
+  dfcMode: DfcMode,
+): PackEntry[] {
+  const out: PackEntry[] = [];
+  for (const card of cards) {
+    /*
+     * No label: a pack entry's label is what drew it — "common", "token
+     * separator" — and nothing drew this one but somebody choosing it. The
+     * preview caption carries the printing itself.
+     */
+    const base = { finish: "nonfoil", label: "" };
+    if (dfcMode === "separate" && isDfc(card)) {
+      out.push({ ...base, card: faceCard(card, 0), slot: out.length + 1 });
+      out.push({ ...base, card: faceCard(card, 1), slot: out.length + 1 });
+    } else {
+      out.push({ ...base, card, slot: out.length + 1 });
+    }
+  }
+  return out;
+}
+
+/**
  * One entry per slot, in the order the list was written, with each line's
  * copies together.
  */
@@ -49,25 +80,12 @@ export function proxyEntries(
   resolved: ProxyCard[],
   dfcMode: DfcMode,
 ): PackEntry[] {
-  const out: PackEntry[] = [];
+  const cards: Card[] = [];
   for (const { line, card } of resolved) {
     if (!card) continue;
-    for (let copy = 0; copy < line.qty; copy++) {
-      /*
-       * No label: a pack entry's label is what drew it — "common", "token
-       * separator" — and nothing drew this one but the line you typed. The
-       * preview caption carries the printing itself.
-       */
-      const base = { finish: "nonfoil", label: "" };
-      if (dfcMode === "separate" && isDfc(card)) {
-        out.push({ ...base, card: faceCard(card, 0), slot: out.length + 1 });
-        out.push({ ...base, card: faceCard(card, 1), slot: out.length + 1 });
-      } else {
-        out.push({ ...base, card, slot: out.length + 1 });
-      }
-    }
+    for (let copy = 0; copy < line.qty; copy++) cards.push(card);
   }
-  return out;
+  return cardEntries(cards, dfcMode);
 }
 
 /** Nine to a page, the last page short. */

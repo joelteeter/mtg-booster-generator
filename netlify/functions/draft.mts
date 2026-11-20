@@ -16,6 +16,7 @@ import type { Config, Context } from "@netlify/functions";
 import { gateOpen, tidyCode } from "../../src/lib/room/codes";
 import { STATUS } from "../../src/lib/room/http";
 import {
+  allDecks,
   createRoom,
   joinRoom,
   makePick,
@@ -89,6 +90,13 @@ const handler = async (
   if (!action)
     return req.method === "GET"
       ? reply(await readRoom(store, code, key, adminKey))
+      : json({ error: "method-not-allowed" }, 405);
+
+  /* The only GET with a name on it, because it is the only one that is not
+   * the room: it is everybody's decks, and only the admin may have it. */
+  if (action === "decks")
+    return req.method === "GET"
+      ? reply(await allDecks(store, code, adminKey ?? key ?? ""))
       : json({ error: "method-not-allowed" }, 405);
 
   if (req.method !== "POST") return json({ error: "method-not-allowed" }, 405);

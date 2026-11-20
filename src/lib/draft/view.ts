@@ -68,6 +68,10 @@ const refer = (pool: Pool, key: string): CardRef => {
   return { key, ...card };
 };
 
+/** Card keys as the cards they stand for, in order. */
+export const cardRefs = (pool: Pool, keys: readonly string[]): CardRef[] =>
+  keys.map((key) => refer(pool, key));
+
 export function boardView(
   state: DraftState,
   names: readonly (string | undefined)[],

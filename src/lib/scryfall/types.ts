@@ -124,6 +124,7 @@ export interface SearchPage {
  * that turns out to be.
  */
 export type CardIdentifier =
+  | { id: string }
   | { set: string; collector_number: string }
   | { name: string; set: string }
   | { name: string };
