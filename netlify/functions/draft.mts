@@ -107,7 +107,14 @@ const handler = async (
       return reply(await joinRoom(store, code, sent.name));
     case "start":
       return reply(
-        await startDraft(store, code, adminKey ?? key ?? "", sent.packs),
+        await startDraft(
+          store,
+          code,
+          adminKey ?? key ?? "",
+          sent.packs,
+          undefined,
+          sent.summary,
+        ),
       );
     case "pick":
       return reply(await makePick(store, code, key, sent.packId, sent.cards));

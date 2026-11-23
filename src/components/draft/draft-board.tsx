@@ -23,6 +23,8 @@ import { Button } from "@/components/ui/button";
 import type { CardRef, PackView } from "@/lib/draft";
 import { artById } from "@/lib/preview";
 import { cn } from "@/lib/utils";
+
+import { PoolNote } from "./pool-note";
 import type { RoomView } from "@/lib/room";
 import { prettyCode } from "@/lib/room/codes";
 import { DraftError, sendPick } from "@/lib/room-client";
@@ -136,6 +138,8 @@ export function DraftBoard({
           </p>
         )}
       </section>
+
+      <PoolNote summary={view.summary} />
 
       {board && (
         <section className="rounded-lg border p-4">

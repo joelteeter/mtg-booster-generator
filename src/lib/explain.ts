@@ -383,6 +383,86 @@ export function lastSlotFoilChance(
 export const slotRange = (slot: Slot): string =>
   slot.from === slot.to ? `${slot.from}` : `${slot.from}–${slot.to}`;
 
+/**
+ * One change from vanilla, in words.
+ *
+ * Lived in `VanillaDiff` until the draft needed to say the same thing to
+ * players who never saw the Boosters page. Wording belongs here with the rest
+ * of it, so the two cannot describe the same change differently.
+ */
+export function changeSentence(change: CollapsedChange): string {
+  const d = describeChange(change);
+  switch (d.kind) {
+    case "title":
+      return `now ${d.title} (vanilla: ${d.was})`;
+    case "added":
+      return `${d.label} added${d.at ? ` at ${d.at}` : ""}`;
+    case "removed":
+      return `${d.label} removed (vanilla ${d.was})`;
+    case "p":
+      return `${d.label} ${d.from} → ${d.to} ${d.direction === "up" ? "▲" : "▼"}`;
+    case "foil":
+      return `${d.subject} ${d.from} → ${d.to}`;
+  }
+}
+
+/** One slot that differs, and how. */
+export interface VanillaChange {
+  /** Stable across renders: a slot's first position and its title. */
+  key: string;
+  /** `3` or `3–6`. */
+  slot: string;
+  title: string;
+  /** Every change to this slot, joined. */
+  text: string;
+}
+
+/**
+ * The Guest List swap, which never appears as a change to a slot.
+ *
+ * It changes which printing is used after a card is drawn, so no chance
+ * moves — and it is still a deviation, so it is named separately rather than
+ * going unmentioned.
+ */
+export const GUEST_CHANGE =
+  "Every slot: a drawn card that has a Special Guests printing is swapped to " +
+  "it 50% of the time — this changes the printing, not which card fills the " +
+  "slot, so none of the chances above move.";
+
+/** Every slot that differs from vanilla, in slot order. */
+export function vanillaChanges(
+  slots: Slot[],
+  diffs: CollapsedChange[][],
+): VanillaChange[] {
+  return slots.flatMap((slot, i) =>
+    diffs[i]?.length
+      ? [
+          {
+            key: `${slot.from}-${slot.title}`,
+            slot: slotRange(slot),
+            title: slot.title,
+            text: diffs[i].map(changeSentence).join("; "),
+          },
+        ]
+      : [],
+  );
+}
+
+/**
+ * The same thing as plain lines, for somewhere with no table beside it to
+ * highlight — which is every reader of a draft room.
+ */
+export const vanillaLines = (
+  slots: Slot[],
+  diffs: CollapsedChange[][],
+  guest: boolean,
+): string[] => [
+  ...vanillaChanges(slots, diffs).map(
+    (c) => `Slot ${c.slot} (${c.title}): ${c.text}`,
+  ),
+  ...(guest ? [GUEST_CHANGE] : []),
+];
+
 /** Positions of every slot a given option affects, for the modifier list. */
 export const slotsAffectedBy = (slots: Slot[], tag: string): string =>
   slots

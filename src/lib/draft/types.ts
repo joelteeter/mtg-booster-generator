@@ -126,6 +126,27 @@ export interface PoolCard {
 /** Every card in the draft, by key. Fixed once the draft is dealt. */
 export type Pool = Record<string, PoolCard>;
 
+/**
+ * How the pool was generated, for the people drafting it.
+ *
+ * Strings rather than the options themselves, because the room must not grow
+ * an opinion about booster odds: the Boosters page already works out what
+ * differs from vanilla and words it, and this carries that wording across
+ * unexamined. Nothing here is ever parsed again.
+ */
+export interface PoolSummary {
+  /** Upper-case, the way the filenames write it. */
+  setCode: string;
+  /** "play" or "commander". */
+  mode: string;
+  /** How many packs were generated. */
+  packs: number;
+  /** The vanilla toggle was on, so the odds are official by construction. */
+  vanilla: boolean;
+  /** Every way the odds differ from the set's own. Empty means none. */
+  changes: string[];
+}
+
 /** A card as the view hands it over: the key, and what it stands for. */
 export interface CardRef extends PoolCard {
   key: string;

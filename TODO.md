@@ -67,28 +67,33 @@ anything already settled lives in the README instead.
 
 ## Frontend
 
-- [ ] **Tell the players how the packs were made**
-  A draft room knows nothing about where its pool came from. The admin picks a
-  set, a fun multiplier, slot upgrades, a guest list — and then uploads a list
-  of Scryfall ids, which is all the room ever sees. Somebody drafting has no
-  way to tell whether they are looking at real Play Booster odds or at three
-  times the mythics.
+- [x] **Tell the players how the packs were made** — done, 23 November 2026
+  A draft room used to know nothing about where its pool came from: the admin
+  picked a set and a multiplier and uploaded a list of Scryfall ids, which was
+  all the room ever saw. Somebody drafting could not tell real Play Booster
+  odds from three times the mythics, which changes how you draft.
 
-  Most of the work exists already and is in the wrong place:
-  `lib/booster/diff.ts` compares a spec with the same set's vanilla spec, and
-  `VanillaDiff` writes the result out in sentences on the Boosters page. What
-  is missing is carrying it across the seam.
+  It now carries a `PoolSummary` — the set, the mode, the pack count, and the
+  differences from vanilla **as sentences**. Three decisions in that:
 
-  - the pool upload would have to send a summary beside the cards — either the
-    options themselves, or the sentences `describeChange` already produces.
-    The sentences are less to store and cannot drift from what the admin was
-    shown; the options stay re-renderable if the wording ever changes.
-    Probably the sentences, with the set code and the pack count beside them
-  - it belongs on the room page from the lobby onwards, not only at the end.
-    Knowing the mythic rate is tripled is worth knowing *before* the first
-    pick
-  - "if any" is the part to get right: a vanilla draft should say so in a
-    plain line rather than showing an empty panel
+  - **sentences, not options.** The room must not grow an opinion about
+    booster odds. `lib/booster/diff.ts` already works out what differs and
+    `lib/explain` already words it, so the summary carries that wording across
+    unexamined and nothing parses it again. A drafter reads exactly what the
+    admin read, because it is the same string.
+  - **the wording moved to `lib/explain`.** It lived in `VanillaDiff`, which
+    is a component on a page these players never open. `changeSentence`,
+    `vanillaChanges` and `vanillaLines` are in the library now and both
+    callers use them, so the two cannot describe one change differently.
+  - **captured at generation, not at the deal.** The Boosters page is the only
+    place that has the spec and the comparison in hand; the draft page has a
+    list of cards. So the summary rides in the packs store beside the run that
+    produced it.
+
+  A malformed or missing summary is stored as null rather than refused — a
+  draft that deals is worth more than one that refuses over a caption, and a
+  room made before this existed has none either. What it will not store is
+  something unbounded: 80 changes, 500 characters each.
 
 - [ ] **Clearing out old drafts, and an admin panel to do it**
   Nothing deletes a room. Every draft ever made is still in the blob store,

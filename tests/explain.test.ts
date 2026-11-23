@@ -19,6 +19,8 @@ import type { Outcome, Slot } from "@/lib/booster/types";
 import {
   FUN_NAMES,
   POOL_NAMES,
+  GUEST_CHANGE,
+  changeSentence,
   collapseChanges,
   describeChange,
   expectedChips,
@@ -28,6 +30,8 @@ import {
   landShare,
   lastSlotFoilChance,
   pct,
+  vanillaChanges,
+  vanillaLines,
   poolNote,
   rarityClass,
   rarityMix,
@@ -447,5 +451,77 @@ describe("slot labelling", () => {
     expect(
       lastSlotFoilChance(playSpec({ vanilla: true, mult: 1 }, lopsided), "play"),
     ).toBeGreaterThan(0);
+  });
+});
+
+/*
+ * The wording the draft room borrows.
+ *
+ * It used to live in `VanillaDiff` and is here now because a draft has to say
+ * the same thing to people who never opened the Boosters page. These tests
+ * exist mostly so that moving it a second time is noticed.
+ */
+describe("changes from vanilla, in words", () => {
+  const slot = (from: number, to: number, title: string): Slot => ({
+    n: to - from + 1,
+    title,
+    outcomes: [],
+    from,
+    to,
+  });
+
+  it("words each kind of change", () => {
+    expect(
+      changeSentence({ kind: "added", label: "mythic", toP: 0.05 }),
+    ).toBe("mythic added at 5.0%");
+    expect(
+      changeSentence({ kind: "removed", label: "foil common", fromP: 0.2 }),
+    ).toBe("foil common removed (vanilla 20.0%)");
+    expect(
+      changeSentence({ kind: "title", fromTitle: "Common", toTitle: "Uncommon" }),
+    ).toBe("now Uncommon (vanilla: Common)");
+    const up = changeSentence({ kind: "p", label: "rare", fromP: 0.1, toP: 0.3 });
+    expect(up).toContain("rare");
+    expect(up).toContain("→");
+    expect(up.endsWith("▲")).toBe(true);
+    const down = changeSentence({ kind: "p", label: "rare", fromP: 0.3, toP: 0.1 });
+    expect(down.endsWith("▼")).toBe(true);
+  });
+
+  it("pairs a change with the slot it belongs to, by position", () => {
+    const slots = [slot(1, 6, "Commons"), slot(7, 7, "Wildcard")];
+    const diffs = [[], [{ kind: "added" as const, label: "mythic", toP: 0.05 }]];
+    expect(vanillaChanges(slots, diffs)).toEqual([
+      {
+        key: "7-Wildcard",
+        slot: "7",
+        title: "Wildcard",
+        text: "mythic added at 5.0%",
+      },
+    ]);
+  });
+
+  it("writes a slot range when a slot covers several cards", () => {
+    const slots = [slot(1, 6, "Commons")];
+    const diffs = [[{ kind: "added" as const, label: "mythic", toP: 0.05 }]];
+    expect(vanillaChanges(slots, diffs)[0].slot).toBe("1–6");
+  });
+
+  it("flattens to lines, and names the Guest List swap separately", () => {
+    const slots = [slot(7, 7, "Wildcard")];
+    const diffs = [[{ kind: "added" as const, label: "mythic", toP: 0.05 }]];
+
+    expect(vanillaLines(slots, diffs, false)).toEqual([
+      "Slot 7 (Wildcard): mythic added at 5.0%",
+    ]);
+    /*
+     * The swap changes which printing is used after a card is drawn, so it
+     * never shows up as a change to a slot and would otherwise go unsaid.
+     */
+    expect(vanillaLines(slots, diffs, true)).toEqual([
+      "Slot 7 (Wildcard): mythic added at 5.0%",
+      GUEST_CHANGE,
+    ]);
+    expect(vanillaLines([], [], false)).toEqual([]);
   });
 });

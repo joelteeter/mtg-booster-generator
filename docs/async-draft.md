@@ -352,6 +352,27 @@ seventy-five cards, by id, so no printing can resolve to the wrong art. The
 Proxies page has a whole fallback chain for exactly that problem and this
 never reaches it.
 
+## What the packs are
+
+Drafting against three times the mythics is a different game from drafting a
+real Play Booster, and until 23 November the room could not say which it was:
+the admin uploaded Scryfall ids and nothing else.
+
+A `PoolSummary` now travels with the pool — set, mode, pack count, and the
+differences from vanilla as **sentences**. Sentences rather than the options
+themselves, because the room must not grow an opinion about booster odds:
+`lib/booster/diff.ts` works out what differs, `lib/explain` words it, and the
+summary carries that wording across without examining it. A drafter reads the
+same string the admin read.
+
+It is captured when the packs are generated, not when they are dealt. The
+Boosters page is the only place holding the spec and the comparison; by the
+time the draft page sees anything it is a list of cards.
+
+Everybody in the room gets it, including a guest — there is nothing secret
+about how the packs were built, and it is the sort of thing you want to know
+before the first pick rather than after.
+
 ## Hidden information
 
 The server only ever sends a player the contents of their own queue. Public

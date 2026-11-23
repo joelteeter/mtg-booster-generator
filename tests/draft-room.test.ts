@@ -368,6 +368,110 @@ describe("dealing", () => {
   });
 });
 
+/* ------------------------------------------------- how the pool was made */
+
+describe("the pool summary", () => {
+  const SUMMARY = {
+    setCode: "neo",
+    mode: "play",
+    packs: 8,
+    vanilla: false,
+    changes: ["Slot 7 (Wildcard): mythic added at 5.0%"],
+  };
+
+  const dealWith = async (store: MemoryStore, summary: unknown) => {
+    const room = await open(store, FOUR);
+    const res = await startDraft(
+      store,
+      room.code,
+      room.adminKey,
+      packsFor(4, 2),
+      seededRng(1),
+      summary,
+    );
+    if (!res.ok) throw new Error(`${res.reason} ${res.detail ?? ""}`);
+    return room;
+  };
+
+  it("reaches everybody, because everybody is drafting it", async () => {
+    const store = new MemoryStore();
+    const room = await dealWith(store, SUMMARY);
+
+    for (const key of [room.keys.Ada, room.adminKey, null]) {
+      const res = await readRoom(store, room.code, key);
+      if (!res.ok) throw new Error(res.reason);
+      expect(res.view.summary).toEqual({ ...SUMMARY, setCode: "NEO" });
+    }
+  });
+
+  it("is nothing when the page did not say, rather than a refusal", async () => {
+    /*
+     * A draft that deals is worth more than one that refuses over a caption,
+     * and a room made before summaries existed has none either.
+     */
+    const store = new MemoryStore();
+    const room = await dealWith(store, undefined);
+    const res = await readRoom(store, room.code, room.keys.Ada);
+    if (!res.ok) throw new Error(res.reason);
+    expect(res.view.summary).toBeNull();
+    expect((await store.getDraft(room.code))!.phase).toBe("drafting");
+  });
+
+  it("refuses to store nonsense, and still deals", async () => {
+    for (const bad of [null, "a summary", 42, {}, { setCode: "" }, []]) {
+      const store = new MemoryStore();
+      const room = await dealWith(store, bad);
+      const res = await readRoom(store, room.code, room.keys.Ada);
+      if (!res.ok) throw new Error(res.reason);
+      expect(res.view.summary, JSON.stringify(bad)).toBeNull();
+      expect((await store.getDraft(room.code))!.state).not.toBeNull();
+    }
+  });
+
+  it("bounds what it will keep", async () => {
+    const store = new MemoryStore();
+    const room = await dealWith(store, {
+      setCode: "x".repeat(40),
+      mode: "y".repeat(40),
+      packs: -3,
+      vanilla: "yes",
+      changes: [
+        ...Array.from({ length: 200 }, (_, i) => `change ${i}`),
+        "z".repeat(2000),
+        "",
+        7,
+      ],
+    });
+    const res = await readRoom(store, room.code, room.keys.Ada);
+    if (!res.ok) throw new Error(res.reason);
+    const got = res.view.summary!;
+
+    expect(got.setCode).toHaveLength(10);
+    expect(got.mode).toHaveLength(20);
+    /* A negative pack count is not a pack count. */
+    expect(got.packs).toBe(0);
+    /* `vanilla` is a flag, and only `true` is true. */
+    expect(got.vanilla).toBe(false);
+    expect(got.changes).toHaveLength(80);
+    expect(got.changes.every((c) => c.length <= 500)).toBe(true);
+    expect(got.changes).not.toContain("");
+  });
+
+  it("says plainly that a vanilla draft has no changes", async () => {
+    const store = new MemoryStore();
+    const room = await dealWith(store, {
+      setCode: "DSK",
+      mode: "play",
+      packs: 8,
+      vanilla: true,
+      changes: [],
+    });
+    const res = await readRoom(store, room.code, null);
+    if (!res.ok) throw new Error(res.reason);
+    expect(res.view.summary).toMatchObject({ vanilla: true, changes: [] });
+  });
+});
+
 /* -------------------------------------------------------------- picking */
 
 describe("picking", () => {

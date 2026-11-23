@@ -6,7 +6,12 @@
  * and remembering a key. Anything in this file that started deciding
  * something would be a second opinion about the draft.
  */
-import type { Deck, DeckCheck, Direction } from "@/lib/draft";
+import type {
+  Deck,
+  DeckCheck,
+  Direction,
+  PoolSummary,
+} from "@/lib/draft";
 import type { DeckSheet, PackCard, RoomView } from "@/lib/room";
 import { tidyCode } from "@/lib/room/codes";
 
@@ -88,11 +93,12 @@ export const startRoom = (
   code: string,
   adminKey: string,
   packs: PackCard[][],
+  summary?: PoolSummary | null,
 ) =>
   send<{ seats: Record<string, number> }>(`/${code}/start`, {
     method: "POST",
     headers: head({ adminKey, json: true }),
-    body: JSON.stringify({ packs }),
+    body: JSON.stringify({ packs, summary }),
   });
 
 export const sendPick = (

@@ -49,6 +49,7 @@ export function RoomLobby({
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const packs = usePacksStore((s) => s.packs);
+  const summary = usePacksStore((s) => s.summary);
 
   const pool = poolFromRun(packs);
   const needed = view.roster.length * view.rounds;
@@ -93,7 +94,17 @@ export function RoomLobby({
     if (!adminKey) return;
     setBusy(true);
     try {
-      await startRoom(view.code, adminKey, pool.slice(0, needed));
+      /*
+       * The pack count is the draft's, not the run's: the admin may have
+       * generated more than the table needs, and the summary describes what
+       * is being dealt rather than what was made.
+       */
+      await startRoom(
+        view.code,
+        adminKey,
+        pool.slice(0, needed),
+        summary ? { ...summary, packs: needed } : null,
+      );
       toast.success("Dealt. Everybody has a pack.");
       onRefresh();
     } catch (e) {

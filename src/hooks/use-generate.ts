@@ -18,6 +18,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 
 import { godPackSpec, statsFromPools } from "@/lib/booster";
+import { vanillaLines } from "@/lib/explain";
 import {
   generatePacks,
   generateStatus,
@@ -128,6 +129,20 @@ export function useGenerate(): GenerateHandle {
 
       finish({
         ...result,
+        /*
+         * The same slots and the same comparison the panel was showing, so
+         * what a drafter is told matches what the admin saw when they chose
+         * it. Vanilla mode has nothing to compare and says so by being empty.
+         */
+        summary: {
+          setCode,
+          mode,
+          packs: packCount,
+          vanilla: opts.vanilla,
+          changes: opts.vanilla
+            ? []
+            : vanillaLines(spec.slots, spec.diffs, opts.guest),
+        },
         status: generateStatus({
           packCount,
           mode,

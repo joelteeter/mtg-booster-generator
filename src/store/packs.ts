@@ -13,6 +13,7 @@
  */
 import { create } from "zustand";
 
+import type { PoolSummary } from "@/lib/draft";
 import type { ExportFiles, GeneratedPack } from "@/lib/generate";
 
 export const READY = "Ready";
@@ -21,6 +22,14 @@ interface PacksStore {
   packs: GeneratedPack[];
   exportFiles: ExportFiles | null;
   tokenSheetCount: number;
+  /**
+   * How this run was made, for the draft to pass on to its players.
+   *
+   * Captured here because this is the only moment it is known: the Boosters
+   * page has the spec and the vanilla comparison in hand, and the draft page
+   * has neither — it has a list of cards.
+   */
+  summary: PoolSummary | null;
   /** The line under the Generate button. Mirrors the old `#status`. */
   status: string;
   generating: boolean;
@@ -34,6 +43,7 @@ interface PacksStore {
     exportFiles: ExportFiles;
     tokenSheetCount: number;
     status: string;
+    summary: PoolSummary | null;
   }): void;
   fail(message: string): void;
   reset(): void;
@@ -45,6 +55,7 @@ const cleared = {
   packs: [] as GeneratedPack[],
   exportFiles: null,
   tokenSheetCount: 0,
+  summary: null as PoolSummary | null,
 };
 
 export const usePacksStore = create<PacksStore>((set) => ({
@@ -56,12 +67,13 @@ export const usePacksStore = create<PacksStore>((set) => ({
 
   begin: (status) => set({ ...cleared, status, generating: true }),
   progress: (status) => set({ status }),
-  finish: ({ packs, exportFiles, tokenSheetCount, status }) =>
+  finish: ({ packs, exportFiles, tokenSheetCount, status, summary }) =>
     set({
       packs,
       exportFiles,
       tokenSheetCount,
       status,
+      summary,
       generating: false,
       // The old code called renderPreview(0) after a run, so a fresh run
       // starts at its first pack rather than wherever the last one was left.

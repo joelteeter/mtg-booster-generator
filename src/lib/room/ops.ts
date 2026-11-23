@@ -23,6 +23,7 @@ import type {
   DraftRules,
   PickRefusal,
   Pool,
+  PoolSummary,
   Rng,
   Taken,
 } from "../draft/types";
@@ -166,6 +167,7 @@ export async function createRoom(
       rules,
       pool: {},
       state: null,
+      summary: null,
       seats: {},
       adminHash,
       maxSeats: room.maxSeats,
@@ -266,6 +268,38 @@ const parsePacks = (
   return { ok: true, packs };
 };
 
+/* Bounds on the summary, which is free text from the admin's own browser. */
+const CHANGES_MAX = 80;
+const CHANGE_CHARS = 500;
+
+/**
+ * How the pool was made, if the admin's page said.
+ *
+ * Returns null rather than refusing when it is missing or malformed: a draft
+ * that deals is worth more than one that refuses over a caption, and a room
+ * made before this existed has no summary either. What it will not do is
+ * store something unbounded.
+ */
+const parseSummary = (value: unknown): PoolSummary | null => {
+  if (!value || typeof value !== "object") return null;
+  const v = value as Record<string, unknown>;
+  const changes = Array.isArray(v.changes)
+    ? v.changes
+        .filter((c): c is string => typeof c === "string" && !!c)
+        .slice(0, CHANGES_MAX)
+        .map((c) => c.slice(0, CHANGE_CHARS))
+    : [];
+  const packs = whole(v.packs);
+  if (typeof v.setCode !== "string" || !v.setCode) return null;
+  return {
+    setCode: v.setCode.slice(0, 10).toUpperCase(),
+    mode: typeof v.mode === "string" ? v.mode.slice(0, 20) : "",
+    packs: packs !== null && packs >= 0 ? packs : 0,
+    vanilla: v.vanilla === true,
+    changes,
+  };
+};
+
 /**
  * Shuffle the players into seats, shuffle the packs, and open round one.
  *
@@ -279,6 +313,7 @@ export async function startDraft(
   adminKey: string,
   packs: unknown,
   rng: Rng = Math.random,
+  summary?: unknown,
 ): Promise<Outcome<{ seats: Record<string, number>; rules: DraftRules }>> {
   const room = await liveRoom(store, code, "setup");
   if (!room.ok) return room;
@@ -315,6 +350,7 @@ export async function startDraft(
     pool,
     state,
     seats,
+    summary: parseSummary(summary),
   });
   if (!dealt) return no("lost-race", "the room changed while it was dealing");
 
@@ -619,6 +655,8 @@ export interface RoomView {
   board: BoardView | null;
   /** Null for a guest, and for an admin who is not also playing. */
   you: SeatView | null;
+  /** How the pool was made. Public: everyone drafting it should know. */
+  summary: PoolSummary | null;
   /** Your deck as last saved, which may be half-built. */
   deck: Deck | null;
   /** Whether you have called it finished. */
@@ -663,6 +701,7 @@ export async function readRoom(
           ...(who.admin ? { id: p.id } : {}),
         }))
         .sort((a, b) => (a.seat ?? 99) - (b.seat ?? 99)),
+      summary: row.summary,
       board: row.state ? boardView(row.state, names) : null,
       you: row.state && seat !== null ? seatView(row.state, row.pool, seat) : null,
       deck: who.player?.deck ?? null,

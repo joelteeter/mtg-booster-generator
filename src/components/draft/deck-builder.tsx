@@ -26,6 +26,8 @@ import type { RoomView } from "@/lib/room";
 import { DraftError, saveDeck, unlockDeck } from "@/lib/room-client";
 import { cn } from "@/lib/utils";
 
+import { PoolNote } from "./pool-note";
+
 import { DeckPrints } from "./deck-prints";
 
 type Zone = "main" | "side" | "out";
@@ -157,6 +159,8 @@ export function DeckBuilder({
           </Button>
         </div>
       </section>
+
+      <PoolNote summary={view.summary} />
 
       {!view.you && (
         <p className="text-sm text-muted-foreground">

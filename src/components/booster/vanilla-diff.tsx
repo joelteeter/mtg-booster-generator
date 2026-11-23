@@ -3,26 +3,18 @@
 /*
  * The summary of everything that deviates from the official layout, above the
  * table. Each item names its slot; the table itself highlights the same rows.
+ *
+ * The wording is `lib/explain`'s, not this file's: the draft room says the
+ * same thing to players who never saw this page, and one implementation means
+ * the two cannot describe a change differently.
  */
 import type { Slot } from "@/lib/booster/types";
-import { describeChange, slotRange, type CollapsedChange } from "@/lib/explain";
+import {
+  GUEST_CHANGE,
+  vanillaChanges,
+  type CollapsedChange,
+} from "@/lib/explain";
 import { cn } from "@/lib/utils";
-
-function changeSentence(change: CollapsedChange): string {
-  const d = describeChange(change);
-  switch (d.kind) {
-    case "title":
-      return `now ${d.title} (vanilla: ${d.was})`;
-    case "added":
-      return `${d.label} added${d.at ? ` at ${d.at}` : ""}`;
-    case "removed":
-      return `${d.label} removed (vanilla ${d.was})`;
-    case "p":
-      return `${d.label} ${d.from} → ${d.to} ${d.direction === "up" ? "▲" : "▼"}`;
-    case "foil":
-      return `${d.subject} ${d.from} → ${d.to}`;
-  }
-}
 
 export function VanillaDiff({
   slots,
@@ -35,18 +27,7 @@ export function VanillaDiff({
   diffCount: number;
   guest: boolean;
 }) {
-  const items = slots
-    .map((s, i) =>
-      diffs[i]?.length
-        ? {
-            key: `${s.from}-${s.title}`,
-            slot: slotRange(s),
-            title: s.title,
-            text: diffs[i].map(changeSentence).join("; "),
-          }
-        : null,
-    )
-    .filter((x): x is NonNullable<typeof x> => x !== null);
+  const items = vanillaChanges(slots, diffs);
 
   const same = !items.length && !guest;
 
@@ -84,17 +65,7 @@ export function VanillaDiff({
               </li>
             ))}
             {guest && (
-              <li className="mb-0.5">
-                {/*
-                 * The Guest List swap changes which printing is used after a
-                 * card is drawn, so it never shows up as a change to a slot's
-                 * odds — but it is still a deviation worth naming.
-                 */}
-                <b>Every slot:</b> a drawn card that has a Special Guests
-                printing is swapped to it 50% of the time — this changes the
-                printing, not which card fills the slot, so none of the chances
-                above move.
-              </li>
+              <li className="mb-0.5">{GUEST_CHANGE}</li>
             )}
           </ul>
         </>

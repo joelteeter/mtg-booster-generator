@@ -15,7 +15,12 @@
  * something Next's bundler knows about that the function bundler does not.
  */
 import type { Deck } from "../draft/deck";
-import type { DraftRules, DraftState, Pool } from "../draft/types";
+import type {
+  DraftRules,
+  DraftState,
+  Pool,
+  PoolSummary,
+} from "../draft/types";
 
 /**
  * The layout version of `DraftState` and `Pool` as stored.
@@ -45,6 +50,8 @@ export interface DraftRow {
   pool: Pool;
   /** Null until the draft is dealt. */
   state: DraftState | null;
+  /** How the pool was made. Null until it is dealt, and for older rooms. */
+  summary: PoolSummary | null;
   /**
    * Which seat each player id sits in, empty until the draft is dealt.
    *
@@ -95,7 +102,10 @@ export interface PickRow {
 
 /** The parts of a draft row a write may change. */
 export type DraftPatch = Partial<
-  Pick<DraftRow, "phase" | "rules" | "pool" | "state" | "seats" | "printBasics">
+  Pick<
+    DraftRow,
+    "phase" | "rules" | "pool" | "state" | "seats" | "summary" | "printBasics"
+  >
 >;
 
 export interface Store {
