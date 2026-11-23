@@ -254,9 +254,12 @@ shuffled every way, assert each seat ends with the same cards.
 
 - packs are dealt at random, three to a seat; seats are assigned at random.
   Two shuffles, both at the moment the draft starts.
-- direction is per round and defaults to **right, left, right**. Note the
-  paper convention is left first; this follows what the draft does today, and
-  is a setting rather than a constant so it can match a table later.
+- direction is per round and defaults to **left, right, left**, which is how
+  a paper draft goes. It defaulted the other way round at first, from an
+  offhand example rather than anybody's convention, and was corrected on
+  23 November. Still a setting rather than a constant, so a table that does
+  it differently can. A room keeps the pattern it was made with, so changing
+  the default does not reach into a draft already running.
 - `picksPerTurn` is 1 for a normal draft and 2 for commander. The last visit
   to a pack takes whatever is left, which is how an odd pack size resolves.
 - a pack with nothing left is done and leaves the board.

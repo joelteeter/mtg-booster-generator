@@ -37,7 +37,7 @@ export interface DraftRules {
   picksPerTurn: number;
   /**
    * Direction by round, round 1 first, read modulo its length — so three
-   * rounds of right, left, right is the list as written, and a shorter list
+   * rounds of left, right, left is the list as written, and a shorter list
    * repeats rather than running out.
    */
   pass: Direction[];

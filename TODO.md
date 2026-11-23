@@ -67,6 +67,29 @@ anything already settled lives in the README instead.
 
 ## Frontend
 
+- [ ] **Tell the players how the packs were made**
+  A draft room knows nothing about where its pool came from. The admin picks a
+  set, a fun multiplier, slot upgrades, a guest list — and then uploads a list
+  of Scryfall ids, which is all the room ever sees. Somebody drafting has no
+  way to tell whether they are looking at real Play Booster odds or at three
+  times the mythics.
+
+  Most of the work exists already and is in the wrong place:
+  `lib/booster/diff.ts` compares a spec with the same set's vanilla spec, and
+  `VanillaDiff` writes the result out in sentences on the Boosters page. What
+  is missing is carrying it across the seam.
+
+  - the pool upload would have to send a summary beside the cards — either the
+    options themselves, or the sentences `describeChange` already produces.
+    The sentences are less to store and cannot drift from what the admin was
+    shown; the options stay re-renderable if the wording ever changes.
+    Probably the sentences, with the set code and the pack count beside them
+  - it belongs on the room page from the lobby onwards, not only at the end.
+    Knowing the mythic rate is tripled is worth knowing *before* the first
+    pick
+  - "if any" is the part to get right: a vanilla draft should say so in a
+    plain line rather than showing an empty panel
+
 - [ ] **Clearing out old drafts, and an admin panel to do it**
   Nothing deletes a room. Every draft ever made is still in the blob store,
   along with every revision of it and every pick — and so is every test room,

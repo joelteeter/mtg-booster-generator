@@ -150,17 +150,19 @@ describe("seats and directions", () => {
   });
 
   it("reads the pass pattern modulo its length", () => {
+    /* The default is the paper convention: pack 1 left, 2 right, 3 left. */
     const r = rules();
-    expect(passDirection(r, 1)).toBe("right");
-    expect(passDirection(r, 2)).toBe("left");
-    expect(passDirection(r, 3)).toBe("right");
+    expect(r.pass).toEqual(["left", "right", "left"]);
+    expect(passDirection(r, 1)).toBe("left");
+    expect(passDirection(r, 2)).toBe("right");
+    expect(passDirection(r, 3)).toBe("left");
     /* A two-entry pattern over six rounds alternates rather than running out. */
-    const alt = rules({ pass: ["left", "right"] });
+    const alt = rules({ pass: ["right", "left"] });
     expect([1, 2, 3, 4].map((n) => passDirection(alt, n))).toEqual([
-      "left",
       "right",
       "left",
       "right",
+      "left",
     ]);
   });
 });

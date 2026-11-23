@@ -24,8 +24,15 @@ import type {
   Taken,
 } from "./types";
 
-/** Pack 1 right, pack 2 left, pack 3 right — what the draft does today. */
-export const DEFAULT_PASS: Direction[] = ["right", "left", "right"];
+/**
+ * Pack 1 left, pack 2 right, pack 3 left — the way a paper draft goes.
+ *
+ * It used to default the other way round, which was nobody's convention and
+ * only ever came from an offhand example. A draft should behave like a draft
+ * unless somebody deliberately changes it, which the room's own setting still
+ * allows.
+ */
+export const DEFAULT_PASS: Direction[] = ["left", "right", "left"];
 
 export const packStatus = (pack: PackState): PackStatus =>
   pack.remaining.length === 0

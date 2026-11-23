@@ -26,6 +26,19 @@ const passPattern = (first: Direction, rounds: number): Direction[] =>
     i % 2 === 0 ? first : first === "left" ? "right" : "left",
   );
 
+/**
+ * The whole sequence in words: "Left, right, left".
+ *
+ * Spelled out to the last pack rather than labelled "left, then right",
+ * which left the third one to be worked out — and the third one is the one
+ * people ask about, because it is the pack that comes back round the way the
+ * first did.
+ */
+const passLabel = (first: Direction, rounds: number): string => {
+  const [head, ...rest] = passPattern(first, rounds);
+  return [head[0].toUpperCase() + head.slice(1), ...rest].join(", ");
+};
+
 export function RoomGate({
   onEnter,
 }: {
@@ -35,7 +48,7 @@ export function RoomGate({
   const [seats, setSeats] = useState(8);
   const [rounds, setRounds] = useState(3);
   const [perTurn, setPerTurn] = useState(1);
-  const [first, setFirst] = useState<Direction>("right");
+  const [first, setFirst] = useState<Direction>("left");
   const [password, setPassword] = useState("");
   const [making, setMaking] = useState(false);
 
@@ -143,15 +156,15 @@ export function RoomGate({
               </select>
             </div>
             <div className="basis-40">
-              <Label htmlFor="draft-first">First pack passes</Label>
+              <Label htmlFor="draft-first">Packs pass</Label>
               <select
                 id="draft-first"
                 value={first}
                 onChange={(e) => setFirst(e.target.value as Direction)}
                 className="h-9 w-full rounded-md border bg-transparent px-3 text-sm"
               >
-                <option value="right">Right, then left</option>
-                <option value="left">Left, then right</option>
+                <option value="left">{passLabel("left", rounds)}</option>
+                <option value="right">{passLabel("right", rounds)}</option>
               </select>
             </div>
           </div>
