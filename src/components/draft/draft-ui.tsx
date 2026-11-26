@@ -18,6 +18,7 @@ import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
+  type Keys,
   DraftError,
   fetchRoom,
   recallAdmin,
@@ -25,6 +26,7 @@ import {
   rememberAdmin,
   rememberSeat,
   roomFromUrl,
+  roomHref,
 } from "@/lib/room-client";
 import { prettyCode } from "@/lib/room/codes";
 
@@ -65,12 +67,16 @@ let arrival: Entry | null = null;
 
 const howWeGotHere = (): Entry => {
   if (arrival) return arrival;
-  const { code, seatKey } = roomFromUrl(
+  const { code, seatKey, adminKey } = roomFromUrl(
     window.location.search,
     window.location.hash,
   );
   arrival = code
-    ? { code, seat: seatKey ?? recallSeat(code), admin: recallAdmin(code) }
+    ? {
+        code,
+        seat: seatKey ?? recallSeat(code),
+        admin: adminKey ?? recallAdmin(code),
+      }
     : NOBODY;
   return arrival;
 };
@@ -87,35 +93,48 @@ export function DraftUi() {
   const [moved, setMoved] = useState<Entry | null>(null);
   const here = moved ?? came;
 
-  const address = useCallback((code: string | null) => {
+  /*
+   * The address bar always shows the whole way back in, keys and all.
+   *
+   * An earlier version stripped the keys out again, reasoning that a key in a
+   * screenshot is a stolen seat. That traded the wrong thing away: the server
+   * keeps only a hash of each key, so the link is the one copy that exists,
+   * and hiding it from the address bar meant losing a browser lost the draft.
+   * The keys are on screen anyway now, under Keep this link — so there was
+   * nothing left for the stripping to protect.
+   */
+  const address = useCallback((code: string | null, keys?: Keys) => {
     history.replaceState(
       null,
       "",
-      code ? `${window.location.pathname}?room=${code}` : window.location.pathname,
+      code ? roomHref(code, keys) : window.location.pathname,
     );
   }, []);
 
   useEffect(() => {
     if (!came.code) return;
     /*
-     * A seat key that arrived in the fragment is saved and then taken out of
-     * the address bar: a key in a screenshot, or read over a shoulder, is the
-     * seat. The link in somebody's messages stays the way back in.
+     * Keys are written down twice: into `localStorage`, which is a cache that
+     * Safari will drop after seven idle days, and back into the address bar,
+     * which is bookmarkable and survives it. Either alone is a way to lose a
+     * draft to a cleared browser.
      */
     if (came.seat) rememberSeat(came.code, came.seat);
-    address(came.code);
+    if (came.admin) rememberAdmin(came.code, came.admin);
+    address(came.code, came);
   }, [came, address]);
 
   const enter = useCallback(
     (code: string, keys: Entered) => {
       if (keys.seat) rememberSeat(code, keys.seat);
       if (keys.admin) rememberAdmin(code, keys.admin);
-      setMoved({
+      const next: Entry = {
         code,
         seat: keys.seat ?? recallSeat(code),
         admin: keys.admin ?? recallAdmin(code),
-      });
-      address(code);
+      };
+      setMoved(next);
+      address(code, next);
     },
     [address],
   );
@@ -207,6 +226,7 @@ export function DraftUi() {
     <DraftBoard
       view={view}
       seatKey={here.seat}
+      adminKey={here.admin}
       onRefresh={refresh}
       onLeave={leave}
       refreshing={room.isFetching}

@@ -146,35 +146,70 @@ export const fetchDecks = (code: string, adminKey: string) =>
 
 /* ------------------------------------------------------------------- URLs */
 
+/** The keys a browser holds for one room: either, both, or neither. */
+export interface Keys {
+  seat?: string | null;
+  admin?: string | null;
+}
+
 /**
- * What a URL says about which draft this is: `?room=K7MQ2F#s=9f3c…`.
+ * What a URL says about which draft this is: `?room=K7MQ2F#s=9f3c…&a=61b2…`.
  *
  * The code is in the query because it is read aloud and typed in, and is not
- * a secret. The seat key is in the **fragment**, which browsers never send to
- * a server — so it stays out of access logs and out of `Referer` headers,
+ * a secret. The keys are in the **fragment**, which browsers never send to a
+ * server — so they stay out of access logs and out of `Referer` headers,
  * where a query string would not.
+ *
+ * `s` is a seat and `a` is the admin. Both can be present at once, because
+ * whoever started the draft may also be playing in it.
  */
 export function roomFromUrl(
   search: string,
   hash: string,
-): { code: string | null; seatKey: string | null } {
+): { code: string | null; seatKey: string | null; adminKey: string | null } {
   const code = tidyCode(new URLSearchParams(search).get("room") ?? "");
-  const seatKey = new URLSearchParams(
+  const frag = new URLSearchParams(
     hash.startsWith("#") ? hash.slice(1) : hash,
-  ).get("s");
-  return { code: code || null, seatKey: seatKey || null };
+  );
+  return {
+    code: code || null,
+    seatKey: frag.get("s") || null,
+    adminKey: frag.get("a") || null,
+  };
 }
 
-/** The link to hand one player. Anyone holding it is that player. */
-export const seatLink = (
+/**
+ * The address for a room, carrying whichever keys are given.
+ *
+ * One builder for every link the page makes, so there is a single answer to
+ * what goes before the `#` and what goes after it. Keys are 128-bit hex, so
+ * nothing here needs escaping, but they go through `URLSearchParams` anyway
+ * rather than being pasted together by hand.
+ */
+export function roomHref(code: string, keys: Keys = {}): string {
+  const frag = new URLSearchParams();
+  if (keys.seat) frag.set("s", keys.seat);
+  if (keys.admin) frag.set("a", keys.admin);
+  const tail = frag.toString();
+  return `/draft?room=${code}${tail ? `#${tail}` : ""}`;
+}
+
+/**
+ * Somebody's way back into a draft. Anyone holding it is them.
+ *
+ * This is the record, and the only one: the server keeps a hash of each key
+ * and never the key, so a lost link cannot be reissued by anybody. Which is
+ * why the page shows it rather than quietly filing it in `localStorage`.
+ */
+export const keyLink = (
   origin: string,
   code: string,
-  seatKey: string,
-): string => `${origin}/draft?room=${code}#s=${seatKey}`;
+  keys: Keys = {},
+): string => origin + roomHref(code, keys);
 
-/** The link to give everybody, which claims no seat. */
+/** The link to give everybody, which claims no seat and no controls. */
 export const roomLink = (origin: string, code: string): string =>
-  `${origin}/draft?room=${code}`;
+  keyLink(origin, code);
 
 /* ---------------------------------------------------------------- storage */
 

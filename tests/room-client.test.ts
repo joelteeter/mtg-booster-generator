@@ -23,9 +23,10 @@ import {
   recallSeat,
   rememberAdmin,
   rememberSeat,
+  keyLink,
   roomFromUrl,
+  roomHref,
   roomLink,
-  seatLink,
   sendPick,
 } from "@/lib/room-client";
 
@@ -64,10 +65,28 @@ const angryStore = (): Storage =>
 /* ------------------------------------------------------------------- URLs */
 
 describe("reading a URL", () => {
-  it("takes the code from the query and the key from the fragment", () => {
+  it("takes the code from the query and the keys from the fragment", () => {
     expect(roomFromUrl("?room=K7MQ2F", "#s=9f3cab")).toEqual({
       code: "K7MQ2F",
       seatKey: "9f3cab",
+      adminKey: null,
+    });
+  });
+
+  it("reads a seat and an admin key together", () => {
+    /*
+     * Whoever started the draft may be playing in it, so one browser can hold
+     * both. They are separate keys and the function sends both headers.
+     */
+    expect(roomFromUrl("?room=K7MQ2F", "#s=9f3cab&a=61b2de")).toEqual({
+      code: "K7MQ2F",
+      seatKey: "9f3cab",
+      adminKey: "61b2de",
+    });
+    expect(roomFromUrl("?room=K7MQ2F", "#a=61b2de")).toEqual({
+      code: "K7MQ2F",
+      seatKey: null,
+      adminKey: "61b2de",
     });
   });
 
@@ -78,10 +97,15 @@ describe("reading a URL", () => {
   });
 
   it("copes with either half missing", () => {
-    expect(roomFromUrl("", "")).toEqual({ code: null, seatKey: null });
+    expect(roomFromUrl("", "")).toEqual({
+      code: null,
+      seatKey: null,
+      adminKey: null,
+    });
     expect(roomFromUrl("?room=K7MQ2F", "")).toEqual({
       code: "K7MQ2F",
       seatKey: null,
+      adminKey: null,
     });
     /* A key with no room is nothing to act on. */
     expect(roomFromUrl("", "#s=9f3cab").code).toBeNull();
@@ -91,28 +115,56 @@ describe("reading a URL", () => {
     expect(roomFromUrl("?a=1&room=K7MQ2F&b=2", "#t=x&s=key&u=y")).toEqual({
       code: "K7MQ2F",
       seatKey: "key",
+      adminKey: null,
     });
   });
 
-  it("builds a seat link with the key after the hash, never before it", () => {
-    const link = seatLink("https://example.test", "K7MQ2F", "9f3cab");
-    expect(link).toBe("https://example.test/draft?room=K7MQ2F#s=9f3cab");
+  it("builds a link with the keys after the hash, never before it", () => {
+    const link = keyLink("https://example.test", "K7MQ2F", {
+      seat: "9f3cab",
+      admin: "61b2de",
+    });
+    expect(link).toBe(
+      "https://example.test/draft?room=K7MQ2F#s=9f3cab&a=61b2de",
+    );
     /*
      * The point of the whole arrangement: a fragment is not sent to a server,
-     * so the key cannot turn up in an access log or a `Referer` header. If it
+     * so a key cannot turn up in an access log or a `Referer` header. If one
      * ever appears before the `#`, that stops being true.
      */
-    expect(link.split("#")[0]).not.toContain("9f3cab");
-    expect(roomLink("https://example.test", "K7MQ2F")).toBe(
-      "https://example.test/draft?room=K7MQ2F",
-    );
+    const before = link.split("#")[0];
+    expect(before).not.toContain("9f3cab");
+    expect(before).not.toContain("61b2de");
   });
 
-  it("round-trips a seat link back through the reader", () => {
-    const link = new URL(seatLink("https://x.test", "K7MQ2F", "abc123"));
+  it("leaves out a key it was not given", () => {
+    const origin = "https://x.test";
+    expect(keyLink(origin, "K7MQ2F", { seat: "abc" })).toBe(
+      `${origin}/draft?room=K7MQ2F#s=abc`,
+    );
+    expect(keyLink(origin, "K7MQ2F", { admin: "def" })).toBe(
+      `${origin}/draft?room=K7MQ2F#a=def`,
+    );
+    /* A null key is a key this browser does not hold, not an empty one. */
+    expect(keyLink(origin, "K7MQ2F", { seat: null, admin: null })).toBe(
+      `${origin}/draft?room=K7MQ2F`,
+    );
+    /* The invite is the same builder with nothing to carry — no stray `#`. */
+    expect(roomLink(origin, "K7MQ2F")).toBe(`${origin}/draft?room=K7MQ2F`);
+    expect(roomHref("K7MQ2F")).toBe("/draft?room=K7MQ2F");
+  });
+
+  it("round-trips both keys back through the reader", () => {
+    const link = new URL(
+      keyLink("https://x.test", "K7MQ2F", {
+        seat: "abc123",
+        admin: "def456",
+      }),
+    );
     expect(roomFromUrl(link.search, link.hash)).toEqual({
       code: "K7MQ2F",
       seatKey: "abc123",
+      adminKey: "def456",
     });
   });
 });

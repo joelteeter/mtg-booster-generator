@@ -27,6 +27,8 @@ import {
 } from "@/lib/room-client";
 import { usePacksStore } from "@/store/packs";
 
+import { WayBack } from "./way-back";
+
 import type { Entered } from "./draft-ui";
 
 export function RoomLobby({
@@ -60,7 +62,7 @@ export function RoomLobby({
       await navigator.clipboard.writeText(
         roomLink(window.location.origin, view.code),
       );
-      toast.success("Link copied. Send it to the others.");
+      toast.success("Invite copied. Send it to the others.");
     } catch {
       toast.error("Could not copy — the code is on screen to read out.");
     }
@@ -126,7 +128,7 @@ export function RoomLobby({
           <div>
             <h2 className="font-semibold">Waiting to start</h2>
             <p className="text-sm text-muted-foreground">
-              Give people this code, or the link.
+              Give people this code, or the invite link.
             </p>
           </div>
           <p className="font-mono text-3xl font-bold tracking-widest">
@@ -135,7 +137,7 @@ export function RoomLobby({
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
           <Button variant="outline" onClick={copy}>
-            Copy the link
+            Copy the invite link
           </Button>
           <Button variant="ghost" onClick={onRefresh} disabled={refreshing}>
             {refreshing ? "Checking…" : "Who is here?"}
@@ -145,6 +147,8 @@ export function RoomLobby({
           </Button>
         </div>
       </section>
+
+      <WayBack code={view.code} seatKey={seatKey} adminKey={adminKey} />
 
       <section className="rounded-lg border p-4">
         <h2 className="mb-2 font-semibold">
@@ -177,8 +181,8 @@ export function RoomLobby({
         <section className="rounded-lg border p-4">
           <h2 className="mb-1 font-semibold">Take a seat</h2>
           <p className="mb-3 text-sm text-muted-foreground">
-            A name is all it takes. This browser remembers your seat, and the
-            link you are given will get you back to it on another one.
+            A name is all it takes. You will get a link that is your seat —
+            keep it, and you can come back to this draft on any browser.
           </p>
           <form onSubmit={join} className="flex flex-wrap items-end gap-2">
             <div className="grow basis-48">

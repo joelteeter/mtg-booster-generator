@@ -25,6 +25,7 @@ import { artById } from "@/lib/preview";
 import { cn } from "@/lib/utils";
 
 import { PoolNote } from "./pool-note";
+import { WayBack } from "./way-back";
 import type { RoomView } from "@/lib/room";
 import { prettyCode } from "@/lib/room/codes";
 import { DraftError, sendPick } from "@/lib/room-client";
@@ -38,12 +39,15 @@ const plural = (n: number, one: string, many = `${one}s`) =>
 export function DraftBoard({
   view,
   seatKey,
+  adminKey,
   onRefresh,
   onLeave,
   refreshing,
 }: {
   view: RoomView;
   seatKey: string | null;
+  /* Nothing here acts on it: the board has no admin controls. It is for the link. */
+  adminKey: string | null;
   onRefresh: () => void;
   onLeave: () => void;
   refreshing: boolean;
@@ -140,6 +144,8 @@ export function DraftBoard({
       </section>
 
       <PoolNote summary={view.summary} />
+
+      <WayBack code={view.code} seatKey={seatKey} adminKey={adminKey} />
 
       {board && (
         <section className="rounded-lg border p-4">

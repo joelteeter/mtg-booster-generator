@@ -39,14 +39,19 @@ No accounts, no emails, no passwords, no user table.
 
 - the **admin** creates a room and gets a code — six characters from an
   unambiguous alphabet, no `O`/`0` or `I`/`1`, e.g. `K7M-Q2F`. Their browser
-  keeps an admin key; the page also shows a recovery string worth writing down.
-- a **player** opens `/draft/K7MQ2F`, types a name, and claims a free seat.
-  The server hands their browser a **seat key**, kept in `localStorage`. That
-  key is what lets them pick.
+  keeps an **admin key**, and the page shows the link that carries it.
+- a **player** opens `/draft?room=K7MQ2F`, types a name, and claims a free
+  seat. The server hands their browser a **seat key**, and the page shows the
+  link that carries that one. The key is what lets them pick.
 
 The room code gets you into the room: the seat names, whose turn it is, how
-far along everyone is. The seat key gets you your cards. Lose the browser and
-the admin releases the seat for you to re-claim.
+far along everyone is. A key gets you your cards, or the controls. One
+browser can hold both, since whoever starts a draft usually plays in it.
+
+Nobody can give a lost key back, which is why each is shown rather than
+quietly filed away. The server keeps only `hashKey` of it, rejoining under the
+same name is refused as `name-taken`, and once the packs are dealt `joinRoom`
+refuses every name. There is no releasing a seat and no re-issuing a key.
 
 The room code cannot *carry* the draft the way a save code carries a
 single-player game. Every pick changes the state and eight devices have to see
@@ -169,10 +174,11 @@ their tests did not change at all.
 
 ### What the browser holds
 
-One thing, and it is not state:
+Credentials, and no state:
 
 ```
-localStorage["draft:K7MQ2F"] = "<seat key>"
+localStorage["draft:K7MQ2F"]       = "<seat key>"
+localStorage["draft:admin:K7MQ2F"] = "<admin key>"
 ```
 
 No cached packs, no copy of the draft, nothing to reconcile. The database is
@@ -188,18 +194,23 @@ storage clears it for a site the user has not interacted with for seven days,
 and a draft can easily run longer than that. On iOS that is most of a group of
 friends.
 
-So the key lives in the link the admin hands out, in the **fragment**:
+So the keys live in a link as well, in the **fragment**:
 
 ```
-https://…/draft/K7MQ2F#s=9f3c…
+https://…/draft?room=K7MQ2F#s=9f3c…&a=61b2…
 ```
 
 A fragment is never sent to the server, so it stays out of access logs and out
-of `Referer` headers, unlike a query string. The page reads it once, stores it,
-and the link in somebody's messages stays a working way back in after Safari
-has forgotten. The cost is honest and worth stating: that link is the seat, so
-pasting it into the group chat gives the seat away. The admin can re-issue one,
-which invalidates the old.
+of `Referer` headers, unlike a query string. `roomHref` builds every link the
+page makes, and the address bar always carries the whole thing, so the page
+you are looking at is already the thing to bookmark.
+
+Not a link *the admin hands out*, which was this plan's first guess. Players
+join themselves and the server only ever sees a hash, so the admin never holds
+anybody's seat key and could not re-issue one if they did. Each person is
+shown their own, under **Keep this link**, with what it opens spelled out. The
+cost is honest and worth stating: that link *is* the seat, so pasting it into
+the group chat gives the seat away, and there is no revoking it.
 
 ### The seat-scoped view
 
@@ -525,8 +536,10 @@ rather than `drafts`, which is one argument to `netlifyBucket`.
 
    The route is `/draft?room=CODE`, not `/draft/CODE`: a static export has to
    know every path at build time and a room code is not knowable then. The
-   seat key rides in the fragment, is saved on arrival, and is then taken out
-   of the address bar, so a screenshot of the page does not hand over a seat.
+   keys ride in the fragment and stay there. An early version took them back
+   out of the address bar so a screenshot would not hand over a seat; that was
+   reversed on 26 November 2026, once it was clear that a key nobody can
+   reissue must be somewhere a person can keep. See **Keep this link**.
 
    Also here because it had nowhere else to go: `netlify dev` pins both ports
    in `netlify.toml`. Left alone, Netlify puts its own port in the environment,
@@ -600,8 +613,10 @@ is off: the saving *is* the basics and the cards nobody picked.
 - **the production cut-over comes first.** `main` still serves the old
   plain-scripts app and has no functions; this cannot ship to anybody until the
   Next.js app is live. See TODO.md.
-- a draft spans days, so a player's `localStorage` is the only thing holding
-  their seat. Worth considering whether the seat key should also be in the URL
-  the admin hands out, so the link itself is recoverable.
+- ~~a draft spans days, so a player's `localStorage` is the only thing holding
+  their seat.~~ Settled 26 November 2026. The keys are in the address bar and
+  on screen under **Keep this link**, which makes `localStorage` a cache and
+  the link the record. The framing was wrong as well as the behaviour: there
+  was no admin link to put a seat key in, because players join themselves.
 - commander draft is two picks a turn, but is it also a different pack size or
   deck size? Not specified yet.
