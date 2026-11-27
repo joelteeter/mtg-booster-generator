@@ -571,6 +571,53 @@ export async function unlockDeck(
   return { ok: true, name: player.name };
 }
 
+/**
+ * Give a player a new seat key, and hand the admin the only copy.
+ *
+ * There is no reading one back. A seat key is stored as `hashKey` of itself,
+ * so a player's link exists in that player's browser and nowhere else —
+ * which is right until somebody clears their browser, at which point the
+ * draft has a seat nobody can sit in. Rejoining is no way out either: the
+ * name is taken, and after the deal `joinRoom` refuses everybody.
+ *
+ * So the admin mints a replacement. Everything the seat has drafted stays
+ * exactly where it is, in the draft state and keyed by seat rather than by
+ * player — only the credential changes.
+ *
+ * Any phase, deliberately: losing a link in the middle of a draft is the
+ * likeliest moment, and the least recoverable.
+ *
+ * The cost, which is real and worth stating: this lets whoever runs a draft
+ * mint a key for any seat and then play as it. Nothing else in the room does
+ * that — `makePick` has always needed the seat's own key. It is the same
+ * trust a kitchen-table admin already has over the packs and the printing,
+ * and it is the only way a stranded player gets back in, but it is a wider
+ * power than the admin had yesterday.
+ */
+export async function newSeatKey(
+  store: Store,
+  code: string,
+  adminKey: string,
+  playerId: unknown,
+  clock: Clock = {},
+): Promise<Outcome<{ name: string; playerKey: string }>> {
+  const room = await liveRoom(store, code, null);
+  if (!room.ok) return room;
+  if ((await hashKey(adminKey)) !== room.row.adminHash) return no("not-admin");
+  if (typeof playerId !== "string" || !playerId)
+    return no("not-a-player", "which player?");
+
+  const player = (await store.listPlayers(code)).find(
+    (p) => p.id === playerId,
+  );
+  if (!player) return no("not-a-player");
+
+  const playerKey = secretKey(clock.bytes);
+  if (!(await store.putSeatKey(code, playerId, await hashKey(playerKey))))
+    return no("not-a-player");
+  return { ok: true, name: player.name, playerKey };
+}
+
 /* ---------------------------------------------------------------- print */
 
 /** One player's deck, as the cards it is made of. For the admin alone. */

@@ -27,6 +27,7 @@ import {
 } from "@/lib/room-client";
 import { usePacksStore } from "@/store/packs";
 
+import { SeatKeys } from "./seat-keys";
 import { WayBack } from "./way-back";
 
 import type { Entered } from "./draft-ui";
@@ -148,7 +149,7 @@ export function RoomLobby({
         </div>
       </section>
 
-      <WayBack code={view.code} seatKey={seatKey} adminKey={adminKey} />
+      <WayBack view={view} seatKey={seatKey} adminKey={adminKey} />
 
       <section className="rounded-lg border p-4">
         <h2 className="mb-2 font-semibold">
@@ -177,7 +178,12 @@ export function RoomLobby({
         </p>
       </section>
 
-      {!seatKey && !full && (
+      {/*
+        * `view.role` rather than `seatKey`: a browser can hold a key the
+        * server has stopped recognising, and such a browser is a guest with
+        * a seat to take, not a player who is already in.
+        */}
+      {view.role !== "player" && !full && (
         <section className="rounded-lg border p-4">
           <h2 className="mb-1 font-semibold">Take a seat</h2>
           <p className="mb-3 text-sm text-muted-foreground">
@@ -202,10 +208,14 @@ export function RoomLobby({
         </section>
       )}
 
-      {!seatKey && full && !view.admin && (
+      {view.role !== "player" && full && !view.admin && (
         <p className="text-sm text-muted-foreground">
           This draft is full, so there is no seat to take — but you can watch.
         </p>
+      )}
+
+      {view.admin && adminKey && view.roster.length > 0 && (
+        <SeatKeys view={view} adminKey={adminKey} onRefresh={onRefresh} />
       )}
 
       {view.admin && adminKey && (

@@ -27,6 +27,7 @@ import { DraftError, saveDeck, unlockDeck } from "@/lib/room-client";
 import { cn } from "@/lib/utils";
 
 import { PoolNote } from "./pool-note";
+import { SeatKeys } from "./seat-keys";
 import { WayBack } from "./way-back";
 
 import { DeckPrints } from "./deck-prints";
@@ -163,7 +164,7 @@ export function DeckBuilder({
 
       <PoolNote summary={view.summary} />
 
-      <WayBack code={view.code} seatKey={seatKey} adminKey={adminKey} />
+      <WayBack view={view} seatKey={seatKey} adminKey={adminKey} />
 
       {!view.you && (
         <p className="text-sm text-muted-foreground">
@@ -336,6 +337,8 @@ export function DeckBuilder({
           </ul>
         </section>
       )}
+
+      {view.admin && adminKey && <SeatKeys view={view} adminKey={adminKey} onRefresh={onRefresh} />}
 
       {view.admin && adminKey && (
         <DeckPrints view={view} adminKey={adminKey} />

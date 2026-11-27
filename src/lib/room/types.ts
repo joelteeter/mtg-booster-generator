@@ -137,5 +137,17 @@ export interface Store {
     deck: Deck | null,
     submittedAt: string | null,
   ): Promise<boolean>;
+  /**
+   * Replace a player's seat key with a new hash. False if no such player.
+   *
+   * The one write to a player's row that the player does not make, which is
+   * the point: it exists so the admin can hand somebody a working link when
+   * theirs is gone, and only a hash is stored so there is nothing to look up
+   * instead. It breaks `putDeck`'s one-writer assumption in principle — in
+   * practice the player being re-keyed is the one who cannot reach the site,
+   * and the moment the new hash lands their old key is refused, so there is
+   * no second writer left to race with.
+   */
+  putSeatKey(code: string, playerId: string, keyHash: string): Promise<boolean>;
   logPicks(rows: PickRow[]): Promise<void>;
 }

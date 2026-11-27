@@ -182,6 +182,23 @@ export function blobStore(bucket: Bucket): Store {
     },
 
     /*
+     * Read, modify, write, like `putDeck` and for the same reason: the row is
+     * keyed by its slot, and a `PlayerRow` does not carry one. The deck and
+     * the submission are read back out of storage rather than taken from the
+     * caller, so re-keying somebody cannot roll their deck back.
+     */
+    async putSeatKey(
+      code: string,
+      playerId: string,
+      keyHash: string,
+    ): Promise<boolean> {
+      const mine = (await seated(code)).find((s) => s.player.id === playerId);
+      if (!mine) return false;
+      await bucket.set(seatKey(code, mine.slot), { ...mine.player, keyHash });
+      return true;
+    },
+
+    /*
      * Keyed by the clock, which is unique within a draft, so replaying a
      * request writes nothing twice.
      */

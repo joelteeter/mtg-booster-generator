@@ -24,6 +24,7 @@ import {
   rememberAdmin,
   rememberSeat,
   keyLink,
+  newSeatKey,
   roomFromUrl,
   roomHref,
   roomLink,
@@ -252,6 +253,29 @@ describe("talking to the function", () => {
       packId: "r1-s0",
       cards: ["p00-c00"],
     });
+  });
+
+  it("asks for a new seat key with the admin header, not the seat one", async () => {
+    const fetchMock = answer({ name: "Ada", playerKey: "fresh-key" });
+    vi.stubGlobal("fetch", fetchMock);
+
+    expect(await newSeatKey("K7MQ2F", "admin-key", "id-ada")).toEqual({
+      name: "Ada",
+      playerKey: "fresh-key",
+    });
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe("/api/draft/K7MQ2F/rekey");
+    expect(init?.method).toBe("POST");
+    const headers = new Headers(init?.headers);
+    expect(headers.get("x-draft-admin-key")).toBe("admin-key");
+    /*
+     * The seat header would be this browser claiming to be the player whose
+     * key is being replaced, which it is not — it is the one handing the new
+     * link on.
+     */
+    expect(headers.has("x-draft-key")).toBe(false);
+    expect(JSON.parse(init?.body as string)).toEqual({ playerId: "id-ada" });
   });
 
   it("turns a refusal into an error carrying the reason", async () => {

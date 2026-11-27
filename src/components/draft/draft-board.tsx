@@ -25,6 +25,7 @@ import { artById } from "@/lib/preview";
 import { cn } from "@/lib/utils";
 
 import { PoolNote } from "./pool-note";
+import { SeatKeys } from "./seat-keys";
 import { WayBack } from "./way-back";
 import type { RoomView } from "@/lib/room";
 import { prettyCode } from "@/lib/room/codes";
@@ -46,7 +47,6 @@ export function DraftBoard({
 }: {
   view: RoomView;
   seatKey: string | null;
-  /* Nothing here acts on it: the board has no admin controls. It is for the link. */
   adminKey: string | null;
   onRefresh: () => void;
   onLeave: () => void;
@@ -145,7 +145,14 @@ export function DraftBoard({
 
       <PoolNote summary={view.summary} />
 
-      <WayBack code={view.code} seatKey={seatKey} adminKey={adminKey} />
+      <WayBack view={view} seatKey={seatKey} adminKey={adminKey} />
+
+      {/*
+        * The board had no admin area before this. It needs one: a link goes
+        * missing mid-draft more often than in the lobby, and the admin should
+        * not have to wait for the drafting to finish to fix it.
+        */}
+      {view.admin && adminKey && <SeatKeys view={view} adminKey={adminKey} onRefresh={onRefresh} />}
 
       {board && (
         <section className="rounded-lg border p-4">

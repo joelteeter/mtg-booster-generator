@@ -265,6 +265,80 @@ describe("a list that lags a write", () => {
   });
 });
 
+describe("replacing a seat key", () => {
+  /*
+   * A player's row is keyed by its slot and carries a deck, so the write has
+   * to find the slot and keep everything that is not the key. On blobs there
+   * is no column to set: it is a read, a change, and a whole-object write.
+   */
+  const roomWith = async (store: Store, names: readonly string[]) => {
+    const made = await createRoom(store, NEW);
+    if (!made.ok) throw new Error(made.reason);
+    for (const name of names)
+      expect(await store.addPlayer(player(made.code, name), 4)).toBe("joined");
+    return made.code;
+  };
+
+  it("changes the key and keeps the deck and the submission", async () => {
+    const { store } = fresh();
+    const code = await roomWith(store, ["Ada"]);
+    await store.putDeck(
+      code,
+      "id-ada",
+      { main: ["c1", "c2"], side: [], basics: { Forest: 9 } },
+      "2026-11-26T00:00:00.000Z",
+    );
+
+    expect(await store.putSeatKey(code, "id-ada", "hash-new")).toBe(true);
+
+    const [row] = await store.listPlayers(code);
+    expect(row.keyHash).toBe("hash-new");
+    expect(row.name).toBe("Ada");
+    expect(row.id).toBe("id-ada");
+    expect(row.joinedAt).toBe("2026-11-15T00:00:00.000Z");
+    expect(row.deck).toEqual({
+      main: ["c1", "c2"],
+      side: [],
+      basics: { Forest: 9 },
+    });
+    expect(row.submittedAt).toBe("2026-11-26T00:00:00.000Z");
+  });
+
+  it("leaves the other players alone", async () => {
+    const { store } = fresh();
+    const code = await roomWith(store, ["Ada", "Bram"]);
+
+    await store.putSeatKey(code, "id-bram", "hash-new");
+
+    const rows = await store.listPlayers(code);
+    expect(rows.map((r) => [r.name, r.keyHash])).toEqual([
+      ["Ada", "hash-ada"],
+      ["Bram", "hash-new"],
+    ]);
+  });
+
+  it("says so when there is no such player", async () => {
+    const { store } = fresh();
+    const code = await roomWith(store, ["Ada"]);
+    expect(await store.putSeatKey(code, "id-nobody", "hash-new")).toBe(false);
+    expect(await store.putSeatKey("ZZZZZZ", "id-ada", "hash-new")).toBe(false);
+  });
+
+  it("writes the player's blob and not a new revision", async () => {
+    /*
+     * A seat key is not draft state, so re-keying somebody must not advance
+     * the chain — otherwise it would contend with a pick for no reason.
+     */
+    const { bucket, store } = fresh();
+    const code = await roomWith(store, ["Ada"]);
+    const before = bucket.keys(`rooms/${code}/rev/`);
+
+    await store.putSeatKey(code, "id-ada", "hash-new");
+
+    expect(bucket.keys(`rooms/${code}/rev/`)).toEqual(before);
+  });
+});
+
 describe("the pick log", () => {
   it("writes one blob a pick and never writes one twice", async () => {
     const { bucket, store } = fresh();

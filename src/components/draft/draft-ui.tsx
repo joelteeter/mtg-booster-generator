@@ -14,7 +14,7 @@
  * Which is also the honest shape for the thing: an async draft is a mailbox.
  */
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -54,44 +54,72 @@ export interface Entered {
 }
 
 /*
- * Where the page came in: the URL, and what this browser already remembered
- * about that room.
+ * Who this browser is, as a store rather than as state.
  *
- * Read through `useSyncExternalStore` rather than in an effect, because the
- * page is prerendered and neither the address bar nor `localStorage` exists
- * until it is in a browser. The snapshot is cached at module scope so that it
- * is the same object on every render — which is what that hook requires, and
- * is true in any case: arriving happens once.
+ * Read through `useSyncExternalStore` because the page is prerendered and
+ * neither the address bar nor `localStorage` exists until it is in a browser,
+ * and the snapshot is cached at module scope so it is the same object on
+ * every render, which that hook requires.
+ *
+ * It is a store and not a `useState` because three different things change
+ * it — arriving, joining, and a link clicked while the page is already open
+ * — and when they were split between a cached snapshot and a piece of state,
+ * the state shadowed the snapshot and a clicked link did nothing.
  */
 let arrival: Entry | null = null;
+const listeners = new Set<() => void>();
+const announce = (): void => listeners.forEach((tell) => tell());
 
-const howWeGotHere = (): Entry => {
-  if (arrival) return arrival;
+const fromHere = (): Entry => {
   const { code, seatKey, adminKey } = roomFromUrl(
     window.location.search,
     window.location.hash,
   );
-  arrival = code
+  return code
     ? {
         code,
         seat: seatKey ?? recallSeat(code),
         admin: adminKey ?? recallAdmin(code),
       }
     : NOBODY;
-  return arrival;
+};
+
+const howWeGotHere = (): Entry => (arrival ??= fromHere());
+
+/*
+ * A fragment that changes without the page reloading, which is exactly what
+ * a reissued seat link does: same path, same `?room=`, a new `#s=`. The
+ * browser treats that as a same-document navigation, so nothing would reread
+ * it — and the one person who needs it to work is the player who has just
+ * been sent a new link for the draft they are already looking at.
+ */
+const whenTheLinkChanges = (tell: () => void): (() => void) => {
+  listeners.add(tell);
+  const again = () => {
+    arrival = fromHere();
+    announce();
+  };
+  window.addEventListener("hashchange", again);
+  return () => {
+    listeners.delete(tell);
+    window.removeEventListener("hashchange", again);
+  };
+};
+
+/** This browser has become somebody: a new seat, a new room, or nobody. */
+const nowWeAre = (entry: Entry): void => {
+  arrival = entry;
+  announce();
 };
 
 const whilePrerendered = (): Entry => NOBODY;
-const neverChanges = () => () => {};
 
 export function DraftUi() {
-  const came = useSyncExternalStore(
-    neverChanges,
+  const here = useSyncExternalStore(
+    whenTheLinkChanges,
     howWeGotHere,
     whilePrerendered,
   );
-  const [moved, setMoved] = useState<Entry | null>(null);
-  const here = moved ?? came;
 
   /*
    * The address bar always shows the whole way back in, keys and all.
@@ -112,17 +140,17 @@ export function DraftUi() {
   }, []);
 
   useEffect(() => {
-    if (!came.code) return;
+    if (!here.code) return;
     /*
      * Keys are written down twice: into `localStorage`, which is a cache that
      * Safari will drop after seven idle days, and back into the address bar,
      * which is bookmarkable and survives it. Either alone is a way to lose a
      * draft to a cleared browser.
      */
-    if (came.seat) rememberSeat(came.code, came.seat);
-    if (came.admin) rememberAdmin(came.code, came.admin);
-    address(came.code, came);
-  }, [came, address]);
+    if (here.seat) rememberSeat(here.code, here.seat);
+    if (here.admin) rememberAdmin(here.code, here.admin);
+    address(here.code, here);
+  }, [here, address]);
 
   const enter = useCallback(
     (code: string, keys: Entered) => {
@@ -133,14 +161,14 @@ export function DraftUi() {
         seat: keys.seat ?? recallSeat(code),
         admin: keys.admin ?? recallAdmin(code),
       };
-      setMoved(next);
+      nowWeAre(next);
       address(code, next);
     },
     [address],
   );
 
   const leave = useCallback(() => {
-    setMoved(NOBODY);
+    nowWeAre(NOBODY);
     address(null);
   }, [address]);
 

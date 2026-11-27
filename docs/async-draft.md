@@ -48,10 +48,19 @@ The room code gets you into the room: the seat names, whose turn it is, how
 far along everyone is. A key gets you your cards, or the controls. One
 browser can hold both, since whoever starts a draft usually plays in it.
 
-Nobody can give a lost key back, which is why each is shown rather than
+Nobody can give a lost key *back*, which is why each is shown rather than
 quietly filed away. The server keeps only `hashKey` of it, rejoining under the
 same name is refused as `name-taken`, and once the packs are dealt `joinRoom`
-refuses every name. There is no releasing a seat and no re-issuing a key.
+refuses every name.
+
+What the admin can do is mint a *replacement* — `newSeatKey`, under
+**Players**. The seat keeps everything it has drafted, because the draft
+state is keyed by seat and not by player; only the credential changes, and
+the old one stops working the moment the new hash lands. It is the only way
+back for somebody whose browser has been cleared, and it is a wider power
+than the rest of the room gives: whoever runs a draft can mint a key for any
+seat and then play as it. The same trust they already have over the packs and
+the printing, written down because it is not obvious.
 
 The room code cannot *carry* the draft the way a save code carries a
 single-player game. Every pick changes the state and eight devices have to see
@@ -206,11 +215,18 @@ page makes, and the address bar always carries the whole thing, so the page
 you are looking at is already the thing to bookmark.
 
 Not a link *the admin hands out*, which was this plan's first guess. Players
-join themselves and the server only ever sees a hash, so the admin never holds
-anybody's seat key and could not re-issue one if they did. Each person is
-shown their own, under **Keep this link**, with what it opens spelled out. The
-cost is honest and worth stating: that link *is* the seat, so pasting it into
-the group chat gives the seat away, and there is no revoking it.
+join themselves and the server only ever sees a hash, so the admin cannot be
+shown anybody's seat key — only replace it. Each person is shown their own,
+under **Keep this link**, with what it opens spelled out. The cost is honest
+and worth stating: that link *is* the seat, so pasting it into the group chat
+gives the seat away, and the only remedy is for the admin to re-key you,
+which means your old link and anyone holding it both stop working at once.
+
+Which is also why nothing decides who you are from the key in this browser.
+`view.role` and `view.admin` are the server's answer, and a browser can hold
+a key that has been replaced since — a page that called such a key "your
+seat" would be lying at the one moment it matters. A replaced key gets a
+notice saying so and, before the deal, a seat to take.
 
 ### The seat-scoped view
 
@@ -538,8 +554,14 @@ rather than `drafts`, which is one argument to `netlifyBucket`.
    know every path at build time and a room code is not knowable then. The
    keys ride in the fragment and stay there. An early version took them back
    out of the address bar so a screenshot would not hand over a seat; that was
-   reversed on 26 November 2026, once it was clear that a key nobody can
-   reissue must be somewhere a person can keep. See **Keep this link**.
+   reversed on 26 November 2026, once it was clear that a key nobody can be
+   *sent* must be somewhere a person can keep. See **Keep this link**.
+
+   Which `Entry` is a store and not a `useState`: a reissued seat link has
+   the same path and the same `?room=`, so clicking it is a same-document
+   navigation and nothing would reread the URL. The one person who needs that
+   to work is the player who has just been sent a new link for the draft they
+   already have open, so the store listens for `hashchange`.
 
    Also here because it had nowhere else to go: `netlify dev` pins both ports
    in `netlify.toml`. Left alone, Netlify puts its own port in the environment,

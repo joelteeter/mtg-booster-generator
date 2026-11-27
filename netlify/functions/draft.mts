@@ -20,6 +20,7 @@ import {
   createRoom,
   joinRoom,
   makePick,
+  newSeatKey,
   readRoom,
   saveDeck,
   startDraft,
@@ -123,6 +124,15 @@ const handler = async (
     case "unlock":
       return reply(
         await unlockDeck(store, code, adminKey ?? key ?? "", sent.playerId),
+      );
+    /*
+     * Replies with a seat key in the body, which no other route does. It is
+     * a POST so it cannot be prefetched or sit in a cache, and the admin key
+     * it demands travels in a header rather than the URL.
+     */
+    case "rekey":
+      return reply(
+        await newSeatKey(store, code, adminKey ?? key ?? "", sent.playerId),
       );
     default:
       return json({ error: "no-such-action", detail: action }, 404);

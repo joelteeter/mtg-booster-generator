@@ -138,6 +138,24 @@ export const unlockDeck = (code: string, adminKey: string, playerId: string) =>
     body: JSON.stringify({ playerId }),
   });
 
+/**
+ * Admin: mint a new seat key for a player whose link is gone.
+ *
+ * The reply carries the key itself, which is why nothing caches this and why
+ * the caller shows it rather than storing it: this browser is not that seat,
+ * it is just the one that has to pass the link on.
+ */
+export const newSeatKey = (
+  code: string,
+  adminKey: string,
+  playerId: string,
+) =>
+  send<{ name: string; playerKey: string }>(`/${code}/rekey`, {
+    method: "POST",
+    headers: head({ adminKey, json: true }),
+    body: JSON.stringify({ playerId }),
+  });
+
 /** Admin: everybody's decks, which is the only read that carries them. */
 export const fetchDecks = (code: string, adminKey: string) =>
   send<{ decks: DeckSheet[] }>(`/${code}/decks`, {

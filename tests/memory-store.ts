@@ -93,6 +93,18 @@ export class MemoryStore implements Store {
     return true;
   }
 
+  async putSeatKey(
+    code: string,
+    playerId: string,
+    keyHash: string,
+  ): Promise<boolean> {
+    const list = this.roster.get(code) ?? [];
+    const player = list.find((p) => p.id === playerId);
+    if (!player) return false;
+    player.keyHash = keyHash;
+    return true;
+  }
+
   async logPicks(rows: PickRow[]): Promise<void> {
     if (this.breakLog) throw new Error("the pick log is unavailable");
     this.picks.push(...copy(rows));

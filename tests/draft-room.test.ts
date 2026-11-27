@@ -20,10 +20,12 @@ import {
   hashKey,
   joinRoom,
   makePick,
+  newSeatKey,
   parseNewRoom,
   prettyCode,
   readRoom,
   roomCode,
+  saveDeck,
   secretKey,
   startDraft,
   tidyCode,
@@ -84,6 +86,23 @@ const dealt = async (
   );
   if (!res.ok) throw new Error(`${res.reason} ${res.detail ?? ""}`);
   return room;
+};
+
+/**
+ * A player's id, read the way the admin's browser reads it.
+ *
+ * Ids reach a client through `readRoom`'s roster and only for the admin, so
+ * taking them from there rather than from the store is the path the real
+ * caller uses.
+ */
+const rosterId = (
+  read: Awaited<ReturnType<typeof readRoom>>,
+  name: string,
+): string => {
+  if (!read.ok) throw new Error(read.reason);
+  const found = read.view.roster.find((p) => p.name === name);
+  if (!found?.id) throw new Error(`no id for ${name}`);
+  return found.id;
 };
 
 /** Play the whole draft, one legal pick at a time, however it falls out. */
@@ -749,5 +768,168 @@ describe("a draft from end to end", () => {
     expect(res.view.you!.queue).toEqual([]);
     expect(res.view.you!.drafted).toHaveLength(4);
     expect(res.view.board!.seats.map((s) => s.drafted)).toEqual([4, 4]);
+  });
+});
+
+/* ---------------------------------------------------------- a lost link */
+
+describe("a new seat key", () => {
+  /*
+   * The only recovery there is. A key is stored as a hash, so nobody can be
+   * shown theirs — the admin mints a replacement and passes it on.
+   */
+  it("replaces the key, and the old one stops working", async () => {
+    const store = new MemoryStore();
+    const room = await dealt(store, FOUR.slice(0, 2), { rounds: 1 });
+
+    const was = room.keys.Ada;
+    const made = await newSeatKey(store, room.code, room.adminKey, rosterId(
+      await readRoom(store, room.code, null, room.adminKey),
+      "Ada",
+    ));
+    if (!made.ok) throw new Error(made.reason);
+    expect(made.name).toBe("Ada");
+    expect(made.playerKey).not.toBe(was);
+
+    /* The new key is the seat. */
+    const now = await readRoom(store, room.code, made.playerKey);
+    if (!now.ok) throw new Error(now.reason);
+    expect(now.view.role).toBe("player");
+    expect(now.view.you).not.toBeNull();
+
+    /* The old one is nobody. */
+    const before = await readRoom(store, room.code, was);
+    if (!before.ok) throw new Error(before.reason);
+    expect(before.view.role).toBe("guest");
+    expect(before.view.you).toBeNull();
+  });
+
+  it("keeps everything the seat has drafted", async () => {
+    const store = new MemoryStore();
+    const room = await dealt(store, FOUR.slice(0, 2), { rounds: 1 });
+
+    /* Take a card, so the seat has something to lose. */
+    const first = await readRoom(store, room.code, room.keys.Ada);
+    if (!first.ok) throw new Error(first.reason);
+    const pack = first.view.you!.queue[0];
+    const took = await makePick(store, room.code, room.keys.Ada, pack.id, [
+      pack.cards[0].key,
+    ]);
+    if (!took.ok) throw new Error(took.reason);
+
+    const id = rosterId(
+      await readRoom(store, room.code, null, room.adminKey),
+      "Ada",
+    );
+    const made = await newSeatKey(store, room.code, room.adminKey, id);
+    if (!made.ok) throw new Error(made.reason);
+
+    const after = await readRoom(store, room.code, made.playerKey);
+    if (!after.ok) throw new Error(after.reason);
+    expect(after.view.you!.drafted).toHaveLength(1);
+    expect(after.view.you!.drafted[0].key).toBe(pack.cards[0].key);
+  });
+
+  it("does not disturb a deck that was already saved", async () => {
+    /*
+     * `putSeatKey` reads the row and writes it back, so this is the thing
+     * that would break if it ever wrote a `PlayerRow` the caller supplied.
+     */
+    const store = new MemoryStore();
+    const room = await dealt(store, FOUR.slice(0, 2), { rounds: 1 });
+    await playOut(store, room);
+
+    const view = await readRoom(store, room.code, room.keys.Ada);
+    if (!view.ok) throw new Error(view.reason);
+    const mine = view.view.you!.drafted.map((c) => c.key);
+    const saved = await saveDeck(store, room.code, room.keys.Ada, {
+      deck: { main: mine, side: [], basics: { Forest: 10 } },
+      submit: false,
+    });
+    if (!saved.ok) throw new Error(saved.reason);
+
+    const id = rosterId(
+      await readRoom(store, room.code, null, room.adminKey),
+      "Ada",
+    );
+    const made = await newSeatKey(store, room.code, room.adminKey, id);
+    if (!made.ok) throw new Error(made.reason);
+
+    const after = await readRoom(store, room.code, made.playerKey);
+    if (!after.ok) throw new Error(after.reason);
+    expect(after.view.deck).toEqual({
+      main: mine,
+      side: [],
+      basics: { Forest: 10 },
+    });
+  });
+
+  it("works before the deal and after the draft is over", async () => {
+    const store = new MemoryStore();
+    const room = await open(store, FOUR.slice(0, 2));
+    const atSetup = rosterId(
+      await readRoom(store, room.code, null, room.adminKey),
+      "Bram",
+    );
+    expect(
+      (await newSeatKey(store, room.code, room.adminKey, atSetup)).ok,
+    ).toBe(true);
+
+    const played = new MemoryStore();
+    const over = await dealt(played, FOUR.slice(0, 2), { rounds: 1 });
+    await playOut(played, over);
+    const atEnd = rosterId(
+      await readRoom(played, over.code, null, over.adminKey),
+      "Bram",
+    );
+    expect((await newSeatKey(played, over.code, over.adminKey, atEnd)).ok).toBe(
+      true,
+    );
+  });
+
+  it("is the admin's alone, and needs a player who exists", async () => {
+    const store = new MemoryStore();
+    const room = await dealt(store, FOUR.slice(0, 2), { rounds: 1 });
+    const id = rosterId(
+      await readRoom(store, room.code, null, room.adminKey),
+      "Ada",
+    );
+
+    /* A player's own key does not run the room, even for their own seat. */
+    const asPlayer = await newSeatKey(store, room.code, room.keys.Ada, id);
+    expect(asPlayer.ok).toBe(false);
+    if (!asPlayer.ok) expect(asPlayer.reason).toBe("not-admin");
+
+    const nobody = await newSeatKey(store, room.code, room.adminKey, "nope");
+    expect(nobody.ok).toBe(false);
+    if (!nobody.ok) expect(nobody.reason).toBe("not-a-player");
+
+    /* Not a string at all, which is what a hand-written request sends. */
+    const junk = await newSeatKey(store, room.code, room.adminKey, 7);
+    expect(junk.ok).toBe(false);
+    if (!junk.ok) expect(junk.reason).toBe("not-a-player");
+
+    const gone = await newSeatKey(store, "ZZZZZZ", room.adminKey, id);
+    expect(gone.ok).toBe(false);
+    if (!gone.ok) expect(gone.reason).toBe("no-such-room");
+  });
+
+  it("gives a different key every time it is asked", async () => {
+    const store = new MemoryStore();
+    const room = await dealt(store, FOUR.slice(0, 2), { rounds: 1 });
+    const id = rosterId(
+      await readRoom(store, room.code, null, room.adminKey),
+      "Ada",
+    );
+
+    const one = await newSeatKey(store, room.code, room.adminKey, id);
+    const two = await newSeatKey(store, room.code, room.adminKey, id);
+    if (!one.ok || !two.ok) throw new Error("refused");
+    expect(one.playerKey).not.toBe(two.playerKey);
+
+    /* And only the newest works — minting again retires the one before. */
+    const old = await readRoom(store, room.code, one.playerKey);
+    if (!old.ok) throw new Error(old.reason);
+    expect(old.view.role).toBe("guest");
   });
 });
