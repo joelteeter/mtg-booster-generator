@@ -24,6 +24,7 @@ import type { CardRef, PackView } from "@/lib/draft";
 import { artById } from "@/lib/preview";
 import { cn } from "@/lib/utils";
 
+import { CardZoom, ZoomPip, type Zoom } from "./card-zoom";
 import { PoolNote } from "./pool-note";
 import { SeatKeys } from "./seat-keys";
 import { WayBack } from "./way-back";
@@ -55,6 +56,7 @@ export function DraftBoard({
   const [packId, setPackId] = useState<string | null>(null);
   const [chosen, setChosen] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
+  const [zoom, setZoom] = useState<Zoom | null>(null);
 
   const board = view.board;
   const you = view.you;
@@ -241,10 +243,13 @@ export function DraftBoard({
               </Button>
             </div>
             <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">
-              {pack.cards.map((ref) => {
+              {pack.cards.map((ref, at) => {
                 const picked = packId === pack.id && chosen.includes(ref.key);
                 return (
-                  <li key={ref.key}>
+                  <li key={ref.key} className="relative">
+                    <ZoomPip
+                      onClick={() => setZoom({ cards: pack.cards, at })}
+                    />
                     <button
                       type="button"
                       onClick={() => toggle(pack, ref.key)}
@@ -277,15 +282,24 @@ export function DraftBoard({
             Your cards ({you.drafted.length})
           </h2>
           <ul className="grid grid-cols-4 gap-1.5 sm:grid-cols-6 md:grid-cols-8">
-            {you.drafted.map((ref) => (
+            {you.drafted.map((ref, at) => (
               <li key={ref.key}>
-                <img
-                  src={art(ref)}
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                  className="block w-full rounded-[4.5%]"
-                />
+                {/* Nothing else to do with a card you have taken, so the
+                    whole thing opens it. */}
+                <button
+                  type="button"
+                  aria-label="Look at this card"
+                  onClick={() => setZoom({ cards: you.drafted, at })}
+                  className="block w-full cursor-zoom-in overflow-hidden rounded-[4.5%] transition hover:opacity-80"
+                >
+                  <img
+                    src={art(ref)}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    className="block w-full"
+                  />
+                </button>
               </li>
             ))}
           </ul>
@@ -297,6 +311,8 @@ export function DraftBoard({
           )}
         </section>
       )}
+
+      <CardZoom zoom={zoom} onZoom={setZoom} />
     </>
   );
 }

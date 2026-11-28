@@ -26,6 +26,7 @@ import type { RoomView } from "@/lib/room";
 import { DraftError, saveDeck, unlockDeck } from "@/lib/room-client";
 import { cn } from "@/lib/utils";
 
+import { CardZoom, ZoomPip, type Zoom } from "./card-zoom";
 import { PoolNote } from "./pool-note";
 import { SeatKeys } from "./seat-keys";
 import { WayBack } from "./way-back";
@@ -66,6 +67,7 @@ export function DeckBuilder({
    */
   const [deck, setDeck] = useState<Deck>(() => view.deck ?? emptyDeck());
   const [busy, setBusy] = useState(false);
+  const [zoom, setZoom] = useState<Zoom | null>(null);
 
   const zoneOf = useMemo(() => {
     const at = new Map<string, Zone>();
@@ -229,8 +231,13 @@ export function DeckBuilder({
                 <p className="text-sm text-muted-foreground">Nothing here.</p>
               ) : (
                 <ul className="grid grid-cols-4 gap-1.5 sm:grid-cols-6 md:grid-cols-8">
-                  {piles[zone].map((card) => (
-                    <li key={card.key}>
+                  {piles[zone].map((card, at) => (
+                    <li key={card.key} className="relative">
+                      {/* Sorting is the tap; reading the card is the pip.
+                          Both have to work on a touchscreen. */}
+                      <ZoomPip
+                        onClick={() => setZoom({ cards: piles[zone], at })}
+                      />
                       <button
                         type="button"
                         onClick={() => move(card.key)}
@@ -343,6 +350,8 @@ export function DeckBuilder({
       {view.admin && adminKey && (
         <DeckPrints view={view} adminKey={adminKey} />
       )}
+
+      <CardZoom zoom={zoom} onZoom={setZoom} />
     </>
   );
 }

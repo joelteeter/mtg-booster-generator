@@ -414,6 +414,24 @@ Two things it does not defend against, and should not try to: a player who
 forwards their own seat link, and the admin, who can see everything by
 construction.
 
+## Reading a card
+
+Fifteen cards to a pack and eight cards to a row means deciding from the art,
+which is no way to draft. Tapping the pip in a card's corner opens it at
+`large`, and the arrows walk the group it came from — the pack, or the pile in
+the deck builder — because what people actually do is compare.
+
+This still costs no Scryfall request. `artById` takes the size as an argument
+and the size is a directory in the CDN path, so the enlarged scan is the same
+derivation as the thumbnail with one word changed. The thumbnail is drawn
+underneath the large one, which is what stops the first open from being an
+empty frame while 700KB arrives: the small file is already in the cache,
+because it is the picture you clicked on.
+
+The pip is a separate control rather than a click on the card, because the
+card's own click is the thing you came to do — take it, or move it between
+piles — and on a touchscreen there is no hover to put a second action behind.
+
 ## When a player goes quiet
 
 The admin can pick for them. The board shows who is holding things up and how
