@@ -17,6 +17,7 @@ import {
   emptyDeck,
   poolOf,
   problemText,
+  queueFor,
 } from "@/lib/draft";
 import type { Deck } from "@/lib/draft";
 import {
@@ -240,7 +241,10 @@ async function built(store: MemoryStore) {
     const row = (await store.getDraft(made.code))!;
     if (row.phase !== "drafting") break;
     const pack = row.state!.packs.find(
-      (p) => p.holder !== null && p.remaining.length > 0,
+      (p) =>
+        p.holder !== null &&
+        p.remaining.length > 0 &&
+        queueFor(row.state!, p.holder)[0].id === p.id,
     )!;
     const res = await makePick(
       store,

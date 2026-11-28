@@ -51,8 +51,19 @@ export interface BoardView {
 /** One seat's own hand of information. */
 export interface SeatView {
   seat: number;
-  /** Packs to pick from, the one that has waited longest first. */
-  queue: PackView[];
+  /**
+   * The pack in front of this seat, or null when none has reached it.
+   *
+   * One pack rather than the queue, and a field rather than `queue[0]`,
+   * because the cards in the packs stacked behind it are hidden information
+   * in the same way another seat's are. A draft hands you one pack at a time;
+   * knowing what is in the next two is foresight the table does not have, and
+   * it would change how you pick from this one. The shape is what enforces
+   * it: there is nowhere here to put a second pack's cards.
+   */
+  pack: PackView | null;
+  /** How many more are stacked behind it. A count: no card appears here. */
+  waiting: number;
   /** Everything this seat has drafted, in the order it took it. */
   drafted: CardRef[];
 }
@@ -101,15 +112,23 @@ export function seatView(
   pool: Pool,
   seat: number,
 ): SeatView {
+  const [front, ...behind] = queueFor(state, seat);
   return {
     seat,
-    queue: queueFor(state, seat).map((pack) => ({
-      id: pack.id,
-      round: pack.round,
-      arrived: pack.arrived,
-      take: takeCount(state.rules, pack),
-      cards: pack.remaining.map((key) => refer(pool, key)),
-    })),
+    pack: front
+      ? {
+          id: front.id,
+          round: front.round,
+          arrived: front.arrived,
+          take: takeCount(state.rules, front),
+          cards: front.remaining.map((key) => refer(pool, key)),
+        }
+      : null,
+    /*
+     * The count, and not the ids: an id is enough to pick with, and a pack
+     * that may not be picked from yet should not be addressable either.
+     */
+    waiting: behind.length,
     drafted: (state.picked[seat] ?? []).map((t) => refer(pool, t.card)),
   };
 }

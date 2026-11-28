@@ -9,7 +9,15 @@
  */
 import { describe, expect, it } from "vitest";
 
-import { applyPick, boardView, dealPacks, poolKeys, queueFor, seatView } from "@/lib/draft";
+import {
+  applyPick,
+  boardView,
+  dealPacks,
+  poolKeys,
+  queueFor,
+  seatView,
+  takeCount,
+} from "@/lib/draft";
 import type { DraftRules, DraftState, Pool } from "@/lib/draft";
 
 import { seededRng } from "./fixtures";
@@ -60,7 +68,8 @@ describe("the board", () => {
     const { pool, state } = setup();
     /* Play a few picks first, so there is something worth leaking. */
     let s = state;
-    for (const id of ["r1-s0", "r1-s1", "r1-s0"]) s = pickOnce(s, id);
+    /* One each, so no pack is picked from while queued behind another. */
+    for (const id of ["r1-s0", "r1-s1", "r1-s2"]) s = pickOnce(s, id);
 
     const json = JSON.stringify(boardView(s, NAMES));
     for (const key of Object.keys(pool)) expect(json).not.toContain(key);
@@ -114,22 +123,50 @@ describe("a seat's own view", () => {
     const mine = queueFor(state, 2);
 
     expect(you.seat).toBe(2);
-    expect(you.queue).toHaveLength(1);
-    expect(you.queue[0].id).toBe(mine[0].id);
-    expect(you.queue[0].take).toBe(1);
-    expect(you.queue[0].cards.map((c) => c.key)).toEqual(mine[0].remaining);
-    for (const card of you.queue[0].cards)
+    expect(you.waiting).toBe(0);
+    expect(you.pack!.id).toBe(mine[0].id);
+    expect(you.pack!.take).toBe(1);
+    expect(you.pack!.cards.map((c) => c.key)).toEqual(mine[0].remaining);
+    for (const card of you.pack!.cards)
       expect(card).toEqual({ key: card.key, ...pool[card.key] });
   });
 
   it("shows nobody else's packs", () => {
     const { pool, state } = setup();
-    const mine = new Set(queueFor(state, 1).map((p) => p.id));
-    expect(seatView(state, pool, 1).queue.map((p) => p.id)).toEqual([
-      ...mine,
-    ]);
+    const mine = queueFor(state, 1);
+    expect(seatView(state, pool, 1).pack!.id).toBe(mine[0].id);
     /* And the other three packs are in play, so they were really withheld. */
     expect(state.packs.filter((p) => p.holder !== null)).toHaveLength(4);
+  });
+
+  it("withholds the cards of a pack queued behind the front one", () => {
+    const { pool, state } = setup();
+    /*
+     * Round 1 passes right, so seat 0's pack lands on seat 3, which is still
+     * holding its own. That seat now has a queue, and everything in the pack
+     * at the back of it is a future pick.
+     */
+    const s = pickOnce(state, "r1-s0");
+    const held = queueFor(s, 3);
+    expect(held).toHaveLength(2);
+
+    const you = seatView(s, pool, 3);
+    expect(you.pack!.id).toBe(held[0].id);
+    expect(you.waiting).toBe(1);
+
+    /*
+     * Searched for rather than asserted structurally, the way the board test
+     * does it: what matters is that nothing anywhere in what this seat is
+     * sent names a card it may not see yet, however the shape changes later.
+     */
+    const behind = held[1];
+    const json = JSON.stringify(you);
+    for (const key of behind.remaining) {
+      expect(json).not.toContain(key);
+      expect(json).not.toContain(pool[key].id);
+    }
+    /* Nor the pack's id: an id is the whole of what a pick needs to name. */
+    expect(json).not.toContain(behind.id);
   });
 
   it("lists what it has drafted, in the order it took it", () => {
@@ -162,7 +199,7 @@ describe("a seat's own view", () => {
   it("says a turn takes what is left when two would overrun the pack", () => {
     const two: DraftRules = { ...RULES, rounds: 1, picksPerTurn: 2 };
     const { pool, state } = setup(two, 3, 4);
-    expect(seatView(state, pool, 0).queue[0].take).toBe(2);
+    expect(seatView(state, pool, 0).pack!.take).toBe(2);
 
     const pack = queueFor(state, 0)[0];
     const res = applyPick(state, {
@@ -172,16 +209,21 @@ describe("a seat's own view", () => {
     });
     if (!res.ok) throw new Error(res.reason);
     /*
-     * The seat it lands on is holding two packs now — its own, untouched, and
-     * this one with a single card left — so the queue has to be searched
-     * rather than indexed: `queue[0]` is whichever arrived first, which is its
-     * own.
+     * The seat it lands on is holding two packs now — its own, untouched,
+     * and this one with a single card left. Its own arrived first, so that
+     * is the one it sees and the one it may pick from; the arrival is a
+     * count behind it until that is gone.
      */
     const next = res.state.packs.find((p) => p.id === pack.id)!;
-    const queue = seatView(res.state, pool, next.holder!).queue;
-    expect(queue).toHaveLength(2);
-    expect(queue.find((p) => p.id === pack.id)!.take).toBe(1);
-    expect(queue[0].take).toBe(2);
+    const held = queueFor(res.state, next.holder!);
+    expect(held).toHaveLength(2);
+    expect(held[0].id).not.toBe(pack.id);
+    expect(takeCount(two, held.find((p) => p.id === pack.id)!)).toBe(1);
+
+    const seen = seatView(res.state, pool, next.holder!);
+    expect(seen.pack!.id).toBe(held[0].id);
+    expect(seen.pack!.take).toBe(2);
+    expect(seen.waiting).toBe(1);
   });
 
   it("refuses to render a pack the pool has lost a card from", () => {

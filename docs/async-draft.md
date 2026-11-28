@@ -244,6 +244,13 @@ Making them functions rather than care taken in each handler is the rest of the
 point. The hidden-information rule gets tested once, the way the pick rules
 are, instead of being re-honoured correctly in four separate endpoints.
 
+A `SeatView` carries **one** pack, not the queue. The packs stacked behind it
+are a count. Reading your next two packs while you pick from this one is
+foresight the table does not have, and it would change how you pick from this
+one — so it is hidden information in the same sense another seat's pack is,
+and the shape is again what enforces it: `pack: PackView | null` has nowhere
+to put a second pack's cards.
+
 ## The engine
 
 The rules live in `src/lib/draft/` as pure functions, the way `src/lib/booster`
@@ -290,6 +297,9 @@ shuffled every way, assert each seat ends with the same cards.
 - `picksPerTurn` is 1 for a normal draft and 2 for commander. The last visit
   to a pack takes whatever is left, which is how an odd pack size resolves.
 - a pack with nothing left is done and leaves the board.
+- a seat may hold several packs, and picks from the one that has waited
+  longest. Only that one is sent to it; the rest are a count until their turn
+  comes, for the same reason the next round does not open early.
 - a round ends when **every** pack in it is empty, and only then does the next
   round open. This is the one place the draft gates on the slowest player, and
   it is deliberate: opening pack 2 early would let someone draft against
@@ -402,9 +412,23 @@ before the first pick rather than after.
 
 ## Hidden information
 
-The server only ever sends a player the contents of their own queue. Public
-information — names, seat order, pick counts, whose turn — is public; pack
-contents are not. Reaching another player's pack means having their seat key.
+The server only ever sends a player the contents of the one pack at the front
+of their own queue. Public information — names, seat order, pick counts, whose
+turn — is public; pack contents are not. Reaching another player's pack means
+having their seat key.
+
+Your own queued packs are withheld for a different reason: they are not
+somebody else's secret, they are your own future, and a draft at a table does
+not show it to you. Three packs waiting is a count on the page and nothing
+else — no cards, and not even the pack ids, because an id is the whole of what
+a pick needs to name.
+
+A queued pack is refused by `applyPick` as well as hidden by `seatView`, and
+refused *before* the pick's contents are looked at, with the same
+`not-your-pack` that a stranger's pack gets. That ordering is the point: a
+refusal that said "not-in-pack" for one guess and "wrong-count" for another
+would hand back, one request at a time, exactly what the withholding was there
+to prevent.
 
 This costs a few endpoints rather than one, which the design wants anyway: the
 function is already the only writer, so it is already the only thing that needs
@@ -487,13 +511,20 @@ rather than `drafts`, which is one argument to `netlifyBucket`.
    check if the engine is ever rewritten — a property test that cannot fail is
    decoration.
 
-   Two things the engine deliberately does not do. It does not make a seat pick
-   from its oldest pack, because a pack visits the same seats in the same order
-   either way, so the queue order is a thing to display rather than a rule. And
-   it identifies a card by a **key** naming one physical card rather than by a
-   Scryfall id, because a generated pack can hold two copies of one printing
-   and "I take this one" has to mean something; `dealPacks` refuses a pool
-   where a key repeats.
+   The engine identifies a card by a **key** naming one physical card rather
+   than by a Scryfall id, because a generated pack can hold two copies of one
+   printing and "I take this one" has to mean something; `dealPacks` refuses a
+   pool where a key repeats.
+
+   It originally let a seat pick from any pack it held, on the grounds that a
+   pack visits the same seats in the same order either way, so queue order was
+   a thing to display rather than a rule. That was true about correctness and
+   wrong about the game: it meant a seat holding three packs could read all
+   three before picking from any. Only the front of the queue may be picked
+   from now — see "Hidden information". The order-independence property
+   survived the change untouched, which is the evidence that the reasoning
+   above it was right: what the schedulers vary is who moves next, and that
+   was never the part doing the work.
 2. **The room** — done, 15 November 2026. The whole server: the `Store` port
    and the room operations in `src/lib/room/`, the view split in
    `src/lib/draft/view.ts`, the revision chain in `src/lib/room/blob-store.ts`,

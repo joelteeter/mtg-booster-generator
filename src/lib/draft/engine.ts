@@ -60,10 +60,11 @@ export const isOver = (state: DraftState): boolean =>
 /**
  * The packs sitting with a seat, the one that has waited longest first.
  *
- * This is the order to show them in, not an order the engine imposes: a seat
- * may pick from any pack it holds. Forcing the oldest would be a rule about
- * nothing, since a pack still visits the same seats in the same order either
- * way — see the note at the top of this file.
+ * The first of these is the only one that seat may pick from, and the only
+ * one `seatView` sends the cards of. A pack visits the same seats in the same
+ * order whichever of your own you pick from first, so the draft does not need
+ * this for correctness — it is here because the packs queued behind yours are
+ * future picks, and reading them is foresight a real draft does not give you.
  */
 export function queueFor(state: DraftState, seat: number): PackState[] {
   return state.packs
@@ -111,12 +112,18 @@ export function applyPick(state: DraftState, pick: Pick): PickResult {
   if (!pack) return { ok: false, reason: "no-such-pack" };
 
   /*
-   * One refusal covers three cases deliberately — somebody else's pack, a
-   * pack that is spent, and a pack whose round has not opened — because from
-   * the picker's side they are the same thing: the pack on the page is not
-   * there any more.
+   * One refusal covers four cases deliberately — somebody else's pack, a pack
+   * that is spent, a pack whose round has not opened, and one of your own
+   * queued behind another — because from the picker's side they are the same
+   * thing: the pack on the page is not there any more.
+   *
+   * The queued case is refused *here*, before the pick's contents are looked
+   * at, and not by its own reason. A pack behind the front one has had its
+   * cards withheld on purpose; a refusal that said "not-in-pack" for one card
+   * and "wrong-count" for another would answer the question the withholding
+   * was asked to prevent, one guess at a time.
    */
-  if (pack.holder !== pick.seat || pack.remaining.length === 0)
+  if (queueFor(state, pick.seat)[0]?.id !== pack.id)
     return { ok: false, reason: "not-your-pack" };
 
   if (pick.cards.length !== takeCount(state.rules, pack))

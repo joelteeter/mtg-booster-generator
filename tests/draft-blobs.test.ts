@@ -21,6 +21,7 @@ import {
   startDraft,
 } from "@/lib/room";
 import type { PlayerRow, Store } from "@/lib/room";
+import { queueFor } from "@/lib/draft";
 
 import { seededRng } from "./fixtures";
 import { MemoryBucket } from "./memory-bucket";
@@ -90,7 +91,10 @@ describe("a draft on blobs", () => {
       const row = (await store.getDraft(room.code))!;
       if (row.phase !== "drafting") break;
       const pack = row.state!.packs.find(
-        (p) => p.holder !== null && p.remaining.length > 0,
+        (p) =>
+          p.holder !== null &&
+          p.remaining.length > 0 &&
+          queueFor(row.state!, p.holder)[0].id === p.id,
       )!;
       const take = Math.min(row.state!.rules.picksPerTurn, pack.remaining.length);
       const res = await makePick(

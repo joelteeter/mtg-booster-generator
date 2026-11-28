@@ -10,11 +10,16 @@
  * request at all — the image is the card, and the name on it is the name.
  * Phase 4 will need real card data for a decklist; picking does not.
  *
- * Packs pile up rather than waiting for each other, and a seat may pick from
- * any pack it holds. That is safe because with the seat order fixed at the
- * start, a pack's contents on any visit depend only on the seats that saw it
- * earlier — so whether somebody took two days changes when a card is taken
- * and nothing else. See docs/async-draft.md.
+ * Packs pile up rather than waiting for each other, and you pick from the one
+ * that has waited longest. That is safe because with the seat order fixed at
+ * the start, a pack's contents on any visit depend only on the seats that saw
+ * it earlier — so whether somebody took two days changes when a card is taken
+ * and nothing else.
+ *
+ * Only that one pack is here to draw. The ones behind it are a count, because
+ * the server does not send their cards: reading your next two packs while
+ * picking from this one is foresight a draft at a table does not give you.
+ * See docs/async-draft.md.
  */
 import { useState } from "react";
 import { toast } from "sonner";
@@ -60,7 +65,8 @@ export function DraftBoard({
 
   const board = view.board;
   const you = view.you;
-  const queue = you?.queue ?? [];
+  const pack = you?.pack ?? null;
+  const waiting = you?.waiting ?? 0;
   const over = board?.over ?? false;
 
   const toggle = (pack: PackView, key: string) => {
@@ -214,7 +220,7 @@ export function DraftBoard({
         </p>
       )}
 
-      {you && !over && queue.length === 0 && (
+      {you && !over && !pack && (
         <section className="rounded-lg border p-4">
           <h2 className="mb-1 font-semibold">Nothing to pick</h2>
           <p className="text-sm text-muted-foreground">
@@ -224,57 +230,68 @@ export function DraftBoard({
         </section>
       )}
 
-      {you &&
-        queue.map((pack, i) => (
-          <section key={pack.id} className="rounded-lg border p-4">
-            <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-              <h2 className="font-semibold">
-                {i === 0 ? "Your pick" : "Also waiting"}
-                <span className="ml-2 text-sm font-normal text-muted-foreground">
-                  {plural(pack.cards.length, "card")} left · take{" "}
-                  {pack.take}
-                </span>
-              </h2>
-              <Button
-                onClick={() => take(pack)}
-                disabled={busy || chosen.length !== pack.take || packId !== pack.id}
-              >
-                {busy ? "Taking…" : `Take ${plural(pack.take, "card")}`}
-              </Button>
-            </div>
-            <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">
-              {pack.cards.map((ref, at) => {
-                const picked = packId === pack.id && chosen.includes(ref.key);
-                return (
-                  <li key={ref.key} className="relative">
-                    <ZoomPip
-                      onClick={() => setZoom({ cards: pack.cards, at })}
+      {you && pack && (
+        <section className="rounded-lg border p-4">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="font-semibold">
+              Your pick
+              <span className="ml-2 text-sm font-normal text-muted-foreground">
+                {plural(pack.cards.length, "card")} left · take {pack.take}
+              </span>
+            </h2>
+            <Button
+              onClick={() => take(pack)}
+              disabled={
+                busy || chosen.length !== pack.take || packId !== pack.id
+              }
+            >
+              {busy ? "Taking…" : `Take ${plural(pack.take, "card")}`}
+            </Button>
+          </div>
+          <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">
+            {pack.cards.map((ref, at) => {
+              const picked = packId === pack.id && chosen.includes(ref.key);
+              return (
+                <li key={ref.key} className="relative">
+                  <ZoomPip onClick={() => setZoom({ cards: pack.cards, at })} />
+                  <button
+                    type="button"
+                    onClick={() => toggle(pack, ref.key)}
+                    aria-pressed={picked}
+                    className={cn(
+                      "block w-full overflow-hidden rounded-[4.5%] ring-offset-2 ring-offset-background transition",
+                      picked
+                        ? "ring-2 ring-primary"
+                        : "opacity-90 hover:opacity-100",
+                    )}
+                  >
+                    <img
+                      src={art(ref)}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="block w-full"
                     />
-                    <button
-                      type="button"
-                      onClick={() => toggle(pack, ref.key)}
-                      aria-pressed={picked}
-                      className={cn(
-                        "block w-full overflow-hidden rounded-[4.5%] ring-offset-2 ring-offset-background transition",
-                        picked
-                          ? "ring-2 ring-primary"
-                          : "opacity-90 hover:opacity-100",
-                      )}
-                    >
-                      <img
-                        src={art(ref)}
-                        alt=""
-                        loading="lazy"
-                        decoding="async"
-                        className="block w-full"
-                      />
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        ))}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          {/*
+            * Said, but not shown. Knowing that two packs are stacked up is
+            * how you judge whether to hurry; knowing what is in them is
+            * foresight, so the server does not send it.
+            */}
+          {waiting > 0 && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              {waiting === 1
+                ? "One more pack is waiting behind this one."
+                : `${waiting} more packs are waiting behind this one.`}{" "}
+              You will see the next as soon as this one has moved on.
+            </p>
+          )}
+        </section>
+      )}
 
       {you && you.drafted.length > 0 && (
         <section className="rounded-lg border p-4">

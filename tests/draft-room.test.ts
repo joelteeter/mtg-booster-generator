@@ -13,6 +13,7 @@
  */
 import { describe, expect, it } from "vitest";
 
+import { queueFor } from "@/lib/draft";
 import { SHAPE } from "@/lib/room";
 import {
   ALPHABET,
@@ -116,8 +117,12 @@ async function playOut(store: MemoryStore, room: Room): Promise<void> {
   for (let guard = 0; guard < 4000; guard++) {
     const row = await store.getDraft(room.code);
     if (!row?.state || row.phase !== "drafting") return;
+    /* Only the pack at the front of a seat's queue may be picked from. */
     const pack = row.state.packs.find(
-      (p) => p.holder !== null && p.remaining.length > 0,
+      (p) =>
+        p.holder !== null &&
+        p.remaining.length > 0 &&
+        queueFor(row.state!, p.holder)[0].id === p.id,
     );
     if (!pack) throw new Error("nothing to pick, but still drafting");
     const take = Math.min(row.state.rules.picksPerTurn, pack.remaining.length);
@@ -633,12 +638,13 @@ describe("reading a room", () => {
 
     expect(res.view).toMatchObject({ role: "player", admin: false });
     expect(res.view.you).not.toBeNull();
-    expect(res.view.you!.queue).toHaveLength(1);
+    expect(res.view.you!.pack).not.toBeNull();
+    expect(res.view.you!.waiting).toBe(0);
 
     const row = (await store.getDraft(room.code))!;
     const seat = res.view.you!.seat;
     const mine = row.state!.packs.find((p) => p.holder === seat)!;
-    expect(res.view.you!.queue[0].cards.map((c) => c.key)).toEqual(
+    expect(res.view.you!.pack!.cards.map((c) => c.key)).toEqual(
       mine.remaining,
     );
   });
@@ -765,7 +771,8 @@ describe("a draft from end to end", () => {
     expect(res.view.phase).toBe("building");
     expect(res.view.board!.over).toBe(true);
     expect(res.view.board!.waitingOn).toEqual([]);
-    expect(res.view.you!.queue).toEqual([]);
+    expect(res.view.you!.pack).toBeNull();
+    expect(res.view.you!.waiting).toBe(0);
     expect(res.view.you!.drafted).toHaveLength(4);
     expect(res.view.board!.seats.map((s) => s.drafted)).toEqual([4, 4]);
   });
@@ -811,7 +818,7 @@ describe("a new seat key", () => {
     /* Take a card, so the seat has something to lose. */
     const first = await readRoom(store, room.code, room.keys.Ada);
     if (!first.ok) throw new Error(first.reason);
-    const pack = first.view.you!.queue[0];
+    const pack = first.view.you!.pack!;
     const took = await makePick(store, room.code, room.keys.Ada, pack.id, [
       pack.cards[0].key,
     ]);

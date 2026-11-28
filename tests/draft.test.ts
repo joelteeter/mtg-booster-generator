@@ -64,10 +64,17 @@ interface Move {
  * never from whose turn it is or what that seat already holds. That is what
  * makes the order-independence test meaningful: the strategy cannot smuggle
  * the schedule in through the choice.
+ *
+ * A seat holding three packs has one legal move, not three: only the pack
+ * that has waited longest may be picked from. What the schedulers below
+ * still vary, and what order independence is really about, is *who* moves
+ * next — not which of their own packs they reach for.
  */
 const legalMoves = (s: DraftState): Move[] =>
   s.packs.flatMap((p) =>
-    p.holder === null || p.remaining.length === 0
+    p.holder === null ||
+    p.remaining.length === 0 ||
+    queueFor(s, p.holder)[0].id !== p.id
       ? []
       : [
           {
@@ -77,6 +84,18 @@ const legalMoves = (s: DraftState): Move[] =>
           },
         ],
   );
+
+/** Take a turn's worth from the front of a seat's queue — its only move. */
+const pickFront = (s: DraftState, seat: number): DraftState => {
+  const pack = queueFor(s, seat)[0];
+  const res = applyPick(s, {
+    seat,
+    packId: pack.id,
+    cards: pack.remaining.slice(0, takeCount(s.rules, pack)),
+  });
+  if (!res.ok) throw new Error(res.reason);
+  return res.state;
+};
 
 type Scheduler = (moves: Move[]) => Move;
 
@@ -271,16 +290,16 @@ describe("picking", () => {
   it("retires a pack rather than passing an empty one", () => {
     let s = dealt();
     const mine = queueFor(s, 0)[0];
-    for (const seat of [0, 1]) {
-      const pack = s.packs.find((p) => p.id === mine.id)!;
-      const res = applyPick(s, {
-        seat,
-        packId: pack.id,
-        cards: [pack.remaining[0]],
-      });
-      if (!res.ok) throw new Error(res.reason);
-      s = res.state;
-    }
+
+    /*
+     * Three picks, not two. When seat 0's pack reaches seat 1 it queues
+     * behind seat 1's own, and only the front of a queue may be picked from
+     * — so seat 1 clears its own before it can empty this one.
+     */
+    s = pickFront(s, 0);
+    s = pickFront(s, 1);
+    s = pickFront(s, 1);
+
     const spent = s.packs.find((p) => p.id === mine.id)!;
     expect(spent.remaining).toEqual([]);
     expect(spent.holder).toBeNull();
@@ -384,6 +403,12 @@ describe("two picks a turn", () => {
     if (!first.ok) throw new Error(first.reason);
     s = first.state;
 
+    /*
+     * Seat 1 has to clear its own pack first: the one arriving from seat 0 is
+     * queued behind it, and a queued pack may not be picked from.
+     */
+    s = pickFront(s, 1);
+
     /* One card left, so the turn is one card and asking for two is refused. */
     const rest = s.packs.find((p) => p.id === mine.id)!;
     expect(takeCount(r, rest)).toBe(1);
@@ -436,35 +461,24 @@ describe("rounds", () => {
       seededRng(5),
     );
 
-    /* Empty one of the two round-1 packs completely. */
+    /*
+     * Empty one of the two round-1 packs completely. Three picks: seat 1
+     * clears its own pack before the one arriving from seat 0 reaches the
+     * front of its queue.
+     */
     const first = queueFor(s, 0)[0].id;
-    for (const seat of [0, 1]) {
-      const pack = s.packs.find((p) => p.id === first)!;
-      const res = applyPick(s, {
-        seat,
-        packId: pack.id,
-        cards: [pack.remaining[0]],
-      });
-      if (!res.ok) throw new Error(res.reason);
-      s = res.state;
-    }
+    s = pickFront(s, 0);
+    s = pickFront(s, 1);
+    s = pickFront(s, 1);
+    expect(s.packs.find((p) => p.id === first)!.remaining).toEqual([]);
     expect(s.round).toBe(1);
     expect(
       s.packs.filter((p) => p.round === 2).every((p) => p.holder === null),
     ).toBe(true);
 
-    /* Now the other one, which is the last of the round. */
-    const second = s.packs.find((p) => p.round === 1 && p.remaining.length)!.id;
-    for (const seat of [1, 0]) {
-      const pack = s.packs.find((p) => p.id === second)!;
-      const res = applyPick(s, {
-        seat,
-        packId: pack.id,
-        cards: [pack.remaining[0]],
-      });
-      if (!res.ok) throw new Error(res.reason);
-      s = res.state;
-    }
+    /* Now the other one, which is the last of the round and sits with 0. */
+    s = pickFront(s, 0);
+    expect(s.packs.filter((p) => p.round === 1).every((q) => !q.remaining.length)).toBe(true);
     expect(s.round).toBe(2);
     const opened = s.packs.filter((p) => p.round === 2);
     expect(opened.every((p) => p.holder === p.openedBy)).toBe(true);
@@ -481,7 +495,7 @@ describe("rounds", () => {
 });
 
 describe("the board", () => {
-  it("queues a seat's packs oldest first, and lets it pick from any of them", () => {
+  it("queues a seat's packs oldest first, and only lets it pick from the front", () => {
     /*
      * A queue needs three seats. Passing left, a seat hands its pack to the
      * seat above and receives from the seat below, so with two seats the packs
@@ -513,12 +527,35 @@ describe("the board", () => {
     expect(queue.map((p) => p.id)).toEqual([own, handed.id]);
     expect(queue.map((p) => p.arrived)).toEqual([0, 1]);
 
-    /* The newer one is pickable, not just the one that has waited longest. */
+    /*
+     * The newer one is refused, and refused with the answer a pack sitting
+     * with somebody else gets. That sameness is the point: the cards in a
+     * queued pack are withheld, so a refusal must not confirm a guess at
+     * them. A card that really is in it and a card that is not get the same
+     * two words back.
+     */
+    const same = { ok: false, reason: "not-your-pack" };
     expect(
       applyPick(res.state, {
         seat: 1,
         packId: handed.id,
         cards: [queue[1].remaining[0]],
+      }),
+    ).toEqual(same);
+    expect(
+      applyPick(res.state, {
+        seat: 1,
+        packId: handed.id,
+        cards: ["no-such-card"],
+      }),
+    ).toEqual(same);
+
+    /* The one that has waited longest goes through. */
+    expect(
+      applyPick(res.state, {
+        seat: 1,
+        packId: own,
+        cards: [queue[0].remaining[0]],
       }).ok,
     ).toBe(true);
   });
